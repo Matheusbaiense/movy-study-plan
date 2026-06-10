@@ -164,10 +164,10 @@ export default async function DepartmentPage({ params }: Props) {
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
             <Link href={`/${locale}/wiki?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
-              → {locale === 'pt' ? 'Ver na wiki' : 'View in wiki'}
+              {'->'} {locale === 'pt' ? 'Ver nas informacoes' : 'View knowledge'}
             </Link>
             <Link href={`/${locale}/search?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', fontWeight: 500 }}>
-              → {locale === 'pt' ? 'Buscar neste dept' : 'Search this dept'}
+              {'->'} {locale === 'pt' ? 'Buscar nesta area' : 'Search this area'}
             </Link>
           </div>
         </div>

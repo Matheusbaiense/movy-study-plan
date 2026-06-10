@@ -27,7 +27,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
     .order('is_featured', { ascending: false })
     .order('updated_at', { ascending: false })
 
-  if (!isEditorOrAbove(profile.role)) {
+  if (!isEditorOrAbove(profile.role) || !status) {
     query = query.eq('status', 'published')
   } else if (status) {
     query = query.eq('status', status as 'draft' | 'published' | 'archived')
@@ -74,8 +74,10 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>Movy Knowledge Base</div>
-          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>Wiki</h1>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>Movy Internal Hub</div>
+          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>
+            {locale === 'en' ? 'Knowledge Base' : 'Informacoes da Beatriz'}
+          </h1>
           <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'} &middot;{' '}
             3 {locale === 'pt' ? 'idiomas' : locale === 'es' ? 'idiomas' : 'languages'}
@@ -92,7 +94,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             }}
           >
             <PlusIcon />
-            {locale === 'pt' ? 'Novo conteúdo' : locale === 'es' ? 'Nuevo contenido' : 'New content'}
+            {locale === 'pt' ? 'Novo conteudo' : locale === 'es' ? 'Nuevo contenido' : 'New content'}
           </Link>
         )}
       </div>
@@ -108,7 +110,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             <input
               name="search"
               defaultValue={search}
-              placeholder={locale === 'pt' ? 'Pesquisar processos...' : locale === 'es' ? 'Buscar procesos...' : 'Search processes...'}
+              placeholder={locale === 'pt' ? 'Pesquisar informacoes...' : locale === 'es' ? 'Buscar informacion...' : 'Search knowledge...'}
               style={{
                 flex: 1, border: 'none', outline: 'none', fontSize: 15,
                 color: '#2A1153', background: 'transparent', fontFamily: 'Outfit, system-ui, sans-serif',

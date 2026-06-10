@@ -115,7 +115,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
         </Link>
         <ChevronIcon />
         <Link href={`/${locale}/wiki`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
-          Wiki
+          {locale === 'en' ? 'Knowledge' : 'Informacoes'}
         </Link>
         <ChevronIcon />
         <span style={{ color: '#2A1153', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>{title}</span>
@@ -223,7 +223,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
               {locale === 'pt' ? 'Idiomas disponíveis' : 'Available languages'}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {([['pt', 'Português'], ['en', 'English'], ['es', 'Español']] as const).map(([code, label]) => (
+              {([['pt', 'Portugues'], ['en', 'English'], ['es', 'Español']] as const).map(([code, label]) => (
                 <div key={code} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '8px 10px', borderRadius: 8,
@@ -281,7 +281,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
               }}
             >
               <BackIcon />
-              {locale === 'pt' ? 'Voltar ao Wiki' : locale === 'es' ? 'Volver al Wiki' : 'Back to Wiki'}
+              {locale === 'pt' ? 'Voltar as informacoes' : locale === 'es' ? 'Volver a informaciones' : 'Back to knowledge'}
             </Link>
           </div>
         </div>

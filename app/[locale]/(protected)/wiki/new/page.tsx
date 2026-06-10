@@ -27,7 +27,7 @@ export default async function WikiNewPage({ params }: WikiNewPageProps) {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Novo artigo Wiki</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Nova informacao</h1>
         <p className="mt-1 text-sm text-slate-500">
           Documente um processo, guia ou conhecimento operacional da Movy.
         </p>

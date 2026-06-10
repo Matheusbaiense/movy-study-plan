@@ -101,3 +101,148 @@ body {
 .movy-spin {
   animation: movy-spin 0.8s linear infinite;
 }
+
+/* Imported Beatriz SOP content */
+.legacy-sop {
+  color: rgba(28, 18, 51, 0.84);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.legacy-sop img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(28, 18, 51, 0.08);
+  margin: 12px 0;
+}
+
+.legacy-sop table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 20px;
+  font-size: 13px;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid rgba(28, 18, 51, 0.08);
+}
+
+.legacy-sop th {
+  background: rgba(75, 26, 119, 0.08);
+  color: #2A1153;
+  font-weight: 800;
+  text-align: left;
+}
+
+.legacy-sop th,
+.legacy-sop td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(28, 18, 51, 0.07);
+  vertical-align: top;
+}
+
+.legacy-sop ul,
+.legacy-sop ol {
+  padding-left: 22px;
+  margin: 10px 0 16px;
+}
+
+.legacy-sop li {
+  margin: 5px 0;
+}
+
+.legacy-sop a {
+  color: #4B1A77;
+  text-decoration: underline;
+}
+
+.legacy-sop .box,
+.legacy-sop .tcard,
+.legacy-sop .pcard,
+.legacy-sop .icard,
+.legacy-sop .tc-card,
+.legacy-sop .fdb-card,
+.legacy-sop .fdb-rec,
+.legacy-sop .fdb-insight,
+.legacy-sop .atd-kpi,
+.legacy-sop .atd-motivos-card {
+  border: 1px solid rgba(28, 18, 51, 0.08);
+  border-left: 4px solid #4B1A77;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.legacy-sop .warn,
+.legacy-sop .alert {
+  border-left-color: #D23B2B;
+  background: rgba(210, 59, 43, 0.06);
+}
+
+.legacy-sop .tip,
+.legacy-sop .info {
+  border-left-color: #F36B1C;
+  background: rgba(243, 107, 28, 0.06);
+}
+
+.legacy-sop .sh,
+.legacy-sop .fdb-sh,
+.legacy-sop .atd-chart-title {
+  margin: 18px 0 8px;
+  font-family: Outfit, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4B1A77;
+}
+
+.legacy-sop .step,
+.legacy-sop .ci,
+.legacy-sop .fdb-nps-row,
+.legacy-sop .atd-bar-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(28, 18, 51, 0.06);
+}
+
+.legacy-sop .step-n,
+.legacy-sop .cb {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(75, 26, 119, 0.1);
+  color: #4B1A77;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.legacy-sop .cb {
+  border: 1px solid rgba(75, 26, 119, 0.28);
+  background: #fff;
+}
+
+.legacy-sop .step-t,
+.legacy-sop .ct,
+.legacy-sop .tcard-lbl,
+.legacy-sop .fdb-card-name,
+.legacy-sop .fdb-rec-ttl {
+  font-weight: 800;
+  color: #2A1153;
+}
+
+.legacy-sop .step-note,
+.legacy-sop .cn,
+.legacy-sop .mut,
+.legacy-sop .fdb-card-meta,
+.legacy-sop .fdb-rec-desc {
+  color: rgba(28, 18, 51, 0.58);
+  font-size: 12px;
+}

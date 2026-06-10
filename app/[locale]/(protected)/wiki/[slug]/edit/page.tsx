@@ -37,9 +37,9 @@ export default async function WikiEditPage({ params }: WikiEditPageProps) {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Editar artigo</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Editar informacao</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Atualize o conteúdo deste artigo.
+          Atualize o conteudo desta informacao.
         </p>
       </div>
 

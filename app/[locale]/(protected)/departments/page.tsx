@@ -17,14 +17,14 @@ export default async function DepartmentsPage({ params }: DepartmentsPageProps) 
           Movy Internal Hub
         </div>
         <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>
-          {locale === 'pt' ? 'Departamentos' : locale === 'es' ? 'Departamentos' : 'Departments'}
+          {locale === 'en' ? 'Beatriz Areas' : 'Areas da Beatriz'}
         </h1>
         <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.62)', maxWidth: 620, lineHeight: 1.5 }}>
           {locale === 'pt'
-            ? 'Acesse processos, documentos e atalhos por area operacional.'
+            ? 'Acesse os processos e documentos importados do material da Beatriz, ja rebrandados para Movy.'
             : locale === 'es'
-              ? 'Accede a procesos, documentos y accesos por area operativa.'
-              : 'Access processes, documents and shortcuts by operating area.'}
+              ? 'Accede a los procesos y documentos importados del material de Beatriz, ya adaptados para Movy.'
+              : 'Access the processes and documents imported from Beatriz material, already adapted for Movy.'}
         </p>
       </div>
 

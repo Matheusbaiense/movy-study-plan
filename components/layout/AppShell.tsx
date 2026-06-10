@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { isAdminOrAbove, isEditorOrAbove } from '@/lib/permissions/can'
+import { isAdminOrAbove } from '@/lib/permissions/can'
 import { DEPARTMENTS, DEPT_COLORS, getDeptName } from '@/lib/constants/departments'
 import type { Profile } from '@/lib/auth/get-user'
 
@@ -46,18 +46,16 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const roleColor = ROLE_COLORS[profile.role] ?? '#2A1153'
 
   const mainNav = [
-    { href: `/${locale}/home`, icon: 'home', label: locale === 'pt' ? 'Início' : locale === 'es' ? 'Inicio' : 'Home' },
-    { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'pt' ? 'Cotações' : locale === 'es' ? 'Cotizaciones' : 'Quotes' },
-    { href: `/${locale}/search`, icon: 'search', label: locale === 'pt' ? 'Busca' : locale === 'es' ? 'Búsqueda' : 'Search' },
-    { href: `/${locale}/wiki`, icon: 'book', label: 'Wiki' },
-    { href: `/${locale}/campaigns`, icon: 'megaphone', label: locale === 'pt' ? 'Campanhas' : locale === 'es' ? 'Campañas' : 'Campaigns' },
+    { href: `/${locale}/home`, icon: 'home', label: 'Inicio' },
+    { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
+    { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informacoes' },
   ]
 
   const adminNav = isAdminOrAbove(profile.role)
     ? [
-        { href: `/${locale}/settings/users`, icon: 'users', label: locale === 'pt' ? 'Usuários' : 'Users' },
+        { href: `/${locale}/settings/users`, icon: 'users', label: locale === 'pt' ? 'Usuarios' : 'Users' },
         { href: `/${locale}/settings/audit-log`, icon: 'log', label: 'Audit Log' },
-        { href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configurações' : 'Settings' },
+        { href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configuracoes' : 'Settings' },
       ]
     : []
 
@@ -94,14 +92,14 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       >
         <SearchIcon />
         <span style={{ flex: 1, textAlign: 'left' }}>
-          {locale === 'pt' ? 'Pesquisar…' : 'Search…'}
+          {locale === 'pt' ? 'Pesquisar informacoes...' : 'Search knowledge...'}
         </span>
         <kbd style={{
           fontSize: 10, padding: '1px 5px', borderRadius: 4,
           background: 'rgba(249,249,249,0.08)',
           fontFamily: 'ui-monospace, monospace',
           color: 'rgba(249,249,249,0.6)',
-        }}>⌘K</kbd>
+        }}>Ctrl K</kbd>
       </button>
 
       {/* Main nav */}
@@ -119,7 +117,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       </NavGroup>
 
       {/* Departments */}
-      <NavGroup label={locale === 'pt' ? 'Departamentos' : locale === 'es' ? 'Departamentos' : 'Departments'}>
+      <NavGroup label={locale === 'en' ? 'Beatriz Areas' : 'Areas da Beatriz'}>
         {DEPARTMENTS.map((dept) => (
           <NavItemDept
             key={dept.slug}
@@ -399,22 +397,22 @@ function NavItemDept({ href, label, color, active, onClick }: {
 
 function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: string }) {
   const segments = pathname.replace(`/${locale}`, '').split('/').filter(Boolean)
-  const homeLabel = locale === 'pt' ? 'Início' : locale === 'es' ? 'Inicio' : 'Home'
+  const homeLabel = locale === 'en' ? 'Home' : 'Inicio'
   const items = [{ label: homeLabel, href: `/${locale}/home` }]
 
   const labelMap: Record<string, string> = {
     home: homeLabel,
     dashboard: homeLabel,
-    search: locale === 'pt' ? 'Busca' : locale === 'es' ? 'Búsqueda' : 'Search',
-    departments: locale === 'pt' ? 'Departamentos' : locale === 'es' ? 'Departamentos' : 'Departments',
+    search: locale === 'en' ? 'Search' : 'Busca',
+    departments: locale === 'en' ? 'Areas' : 'Areas',
     settings: 'Settings',
-    wiki: 'Wiki',
-    users: locale === 'pt' ? 'Usuários' : 'Users',
+    wiki: locale === 'en' ? 'Knowledge' : 'Informacoes',
+    users: locale === 'pt' ? 'Usuarios' : 'Users',
     'audit-log': 'Audit Log',
   }
 
   if (segments[0] === 'wiki') {
-    items.push({ label: 'Wiki', href: `/${locale}/wiki` })
+    items.push({ label: labelMap.wiki, href: `/${locale}/wiki` })
     if (segments[1] && segments[1] !== 'new') {
       items.push({ label: segments[1], href: `/${locale}/wiki/${segments[1]}` })
     } else if (segments[1] === 'new') {

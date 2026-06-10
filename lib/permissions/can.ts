@@ -36,7 +36,6 @@ export function can(role: Role, action: string): boolean {
     'delete:study_plans': 'admin',
     'manage:users': 'admin',
     'view:audit': 'admin',
-    'manage:campaigns': 'editor',
     'manage:super_admin': 'super_admin',
   }
 

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
-import { isAdminOrAbove } from '@/lib/permissions/can'
 import { DEPARTMENTS, getDeptName } from '@/lib/constants/departments'
 import type { Tables } from '@/types/supabase'
 
@@ -20,9 +19,8 @@ type SearchContent = Pick<
 export default async function SearchPage({ params, searchParams }: Props) {
   const { locale } = await params
   const { q, dept, type } = await searchParams
-  const { profile } = await getUser(locale)
+  await getUser(locale)
   const supabase = await createClient()
-  const isAdmin = isAdminOrAbove(profile.role)
 
   let query = supabase
     .from('contents')
@@ -30,7 +28,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
     .order('updated_at', { ascending: false })
     .limit(40)
 
-  if (!isAdmin) query = query.eq('status', 'published')
+  query = query.eq('status', 'published')
 
   if (dept) {
     const { data: deptRow } = await supabase
@@ -80,7 +78,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   return (
     <div style={{ maxWidth: 800 }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2A1153', marginBottom: 20 }}>
-        {locale === 'pt' ? 'Busca' : locale === 'es' ? 'Busqueda' : 'Search'}
+        {locale === 'pt' ? 'Busca de informacoes' : locale === 'es' ? 'Busqueda de informacion' : 'Knowledge search'}
       </h1>
 
       <form method="GET" style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
@@ -109,7 +107,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
               fontFamily: 'Outfit, sans-serif', background: '#fff', color: '#2A1153',
             }}
           >
-            <option value="">{locale === 'pt' ? 'Todos os departamentos' : 'All departments'}</option>
+            <option value="">{locale === 'pt' ? 'Todas as areas' : 'All areas'}</option>
             {DEPT_OPTIONS.map((d) => <option key={d.slug} value={d.slug}>{d.label}</option>)}
           </select>
           <select
@@ -169,9 +167,6 @@ export default async function SearchPage({ params, searchParams }: Props) {
                 }}>
                   {item.content_type}
                 </span>
-              )}
-              {isAdmin && item.status !== 'published' && (
-                <span style={{ fontSize: 11, color: '#D23B2B' }}>{item.status}</span>
               )}
             </div>
             <div style={{
