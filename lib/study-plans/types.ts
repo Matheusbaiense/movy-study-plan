@@ -1,8 +1,8 @@
 export type CourseType = 'elicos' | 'vet' | 'he'
 export type SegmentKind = 'study' | 'holiday'
-export type ApplicantType = 'Individual' | 'Casal' | 'Família' | 'Single Parent'
+export type ApplicantType = 'Individual' | 'Casal' | 'Familia' | 'Single Parent'
 export type StudentLocation = 'onshore' | 'offshore'
-export type Timetable = 'Manhã' | 'Tarde' | 'Noite'
+export type Timetable = 'Manha' | 'Tarde' | 'Noite'
 
 export interface CourseSegment {
   id: string
@@ -11,9 +11,6 @@ export interface CourseSegment {
   weeks: number
 }
 
-// ELICOS sub-module (e.g. General English, Cambridge, IELTS, EAP).
-// The ELICOS course keeps a single enrolment + material; each module
-// carries its own per-week rate and number of weeks. Tuition = Σ(weeks × rate).
 export interface ElicosModule {
   id: string
   name: string
@@ -39,10 +36,11 @@ export interface StudyCourse {
   paymentParts: number
   paymentFrequency: string
   segments: CourseSegment[]
-  // Optional (backward compatible with stored plans):
-  modules?: ElicosModule[]            // ELICOS only: per-module rate + weeks
-  gapBeforeWeeks?: number             // transition holiday before this course (max 8, except fixed public-uni intakes)
-  paymentCadenceDays?: number         // 7 | 30 | 45 | 90 | 120 — interval between installments
+  modules?: ElicosModule[]
+  studyWeeksBeforeHoliday?: number
+  holidayWeeks?: number
+  gapBeforeWeeks?: number
+  paymentCadenceDays?: number
 }
 
 export interface ExtraCost {
@@ -70,8 +68,6 @@ export interface StudyPlanData {
   extraCosts: ExtraCost[]
   payments: PaymentItem[]
   notes: string
-  // Optional (backward compatible). Offshore students cannot pay ELICOS in
-  // installments unless studying 25+ weeks — otherwise school costs are upfront.
   studentLocation?: StudentLocation
 }
 

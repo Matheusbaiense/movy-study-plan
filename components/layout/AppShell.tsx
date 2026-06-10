@@ -48,6 +48,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const mainNav = [
     { href: `/${locale}/home`, icon: 'home', label: 'Inicio' },
     { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
+    { href: `/${locale}/financial`, icon: 'calc', label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
     { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informacoes' },
   ]
 
@@ -483,6 +484,7 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
     quote: <><path d="M5 5h14v14H5z" {...s} /><path d="M8 9h8M8 13h5M15 16l1.5 1.5L20 14" {...s} /></>,
     search: <><circle cx="11" cy="11" r="6" {...s} /><path d="M20 20l-4-4" {...s} /></>,
     book: <><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" {...s} /><path d="M4 17a3 3 0 0 1 3-3h11" {...s} /></>,
+    calc: <><rect x="5" y="3" width="14" height="18" rx="2" {...s} /><path d="M8 7h8M8 11h8M8 15h8" {...s} /></>,
     megaphone: <><path d="M3 10v4l11 5V5L3 10z" {...s} /><path d="M14 8a4 4 0 0 1 0 8" {...s} /></>,
     users: <><circle cx="9" cy="8" r="3.5" {...s} /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" {...s} /><circle cx="17" cy="9" r="2.5" {...s} /><path d="M15 20c0-2.5 2-4.5 4.5-4.5" {...s} /></>,
     log: <><path d="M5 4h11l3 3v13H5z" {...s} /><path d="M8 9h8M8 13h8M8 17h5" {...s} /></>,

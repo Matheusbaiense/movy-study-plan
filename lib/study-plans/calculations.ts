@@ -38,6 +38,26 @@ export function elicosModuleTuition(course: StudyCourse) {
   return (course.modules ?? []).reduce((total, m) => total + weeks(m.weeks) * number(m.ratePerWeek), 0)
 }
 
+export function elicosTuitionForWeeks(course: StudyCourse, requestedWeeks: number) {
+  const limit = Math.max(0, weeks(requestedWeeks))
+  if (limit === 0) return 0
+
+  if (!course.modules || course.modules.length === 0) {
+    return Math.min(courseStudyWeeks(course), limit) * number(course.ratePerWeek)
+  }
+
+  let remaining = limit
+  let total = 0
+  for (const elicosModule of course.modules) {
+    if (remaining <= 0) break
+    const moduleWeeks = weeks(elicosModule.weeks)
+    const paidWeeks = Math.min(moduleWeeks, remaining)
+    total += paidWeeks * number(elicosModule.ratePerWeek)
+    remaining -= paidWeeks
+  }
+  return total
+}
+
 export function courseTuition(course: StudyCourse) {
   if (course.type === 'elicos') {
     // Per-module rates take precedence; fall back to the single ratePerWeek.
@@ -60,7 +80,7 @@ export function courseTotal(course: StudyCourse) {
 export function courseDeposit(course: StudyCourse) {
   if (course.type === 'elicos') {
     const depositWeeks = Math.min(courseStudyWeeks(course), weeks(course.depositWeeks))
-    return number(course.enrolmentFee) + courseMaterial(course) + depositWeeks * number(course.ratePerWeek)
+    return number(course.enrolmentFee) + courseMaterial(course) + elicosTuitionForWeeks(course, depositWeeks)
   }
 
   return number(course.enrolmentFee) + courseMaterial(course)

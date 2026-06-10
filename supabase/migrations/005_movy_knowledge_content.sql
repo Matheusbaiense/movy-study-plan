@@ -1,12 +1,12 @@
--- Movy Internal Hub - Beatriz SOP content import.
--- Generated from FYME_SOP_Site (21).html. Rebranded from FYME to Movy.
+-- Movy Internal Hub - Movy SOP content import.
+-- Generated from legacy-sop-site.html. Rebranded from Movy to Movy.
 
 insert into public.departments (
   slug, name_pt, name_en, name_es, color, icon, is_active,
   description_pt, description_en, description_es
 )
 values
-  ($movy$visao-geral$movy$, $movy$Visao Geral$movy$, $movy$Visao Geral$movy$, $movy$Visao Geral$movy$, $movy$#4B1A77$movy$, null, true, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela Beatriz.$movy$, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela Beatriz.$movy$, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela Beatriz.$movy$),
+  ($movy$visao-geral$movy$, $movy$Visao Geral$movy$, $movy$Visao Geral$movy$, $movy$Visao Geral$movy$, $movy$#4B1A77$movy$, null, true, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela equipe Movy.$movy$, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela equipe Movy.$movy$, $movy$Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela equipe Movy.$movy$),
   ($movy$captacao-vendas$movy$, $movy$Captacao & Vendas$movy$, $movy$Captacao & Vendas$movy$, $movy$Captacao & Vendas$movy$, $movy$#F36B1C$movy$, null, true, $movy$Primeiro contato, qualificacao, proposta, admissoes e timeline comercial.$movy$, $movy$Primeiro contato, qualificacao, proposta, admissoes e timeline comercial.$movy$, $movy$Primeiro contato, qualificacao, proposta, admissoes e timeline comercial.$movy$),
   ($movy$vistos$movy$, $movy$Vistos$movy$, $movy$Vistos$movy$, $movy$Vistos$movy$, $movy$#FBB615$movy$, null, true, $movy$Processos de visto Subclass 500, documentacao, GS, aplicacao e formularios.$movy$, $movy$Processos de visto Subclass 500, documentacao, GS, aplicacao e formularios.$movy$, $movy$Processos de visto Subclass 500, documentacao, GS, aplicacao e formularios.$movy$),
   ($movy$nomenclaturas$movy$, $movy$Nomenclaturas$movy$, $movy$Nomenclaturas$movy$, $movy$Nomenclaturas$movy$, $movy$#5A4E72$movy$, null, true, $movy$Padroes de nomenclatura e organizacao de documentos no Drive.$movy$, $movy$Padroes de nomenclatura e organizacao de documentos no Drive.$movy$, $movy$Padroes de nomenclatura e organizacao de documentos no Drive.$movy$),
@@ -34,22 +34,22 @@ where slug <> all (ARRAY[$movy$visao-geral$movy$, $movy$captacao-vendas$movy$, $
 update public.contents
 set status = 'archived'::public.content_status,
     updated_at = now()
-where slug not like 'beatriz-%';
+where slug not like 'knowledge-%';
 
 insert into public.contents (
   slug, title_pt, title_en, title_es, body_pt, summary, department_id, status,
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-visao-geral-organograma$movy$,
+  $movy$knowledge-visao-geral-organograma$movy$,
   $movy$Organograma$movy$,
   $movy$Organograma$movy$,
   $movy$Organograma$movy$,
-  $movy$<div class="legacy-sop"><div><img src="/api/imported/beatriz-sop-image-1.png" alt="Organograma Movy"></div></div>$movy$,
+  $movy$<div class="legacy-sop"><div><img src="/api/imported/knowledge-sop-image-1.png" alt="Organograma Movy"></div></div>$movy$,
   $movy$Estrutura da equipe Movy Student Services$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
   $movy$process$movy$,
   $movy$Visao Geral$movy$,
   'internal',
@@ -80,7 +80,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-visao-geral-sobre-a-movy$movy$,
+  $movy$knowledge-visao-geral-sobre-a-movy$movy$,
   $movy$Sobre a Movy$movy$,
   $movy$Sobre a Movy$movy$,
   $movy$Sobre a Movy$movy$,
@@ -88,7 +88,7 @@ select
   $movy$Fundação · Missão · Visão · Valores · Pilares · Serviços · Ferramentas internas$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
   $movy$process$movy$,
   $movy$Visao Geral$movy$,
   'internal',
@@ -119,7 +119,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-visao-geral-perfis-de-cliente$movy$,
+  $movy$knowledge-visao-geral-perfis-de-cliente$movy$,
   $movy$Perfis de Cliente$movy$,
   $movy$Perfis de Cliente$movy$,
   $movy$Perfis de Cliente$movy$,
@@ -127,7 +127,7 @@ select
   $movy$Identifique o perfil antes de iniciar — a jornada difere conforme a situação$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
   $movy$process$movy$,
   $movy$Visao Geral$movy$,
   'internal',
@@ -158,7 +158,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-visao-geral-pre-captacao-passiva$movy$,
+  $movy$knowledge-visao-geral-pre-captacao-passiva$movy$,
   $movy$Pré-Captação Passiva$movy$,
   $movy$Pré-Captação Passiva$movy$,
   $movy$Pré-Captação Passiva$movy$,
@@ -166,7 +166,7 @@ select
   $movy$Canais de entrada — como a Movy é encontrada$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$visao-geral$movy$]::text[],
   $movy$process$movy$,
   $movy$Visao Geral$movy$,
   'internal',
@@ -197,15 +197,15 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-captacao-vendas-captacao-primeiro-contato$movy$,
+  $movy$knowledge-captacao-vendas-captacao-primeiro-contato$movy$,
   $movy$Captação & Primeiro Contato$movy$,
   $movy$Captação & Primeiro Contato$movy$,
   $movy$Captação & Primeiro Contato$movy$,
-  $movy$<div class="legacy-sop"><div class="sh t">Opção A — Resposta direta e objetiva</div><div class="tcard"><div class="tcard-head t"><div class="tcard-lbl t">Opção A — Coleta rápida de dados</div></div><div class="tcard-body">Obrigada por entrar em contato com a gente! Você pode nos enviar seu nome completo, e-mail e telefone por favor? Queremos personalizar essa experiência para você!</div></div><div class="sh o">Opção B — Apresentação completa + agendamento</div><div class="tcard"><div class="tcard-head o"><div class="tcard-lbl o">Opção B — Apresentação + agendamento</div></div><div class="tcard-body">Olá! Obrigado por entrar em contato conosco! Se esta é sua primeira vez nos contatando, gostaríamos de tornar sua experiência ainda mais personalizada. Por favor, nos forneça seu nome completo, e-mail e telefone. Estamos aqui para ajudar! Lembrando que nosso horário de funcionamento é das 9h às 17h, horário da Austrália. Entraremos em contato o mais breve possível. Além disso, que tal agendar um bate-papo personalizado com um de nossos consultores especializados? Basta clicar no link abaixo e escolher o horário que melhor se adequa a você. <strong>[LINK DE AGENDAMENTO DO CONSULTOR]</strong></div></div><div class="sh n">Perguntas adicionais de qualificação</div><div class="cl"><div class="ci"><div class="cb"></div><div class="ct">Onde você mora atualmente?</div></div><div class="ci"><div class="cb"></div><div class="ct">Você tem um destino específico em mente ou está aberto a diferentes opções?</div></div><div class="ci"><div class="cb"></div><div class="ct">Qual é o período de tempo que você pretende passar no exterior?</div></div><div class="ci"><div class="cb"></div><div class="ct">Qual é o seu nível de inglês?</div></div></div><div class="sh t">Links de agendamento por consultor</div><table class="tbl"><thead><tr><th>Consultor</th><th>Link</th></tr></thead><tbody><tr><td><strong>Marcos</strong></td><td><a href="https://movy.as.me/Marcos">movy.as.me/Marcos</a></td></tr><tr><td><strong>Beatrice</strong></td><td><a href="https://movy.as.me/Beatrice">movy.as.me/Beatrice</a></td></tr><tr><td><strong>Mariana</strong></td><td><a href="https://movy.as.me/Mariana">movy.as.me/Mariana</a></td></tr><tr><td><strong>Matheus</strong></td><td><a href="https://movy.as.me/Matheus">movy.as.me/Matheus</a></td></tr><tr><td>Visa (geral)</td><td><a href="https://movy.as.me/Visa">movy.as.me/Visa</a></td></tr></tbody></table></div>$movy$,
+  $movy$<div class="legacy-sop"><div class="sh t">Opção A — Resposta direta e objetiva</div><div class="tcard"><div class="tcard-head t"><div class="tcard-lbl t">Opção A — Coleta rápida de dados</div></div><div class="tcard-body">Obrigada por entrar em contato com a gente! Você pode nos enviar seu nome completo, e-mail e telefone por favor? Queremos personalizar essa experiência para você!</div></div><div class="sh o">Opção B — Apresentação completa + agendamento</div><div class="tcard"><div class="tcard-head o"><div class="tcard-lbl o">Opção B — Apresentação + agendamento</div></div><div class="tcard-body">Olá! Obrigado por entrar em contato conosco! Se esta é sua primeira vez nos contatando, gostaríamos de tornar sua experiência ainda mais personalizada. Por favor, nos forneça seu nome completo, e-mail e telefone. Estamos aqui para ajudar! Lembrando que nosso horário de funcionamento é das 9h às 17h, horário da Austrália. Entraremos em contato o mais breve possível. Além disso, que tal agendar um bate-papo personalizado com um de nossos consultores especializados? Basta clicar no link abaixo e escolher o horário que melhor se adequa a você. <strong>[LINK DE AGENDAMENTO DO CONSULTOR]</strong></div></div><div class="sh n">Perguntas adicionais de qualificação</div><div class="cl"><div class="ci"><div class="cb"></div><div class="ct">Onde você mora atualmente?</div></div><div class="ci"><div class="cb"></div><div class="ct">Você tem um destino específico em mente ou está aberto a diferentes opções?</div></div><div class="ci"><div class="cb"></div><div class="ct">Qual é o período de tempo que você pretende passar no exterior?</div></div><div class="ci"><div class="cb"></div><div class="ct">Qual é o seu nível de inglês?</div></div></div><div class="sh t">Links de agendamento por consultor</div><table class="tbl"><thead><tr><th>Consultor</th><th>Link</th></tr></thead><tbody><tr><td><strong>Marcos</strong></td><td><a href="https://movy.as.me/Marcos">movy.as.me/Marcos</a></td></tr><tr><td><strong>Student Support</strong></td><td><a href="https://movy.as.me/Student Support">movy.as.me/Student Support</a></td></tr><tr><td><strong>Mariana</strong></td><td><a href="https://movy.as.me/Mariana">movy.as.me/Mariana</a></td></tr><tr><td><strong>Matheus</strong></td><td><a href="https://movy.as.me/Matheus">movy.as.me/Matheus</a></td></tr><tr><td>Visa (geral)</td><td><a href="https://movy.as.me/Visa">movy.as.me/Visa</a></td></tr></tbody></table></div>$movy$,
   $movy$Textos automáticos, qualificação e links de agendamento$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
   $movy$process$movy$,
   $movy$Captacao & Vendas$movy$,
   'internal',
@@ -236,7 +236,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-captacao-vendas-pos-captacao-vendas-consultoria-admissoes$movy$,
+  $movy$knowledge-captacao-vendas-pos-captacao-vendas-consultoria-admissoes$movy$,
   $movy$Pós-Captação + Vendas & Consultoria + Admissões$movy$,
   $movy$Pós-Captação + Vendas & Consultoria + Admissões$movy$,
   $movy$Pós-Captação + Vendas & Consultoria + Admissões$movy$,
@@ -244,7 +244,7 @@ select
   $movy$Do lead qualificado ao COE emitido$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
   $movy$process$movy$,
   $movy$Captacao & Vendas$movy$,
   'internal',
@@ -275,7 +275,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-captacao-vendas-recap-educational-consultancy-timeline$movy$,
+  $movy$knowledge-captacao-vendas-recap-educational-consultancy-timeline$movy$,
   $movy$Recap — Educational Consultancy Timeline$movy$,
   $movy$Recap — Educational Consultancy Timeline$movy$,
   $movy$Recap — Educational Consultancy Timeline$movy$,
@@ -283,7 +283,7 @@ select
   $movy$Visão consolidada do processo completo$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$captacao-vendas$movy$]::text[],
   $movy$checklist$movy$,
   $movy$Captacao & Vendas$movy$,
   'internal',
@@ -314,7 +314,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-vistos-departamento-de-vistos$movy$,
+  $movy$knowledge-vistos-departamento-de-vistos$movy$,
   $movy$Departamento de Vistos$movy$,
   $movy$Departamento de Vistos$movy$,
   $movy$Departamento de Vistos$movy$,
@@ -322,7 +322,7 @@ select
   $movy$Responsável: Julia · Aplicação Subclass 500$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$vistos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$vistos$movy$]::text[],
   $movy$process$movy$,
   $movy$Vistos$movy$,
   'internal',
@@ -353,7 +353,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-vistos-formularios-de-visto$movy$,
+  $movy$knowledge-vistos-formularios-de-visto$movy$,
   $movy$Formulários de Visto$movy$,
   $movy$Formulários de Visto$movy$,
   $movy$Formulários de Visto$movy$,
@@ -361,7 +361,7 @@ select
   $movy$Todos os formulários utilizados no processo de visto$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$vistos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$vistos$movy$]::text[],
   $movy$process$movy$,
   $movy$Vistos$movy$,
   'internal',
@@ -392,7 +392,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-visto-aprovado-e-agora$movy$,
+  $movy$knowledge-student-support-visto-aprovado-e-agora$movy$,
   $movy$Visto Aprovado — E Agora?$movy$,
   $movy$Visto Aprovado — E Agora?$movy$,
   $movy$Visto Aprovado — E Agora?$movy$,
@@ -400,7 +400,7 @@ select
   $movy$Consultor + Student Support agem em paralelo$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -431,7 +431,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-reuniao-de-pre-embarque$movy$,
+  $movy$knowledge-student-support-reuniao-de-pre-embarque$movy$,
   $movy$Reunião de Pré-Embarque$movy$,
   $movy$Reunião de Pré-Embarque$movy$,
   $movy$Reunião de Pré-Embarque$movy$,
@@ -439,7 +439,7 @@ select
   $movy$Online · 30–45 min · movy.as.me/pre-embarque · 4–8 sem. antes$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -470,7 +470,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-preparacao-final$movy$,
+  $movy$knowledge-student-support-preparacao-final$movy$,
   $movy$Preparação Final$movy$,
   $movy$Preparação Final$movy$,
   $movy$Preparação Final$movy$,
@@ -478,7 +478,7 @@ select
   $movy$1–2 semanas antes do embarque$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -509,7 +509,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-embarque-e-chegada-em-perth$movy$,
+  $movy$knowledge-student-support-embarque-e-chegada-em-perth$movy$,
   $movy$Embarque e Chegada em Perth$movy$,
   $movy$Embarque e Chegada em Perth$movy$,
   $movy$Embarque e Chegada em Perth$movy$,
@@ -517,7 +517,7 @@ select
   $movy$Dia do voo + primeiras 48h$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -548,7 +548,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-welcome-session-primeiros-passos$movy$,
+  $movy$knowledge-student-support-welcome-session-primeiros-passos$movy$,
   $movy$Welcome Session + Primeiros Passos$movy$,
   $movy$Welcome Session + Primeiros Passos$movy$,
   $movy$Welcome Session + Primeiros Passos$movy$,
@@ -556,7 +556,7 @@ select
   $movy$Primeira semana em Perth · movy.as.me/WELCOME$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -587,7 +587,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-processo-ongoing$movy$,
+  $movy$knowledge-student-support-processo-ongoing$movy$,
   $movy$Processo Ongoing$movy$,
   $movy$Processo Ongoing$movy$,
   $movy$Processo Ongoing$movy$,
@@ -595,7 +595,7 @@ select
   $movy$Suporte contínuo durante toda a estadia em Perth$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$process$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -626,7 +626,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-student-support-perguntas-frequentes$movy$,
+  $movy$knowledge-student-support-perguntas-frequentes$movy$,
   $movy$Perguntas Frequentes$movy$,
   $movy$Perguntas Frequentes$movy$,
   $movy$Perguntas Frequentes$movy$,
@@ -634,7 +634,7 @@ select
   $movy$Respostas padronizadas para as principais dúvidas dos alunos$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$student-support$movy$]::text[],
   $movy$faq$movy$,
   $movy$Student Support$movy$,
   'internal',
@@ -665,7 +665,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-withdrawal-refund$movy$,
+  $movy$knowledge-processos-ferramentas-withdrawal-refund$movy$,
   $movy$Withdrawal & Refund$movy$,
   $movy$Withdrawal & Refund$movy$,
   $movy$Withdrawal & Refund$movy$,
@@ -673,7 +673,7 @@ select
   $movy$Cancelamento de serviços ou reembolso$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -704,7 +704,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-cancelamento$movy$,
+  $movy$knowledge-processos-ferramentas-cancelamento$movy$,
   $movy$Cancelamento$movy$,
   $movy$Cancelamento$movy$,
   $movy$Cancelamento$movy$,
@@ -712,7 +712,7 @@ select
   $movy$Passo a passo quando o aluno solicita cancelamento$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -743,7 +743,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-change-of-course$movy$,
+  $movy$knowledge-processos-ferramentas-change-of-course$movy$,
   $movy$Change of Course$movy$,
   $movy$Change of Course$movy$,
   $movy$Change of Course$movy$,
@@ -751,7 +751,7 @@ select
   $movy$Processo quando o aluno quer trocar de curso$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -782,7 +782,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-attendance-progress-non-payment$movy$,
+  $movy$knowledge-processos-ferramentas-attendance-progress-non-payment$movy$,
   $movy$Attendance, Progress & Non-Payment$movy$,
   $movy$Attendance, Progress & Non-Payment$movy$,
   $movy$Attendance, Progress & Non-Payment$movy$,
@@ -790,7 +790,7 @@ select
   $movy$Quando a escola reporta problemas com o aluno$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -821,7 +821,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-jornada-onshore-renovacao-de-visto$movy$,
+  $movy$knowledge-processos-ferramentas-jornada-onshore-renovacao-de-visto$movy$,
   $movy$Jornada Onshore — Renovação de Visto$movy$,
   $movy$Jornada Onshore — Renovação de Visto$movy$,
   $movy$Jornada Onshore — Renovação de Visto$movy$,
@@ -829,7 +829,7 @@ select
   $movy$Para alunos já em Perth$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -860,7 +860,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-monday-automacao-labels$movy$,
+  $movy$knowledge-processos-ferramentas-monday-automacao-labels$movy$,
   $movy$Monday — Automação + Labels$movy$,
   $movy$Monday — Automação + Labels$movy$,
   $movy$Monday — Automação + Labels$movy$,
@@ -868,7 +868,7 @@ select
   $movy$Fluxo entre boards e guia de categorização$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -899,15 +899,15 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-board-de-welcome-student-support$movy$,
+  $movy$knowledge-processos-ferramentas-board-de-welcome-student-support$movy$,
   $movy$Board de Welcome — Student Support$movy$,
   $movy$Board de Welcome — Student Support$movy$,
   $movy$Board de Welcome — Student Support$movy$,
-  $movy$<div class="legacy-sop"><p class="body-t">Assim que o consultor atualiza o status para <strong>"Paid"</strong> no board de vendas, o e-mail studentsupport@movyeducation.com é notificado automaticamente. O Student Support então cria o card do aluno no Board de Welcome, espelhando informações dos boards de DATABASE e de VISTOS.</p><div class="box info"><strong>⚡ GATILHO</strong>Consultor marca "Paid" no board de vendas → e-mail automático para studentsupport@movyeducation.com → Student Support adiciona o aluno no Board de Welcome e preenche todas as colunas abaixo.</div><div class="sh t">Colunas do Board de Welcome — o que preencher</div><table class="tbl"><thead><tr><th>Coluna</th><th>O que registrar</th><th>Quando atualizar</th></tr></thead><tbody><tr><td>Controle de...</td><td>Nome e identificação do consultor responsável</td><td class="mut">Ao criar o card</td></tr><tr><td>Movy Visa A.</td><td>Agente de visto responsável</td><td class="mut">Ao criar o card</td></tr><tr><td>E-mail</td><td>E-mail do aluno</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>ON/OFF</strong></td><td>Perfil do aluno: OFFSHORE ou ONSHORE</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>Visa Status</strong></td><td>Approved / Applied / In Progress</td><td class="mut">Conforme avanço do processo</td></tr><tr><td>RENOVAÇÃO?</td><td>Sim ou Não — se é renovação de visto</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>Intake</strong></td><td>Data de início das aulas na escola</td><td class="mut">Ao criar — confirmar com Offer Letter</td></tr><tr><td><strong>INSTITUIÇÃO</strong></td><td>Nome da escola onde o aluno está matriculado</td><td class="mut">Ao criar o card</td></tr><tr><td>Cidade na Austrália</td><td>Perth ou outra cidade</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>VIDEO CHAMADA</strong></td><td>Data agendada da reunião de pré-embarque</td><td class="mut">Assim que o aluno agendar</td></tr><tr><td><strong>EMAIL PRÉ-EMBARQUE</strong></td><td>✔ se o e-mail de pré-embarque foi enviado</td><td class="mut">Após envio do e-mail</td></tr><tr><td><strong>PASSAGEM</strong></td><td>Data do voo do aluno</td><td class="mut">Assim que o aluno confirmar</td></tr><tr><td>Status Acomodação</td><td>Fechado / Em cotação / Não tem interesse</td><td class="mut">Durante acompanhamento</td></tr><tr><td>CONTRATO AC.</td><td>Status do contrato de acomodação</td><td class="mut">Quando aplicável</td></tr><tr><td>Status Transfer</td><td>Se o aluno precisa de transfer do aeroporto</td><td class="mut">Verificar durante pré-embarque</td></tr><tr><td>Status Seguro Vi.</td><td>Status do seguro de viagem (≠ OSHC)</td><td class="mut">Verificar durante pré-embarque</td></tr><tr><td><strong>CHEGADA NA AUS</strong></td><td>Data de chegada do aluno em Perth</td><td class="mut">Assim que o aluno confirmar chegada</td></tr><tr><td><strong>Link Agend. Welcome Enviado?</strong></td><td>✔ se o link da Welcome Session foi enviado</td><td class="mut">Após envio do link</td></tr><tr><td><strong>WELCOME NA AGENCIA</strong></td><td>Data em que o aluno fez a Welcome Session</td><td class="mut">Após realização da Welcome Session</td></tr><tr><td>SOLICITAÇÃO TFN</td><td>Status da solicitação do TFN</td><td class="mut">Verificar na Welcome Session e follow-up</td></tr></tbody></table><div class="sh t">Screenshot do Board de Welcome</div><div><img src="/api/imported/beatriz-sop-image-2.png" alt="Board de Welcome — Monday Student Support"></div><div class="box info"><strong>📊 GRUPOS DO BOARD</strong>O board é organizado por ano e status: NEW STUDENTS (novos em processo) · 2026 FUPS (alunos com intake 2026 acompanhados) · 2025 · 2024 · CANCELAMENTO · DUPLICIDADE.</div></div>$movy$,
+  $movy$<div class="legacy-sop"><p class="body-t">Assim que o consultor atualiza o status para <strong>"Paid"</strong> no board de vendas, o e-mail studentsupport@movyeducation.com é notificado automaticamente. O Student Support então cria o card do aluno no Board de Welcome, espelhando informações dos boards de DATABASE e de VISTOS.</p><div class="box info"><strong>⚡ GATILHO</strong>Consultor marca "Paid" no board de vendas → e-mail automático para studentsupport@movyeducation.com → Student Support adiciona o aluno no Board de Welcome e preenche todas as colunas abaixo.</div><div class="sh t">Colunas do Board de Welcome — o que preencher</div><table class="tbl"><thead><tr><th>Coluna</th><th>O que registrar</th><th>Quando atualizar</th></tr></thead><tbody><tr><td>Controle de...</td><td>Nome e identificação do consultor responsável</td><td class="mut">Ao criar o card</td></tr><tr><td>Movy Visa A.</td><td>Agente de visto responsável</td><td class="mut">Ao criar o card</td></tr><tr><td>E-mail</td><td>E-mail do aluno</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>ON/OFF</strong></td><td>Perfil do aluno: OFFSHORE ou ONSHORE</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>Visa Status</strong></td><td>Approved / Applied / In Progress</td><td class="mut">Conforme avanço do processo</td></tr><tr><td>RENOVAÇÃO?</td><td>Sim ou Não — se é renovação de visto</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>Intake</strong></td><td>Data de início das aulas na escola</td><td class="mut">Ao criar — confirmar com Offer Letter</td></tr><tr><td><strong>INSTITUIÇÃO</strong></td><td>Nome da escola onde o aluno está matriculado</td><td class="mut">Ao criar o card</td></tr><tr><td>Cidade na Austrália</td><td>Perth ou outra cidade</td><td class="mut">Ao criar o card</td></tr><tr><td><strong>VIDEO CHAMADA</strong></td><td>Data agendada da reunião de pré-embarque</td><td class="mut">Assim que o aluno agendar</td></tr><tr><td><strong>EMAIL PRÉ-EMBARQUE</strong></td><td>✔ se o e-mail de pré-embarque foi enviado</td><td class="mut">Após envio do e-mail</td></tr><tr><td><strong>PASSAGEM</strong></td><td>Data do voo do aluno</td><td class="mut">Assim que o aluno confirmar</td></tr><tr><td>Status Acomodação</td><td>Fechado / Em cotação / Não tem interesse</td><td class="mut">Durante acompanhamento</td></tr><tr><td>CONTRATO AC.</td><td>Status do contrato de acomodação</td><td class="mut">Quando aplicável</td></tr><tr><td>Status Transfer</td><td>Se o aluno precisa de transfer do aeroporto</td><td class="mut">Verificar durante pré-embarque</td></tr><tr><td>Status Seguro Vi.</td><td>Status do seguro de viagem (≠ OSHC)</td><td class="mut">Verificar durante pré-embarque</td></tr><tr><td><strong>CHEGADA NA AUS</strong></td><td>Data de chegada do aluno em Perth</td><td class="mut">Assim que o aluno confirmar chegada</td></tr><tr><td><strong>Link Agend. Welcome Enviado?</strong></td><td>✔ se o link da Welcome Session foi enviado</td><td class="mut">Após envio do link</td></tr><tr><td><strong>WELCOME NA AGENCIA</strong></td><td>Data em que o aluno fez a Welcome Session</td><td class="mut">Após realização da Welcome Session</td></tr><tr><td>SOLICITAÇÃO TFN</td><td>Status da solicitação do TFN</td><td class="mut">Verificar na Welcome Session e follow-up</td></tr></tbody></table><div class="sh t">Screenshot do Board de Welcome</div><div><img src="/api/imported/knowledge-sop-image-2.png" alt="Board de Welcome — Monday Student Support"></div><div class="box info"><strong>📊 GRUPOS DO BOARD</strong>O board é organizado por ano e status: NEW STUDENTS (novos em processo) · 2026 FUPS (alunos com intake 2026 acompanhados) · 2025 · 2024 · CANCELAMENTO · DUPLICIDADE.</div></div>$movy$,
   $movy$Acompanhamento de clientes após pagamento · studentsupport@movyeducation.com$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -938,7 +938,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-monday-automacao-e-labels$movy$,
+  $movy$knowledge-processos-ferramentas-monday-automacao-e-labels$movy$,
   $movy$Monday — Automação e Labels$movy$,
   $movy$Monday — Automação e Labels$movy$,
   $movy$Monday — Automação e Labels$movy$,
@@ -946,7 +946,7 @@ select
   $movy$Fluxo entre boards e guia de categorização$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -977,7 +977,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-oshc-planos-de-saude$movy$,
+  $movy$knowledge-processos-ferramentas-oshc-planos-de-saude$movy$,
   $movy$OSHC — Planos de Saúde$movy$,
   $movy$OSHC — Planos de Saúde$movy$,
   $movy$OSHC — Planos de Saúde$movy$,
@@ -985,7 +985,7 @@ select
   $movy$O que é, como calcular, provedores e como usar$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -1016,7 +1016,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-commbank-como-abrir-uma-conta$movy$,
+  $movy$knowledge-processos-ferramentas-commbank-como-abrir-uma-conta$movy$,
   $movy$CommBank — Como Abrir uma Conta$movy$,
   $movy$CommBank — Como Abrir uma Conta$movy$,
   $movy$CommBank — Como Abrir uma Conta$movy$,
@@ -1024,7 +1024,7 @@ select
   $movy$Passo a passo para abertura da Student Account (Smart Access)$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -1055,7 +1055,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-processos-ferramentas-usi-unique-student-identifier$movy$,
+  $movy$knowledge-processos-ferramentas-usi-unique-student-identifier$movy$,
   $movy$USI — Unique Student Identifier$movy$,
   $movy$USI — Unique Student Identifier$movy$,
   $movy$USI — Unique Student Identifier$movy$,
@@ -1063,7 +1063,7 @@ select
   $movy$Como criar, recuperar e verificar$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$processos-ferramentas$movy$]::text[],
   $movy$process$movy$,
   $movy$Processos & Ferramentas$movy$,
   'internal',
@@ -1094,7 +1094,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-dress-code-politica-de-vestimenta$movy$,
+  $movy$knowledge-politicas-internas-dress-code-politica-de-vestimenta$movy$,
   $movy$Dress Code — Política de Vestimenta$movy$,
   $movy$Dress Code — Política de Vestimenta$movy$,
   $movy$Dress Code — Política de Vestimenta$movy$,
@@ -1102,7 +1102,7 @@ select
   $movy$Versão: Fevereiro 2026$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1133,7 +1133,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-leave-policy-licencas-e-ferias$movy$,
+  $movy$knowledge-politicas-internas-leave-policy-licencas-e-ferias$movy$,
   $movy$Leave Policy — Licenças e Férias$movy$,
   $movy$Leave Policy — Licenças e Férias$movy$,
   $movy$Leave Policy — Licenças e Férias$movy$,
@@ -1141,7 +1141,7 @@ select
   $movy$Versão: Fevereiro 2026$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1172,7 +1172,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-anti-discrimination-harassment-bullying$movy$,
+  $movy$knowledge-politicas-internas-anti-discrimination-harassment-bullying$movy$,
   $movy$Anti-Discrimination, Harassment & Bullying$movy$,
   $movy$Anti-Discrimination, Harassment & Bullying$movy$,
   $movy$Anti-Discrimination, Harassment & Bullying$movy$,
@@ -1180,7 +1180,7 @@ select
   $movy$Política de zero tolerância$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1211,7 +1211,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-whs-work-health-safety$movy$,
+  $movy$knowledge-politicas-internas-whs-work-health-safety$movy$,
   $movy$WHS — Work Health & Safety$movy$,
   $movy$WHS — Work Health & Safety$movy$,
   $movy$WHS — Work Health & Safety$movy$,
@@ -1219,7 +1219,7 @@ select
   $movy$Saúde, segurança e bem-estar no trabalho$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1250,15 +1250,15 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-it-policy-tecnologia-da-informacao$movy$,
+  $movy$knowledge-politicas-internas-it-policy-tecnologia-da-informacao$movy$,
   $movy$IT Policy — Tecnologia da Informação$movy$,
   $movy$IT Policy — Tecnologia da Informação$movy$,
   $movy$IT Policy — Tecnologia da Informação$movy$,
-  $movy$<div class="legacy-sop"><div class="sh2">E-mail — uso aceitável:</div><ul class="bl"><li>Comunicações de trabalho dentro e fora da Movy</li><li>Uso pessoal incidental e ocasional — excessivo é desencorajado</li><li>Usar linguagem profissional e cortês sempre</li></ul><div class="sh2">E-mail — NÃO permitido:</div><ul class="bl"><li>Distribuição de piadas, fofocas ou boatos</li><li>Conteúdo que assedia, insulta ou discrimina</li><li>Correntes, spam ou conteúdo que viola direitos autorais</li><li>Envio de e-mails que aparentem ser de outra pessoa</li><li>Distribuição de informações confidenciais sem autorização</li></ul><div class="sh2">Internet:</div><ul class="bl"><li>Acesso a material pornográfico é totalmente proibido</li><li>Não baixar softwares sem autorização do gestor</li></ul><div class="sh2">Redes Sociais:</div><ul class="bl"><li>Somente pessoas autorizadas podem publicar em nome da Movy</li><li>Não fornecer informações confidenciais ou mencionar colegas sem aprovação prévia</li><li>Informar a gestão sobre comentários negativos sobre a Movy nas redes</li></ul><div class="box info"><strong>🔍 MONITORAMENTO</strong>A Movy realiza monitoramento contínuo dos sistemas de TI. Não há expectativa de privacidade no uso dos sistemas da Movy.</div></div>$movy$,
+  $movy$<div class="legacy-sop"><div class="sh2">E-mail — uso aceitável:</div><ul class="bl"><li>Comunicações de trabalho dentro e fora da Movy</li><li>Uso pessoal incidental e ocasional — excessivo é desencorajado</li><li>Usar linguagem profissional e cortês sempre</li></ul><div class="sh2">E-mail — NÃO permitido:</div><ul class="bl"><li>Distribuição de piadas, fofocas ou boatos</li><li>Conteúdo que assedia, insulta ou discrimina</li><li>Correntes, spam ou conteúdo que viola direitos autorais</li><li>Envio de e-mails que aparentem ser de outra pessoa</li><li>Distribuição de informações confidenciais sem autorização</li></ul><div class="sh2">Internet:</div><ul class="bl"><li>Acesso a material pornográfico é totalmente proibido</li><li>Não baixar softwares sem autorização do gestor</li></ul><div class="sh2">Redes Sociais:</div><ul class="bl"><li>Somente pessoas autorizadas podem publicar em nome da Movy</li><li>Não fornecer informações confidenciais ou mencionar colegas sem aprovação prévia</li><li>Informar a gestão sobre comentários negativos sobre a Movy nas redes</li></ul><div class="box info"><strong>🔍 MONITORAMENTO</strong>A Movy realiza monitoramento contínuo dos sistemas de TI. Não há expectativa de privacidade no uso dos sistemas da equipe Movy.</div></div>$movy$,
   $movy$E-mail, internet e redes sociais$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1289,7 +1289,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-politicas-internas-company-property-equipment$movy$,
+  $movy$knowledge-politicas-internas-company-property-equipment$movy$,
   $movy$Company Property & Equipment$movy$,
   $movy$Company Property & Equipment$movy$,
   $movy$Company Property & Equipment$movy$,
@@ -1297,7 +1297,7 @@ select
   $movy$Propriedade e equipamentos da empresa$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$politicas-internas$movy$]::text[],
   $movy$policy$movy$,
   $movy$Politicas Internas$movy$,
   'internal',
@@ -1328,7 +1328,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-links-imigracao$movy$,
+  $movy$knowledge-links-recursos-links-imigracao$movy$,
   $movy$Links — Imigração$movy$,
   $movy$Links — Imigração$movy$,
   $movy$Links — Imigração$movy$,
@@ -1336,7 +1336,7 @@ select
   $movy$Department of Home Affairs + ferramentas$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1367,7 +1367,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-intake-dates-datas-de-inicio-por-escola$movy$,
+  $movy$knowledge-links-recursos-intake-dates-datas-de-inicio-por-escola$movy$,
   $movy$Intake Dates — Datas de Início por Escola$movy$,
   $movy$Intake Dates — Datas de Início por Escola$movy$,
   $movy$Intake Dates — Datas de Início por Escola$movy$,
@@ -1375,7 +1375,7 @@ select
   $movy$Links oficiais das instituições parceiras$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1406,7 +1406,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-links-australia-estudante$movy$,
+  $movy$knowledge-links-recursos-links-australia-estudante$movy$,
   $movy$Links — Austrália (estudante)$movy$,
   $movy$Links — Austrália (estudante)$movy$,
   $movy$Links — Austrália (estudante)$movy$,
@@ -1414,7 +1414,7 @@ select
   $movy$Documentação, banco, transporte e trabalho$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1445,7 +1445,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-links-manter-se-informado$movy$,
+  $movy$knowledge-links-recursos-links-manter-se-informado$movy$,
   $movy$Links — Manter-se Informado$movy$,
   $movy$Links — Manter-se Informado$movy$,
   $movy$Links — Manter-se Informado$movy$,
@@ -1453,7 +1453,7 @@ select
   $movy$Publicações do setor de educação internacional$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1484,7 +1484,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-materiais-movy-o-que-enviar-em-cada-fase$movy$,
+  $movy$knowledge-links-recursos-materiais-movy-o-que-enviar-em-cada-fase$movy$,
   $movy$Materiais Movy — o que enviar em cada fase$movy$,
   $movy$Materiais Movy — o que enviar em cada fase$movy$,
   $movy$Materiais Movy — o que enviar em cada fase$movy$,
@@ -1492,7 +1492,7 @@ select
   $movy$Links uteis, recursos oficiais, intake dates e contatos internos.$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1523,15 +1523,15 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-links-recursos-equipe-e-contatos-internos$movy$,
+  $movy$knowledge-links-recursos-equipe-e-contatos-internos$movy$,
   $movy$Equipe e Contatos Internos$movy$,
   $movy$Equipe e Contatos Internos$movy$,
   $movy$Equipe e Contatos Internos$movy$,
-  $movy$<div class="legacy-sop"><table class="tbl"><thead><tr><th>Função</th><th>Responsável</th></tr></thead><tbody><tr><td>Agentes — visto de estudante</td><td>Matheus e Mari</td></tr><tr><td>Consultoria de carreira</td><td>Marcos (diretor)</td></tr><tr><td>Departamento de Vistos / Admin / Finance</td><td>Julia</td></tr><tr><td>Student Support</td><td>Beatrice · studentsupport@movyeducation.com</td></tr><tr><td>Site</td><td><a href="https://movyeducation.com">movyeducation.com</a></td></tr><tr><td>Instagram</td><td>@movyeducation</td></tr><tr><td>Agendamentos</td><td><a href="https://movy.as.me">movy.as.me</a></td></tr><tr><td>Endereço</td><td>Level 1/324 Murray St, Perth WA 6000</td></tr></tbody></table></div>$movy$,
+  $movy$<div class="legacy-sop"><table class="tbl"><thead><tr><th>Função</th><th>Responsável</th></tr></thead><tbody><tr><td>Agentes — visto de estudante</td><td>Matheus e Mari</td></tr><tr><td>Consultoria de carreira</td><td>Marcos (diretor)</td></tr><tr><td>Departamento de Vistos / Admin / Finance</td><td>Julia</td></tr><tr><td>Student Support</td><td>Student Support · studentsupport@movyeducation.com</td></tr><tr><td>Site</td><td><a href="https://movyeducation.com">movyeducation.com</a></td></tr><tr><td>Instagram</td><td>@movyeducation</td></tr><tr><td>Agendamentos</td><td><a href="https://movy.as.me">movy.as.me</a></td></tr><tr><td>Endereço</td><td>Level 1/324 Murray St, Perth WA 6000</td></tr></tbody></table></div>$movy$,
   $movy$Links uteis, recursos oficiais, intake dates e contatos internos.$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$links-recursos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Links & Recursos$movy$,
   'internal',
@@ -1562,7 +1562,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-nomenclaturas-pasta-documents$movy$,
+  $movy$knowledge-nomenclaturas-pasta-documents$movy$,
   $movy$Pasta: Documents$movy$,
   $movy$Pasta: Documents$movy$,
   $movy$Pasta: Documents$movy$,
@@ -1570,7 +1570,7 @@ select
   $movy$Documentos pessoais, acadêmicos e de identificação do aluno$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
   $movy$reference$movy$,
   $movy$Nomenclaturas$movy$,
   'internal',
@@ -1601,7 +1601,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-nomenclaturas-pasta-enrolments-school-folder$movy$,
+  $movy$knowledge-nomenclaturas-pasta-enrolments-school-folder$movy$,
   $movy$Pasta: Enrolments → {School folder}$movy$,
   $movy$Pasta: Enrolments → {School folder}$movy$,
   $movy$Pasta: Enrolments → {School folder}$movy$,
@@ -1609,7 +1609,7 @@ select
   $movy$Todos os documentos relacionados à matrícula em cada escola$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
   $movy$reference$movy$,
   $movy$Nomenclaturas$movy$,
   'internal',
@@ -1640,7 +1640,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-nomenclaturas-pasta-visa$movy$,
+  $movy$knowledge-nomenclaturas-pasta-visa$movy$,
   $movy$Pasta: Visa$movy$,
   $movy$Pasta: Visa$movy$,
   $movy$Pasta: Visa$movy$,
@@ -1648,7 +1648,7 @@ select
   $movy$Todos os documentos relacionados ao processo de visto$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
   $movy$reference$movy$,
   $movy$Nomenclaturas$movy$,
   'internal',
@@ -1679,7 +1679,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-nomenclaturas-onde-salvar-guia-rapido-por-tipo-de-documento$movy$,
+  $movy$knowledge-nomenclaturas-onde-salvar-guia-rapido-por-tipo-de-documento$movy$,
   $movy$Onde salvar — guia rápido por tipo de documento$movy$,
   $movy$Onde salvar — guia rápido por tipo de documento$movy$,
   $movy$Onde salvar — guia rápido por tipo de documento$movy$,
@@ -1687,7 +1687,7 @@ select
   $movy$Consulta rápida sem precisar rolar as tabelas acima$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$nomenclaturas$movy$]::text[],
   $movy$reference$movy$,
   $movy$Nomenclaturas$movy$,
   'internal',
@@ -1718,15 +1718,15 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-feedbacks-feedbacks$movy$,
+  $movy$knowledge-feedbacks-feedbacks$movy$,
   $movy$Feedbacks$movy$,
   $movy$Feedbacks$movy$,
   $movy$Feedbacks$movy$,
-  $movy$<div class="legacy-sop"><div class="fdb-wrap"><!-- HEADER --><div class="fdb-header"><div class="fdb-logo-block"><div><div><div class="fdb-logo-text">Movy</div><div class="fdb-dots"><div class="fdb-dot"></div><div class="fdb-dot"></div><div class="fdb-dot"></div></div></div><div class="fdb-header-sub">FEEDBACK DASHBOARD · PERTH, WA</div></div></div><div class="fdb-meta"><div class="fdb-meta-label">Período analisado</div><div class="fdb-meta-val">Jan – Abr 2026</div><div>11 respostas · 2 formulários</div></div></div><!-- INNER TABS --><div class="fdb-tabs"><div>Visão Geral</div><div>Atendimento</div><div>Serviços</div><div>Google Reviews</div><div>Insights & Ações</div></div><!-- PANEL: VISÃO GERAL --><div class="fdb-panel active" id="fdbp-overview"><div class="fdb-sh">Métricas Principais</div><div class="fdb-metrics"><div class="fdb-mc"><div class="fdb-mc-lbl">NPS Score</div><div class="fdb-mc-val">67</div><div class="fdb-mc-sub"><span class="fdb-nps-badge">Excelente</span></div><div>5 promotores · 0 passivos · 1 detrator</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">NPS Médio</div><div class="fdb-mc-val">9<span>.3</span></div><div class="fdb-mc-sub">escala de 0 a 10</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Satisfação Atendimento</div><div class="fdb-mc-val">4<span>.9/5</span></div><div class="fdb-mc-sub">média geral</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Comunicação</div><div class="fdb-mc-val">5<span>/5</span></div><div class="fdb-mc-sub">clareza percebida</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Recomendam Movy</div><div class="fdb-mc-val">60<span>%</span></div><div class="fdb-mc-sub">com certeza · 20% talvez</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">1º Contato Adequado</div><div class="fdb-mc-val">100<span>%</span></div><div class="fdb-mc-sub">todos os respondentes</div></div></div><div class="fdb-2col"><div><div class="fdb-sh">Motivos de Satisfação</div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Resolução do problema</span><strong>3x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Organização / Acompanhamento</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Clareza nas orientações</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Agilidade</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-div"></div><div class="fdb-sh">Distribuição por Serviço</div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Intercâmbio</span><strong>4 clientes</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Carreira</span><strong>2 clientes</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div></div><div><div class="fdb-sh">Equipe em Destaque</div><div class="fdb-staff-grid"><div class="fdb-staffcard"><div class="fdb-stavatar">BE</div><div class="fdb-stname">Beatrice</div><div class="fdb-stcount">3 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MA</div><div class="fdb-stname">Matheus</div><div class="fdb-stcount">3 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MR</div><div class="fdb-stname">Marcos</div><div class="fdb-stcount">2 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MA</div><div class="fdb-stname">Mariana</div><div class="fdb-stcount">2 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">AL</div><div class="fdb-stname">Allana</div><div class="fdb-stcount">1 menção</div></div></div><div class="fdb-div"></div><div class="fdb-sh">NPS por Resposta</div><div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Giselle Oliver</span><span>7</span><span>passivo</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Luana</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Camila Lacerda</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Allana Costa</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Tiago Felipe</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Karina</span><span>10</span><span>promotor</span></div></div></div></div><div class="fdb-sh">Comparativo por Setor</div><div class="fdb-sectors"><div class="fdb-scard"><div class="fdb-scard-ttl">Consultoria Inicial</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Setor de Visto</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Pós-Aplicação</div><div class="fdb-sscore">4<span>.2/5</span></div><div class="fdb-sbar"><div></div></div></div></div><div></div></div><!-- PANEL: ATENDIMENTO --><div class="fdb-panel" id="fdbp-atendimento"><div class="fdb-sh">Como Foi o Seu Atendimento?</div><div class="fdb-card-grid"><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Giselle Oliver</div><div class="fdb-card-meta">29/01/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Elogio à Beatrice que me ajudou a resolver um grande problema na escola. NPS 7 pois tive problemas de visto com outro funcionário."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">7/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Beatrice</span></div><div class="fdb-sug"><strong>Sugestão</strong>Estejam sempre alinhados internamente no processo de visto.</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Luana</div><div class="fdb-card-meta">29/01/2026</div></div><span class="fdb-sbadge fdb-b-car">Carreira</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Suporte ao estudante muito prático e prompt, sem palavras para o nível profissional da Movy."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Matheus</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila Oliveira de Lacerda</div><div class="fdb-card-meta">30/01/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Desde o início a equipe se mostrou disposta. O mais incrível é poder falar direto com o Marcos — isso faz toda diferença."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Marcos</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Allana Costa</div><div class="fdb-card-meta">15/02/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"A Beatrice ouviu meus questionamentos e prontamente iniciou a tratativa com a universidade — e foi resolvido!"</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Beatrice</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Tiago Felipe</div><div class="fdb-card-meta">17/03/2026</div></div><span class="fdb-sbadge fdb-b-car">Carreira</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Sempre dispostos a ajudar e solucionar qualquer problema."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Karina</div><div class="fdb-card-meta">20/04/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Matheus e Bia acompanharam o caso com a ILSC com todas as providências necessárias até o final. Super recomendo!"</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Matheus</span><span class="fdb-stag">Beatrice</span></div></div></div></div><!-- PANEL: SERVIÇOS --><div class="fdb-panel" id="fdbp-servicos"><div class="fdb-sh">Comparativo por Setor</div><div class="fdb-sectors"><div class="fdb-scard"><div class="fdb-scard-ttl">Consultoria Inicial</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Setor de Visto</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Pós-Aplicação</div><div class="fdb-sscore">4<span>.2/5</span></div><div class="fdb-sbar"><div></div></div></div></div><div class="fdb-sh">Como Nos Saímos? — Respostas Individuais</div><div class="fdb-card-grid"><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila</div><div class="fdb-card-meta">10/02/2026 · Consultor: Mariana</div></div><span class="fdb-rbadge fdb-r-no">Não recomenda</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">3/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">1/5</div></div></div><div class="fdb-sug"><strong>Motivo do Visto</strong>Falaram uma data e não aplicaram na data exata.</div><div class="fdb-sug"><strong>Pós-Aplicação</strong>Não responde. — Nota crítica: ação imediata necessária.</div><div class="fdb-quote">"A Mari é maravilhosa, amei o atendimento dela."</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila (2ª resposta)</div><div class="fdb-card-meta">10/02/2026 · Consultor: Mariana</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Dayse</div><div class="fdb-card-meta">02/03/2026 · Consultor: Marcos</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto (Allana)</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-sug"><strong>Sugestão importante</strong>Faltou organização no início: demora em respostas, envio de documentação e comunicação interna — corri o risco de perder a matrícula.</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Filipe Campos Gerdes</div><div class="fdb-card-meta">06/03/2026 · Consultor: Marcos</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-quote">"Muito feliz de fazer minha segunda aplicação de visto com eles!"</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Marina Costa Ferreira</div><div class="fdb-card-meta">12/03/2026 · Consultor: Matheus</div></div><span class="fdb-rbadge fdb-r-maybe">Talvez</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">3/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-sug"><strong>Sugestão</strong>Atendimento e clareza das informações deixaram a desejar — retorno demorou dias. Segunda renovação de visto, qualidade do serviço é boa mas comunicação piorou.</div></div></div></div><!-- PANEL: GOOGLE REVIEWS --><div class="fdb-panel" id="fdbp-google"><div class="fdb-metrics"><div class="fdb-mc"><div class="fdb-mc-lbl">Nota Média Google</div><div class="fdb-mc-val">4<span>.7</span></div><div class="fdb-mc-sub">★ Google Reviews</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">5 Estrelas</div><div class="fdb-mc-val">67<span>%</span></div><div class="fdb-mc-sub">4 de 6 avaliações</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">3 Estrelas</div><div class="fdb-mc-val">17<span>%</span></div><div class="fdb-mc-sub">1 de 6 avaliações</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">4 Estrelas</div><div class="fdb-mc-val">17<span>%</span></div><div class="fdb-mc-sub">1 de 6 avaliações</div></div></div><div class="fdb-sh">Avaliações Recentes</div><div class="fdb-gg"><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">IM</div><div><div class="fdb-gname">Isabela Mendonça</div><div class="fdb-gdate">Mar 2025</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Equipe incrível! O Marcos me ajudou a entender todos os meus direitos como estudante e as melhores opções para Perth. Recomendo demais."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">RS</div><div><div class="fdb-gname">Rafael Souza</div><div class="fdb-gdate">Jan 2025</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Atendimento impecável desde o primeiro contato. A Beatrice foi extremamente dedicada e paciente em cada etapa do processo de intercâmbio."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">JA</div><div><div class="fdb-gname">Júlia Andrade</div><div class="fdb-gdate">Dez 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star off">★</span></div></div><div class="fdb-gquote">"Muito profissionais e atenciosos. O processo de visto demorou um pouco mais que o esperado, mas no geral foi ótima experiência."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">PL</div><div><div class="fdb-gname">Pedro Lemos</div><div class="fdb-gdate">Nov 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"A Movy transformou meu sonho em realidade. Matheus me acompanhou em cada detalhe. Melhor agência de Perth!"</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">FC</div><div><div class="fdb-gname">Fernanda Castro</div><div class="fdb-gdate">Out 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star off">★</span><span class="fdb-star off">★</span></div></div><div class="fdb-gquote">"O serviço é bom, mas às vezes a comunicação demora. No final tudo foi resolvido, mas gerou ansiedade no processo."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">LB</div><div><div class="fdb-gname">Lucas Braga</div><div class="fdb-gdate">Set 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Movy é sinônimo de confiança! Segunda vez que utilizo os serviços e sempre saio satisfeito. Equipe comprometida com resultado."</div></div></div></div><!-- PANEL: INSIGHTS --><div class="fdb-panel" id="fdbp-insights"><div class="fdb-sh">Pontos Fortes</div><div class="fdb-insight-grid"><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">NPS Score 67 — zona de excelência</div><div class="fdb-idesc">Com 5 promotores e apenas 1 detrator, a Movy supera a média do setor de intercâmbio (NPS ~40–50).</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">Atendimento humano é o principal diferencial</div><div class="fdb-idesc">Clientes valorizam o contato direto e pessoal com Marcos, Beatrice e Matheus — o fator humano drive a fidelização.</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">Setor de Visto recupera percepção negativa</div><div class="fdb-idesc">Mesmo clientes insatisfeitos com a consultoria deram nota 5 para o visto — demonstra competência técnica sólida.</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">60% recomendam sem hesitação</div><div class="fdb-idesc">3 de 5 respondentes do formulário "Como Nos Saímos" indicaram "Com certeza" ao serem perguntados sobre indicação.</div></div></div></div><div class="fdb-sh">Alertas Críticos</div><div class="fdb-insight-grid"><div class="fdb-insight fdb-ib"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Pós-aplicação: nota 1/5 registrada</div><div class="fdb-idesc">Um cliente não recebeu retorno algum após aplicação do visto. Ponto mais crítico — pode comprometer fidelização.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Comunicação interna inconsistente</div><div class="fdb-idesc">Dois clientes independentes mencionaram falta de alinhamento — promessas de datas não cumpridas e demora em retornos.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Demora em orçamentos e documentação</div><div class="fdb-idesc">Marina precisou solicitar o mesmo documento várias vezes. O processo de onboarding carece de padronização.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">2 clientes com experiência mista</div><div class="fdb-idesc">Giselle (NPS 7) e Marina ("Talvez") representam risco de churn de indicação — não são promotores ativos.</div></div></div></div><div class="fdb-sh">Plano de Ação — 5 Recomendações</div><div class="fdb-rec-list"><div class="fdb-rec"><div class="fdb-rec-num">01</div><div><div class="fdb-rec-ttl">Implementar SLA de resposta máxima de 24h úteis</div><div class="fdb-rec-desc">Definir tempo máximo de retorno e comunicar ao cliente desde o primeiro contato — elimina a principal queixa de demora.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">02</div><div><div class="fdb-rec-ttl">Criar checklist de onboarding padronizado</div><div class="fdb-rec-desc">Lista de documentos e etapas obrigatória para todos os consultores — evita o cliente precisar correr atrás de informações.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">03</div><div><div class="fdb-rec-ttl">Reuniões de alinhamento interno semanais</div><div class="fdb-rec-desc">Especialmente antes de comunicar prazos de visto ao cliente — o gap apareceu em 2 feedbacks independentes.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">04</div><div><div class="fdb-rec-ttl">Pesquisa proativa de satisfação pós-aplicação</div><div class="fdb-rec-desc">Enviar formulário 2 semanas após a aplicação do visto — automatizar via WhatsApp ou e-mail.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">05</div><div><div class="fdb-rec-ttl">Solicitar avaliações Google de forma sistemática</div><div class="fdb-rec-desc">Cada cliente com NPS 9–10 deve receber link direto para Google Reviews imediatamente após o feedback positivo.</div></div></div></div></div><div class="fdb-footer"><p>Movy · Perth, WA · Dashboard de Feedbacks 2026 · 11 respostas analisadas</p><div class="fdb-dots"><div class="fdb-dot"></div><div class="fdb-dot"></div><div class="fdb-dot"></div></div></div></div></div>$movy$,
+  $movy$<div class="legacy-sop"><div class="fdb-wrap"><!-- HEADER --><div class="fdb-header"><div class="fdb-logo-block"><div><div><div class="fdb-logo-text">Movy</div><div class="fdb-dots"><div class="fdb-dot"></div><div class="fdb-dot"></div><div class="fdb-dot"></div></div></div><div class="fdb-header-sub">FEEDBACK DASHBOARD · PERTH, WA</div></div></div><div class="fdb-meta"><div class="fdb-meta-label">Período analisado</div><div class="fdb-meta-val">Jan – Abr 2026</div><div>11 respostas · 2 formulários</div></div></div><!-- INNER TABS --><div class="fdb-tabs"><div>Visão Geral</div><div>Atendimento</div><div>Serviços</div><div>Google Reviews</div><div>Insights & Ações</div></div><!-- PANEL: VISÃO GERAL --><div class="fdb-panel active" id="fdbp-overview"><div class="fdb-sh">Métricas Principais</div><div class="fdb-metrics"><div class="fdb-mc"><div class="fdb-mc-lbl">NPS Score</div><div class="fdb-mc-val">67</div><div class="fdb-mc-sub"><span class="fdb-nps-badge">Excelente</span></div><div>5 promotores · 0 passivos · 1 detrator</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">NPS Médio</div><div class="fdb-mc-val">9<span>.3</span></div><div class="fdb-mc-sub">escala de 0 a 10</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Satisfação Atendimento</div><div class="fdb-mc-val">4<span>.9/5</span></div><div class="fdb-mc-sub">média geral</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Comunicação</div><div class="fdb-mc-val">5<span>/5</span></div><div class="fdb-mc-sub">clareza percebida</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">Recomendam Movy</div><div class="fdb-mc-val">60<span>%</span></div><div class="fdb-mc-sub">com certeza · 20% talvez</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">1º Contato Adequado</div><div class="fdb-mc-val">100<span>%</span></div><div class="fdb-mc-sub">todos os respondentes</div></div></div><div class="fdb-2col"><div><div class="fdb-sh">Motivos de Satisfação</div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Resolução do problema</span><strong>3x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Organização / Acompanhamento</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Clareza nas orientações</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Agilidade</span><strong>1x</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-div"></div><div class="fdb-sh">Distribuição por Serviço</div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Intercâmbio</span><strong>4 clientes</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div><div class="fdb-bar-row"><div class="fdb-bar-lbl"><span>Carreira</span><strong>2 clientes</strong></div><div class="fdb-bar-track"><div class="fdb-bar-fill"></div></div></div></div><div><div class="fdb-sh">Equipe em Destaque</div><div class="fdb-staff-grid"><div class="fdb-staffcard"><div class="fdb-stavatar">BE</div><div class="fdb-stname">Student Support</div><div class="fdb-stcount">3 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MA</div><div class="fdb-stname">Matheus</div><div class="fdb-stcount">3 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MR</div><div class="fdb-stname">Marcos</div><div class="fdb-stcount">2 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">MA</div><div class="fdb-stname">Mariana</div><div class="fdb-stcount">2 menções</div></div><div class="fdb-staffcard"><div class="fdb-stavatar">AL</div><div class="fdb-stname">Allana</div><div class="fdb-stcount">1 menção</div></div></div><div class="fdb-div"></div><div class="fdb-sh">NPS por Resposta</div><div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Giselle Oliver</span><span>7</span><span>passivo</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Luana</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Camila Lacerda</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Allana Costa</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Tiago Felipe</span><span>10</span><span>promotor</span></div><div class="fdb-nps-row"><div class="fdb-nps-dot"></div><span>Karina</span><span>10</span><span>promotor</span></div></div></div></div><div class="fdb-sh">Comparativo por Setor</div><div class="fdb-sectors"><div class="fdb-scard"><div class="fdb-scard-ttl">Consultoria Inicial</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Setor de Visto</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Pós-Aplicação</div><div class="fdb-sscore">4<span>.2/5</span></div><div class="fdb-sbar"><div></div></div></div></div><div></div></div><!-- PANEL: ATENDIMENTO --><div class="fdb-panel" id="fdbp-atendimento"><div class="fdb-sh">Como Foi o Seu Atendimento?</div><div class="fdb-card-grid"><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Giselle Oliver</div><div class="fdb-card-meta">29/01/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Elogio à Student Support que me ajudou a resolver um grande problema na escola. NPS 7 pois tive problemas de visto com outro funcionário."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">7/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Student Support</span></div><div class="fdb-sug"><strong>Sugestão</strong>Estejam sempre alinhados internamente no processo de visto.</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Luana</div><div class="fdb-card-meta">29/01/2026</div></div><span class="fdb-sbadge fdb-b-car">Carreira</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Suporte ao estudante muito prático e prompt, sem palavras para o nível profissional da equipe Movy."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Matheus</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila Oliveira de Lacerda</div><div class="fdb-card-meta">30/01/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Desde o início a equipe se mostrou disposta. O mais incrível é poder falar direto com o Marcos — isso faz toda diferença."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Marcos</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Allana Costa</div><div class="fdb-card-meta">15/02/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"A Student Support ouviu meus questionamentos e prontamente iniciou a tratativa com a universidade — e foi resolvido!"</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Student Support</span></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Tiago Felipe</div><div class="fdb-card-meta">17/03/2026</div></div><span class="fdb-sbadge fdb-b-car">Carreira</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Sempre dispostos a ajudar e solucionar qualquer problema."</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Karina</div><div class="fdb-card-meta">20/04/2026</div></div><span class="fdb-sbadge fdb-b-int">Intercâmbio</span></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div><div class="fdb-quote">"Matheus e Student Support acompanharam o caso com a ILSC com todas as providências necessárias até o final. Super recomendo!"</div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">NPS</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">10/10</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Comunicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-staff-tags"><span class="fdb-stag">Matheus</span><span class="fdb-stag">Student Support</span></div></div></div></div><!-- PANEL: SERVIÇOS --><div class="fdb-panel" id="fdbp-servicos"><div class="fdb-sh">Comparativo por Setor</div><div class="fdb-sectors"><div class="fdb-scard"><div class="fdb-scard-ttl">Consultoria Inicial</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Setor de Visto</div><div class="fdb-sscore">4<span>.6/5</span></div><div class="fdb-sbar"><div></div></div></div><div class="fdb-scard"><div class="fdb-scard-ttl">Pós-Aplicação</div><div class="fdb-sscore">4<span>.2/5</span></div><div class="fdb-sbar"><div></div></div></div></div><div class="fdb-sh">Como Nos Saímos? — Respostas Individuais</div><div class="fdb-card-grid"><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila</div><div class="fdb-card-meta">10/02/2026 · Consultor: Mariana</div></div><span class="fdb-rbadge fdb-r-no">Não recomenda</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">3/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">1/5</div></div></div><div class="fdb-sug"><strong>Motivo do Visto</strong>Falaram uma data e não aplicaram na data exata.</div><div class="fdb-sug"><strong>Pós-Aplicação</strong>Não responde. — Nota crítica: ação imediata necessária.</div><div class="fdb-quote">"A Mari é maravilhosa, amei o atendimento dela."</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Camila (2ª resposta)</div><div class="fdb-card-meta">10/02/2026 · Consultor: Mariana</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Dayse</div><div class="fdb-card-meta">02/03/2026 · Consultor: Marcos</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto (Allana)</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-sug"><strong>Sugestão importante</strong>Faltou organização no início: demora em respostas, envio de documentação e comunicação interna — corri o risco de perder a matrícula.</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Filipe Campos Gerdes</div><div class="fdb-card-meta">06/03/2026 · Consultor: Marcos</div></div><span class="fdb-rbadge fdb-r-yes">Com certeza</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-quote">"Muito feliz de fazer minha segunda aplicação de visto com eles!"</div></div><div class="fdb-card"><div class="fdb-card-hdr"><div><div class="fdb-card-name">Marina Costa Ferreira</div><div class="fdb-card-meta">12/03/2026 · Consultor: Matheus</div></div><span class="fdb-rbadge fdb-r-maybe">Talvez</span></div><div class="fdb-stats"><div class="fdb-stat"><div class="fdb-stat-lbl">Consultoria</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">3/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Visto</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div><div class="fdb-stat"><div class="fdb-stat-lbl">Pós-Aplicação</div><div class="fdb-mini-track"><div class="fdb-mini-fill"></div></div><div class="fdb-stat-val">5/5</div></div></div><div class="fdb-sug"><strong>Sugestão</strong>Atendimento e clareza das informações deixaram a desejar — retorno demorou dias. Segunda renovação de visto, qualidade do serviço é boa mas comunicação piorou.</div></div></div></div><!-- PANEL: GOOGLE REVIEWS --><div class="fdb-panel" id="fdbp-google"><div class="fdb-metrics"><div class="fdb-mc"><div class="fdb-mc-lbl">Nota Média Google</div><div class="fdb-mc-val">4<span>.7</span></div><div class="fdb-mc-sub">★ Google Reviews</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">5 Estrelas</div><div class="fdb-mc-val">67<span>%</span></div><div class="fdb-mc-sub">4 de 6 avaliações</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">3 Estrelas</div><div class="fdb-mc-val">17<span>%</span></div><div class="fdb-mc-sub">1 de 6 avaliações</div></div><div class="fdb-mc"><div class="fdb-mc-lbl">4 Estrelas</div><div class="fdb-mc-val">17<span>%</span></div><div class="fdb-mc-sub">1 de 6 avaliações</div></div></div><div class="fdb-sh">Avaliações Recentes</div><div class="fdb-gg"><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">IM</div><div><div class="fdb-gname">Isabela Mendonça</div><div class="fdb-gdate">Mar 2025</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Equipe incrível! O Marcos me ajudou a entender todos os meus direitos como estudante e as melhores opções para Perth. Recomendo demais."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">RS</div><div><div class="fdb-gname">Rafael Souza</div><div class="fdb-gdate">Jan 2025</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Atendimento impecável desde o primeiro contato. A Student Support foi extremamente dedicada e paciente em cada etapa do processo de intercâmbio."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">JA</div><div><div class="fdb-gname">Júlia Andrade</div><div class="fdb-gdate">Dez 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star off">★</span></div></div><div class="fdb-gquote">"Muito profissionais e atenciosos. O processo de visto demorou um pouco mais que o esperado, mas no geral foi ótima experiência."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">PL</div><div><div class="fdb-gname">Pedro Lemos</div><div class="fdb-gdate">Nov 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"A Movy transformou meu sonho em realidade. Matheus me acompanhou em cada detalhe. Melhor agência de Perth!"</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">FC</div><div><div class="fdb-gname">Fernanda Castro</div><div class="fdb-gdate">Out 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star off">★</span><span class="fdb-star off">★</span></div></div><div class="fdb-gquote">"O serviço é bom, mas às vezes a comunicação demora. No final tudo foi resolvido, mas gerou ansiedade no processo."</div></div><div class="fdb-gc"><div class="fdb-gc-hdr"><div class="fdb-avatar">LB</div><div><div class="fdb-gname">Lucas Braga</div><div class="fdb-gdate">Set 2024</div></div><div class="fdb-stars"><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span><span class="fdb-star on">★</span></div></div><div class="fdb-gquote">"Movy é sinônimo de confiança! Segunda vez que utilizo os serviços e sempre saio satisfeito. Equipe comprometida com resultado."</div></div></div></div><!-- PANEL: INSIGHTS --><div class="fdb-panel" id="fdbp-insights"><div class="fdb-sh">Pontos Fortes</div><div class="fdb-insight-grid"><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">NPS Score 67 — zona de excelência</div><div class="fdb-idesc">Com 5 promotores e apenas 1 detrator, a Movy supera a média do setor de intercâmbio (NPS ~40–50).</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">Atendimento humano é o principal diferencial</div><div class="fdb-idesc">Clientes valorizam o contato direto e pessoal com Marcos, Student Support e Matheus — o fator humano drive a fidelização.</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">Setor de Visto recupera percepção negativa</div><div class="fdb-idesc">Mesmo clientes insatisfeitos com a consultoria deram nota 5 para o visto — demonstra competência técnica sólida.</div></div></div><div class="fdb-insight fdb-ig"><div class="fdb-iico">✓</div><div><div class="fdb-ittl">60% recomendam sem hesitação</div><div class="fdb-idesc">3 de 5 respondentes do formulário "Como Nos Saímos" indicaram "Com certeza" ao serem perguntados sobre indicação.</div></div></div></div><div class="fdb-sh">Alertas Críticos</div><div class="fdb-insight-grid"><div class="fdb-insight fdb-ib"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Pós-aplicação: nota 1/5 registrada</div><div class="fdb-idesc">Um cliente não recebeu retorno algum após aplicação do visto. Ponto mais crítico — pode comprometer fidelização.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Comunicação interna inconsistente</div><div class="fdb-idesc">Dois clientes independentes mencionaram falta de alinhamento — promessas de datas não cumpridas e demora em retornos.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">Demora em orçamentos e documentação</div><div class="fdb-idesc">Marina precisou solicitar o mesmo documento várias vezes. O processo de onboarding carece de padronização.</div></div></div><div class="fdb-insight fdb-iw"><div class="fdb-iico">!</div><div><div class="fdb-ittl">2 clientes com experiência mista</div><div class="fdb-idesc">Giselle (NPS 7) e Marina ("Talvez") representam risco de churn de indicação — não são promotores ativos.</div></div></div></div><div class="fdb-sh">Plano de Ação — 5 Recomendações</div><div class="fdb-rec-list"><div class="fdb-rec"><div class="fdb-rec-num">01</div><div><div class="fdb-rec-ttl">Implementar SLA de resposta máxima de 24h úteis</div><div class="fdb-rec-desc">Definir tempo máximo de retorno e comunicar ao cliente desde o primeiro contato — elimina a principal queixa de demora.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">02</div><div><div class="fdb-rec-ttl">Criar checklist de onboarding padronizado</div><div class="fdb-rec-desc">Lista de documentos e etapas obrigatória para todos os consultores — evita o cliente precisar correr atrás de informações.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">03</div><div><div class="fdb-rec-ttl">Reuniões de alinhamento interno semanais</div><div class="fdb-rec-desc">Especialmente antes de comunicar prazos de visto ao cliente — o gap apareceu em 2 feedbacks independentes.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">04</div><div><div class="fdb-rec-ttl">Pesquisa proativa de satisfação pós-aplicação</div><div class="fdb-rec-desc">Enviar formulário 2 semanas após a aplicação do visto — automatizar via WhatsApp ou e-mail.</div></div></div><div class="fdb-rec"><div class="fdb-rec-num">05</div><div><div class="fdb-rec-ttl">Solicitar avaliações Google de forma sistemática</div><div class="fdb-rec-desc">Cada cliente com NPS 9–10 deve receber link direto para Google Reviews imediatamente após o feedback positivo.</div></div></div></div></div><div class="fdb-footer"><p>Movy · Perth, WA · Dashboard de Feedbacks 2026 · 11 respostas analisadas</p><div class="fdb-dots"><div class="fdb-dot"></div><div class="fdb-dot"></div><div class="fdb-dot"></div></div></div></div></div>$movy$,
   $movy$Dashboard e analise de feedbacks de estudantes.$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$feedbacks$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$feedbacks$movy$]::text[],
   $movy$reference$movy$,
   $movy$Feedbacks$movy$,
   'internal',
@@ -1757,7 +1757,7 @@ insert into public.contents (
   tags, content_type, category, visibility, read_minutes, version, is_featured
 )
 select
-  $movy$beatriz-atendimentos-atendimentos$movy$,
+  $movy$knowledge-atendimentos-atendimentos$movy$,
   $movy$Atendimentos$movy$,
   $movy$Atendimentos$movy$,
   $movy$Atendimentos$movy$,
@@ -1765,7 +1765,7 @@ select
   $movy$Base de atendimentos, indicadores e motivos de contato.$movy$,
   d.id,
   'published'::public.content_status,
-  ARRAY[$movy$beatriz$movy$, $movy$movy$movy$, $movy$atendimentos$movy$]::text[],
+  ARRAY[$movy$knowledge$movy$, $movy$movy$movy$, $movy$atendimentos$movy$]::text[],
   $movy$reference$movy$,
   $movy$Atendimentos$movy$,
   'internal',

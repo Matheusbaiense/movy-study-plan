@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import seed from '@/data/beatriz-sop-content.json'
+import seed from '@/data/knowledge-sop-content.json'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   if (url.searchParams.get('confirm') !== 'movy') {
     return NextResponse.json(
-      { error: 'Add ?confirm=movy to run the Beatriz import.' },
+      { error: 'Add ?confirm=movy to run the knowledge import.' },
       { status: 400 }
     )
   }
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
   const { error: archiveError } = await supabase
     .from('contents')
     .update({ status: 'archived' })
-    .not('slug', 'like', 'beatriz-%')
+    .not('slug', 'like', 'knowledge-%')
 
   if (archiveError) {
     return NextResponse.json({ error: archiveError.message }, { status: 500 })
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
     summary: article.summary,
     department_id: departmentIds.get(article.departmentSlug) ?? null,
     status: 'published' as const,
-    tags: ['beatriz', 'movy', article.departmentSlug],
+    tags: ['knowledge', 'movy', article.departmentSlug],
     content_type: article.type,
     category: article.category,
     visibility: 'internal',

@@ -25,7 +25,7 @@ export async function GET(_request: Request, { params }: Params) {
   }
 
   const safeName = path.basename(params.name)
-  if (safeName !== params.name || !/^beatriz-sop-image-\d+\.(png|jpe?g|webp)$/i.test(safeName)) {
+  if (safeName !== params.name || !/^knowledge-sop-image-\d+\.(png|jpe?g|webp)$/i.test(safeName)) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 

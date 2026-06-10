@@ -2,10 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const SOURCE =
-  'C:/Users/baien/Downloads/Fyme Internal Hub-handoff/fyme-internal-hub/project/uploads/FYME_SOP_Site (21).html'
+  'C:/Users/baien/Downloads/Movy Internal Hub-handoff/movy-internal-hub/project/uploads/legacy-sop-site.html'
 
-const OUT = path.resolve('supabase/migrations/005_beatriz_movy_content.sql')
-const JSON_OUT = path.resolve('data/beatriz-sop-content.json')
+const OUT = path.resolve('supabase/migrations/005_knowledge_movy_content.sql')
+const JSON_OUT = path.resolve('data/knowledge-sop-content.json')
 const DATA_IMAGE_DIR = path.resolve('data/imported')
 
 let imageCounter = 0
@@ -16,7 +16,7 @@ const AREAS = {
     name: 'Visao Geral',
     icon: null,
     color: '#4B1A77',
-    description: 'Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela Beatriz.',
+    description: 'Jornada do estudante, organograma, perfis de cliente e visao operacional criada pela equipe Movy.',
   },
   captacao: {
     slug: 'captacao-vendas',
@@ -93,9 +93,9 @@ const TYPE_BY_AREA = {
 
 function rebrand(value) {
   return value
-    .replace(/FYME/g, 'Movy')
-    .replace(/Fyme/g, 'Movy')
-    .replace(/fyme/g, 'movy')
+    .replace(/Movy/g, 'Movy')
+    .replace(/Movy/g, 'Movy')
+    .replace(/movy/g, 'movy')
     .replace(/@movy\.com\.au/g, '@movyeducation.com')
     .replace(/movy\.com\.au/g, 'movyeducation.com')
     .replace(/movycoach/gi, 'movyeducation')
@@ -145,7 +145,7 @@ function extractDivInner(html, openIndex) {
 function writeDataImage(mime, base64) {
   imageCounter += 1
   const ext = mime.includes('png') ? 'png' : mime.includes('webp') ? 'webp' : 'jpg'
-  const filename = `beatriz-sop-image-${imageCounter}.${ext}`
+  const filename = `knowledge-sop-image-${imageCounter}.${ext}`
   fs.mkdirSync(DATA_IMAGE_DIR, { recursive: true })
   fs.writeFileSync(path.join(DATA_IMAGE_DIR, filename), Buffer.from(base64, 'base64'))
   return `/api/imported/${filename}`
@@ -242,7 +242,7 @@ for (const page of pages) {
       articles.push({
         areaId: page.id,
         departmentSlug: area.slug,
-        slug: `beatriz-${area.slug}-${slugify(card.title || `documento-${index + 1}`)}`,
+        slug: `knowledge-${area.slug}-${slugify(card.title || `documento-${index + 1}`)}`,
         title: card.title || area.name,
         summary: card.subtitle || area.description,
         body: card.body,
@@ -260,7 +260,7 @@ for (const page of pages) {
     articles.push({
       areaId: page.id,
       departmentSlug: area.slug,
-      slug: `beatriz-${area.slug}-${slugify(title)}`,
+      slug: `knowledge-${area.slug}-${slugify(title)}`,
       title,
       summary: subtitle,
       body: cleanHtml(body),
@@ -295,7 +295,7 @@ select
   ${sqlString(article.summary)},
   d.id,
   'published'::public.content_status,
-  ${sqlArray(['beatriz', 'movy', article.departmentSlug])},
+  ${sqlArray(['knowledge', 'movy', article.departmentSlug])},
   ${sqlString(article.type)},
   ${sqlString(article.category)},
   'internal',
@@ -323,8 +323,8 @@ on conflict (slug) do update set
   )
   .join('\n\n')
 
-const sql = `-- Movy Internal Hub - Beatriz SOP content import.
--- Generated from FYME_SOP_Site (21).html. Rebranded from FYME to Movy.
+const sql = `-- Movy Internal Hub - Movy SOP content import.
+-- Generated from legacy-sop-site.html. Rebranded from Movy to Movy.
 
 insert into public.departments (
   slug, name_pt, name_en, name_es, color, icon, is_active,
@@ -350,7 +350,7 @@ where slug <> all (${sqlArray(allowedSlugs)});
 update public.contents
 set status = 'archived'::public.content_status,
     updated_at = now()
-where slug not like 'beatriz-%';
+where slug not like 'knowledge-%';
 
 ${articleSql}
 `
@@ -362,7 +362,7 @@ fs.writeFileSync(
   JSON_OUT,
   JSON.stringify(
     {
-      source: 'FYME_SOP_Site (21).html',
+      source: 'legacy-sop-site.html',
       generatedAt: new Date().toISOString(),
       areas: Object.values(AREAS),
       articles,

@@ -20,7 +20,7 @@ const extraTemplates: Record<ApplicantType, Array<[ExtraCost['item'], ExtraCost[
     ['Taxa Administrativa Movy', 'admin'],
     ['Medical Examination (if required)', 'medical'],
   ],
-  Família: [
+  Familia: [
     ['OSHC Family', 'oshc'],
     ['Student Visa Fee (main applicant)', 'visa'],
     ['Dependent Visa Fee (+18)', 'visa'],
@@ -56,14 +56,10 @@ export function uid(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`
 }
 
-// ── ELICOS modules, transition holiday and payment cadences ─────────────────
-
 export const ELICOS_MODULE_NAMES = ['General English', 'Cambridge', 'IELTS', 'EAP'] as const
-
-// Holiday between ELICOS and the AQF course (VET/HE). Within ELICOS itself the
-// rule is 12 study + 4 holiday; the transition holiday tops out at 8 weeks,
-// except for the few fixed public-university intakes.
-export const MAX_TRANSITION_HOLIDAY_WEEKS = 8
+export const DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY = 12
+export const DEFAULT_ELICOS_HOLIDAY_WEEKS = 4
+export const MAX_TRANSITION_HOLIDAY_WEEKS = 12
 
 export const PAYMENT_CADENCES: Array<{ label: string; days: number }> = [
   { label: 'Semanal (7 dias)', days: 7 },
@@ -77,21 +73,34 @@ export function createElicosModule(name = 'General English', ratePerWeek = 260, 
   return { id: uid('mod'), name, ratePerWeek, weeks: moduleWeeks }
 }
 
-// Build study/holiday segments from ELICOS modules using the 12-week study +
-// 4-week holiday rule, labelling each study block with its active module.
-export function buildElicosSegments(modules: ElicosModule[]): CourseSegment[] {
+function clampWeeks(value: unknown, fallback: number, min = 1, max = 104) {
+  const parsed = Math.round(Number(value) || fallback)
+  return Math.max(min, Math.min(max, parsed))
+}
+
+export function buildElicosSegments(
+  modules: ElicosModule[],
+  studyWeeksBeforeHoliday = DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY,
+  holidayWeeks = DEFAULT_ELICOS_HOLIDAY_WEEKS,
+): CourseSegment[] {
+  const block = clampWeeks(studyWeeksBeforeHoliday, DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY, 1, 52)
+  const breakWeeks = Math.max(0, Math.min(52, Math.round(Number(holidayWeeks) || 0)))
   const stream: string[] = []
-  for (const m of modules) {
-    const w = Math.max(0, Math.round(Number(m.weeks) || 0))
-    for (let i = 0; i < w; i++) stream.push(m.name)
+
+  for (const elicosModule of modules) {
+    const totalWeeks = Math.max(0, Math.round(Number(elicosModule.weeks) || 0))
+    for (let index = 0; index < totalWeeks; index += 1) stream.push(elicosModule.name)
   }
+
   const segments: CourseSegment[] = []
-  let i = 0
-  while (i < stream.length) {
-    const chunk = Math.min(12, stream.length - i)
-    segments.push({ id: uid('seg'), label: stream[i] || 'Inglês', kind: 'study', weeks: chunk })
-    i += chunk
-    if (i < stream.length) segments.push({ id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 })
+  let cursor = 0
+  while (cursor < stream.length) {
+    const chunk = Math.min(block, stream.length - cursor)
+    segments.push({ id: uid('seg'), label: stream[cursor] || 'Ingles', kind: 'study', weeks: chunk })
+    cursor += chunk
+    if (cursor < stream.length && breakWeeks > 0) {
+      segments.push({ id: uid('seg'), label: 'Ferias', kind: 'holiday', weeks: breakWeeks })
+    }
   }
   return segments
 }
@@ -119,13 +128,16 @@ export function createExtraCosts(applicantType: ApplicantType): ExtraCost[] {
 
 export function createCourse(type: CourseType): StudyCourse {
   const modules = type === 'elicos' ? [createElicosModule('General English', 260, 12)] : undefined
+  const studyWeeksBeforeHoliday = DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY
+  const holidayWeeks = DEFAULT_ELICOS_HOLIDAY_WEEKS
+
   return {
     id: uid('course'),
     type,
     provider: '',
     name: '',
     url: '',
-    timetable: 'Manhã',
+    timetable: 'Manha',
     start: '',
     enrolmentFee: type === 'elicos' || type === 'vet' ? 250 : 0,
     tuition: 0,
@@ -138,11 +150,13 @@ export function createCourse(type: CourseType): StudyCourse {
     paymentFrequency: defaultPaymentFrequency(type),
     paymentCadenceDays: 30,
     modules,
+    studyWeeksBeforeHoliday,
+    holidayWeeks,
     segments: type === 'elicos' && modules
-      ? buildElicosSegments(modules)
+      ? buildElicosSegments(modules, studyWeeksBeforeHoliday, holidayWeeks)
       : [
           { id: uid('seg'), label: COURSE_TYPES[type].label, kind: 'study', weeks: 24 },
-          { id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 },
+          { id: uid('seg'), label: 'Ferias', kind: 'holiday', weeks: 4 },
         ],
   }
 }

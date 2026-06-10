@@ -6,9 +6,9 @@ export const DEPARTMENTS = [
     name_pt: 'Visao Geral',
     name_en: 'Overview',
     name_es: 'Vision General',
-    desc_pt: 'Jornada do estudante, organograma, perfis de cliente e visao operacional da Beatriz.',
-    desc_en: 'Student journey, org chart, client profiles and Beatriz operating overview.',
-    desc_es: 'Jornada del estudiante, organigrama, perfiles de cliente y vision operativa de Beatriz.',
+    desc_pt: 'Jornada do estudante, organograma, perfis de cliente e visao operacional da Movy.',
+    desc_en: 'Student journey, org chart, client profiles and Movy operating overview.',
+    desc_es: 'Jornada del estudiante, organigrama, perfiles de cliente y vision operativa de Movy.',
   },
   {
     slug: 'captacao-vendas',
