@@ -21,12 +21,16 @@ interface Props {
   items: Item[]
   locale: string
   deptColor: string
-  titleFor: (item: Item) => string
   typeLabels: Record<string, string>
 }
 
-export function CategorySection({ category, items, locale, deptColor, titleFor, typeLabels }: Props) {
+export function CategorySection({ category, items, locale, deptColor, typeLabels }: Props) {
   const [open, setOpen] = useState(true)
+  const titleFor = (item: Item) =>
+    locale === 'en' ? (item.title_en || item.title_pt)
+    : locale === 'es' ? (item.title_es || item.title_pt)
+    : item.title_pt
+
   return (
     <div style={{ marginBottom: 16 }}>
       <button

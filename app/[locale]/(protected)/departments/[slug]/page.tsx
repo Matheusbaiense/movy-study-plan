@@ -49,11 +49,6 @@ export default async function DepartmentPage({ params }: Props) {
   const totalContent = contents?.length ?? 0
   const canWrite = isEditorOrAbove(profile.role)
 
-  const titleFor = (item: NonNullable<typeof contents>[number]) =>
-    locale === 'en' ? (item.title_en || item.title_pt)
-    : locale === 'es' ? (item.title_es || item.title_pt)
-    : item.title_pt
-
   const TYPE_LABELS: Record<string, string> = {
     process: 'Processo', template: 'Template', training: 'Treinamento',
     login: 'Login', policy: 'Política', faq: 'FAQ', checklist: 'Checklist', reference: 'Referência',
@@ -111,7 +106,6 @@ export default async function DepartmentPage({ params }: Props) {
                 items={items}
                 locale={locale}
                 deptColor={dept.color ?? '#2A1153'}
-                titleFor={titleFor}
                 typeLabels={TYPE_LABELS}
               />
             ))
