@@ -7,6 +7,19 @@ const handleI18nRouting = createIntlMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const oauthCode = request.nextUrl.searchParams.get('code')
+  const pathnameLocale = routing.locales.find(
+    (locale) => pathname === `/${locale}` || pathname === `/${locale}/`
+  )
+
+  if (oauthCode && (pathname === '/' || pathnameLocale)) {
+    const url = new URL('/auth/callback', request.url)
+    url.search = request.nextUrl.search
+    if (!url.searchParams.get('locale')) {
+      url.searchParams.set('locale', pathnameLocale ?? routing.defaultLocale)
+    }
+    return NextResponse.redirect(url)
+  }
 
   // Legacy: next-intl used to prefix OAuth callback to /pt/auth/callback, which has no Route
   // Handler. Send those hits to the real handler at /auth/callback.
