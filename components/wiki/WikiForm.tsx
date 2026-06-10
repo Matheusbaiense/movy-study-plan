@@ -47,7 +47,7 @@ export function WikiForm({ departments, locale, mode = 'create', contentId, defa
           await updateContent(contentId, formData)
           router.back()
         } else {
-          await createContent(formData)
+          await createContent(locale, formData)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao salvar. Tente novamente.')

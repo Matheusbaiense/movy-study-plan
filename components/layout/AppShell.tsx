@@ -47,8 +47,10 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
   const mainNav = [
     { href: `/${locale}/home`, icon: 'home', label: locale === 'pt' ? 'Início' : locale === 'es' ? 'Inicio' : 'Home' },
+    { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'pt' ? 'Cotações' : locale === 'es' ? 'Cotizaciones' : 'Quotes' },
     { href: `/${locale}/search`, icon: 'search', label: locale === 'pt' ? 'Busca' : locale === 'es' ? 'Búsqueda' : 'Search' },
     { href: `/${locale}/wiki`, icon: 'book', label: 'Wiki' },
+    { href: `/${locale}/campaigns`, icon: 'megaphone', label: locale === 'pt' ? 'Campanhas' : locale === 'es' ? 'Campañas' : 'Campaigns' },
   ]
 
   const adminNav = isAdminOrAbove(profile.role)
@@ -72,6 +74,8 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
       {/* Search shortcut */}
       <button
+        type="button"
+        onClick={() => router.push(`/${locale}/search`)}
         style={{
           display: 'flex',
           alignItems: 'center',

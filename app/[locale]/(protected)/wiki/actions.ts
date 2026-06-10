@@ -9,7 +9,7 @@ import { slugify } from '@/lib/slug'
 import { sanitizeHtml } from '@/lib/security/sanitize-html'
 import type { Enums } from '@/types/supabase'
 
-export async function createContent(formData: FormData) {
+export async function createContent(locale: string, formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/unauthorized')
@@ -98,7 +98,7 @@ export async function createContent(formData: FormData) {
   })
 
   revalidatePath('/[locale]/(protected)/wiki', 'page')
-  redirect(`wiki/${slug}`)
+  redirect(`/${locale}/wiki/${slug}`)
 }
 
 export async function updateContent(id: string, formData: FormData) {
