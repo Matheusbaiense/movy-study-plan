@@ -26,7 +26,8 @@ Tipos em `lib/study-plans/types.ts`.
 | Tipo | Campos principais |
 |------|-------------------|
 | `StudyPlanData` | `student`, `applicantType`, `currentVisaExpiry`, `consultant`, `email`, `phone`, `courses[]`, `extraCosts[]`, `payments[]`, `notes` |
-| `StudyCourse` | `type` (`elicos`\|`vet`\|`he`), `provider`, `name`, `start`, `enrolmentFee`, `tuition`, `ratePerWeek`, `materialFee`, `hasMaterial`, `scholarship`, `depositWeeks`, `paymentParts`, `paymentFrequency`, `segments[]` |
+| `StudyCourse` | `type` (`elicos`\|`vet`\|`he`), `provider`, `name`, `start`, `enrolmentFee`, `tuition`, `ratePerWeek`, `materialFee`, `hasMaterial`, `scholarship`, `depositWeeks`, `paymentParts`, `segments[]`, **`modules?`** (ELICOS), **`gapBeforeWeeks?`**, **`paymentCadenceDays?`** |
+| `ElicosModule` | `name` (General English\|Cambridge\|IELTS\|EAP), `ratePerWeek`, `weeks` |
 | `CourseSegment` | `label`, `kind` (`study`\|`holiday`), `weeks` |
 | `ExtraCost` | `item`, `category` (`oshc`\|`visa`\|`admin`\|`medical`\|`other`), `amount` |
 | `PaymentItem` | `item`, `due`, `amount` |
@@ -41,7 +42,7 @@ Toda a matemática vive em `lib/study-plans/calculations.ts` (fonte única, usad
 tanto pelo editor quanto pela proposta — garante consistência).
 
 **Por curso:**
-- `courseTuition` = ELICOS: `semanas de estudo × ratePerWeek`; VET/HE: `tuition`.
+- `courseTuition` = ELICOS com módulos: `Σ (módulo.weeks × módulo.ratePerWeek)`; ELICOS sem módulos: `semanas de estudo × ratePerWeek`; VET/HE: `tuition`.
 - `courseMaterial` = 0 para HE; 0 para VET sem material; senão `materialFee`.
 - `courseTotal` = `enrolmentFee + tuition + material − scholarship`.
 - `courseDeposit` = ELICOS: `enrolment + material + min(semanas estudo, depositWeeks) × ratePerWeek`; VET/HE: `enrolment + material`.
@@ -59,12 +60,25 @@ tanto pelo editor quanto pela proposta — garante consistência).
 mostra como *Depósito no fechamento + Saldo a parcelar = Investimento total*.
 
 **Datas / cronograma:** `buildSchedule` encadeia os segmentos de cada curso a partir
-de `course.start`, somando as semanas. `addDays` calcula **em UTC** para que as datas
-não desloquem conforme o fuso do navegador do consultor (Austrália = UTC+8).
+de `course.start`, somando as semanas, e insere a **férias de transição** (`gapBeforeWeeks`,
+máx 8) antes de um curso AQF. `addDays`/`addMonths`/`nextMonday`/`daysBetween` calculam
+**em UTC** (consultores rodam em UTC+8). ELICOS inicia sempre numa **segunda-feira**
+(`nextMonday`) e tem segmentos gerados pela **regra 12 estudo + 4 férias**
+(`buildElicosSegments`, a partir dos módulos).
 
-**Parcelamento sugerido** (`suggestPayments` no editor): depósito + extras "no
-fechamento", depois divide o saldo de cada curso em `paymentParts` parcelas. A última
-parcela absorve o resto do arredondamento, garantindo soma exata.
+**Novo vencimento do visto** (`planNewVisaDate` → `visaExpiry`) pelas regras Home Affairs,
+a partir do fim do último curso (`planCourseEnd`, CoE):
+- pathway **≥10 meses** terminando **nov/dez** → **15 de março** do ano seguinte;
+- pathway **≥10 meses** terminando jan–out → **+2 meses**;
+- pathway **<10 meses** → **+1 mês**.
+
+**Parcelamento com datas reais** (`datedInstallments`): depósito + extras "no fechamento",
+depois cada curso divide o saldo em `paymentParts` parcelas espaçadas por
+`paymentCadenceDays` (**7 / 30 / 45 / 90 / 120** dias) a partir do início do curso, com
+vencimentos calculados. A última parcela absorve o resto do arredondamento (soma exata).
+
+**Linha do tempo:** o editor renderiza um Gantt com eixo de meses, blocos estudo/férias
+e marcadores de **CoE** e **vencimento do visto** (componente `Timeline`).
 
 ## Geração de PDF
 
