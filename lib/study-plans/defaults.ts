@@ -125,7 +125,7 @@ export function createCourse(type: CourseType): StudyCourse {
     provider: '',
     name: '',
     url: '',
-    timetable: '',
+    timetable: 'Manhã',
     start: '',
     enrolmentFee: type === 'elicos' || type === 'vet' ? 250 : 0,
     tuition: 0,
@@ -151,6 +151,7 @@ export function createBlankStudyPlan(): StudyPlanData {
   return {
     student: 'Novo Estudante',
     applicantType: 'Individual',
+    studentLocation: 'offshore',
     currentVisaExpiry: '',
     consultant: '',
     email: '',

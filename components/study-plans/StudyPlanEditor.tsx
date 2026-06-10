@@ -16,10 +16,11 @@ import {
   uid,
 } from '@/lib/study-plans/defaults'
 import {
+  OFFSHORE_ELICOS_MIN_INSTALLMENT_WEEKS,
   buildSchedule,
+  courseCanInstallment,
   courseDeposit,
-  courseMaterial,
-  coursePaymentBalance,
+  courseInstallmentBalance,
   courseStudyWeeks,
   courseTotal,
   courseTuition,
@@ -29,16 +30,16 @@ import {
   money,
   nextMonday,
   number,
-  planCourseDeposits,
   planExtrasTotal,
   planGrandTotal,
   planHolidayWeeks,
+  planInstallmentBalance,
   planNewVisaDate,
-  planPaymentBalance,
   planStudyWeeks,
+  planUpfrontSchools,
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
-import type { ApplicantType, CourseType, ElicosModule, StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
+import type { ApplicantType, CourseType, ElicosModule, StudentLocation, StudyCourse, StudyPlanData, Timetable } from '@/lib/study-plans/types'
 
 interface Props {
   id: string
@@ -102,14 +103,14 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
 
   function suggestPayments() {
     const payments = []
-    const deposit = planCourseDeposits(plan)
+    const upfront = planUpfrontSchools(plan)
     const extras = planExtrasTotal(plan)
-    if (deposit > 0) payments.push({ id: uid('pay'), item: 'Depósito escolas (matrícula/material/entrada)', due: 'No fechamento', amount: deposit })
+    if (upfront > 0) payments.push({ id: uid('pay'), item: 'Escolas — pagamento no fechamento', due: 'No fechamento', amount: upfront })
     if (extras > 0) payments.push({ id: uid('pay'), item: 'OSHC + Visto + adicionais', due: 'No fechamento', amount: extras })
 
     for (const course of plan.courses) {
-      const balance = coursePaymentBalance(course)
-      if (balance <= 0) continue
+      const balance = courseInstallmentBalance(course, plan.studentLocation)
+      if (balance <= 0) continue // offshore ELICOS <25 weeks paid fully upfront above
       const parts = Math.max(1, Math.round(number(course.paymentParts) || 1))
       const cadence = number(course.paymentCadenceDays) || 30
       const label = course.provider || COURSE_TYPES[course.type].label
@@ -163,6 +164,12 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 }}
               >
                 {applicantTypes.map((type) => <option key={type}>{type}</option>)}
+              </select>
+            </Field>
+            <Field label="Situação do estudante">
+              <select style={input} value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
+                <option value="offshore">Offshore (fora da Austrália)</option>
+                <option value="onshore">Onshore (na Austrália)</option>
               </select>
             </Field>
             <Field label="Vencimento do visto atual">
@@ -219,7 +226,11 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
                     <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
                   </Field>
-                  <Field label="Horário"><input style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })} /></Field>
+                  <Field label="Turno">
+                    <select style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
+                      {(['Manhã', 'Tarde', 'Noite'] as Timetable[]).map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </Field>
                   {course.type !== 'elicos' && (
                     <Field label="Tuition total"><NumberInput value={course.tuition} onChange={(value) => updateCourse(course.id, { tuition: value })} /></Field>
                   )}
@@ -230,13 +241,6 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                     </Field>
                   )}
                   <Field label="Bolsa / desconto"><NumberInput value={course.scholarship} onChange={(value) => updateCourse(course.id, { scholarship: value })} /></Field>
-                  {course.type === 'elicos' && <Field label="Entrada em semanas"><NumberInput value={course.depositWeeks} onChange={(value) => updateCourse(course.id, { depositWeeks: value })} /></Field>}
-                  <Field label="Parcelas sugeridas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
-                  <Field label="Cadência das parcelas">
-                    <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
-                      {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
-                    </select>
-                  </Field>
                 </div>
 
                 {courseIndex > 0 && (
@@ -293,6 +297,35 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
         </Section>
 
         <Section title="Pagamento" action={<button style={ghostButton} onClick={suggestPayments}>Sugerir parcelamento</button>}>
+          <div style={{ display: 'grid', gap: 10, marginBottom: 16 }}>
+            {plan.courses.map((course) => {
+              const blocked = !courseCanInstallment(course, plan.studentLocation)
+              return (
+                <div key={course.id} style={{ border: '1px solid rgba(28,18,51,0.08)', borderRadius: 12, padding: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#2A1153', marginBottom: 10 }}>
+                    {course.provider || COURSE_TYPES[course.type].label} · {COURSE_TYPES[course.type].label}
+                  </div>
+                  {blocked ? (
+                    <div style={{ fontSize: 12, color: '#D23B2B', background: 'rgba(210,59,43,0.06)', border: '1px solid rgba(210,59,43,0.15)', borderRadius: 8, padding: '8px 10px' }}>
+                      Offshore com ELICOS abaixo de {OFFSHORE_ELICOS_MIN_INSTALLMENT_WEEKS} semanas: custos da escola pagos à vista no fechamento (sem parcelamento).
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: course.type === 'elicos' ? '120px 120px 1fr' : '120px 1fr', gap: 10 }}>
+                      {course.type === 'elicos' && (
+                        <Field label="Entrada (sem)"><NumberInput value={course.depositWeeks} onChange={(value) => updateCourse(course.id, { depositWeeks: value })} /></Field>
+                      )}
+                      <Field label="Parcelas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
+                      <Field label="Cadência das parcelas">
+                        <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
+                          {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
+                        </select>
+                      </Field>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
           <div style={{ display: 'grid', gap: 10 }}>
             {plan.payments.map((payment) => (
               <div key={payment.id} style={{ display: 'grid', gridTemplateColumns: '1fr 180px 130px auto', gap: 10 }}>
@@ -313,9 +346,9 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
           <MiniStat label="Total visto" value={`${planVisaWeeks(plan)} sem`} />
           <MiniStat label="Novo venc. visto" value={visa.date ? formatDate(visa.date) : '—'} strong />
           <MiniStat label="Total geral" value={money(planGrandTotal(plan))} strong />
-          <MiniStat label="Depósito escolas" value={money(planCourseDeposits(plan))} />
+          <MiniStat label="Escolas no fechamento" value={money(planUpfrontSchools(plan))} />
           <MiniStat label="OSHC/Visto/Extras" value={money(planExtrasTotal(plan))} />
-          <MiniStat label="Saldo cursos" value={money(planPaymentBalance(plan))} />
+          <MiniStat label="Saldo a parcelar" value={money(planInstallmentBalance(plan))} />
         </SummaryCard>
 
         <SummaryCard title="Cronograma">

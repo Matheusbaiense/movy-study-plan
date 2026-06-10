@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { createStudyPlan } from './actions'
+import { NewQuoteButton } from '@/components/study-plans/NewQuoteButton'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
@@ -31,20 +32,7 @@ export default async function StudyPlansPage({ params }: Props) {
           </p>
         </div>
         <form action={createStudyPlan.bind(null, locale)}>
-          <button
-            style={{
-              border: 0,
-              borderRadius: 10,
-              padding: '11px 16px',
-              background: '#2A1153',
-              color: '#fff',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'Outfit, sans-serif',
-            }}
-          >
-            + Nova cotação
-          </button>
+          <NewQuoteButton />
         </form>
       </div>
 

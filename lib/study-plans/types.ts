@@ -1,6 +1,8 @@
 export type CourseType = 'elicos' | 'vet' | 'he'
 export type SegmentKind = 'study' | 'holiday'
 export type ApplicantType = 'Individual' | 'Casal' | 'Família' | 'Single Parent'
+export type StudentLocation = 'onshore' | 'offshore'
+export type Timetable = 'Manhã' | 'Tarde' | 'Noite'
 
 export interface CourseSegment {
   id: string
@@ -68,6 +70,9 @@ export interface StudyPlanData {
   extraCosts: ExtraCost[]
   payments: PaymentItem[]
   notes: string
+  // Optional (backward compatible). Offshore students cannot pay ELICOS in
+  // installments unless studying 25+ weeks — otherwise school costs are upfront.
+  studentLocation?: StudentLocation
 }
 
 export interface StudyPlanRow {

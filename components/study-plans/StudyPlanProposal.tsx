@@ -13,13 +13,13 @@ import {
   formatDate,
   money,
   number,
-  planCourseDeposits,
   planExtrasTotal,
   planGrandTotal,
   planHolidayWeeks,
+  planInstallmentBalance,
   planNewVisaDate,
-  planPaymentBalance,
   planStudyWeeks,
+  planUpfrontSchools,
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
 import type { StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
@@ -165,8 +165,8 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
             <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em' }}>{money(planGrandTotal(data))}</strong>
           </div>
           <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
-            <TotalLine label="Depósito no fechamento" value={money(planCourseDeposits(data) + planExtrasTotal(data))} />
-            <TotalLine label="Saldo a parcelar (cursos)" value={money(planPaymentBalance(data))} />
+            <TotalLine label="Pagamento no fechamento" value={money(planUpfrontSchools(data) + planExtrasTotal(data))} />
+            <TotalLine label="Saldo a parcelar (cursos)" value={money(planInstallmentBalance(data))} />
             <TotalLine label="Duração total do visto" value={`${planVisaWeeks(data)} semanas`} />
             {visa.date && <TotalLine label="Novo venc. do visto (estimado)" value={formatDate(visa.date)} />}
           </div>

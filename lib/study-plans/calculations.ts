@@ -1,4 +1,4 @@
-import type { CourseSegment, StudyCourse, StudyPlanData } from './types'
+import type { CourseSegment, StudentLocation, StudyCourse, StudyPlanData } from './types'
 
 export function money(value: number) {
   return `AUD ${number(value).toLocaleString('pt-BR', {
@@ -68,6 +68,35 @@ export function courseDeposit(course: StudyCourse) {
 
 export function coursePaymentBalance(course: StudyCourse) {
   return Math.max(0, courseTotal(course) - courseDeposit(course))
+}
+
+// Offshore students cannot pay ELICOS in installments unless the course is
+// 25+ study weeks; below that, all school-related costs are paid upfront.
+export const OFFSHORE_ELICOS_MIN_INSTALLMENT_WEEKS = 25
+
+export function courseCanInstallment(course: StudyCourse, location: StudentLocation | undefined) {
+  if (location === 'offshore' && course.type === 'elicos' && courseStudyWeeks(course) < OFFSHORE_ELICOS_MIN_INSTALLMENT_WEEKS) {
+    return false
+  }
+  return true
+}
+
+// Amount paid upfront ("no fechamento") for a course: the normal deposit, or
+// the full course total when installments are not allowed.
+export function courseUpfront(course: StudyCourse, location: StudentLocation | undefined) {
+  return courseCanInstallment(course, location) ? courseDeposit(course) : courseTotal(course)
+}
+
+export function courseInstallmentBalance(course: StudyCourse, location: StudentLocation | undefined) {
+  return courseCanInstallment(course, location) ? coursePaymentBalance(course) : 0
+}
+
+export function planUpfrontSchools(plan: StudyPlanData) {
+  return plan.courses.reduce((total, course) => total + courseUpfront(course, plan.studentLocation), 0)
+}
+
+export function planInstallmentBalance(plan: StudyPlanData) {
+  return plan.courses.reduce((total, course) => total + courseInstallmentBalance(course, plan.studentLocation), 0)
 }
 
 export function planStudyWeeks(plan: StudyPlanData) {
