@@ -17,6 +17,7 @@ import {
   planExtrasTotal,
   planGrandTotal,
   planHolidayWeeks,
+  planNewVisaDate,
   planPaymentBalance,
   planStudyWeeks,
   planVisaWeeks,
@@ -47,6 +48,7 @@ const CATEGORY_LABEL: Record<StudyPlanData['extraCosts'][number]['category'], st
 
 export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Props) {
   const schedule = useMemo(() => buildSchedule(data), [data])
+  const visa = useMemo(() => planNewVisaDate(data), [data])
   const issued = updatedAt ? new Date(updatedAt) : new Date()
   const validity = new Date(issued.getTime() + 30 * 24 * 60 * 60 * 1000)
 
@@ -166,6 +168,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
             <TotalLine label="Depósito no fechamento" value={money(planCourseDeposits(data) + planExtrasTotal(data))} />
             <TotalLine label="Saldo a parcelar (cursos)" value={money(planPaymentBalance(data))} />
             <TotalLine label="Duração total do visto" value={`${planVisaWeeks(data)} semanas`} />
+            {visa.date && <TotalLine label="Novo venc. do visto (estimado)" value={formatDate(visa.date)} />}
           </div>
         </section>
 
