@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { logAudit } from '@/lib/api/audit'
+import { logAuditWithClient } from '@/lib/api/audit'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import type { StudyPlanData } from '@/lib/study-plans/types'
@@ -50,7 +50,7 @@ export async function createStudyPlan(locale = 'pt') {
   if (error) throw new Error(error.message)
   if (!plan) throw new Error('Failed to create study plan')
 
-  await logAudit({
+  await logAuditWithClient(supabase as any, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.create',
@@ -82,7 +82,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
 
   if (error) throw new Error(error.message)
 
-  await logAudit({
+  await logAuditWithClient(supabase as any, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.update',
@@ -116,7 +116,7 @@ export async function deleteStudyPlan(id: string, locale = 'pt') {
   const { error } = await (supabase as any).from('study_plans').delete().eq('id', id)
   if (error) throw new Error(error.message)
 
-  await logAudit({
+  await logAuditWithClient(supabase as any, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.delete',
