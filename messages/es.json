@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "wiki": "Wiki",
+    "campaigns": "Campañas",
+    "users": "Usuarios",
+    "auditLog": "Registro de Auditoría",
+    "settings": "Configuración"
+  },
+  "wiki": {
+    "title": "Wiki",
+    "subtitle": "Procesos, documentos y conocimiento operacional de Movy",
+    "newArticle": "Nuevo artículo",
+    "noResults": "No se encontraron artículos",
+    "createFirst": "Crear el primer artículo",
+    "searchPlaceholder": "Buscar artículos…",
+    "allDepartments": "Todos los departamentos",
+    "allStatuses": "Todos los estados",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "read": "Leer",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando…",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.",
+    "backToWiki": "Wiki",
+    "featured": "Destacado",
+    "updatedAt": "Actualizado el"
+  },
+  "wikiForm": {
+    "newTitle": "Nuevo artículo Wiki",
+    "newSubtitle": "Documenta un proceso, guía o conocimiento operacional de Movy.",
+    "department": "Departamento",
+    "noDepartment": "Sin departamento",
+    "status": "Estado",
+    "tags": "Etiquetas",
+    "tagsHint": "(separadas por coma)",
+    "tagsPlaceholder": "ej: visa, estudiante, coe",
+    "featured": "Artículo destacado",
+    "title": "Título",
+    "content": "Contenido",
+    "contentHint": "(soporta HTML)",
+    "cancel": "Cancelar",
+    "save": "Guardar artículo",
+    "saving": "Guardando…"
+  },
+  "status": {
+    "published": "Publicado",
+    "draft": "Borrador",
+    "archived": "Archivado"
+  },
+  "departments": {
+    "commercial": "Comercial",
+    "studentSupport": "Soporte Estudiantil",
+    "visa": "Visa",
+    "marketing": "Marketing",
+    "technology": "Tecnología"
+  },
+  "auth": {
+    "loginTitle": "Movy Internal Hub",
+    "loginSubtitle": "Solo acceso interno — únicamente cuentas autorizadas.",
+    "continueWithGoogle": "Continuar con Google",
+    "redirecting": "Redirigiendo…",
+    "restrictedNote": "Solo las cuentas @movyeducation.com y usuarios preautorizados pueden acceder a esta plataforma."
+  },
+  "dashboard": {
+    "greeting": "Hola",
+    "subtitle": "Bienvenido al Movy Internal Hub — el repositorio central de conocimiento del equipo.",
+    "wikiArticles": "artículos publicados",
+    "departments": "áreas",
+    "accessLevel": "nivel",
+    "viewProcesses": "Ver procesos →",
+    "allWiki": "Wiki completa",
+    "allArticles": "Todos los artículos",
+    "newWikiArticle": "Nuevo artículo wiki"
+  },
+  "errors": {
+    "unauthorized": "Acceso Denegado",
+    "unauthorizedDesc": "Tu cuenta no está autorizada para acceder al Movy Internal Hub. Contacta a tu administrador para solicitar acceso.",
+    "backToLogin": "Volver al Login"
+  }
+}

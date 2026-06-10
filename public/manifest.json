@@ -1,0 +1,23 @@
+{
+  "name": "Movy Internal Hub",
+  "short_name": "Movy Hub",
+  "description": "Repositório interno de processos, documentos e campanhas da Movy",
+  "start_url": "/pt/home",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity"]
+}
