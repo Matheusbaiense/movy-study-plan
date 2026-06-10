@@ -88,11 +88,13 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
       const parts = Math.max(1, Math.round(number(course.paymentParts) || 1))
       const each = Math.round((balance / parts) * 100) / 100
       for (let i = 1; i <= parts; i++) {
+        // Last installment absorbs the rounding remainder so the parts sum to the exact balance.
+        const amount = i === parts ? Math.round((balance - each * (parts - 1)) * 100) / 100 : each
         payments.push({
           id: uid('pay'),
           item: `${course.provider || COURSE_TYPES[course.type].label} - Parcela ${i}`,
           due: i === 1 ? course.paymentFrequency : '',
-          amount: each,
+          amount,
         })
       }
     }

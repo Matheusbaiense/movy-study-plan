@@ -314,6 +314,10 @@ const primaryButton: React.CSSProperties = { border: 0, borderRadius: 10, paddin
 const ghostButton: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 10, padding: '10px 14px', background: '#fff', color: INK, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontSize: 13 }
 
 const printStyles = `
+#movy-proposal, #movy-proposal * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
 @media print {
   @page { size: A4; margin: 12mm; }
   body { background: #fff !important; }

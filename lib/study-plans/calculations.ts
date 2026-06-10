@@ -91,8 +91,11 @@ export function planPaymentBalance(plan: StudyPlanData) {
 
 export function addDays(isoDate: string, days: number) {
   if (!isoDate) return ''
-  const date = new Date(`${isoDate}T00:00:00`)
-  date.setDate(date.getDate() + days)
+  // Parse and compute in UTC so the result is independent of the
+  // viewer's timezone (consultants run east of UTC, e.g. Australia/Perth).
+  const date = new Date(`${isoDate}T00:00:00Z`)
+  if (Number.isNaN(date.getTime())) return ''
+  date.setUTCDate(date.getUTCDate() + days)
   return date.toISOString().slice(0, 10)
 }
 
