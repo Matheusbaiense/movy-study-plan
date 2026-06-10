@@ -1,4 +1,4 @@
-import type { StudyCourse, StudyPlanData } from './types'
+import type { CourseSegment, StudyCourse, StudyPlanData } from './types'
 
 export function money(value: number) {
   return `AUD ${number(value).toLocaleString('pt-BR', {
@@ -22,11 +22,12 @@ export function courseStudyWeeks(course: StudyCourse) {
 }
 
 export function courseHolidayWeeks(course: StudyCourse) {
-  return course.segments.filter((s) => s.kind === 'holiday').reduce((total, s) => total + weeks(s.weeks), 0)
+  const segHoliday = course.segments.filter((s) => s.kind === 'holiday').reduce((total, s) => total + weeks(s.weeks), 0)
+  return segHoliday + weeks(course.gapBeforeWeeks)
 }
 
 export function courseWeeks(course: StudyCourse) {
-  return course.segments.reduce((total, s) => total + weeks(s.weeks), 0)
+  return course.segments.reduce((total, s) => total + weeks(s.weeks), 0) + weeks(course.gapBeforeWeeks)
 }
 
 export function elicosModuleWeeks(course: StudyCourse) {
@@ -111,23 +112,55 @@ export function addDays(isoDate: string, days: number) {
   return date.toISOString().slice(0, 10)
 }
 
+export function daysBetween(aIso: string, bIso: string) {
+  if (!aIso || !bIso) return 0
+  const a = new Date(`${aIso}T00:00:00Z`).getTime()
+  const b = new Date(`${bIso}T00:00:00Z`).getTime()
+  if (Number.isNaN(a) || Number.isNaN(b)) return 0
+  return Math.round((b - a) / 86400000)
+}
+
 export function formatDate(isoDate: string) {
   if (!isoDate) return '-'
   const parts = isoDate.split('-')
   return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoDate
 }
 
-export function buildSchedule(plan: StudyPlanData) {
+export type ScheduleRow = {
+  course: StudyCourse
+  segment: CourseSegment
+  start: string
+  end: string
+  weeks: number
+}
+
+export function buildSchedule(plan: StudyPlanData): ScheduleRow[] {
   let cursor = ''
   return plan.courses.flatMap((course) => {
     if (course.start) cursor = course.start
-    return course.segments.map((segment) => {
+    const rows: ScheduleRow[] = []
+    // Transition holiday before this course (ELICOS → AQF), counted in the timeline.
+    const gap = weeks(course.gapBeforeWeeks)
+    if (gap > 0 && cursor) {
+      const start = cursor
+      const end = addDays(start, gap * 7 - 1)
+      cursor = addDays(end, 1)
+      rows.push({
+        course,
+        segment: { id: `gap-${course.id}`, label: 'Férias (transição)', kind: 'holiday', weeks: gap },
+        start,
+        end,
+        weeks: gap,
+      })
+    }
+    for (const segment of course.segments) {
       const start = cursor
       const duration = weeks(segment.weeks)
       const end = start ? addDays(start, duration * 7 - 1) : ''
       cursor = end ? addDays(end, 1) : ''
-      return { course, segment, start, end, weeks: duration }
-    })
+      rows.push({ course, segment, start, end, weeks: duration })
+    }
+    return rows
   })
 }
 

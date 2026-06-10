@@ -118,6 +118,7 @@ export function createExtraCosts(applicantType: ApplicantType): ExtraCost[] {
 }
 
 export function createCourse(type: CourseType): StudyCourse {
+  const modules = type === 'elicos' ? [createElicosModule('General English', 260, 12)] : undefined
   return {
     id: uid('course'),
     type,
@@ -126,20 +127,19 @@ export function createCourse(type: CourseType): StudyCourse {
     url: '',
     timetable: '',
     start: '',
-    enrolmentFee: 0,
+    enrolmentFee: type === 'elicos' || type === 'vet' ? 250 : 0,
     tuition: 0,
     ratePerWeek: 0,
-    materialFee: 0,
+    materialFee: type === 'elicos' ? 250 : 0,
     hasMaterial: type === 'vet',
     scholarship: 0,
     depositWeeks: type === 'elicos' ? 3 : 0,
     paymentParts: defaultPaymentParts(type),
     paymentFrequency: defaultPaymentFrequency(type),
-    segments: type === 'elicos'
-      ? [
-          { id: uid('seg'), label: 'General English', kind: 'study', weeks: 12 },
-          { id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 },
-        ]
+    paymentCadenceDays: 30,
+    modules,
+    segments: type === 'elicos' && modules
+      ? buildElicosSegments(modules)
       : [
           { id: uid('seg'), label: COURSE_TYPES[type].label, kind: 'study', weeks: 24 },
           { id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 },

@@ -3,7 +3,18 @@
 import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
 import { updateStudyPlan } from '@/app/[locale]/(protected)/study-plans/actions'
-import { COURSE_PRESETS, COURSE_TYPES, createCourse, createExtraCosts, uid } from '@/lib/study-plans/defaults'
+import {
+  COURSE_PRESETS,
+  COURSE_TYPES,
+  ELICOS_MODULE_NAMES,
+  MAX_TRANSITION_HOLIDAY_WEEKS,
+  PAYMENT_CADENCES,
+  buildElicosSegments,
+  createCourse,
+  createElicosModule,
+  createExtraCosts,
+  uid,
+} from '@/lib/study-plans/defaults'
 import {
   buildSchedule,
   courseDeposit,
@@ -12,18 +23,22 @@ import {
   courseStudyWeeks,
   courseTotal,
   courseTuition,
+  datedInstallments,
+  daysBetween,
   formatDate,
   money,
+  nextMonday,
   number,
   planCourseDeposits,
   planExtrasTotal,
   planGrandTotal,
   planHolidayWeeks,
+  planNewVisaDate,
   planPaymentBalance,
   planStudyWeeks,
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
-import type { ApplicantType, CourseType, StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
+import type { ApplicantType, CourseType, ElicosModule, StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
 
 interface Props {
   id: string
@@ -51,6 +66,15 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
       courses: current.courses.map((course) => course.id === courseId ? { ...course, ...patch } : course),
     }))
     setSaveState('idle')
+  }
+
+  // ELICOS modules drive the study/holiday segments (12 + 4 rule).
+  function updateModules(courseId: string, modules: ElicosModule[]) {
+    updateCourse(courseId, { modules, segments: buildElicosSegments(modules) })
+  }
+
+  function setCourseStart(course: StudyCourse, value: string) {
+    updateCourse(course.id, { start: course.type === 'elicos' ? nextMonday(value) : value })
   }
 
   function save() {
@@ -85,22 +109,20 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
 
     for (const course of plan.courses) {
       const balance = coursePaymentBalance(course)
+      if (balance <= 0) continue
       const parts = Math.max(1, Math.round(number(course.paymentParts) || 1))
-      const each = Math.round((balance / parts) * 100) / 100
-      for (let i = 1; i <= parts; i++) {
-        // Last installment absorbs the rounding remainder so the parts sum to the exact balance.
-        const amount = i === parts ? Math.round((balance - each * (parts - 1)) * 100) / 100 : each
-        payments.push({
-          id: uid('pay'),
-          item: `${course.provider || COURSE_TYPES[course.type].label} - Parcela ${i}`,
-          due: i === 1 ? course.paymentFrequency : '',
-          amount,
-        })
+      const cadence = number(course.paymentCadenceDays) || 30
+      const label = course.provider || COURSE_TYPES[course.type].label
+      // Real due dates from the course start, spaced by the chosen cadence.
+      for (const inst of datedInstallments(balance, parts, cadence, course.start, label)) {
+        payments.push({ id: uid('pay'), item: inst.item, due: inst.due ? formatDate(inst.due) : 'A confirmar', amount: inst.amount })
       }
     }
 
     patchPlan({ payments })
   }
+
+  const visa = planNewVisaDate(plan)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 20, alignItems: 'start' }}>
@@ -194,11 +216,11 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 <div style={grid2}>
                   <Field label="Escola / provedor"><input style={input} value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
                   <Field label="Curso"><input style={input} value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
-                  <Field label="Data de início"><input style={input} type="date" value={course.start} onChange={(e) => updateCourse(course.id, { start: e.target.value })} /></Field>
+                  <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
+                    <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
+                  </Field>
                   <Field label="Horário"><input style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })} /></Field>
-                  {course.type === 'elicos' ? (
-                    <Field label="Valor por semana"><NumberInput value={course.ratePerWeek} onChange={(value) => updateCourse(course.id, { ratePerWeek: value })} /></Field>
-                  ) : (
+                  {course.type !== 'elicos' && (
                     <Field label="Tuition total"><NumberInput value={course.tuition} onChange={(value) => updateCourse(course.id, { tuition: value })} /></Field>
                   )}
                   <Field label="Matrícula"><NumberInput value={course.enrolmentFee} onChange={(value) => updateCourse(course.id, { enrolmentFee: value })} /></Field>
@@ -210,8 +232,30 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   <Field label="Bolsa / desconto"><NumberInput value={course.scholarship} onChange={(value) => updateCourse(course.id, { scholarship: value })} /></Field>
                   {course.type === 'elicos' && <Field label="Entrada em semanas"><NumberInput value={course.depositWeeks} onChange={(value) => updateCourse(course.id, { depositWeeks: value })} /></Field>}
                   <Field label="Parcelas sugeridas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
-                  <Field label="Frequência"><input style={input} value={course.paymentFrequency} onChange={(e) => updateCourse(course.id, { paymentFrequency: e.target.value })} /></Field>
+                  <Field label="Cadência das parcelas">
+                    <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
+                      {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
+                    </select>
+                  </Field>
                 </div>
+
+                {courseIndex > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <Field label={`Férias de transição antes deste curso (semanas · máx ${MAX_TRANSITION_HOLIDAY_WEEKS})`}>
+                      <NumberInput
+                        value={course.gapBeforeWeeks ?? 0}
+                        onChange={(value) => updateCourse(course.id, { gapBeforeWeeks: Math.max(0, Math.min(MAX_TRANSITION_HOLIDAY_WEEKS, Math.round(value))) })}
+                      />
+                    </Field>
+                  </div>
+                )}
+
+                {course.type === 'elicos' && (
+                  <ModuleEditor
+                    modules={course.modules ?? []}
+                    onChange={(modules) => updateModules(course.id, modules)}
+                  />
+                )}
 
                 <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                   <MiniStat label="Estudo" value={`${courseStudyWeeks(course)} sem`} />
@@ -222,6 +266,10 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
               </div>
             ))}
           </div>
+        </Section>
+
+        <Section title="Linha do tempo">
+          <Timeline plan={plan} visaDate={visa.date} />
         </Section>
 
         <Section title="Custos adicionais">
@@ -263,6 +311,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
           <MiniStat label="Estudo" value={`${planStudyWeeks(plan)} sem`} />
           <MiniStat label="Férias" value={`${planHolidayWeeks(plan)} sem`} />
           <MiniStat label="Total visto" value={`${planVisaWeeks(plan)} sem`} />
+          <MiniStat label="Novo venc. visto" value={visa.date ? formatDate(visa.date) : '—'} strong />
           <MiniStat label="Total geral" value={money(planGrandTotal(plan))} strong />
           <MiniStat label="Depósito escolas" value={money(planCourseDeposits(plan))} />
           <MiniStat label="OSHC/Visto/Extras" value={money(planExtrasTotal(plan))} />
@@ -327,6 +376,123 @@ function MiniStat({ label, value, strong = false }: { label: string; value: stri
       <strong style={{ color: '#2A1153', fontSize: strong ? 15 : 12.5 }}>{value}</strong>
     </div>
   )
+}
+
+const MODULE_HEADER = ['Módulo', 'Valor/sem', 'Semanas'] as const
+
+function ModuleEditor({ modules, onChange }: { modules: ElicosModule[]; onChange: (modules: ElicosModule[]) => void }) {
+  function update(moduleId: string, patch: Partial<ElicosModule>) {
+    onChange(modules.map((m) => m.id === moduleId ? { ...m, ...patch } : m))
+  }
+  return (
+    <div style={{ marginTop: 12, border: '1px dashed rgba(28,18,51,0.16)', borderRadius: 12, padding: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#4B1A77' }}>Módulos de inglês · 12 estudo + 4 férias</span>
+        <button type="button" style={ghostButton} onClick={() => onChange([...modules, createElicosModule()])}>+ Módulo</button>
+      </div>
+      {modules.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px auto', gap: 8, marginBottom: 6 }}>
+          {MODULE_HEADER.map((h) => <span key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(28,18,51,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>)}
+          <span />
+        </div>
+      )}
+      <div style={{ display: 'grid', gap: 8 }}>
+        {modules.map((m) => (
+          <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px auto', gap: 8 }}>
+            <select style={input} value={m.name} onChange={(e) => update(m.id, { name: e.target.value })}>
+              {ELICOS_MODULE_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <NumberInput value={m.ratePerWeek} onChange={(value) => update(m.id, { ratePerWeek: value })} />
+            <NumberInput value={m.weeks} onChange={(value) => update(m.id, { weeks: Math.max(0, Math.round(value)) })} />
+            <button type="button" style={dangerButton} onClick={() => onChange(modules.filter((x) => x.id !== m.id))}>×</button>
+          </div>
+        ))}
+        {modules.length === 0 && <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Adicione ao menos um módulo (ex.: General English).</span>}
+      </div>
+      <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>Tuition do ELICOS = soma de (semanas × valor/semana) dos módulos.</div>
+    </div>
+  )
+}
+
+const TIMELINE_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string }) {
+  const rows = useMemo(() => buildSchedule(plan).filter((r) => r.start && r.end), [plan])
+  if (rows.length === 0) {
+    return <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Defina a data de início do primeiro curso para ver a linha do tempo.</span>
+  }
+  const rangeStart = rows[0].start
+  const lastEnd = rows[rows.length - 1].end
+  const rangeEnd = visaDate && visaDate > lastEnd ? visaDate : lastEnd
+  const total = Math.max(1, daysBetween(rangeStart, rangeEnd))
+  const pct = (iso: string) => (daysBetween(rangeStart, iso) / total) * 100
+  const lastStudy = [...rows].reverse().find((r) => r.segment.kind === 'study')
+  const coe = lastStudy ? lastStudy.end : lastEnd
+
+  const ticks: Array<{ iso: string; label: string }> = []
+  const startDate = new Date(`${rangeStart}T00:00:00Z`)
+  let m = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1))
+  if (m < startDate) m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
+  while (m.toISOString().slice(0, 10) <= rangeEnd) {
+    ticks.push({ iso: m.toISOString().slice(0, 10), label: `${TIMELINE_MONTHS[m.getUTCMonth()]} ${String(m.getUTCFullYear()).slice(2)}` })
+    m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: 10 }}>
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', height: 40, border: '1px solid rgba(28,18,51,0.10)', borderRadius: 10, overflow: 'hidden', background: '#FBFAFE' }}>
+          {rows.map((r) => {
+            const left = pct(r.start)
+            const width = ((daysBetween(r.start, r.end) + 1) / total) * 100
+            const study = r.segment.kind === 'study'
+            return (
+              <div
+                key={`${r.course.id}-${r.segment.id}`}
+                title={`${r.segment.label} · ${r.weeks} sem (${formatDate(r.start)}–${formatDate(r.end)})`}
+                style={{
+                  position: 'absolute', top: 6, height: 28, left: `${left}%`, width: `${width}%`,
+                  borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 800, overflow: 'hidden',
+                  color: study ? '#fff' : '#2A1153',
+                  background: study ? 'linear-gradient(135deg,#4B1A77,#7A1E7E)' : 'linear-gradient(135deg,#FBB615,#F36B1C)',
+                }}
+              >
+                {width > 4 ? r.weeks : ''}
+              </div>
+            )
+          })}
+          <Marker left={pct(coe)} color="#2A1153" label={`CoE ${formatDate(coe)}`} />
+          {visaDate && <Marker left={Math.min(99.5, pct(visaDate))} color="#FBB615" label={`Visto ${formatDate(visaDate)}`} />}
+        </div>
+        <div style={{ position: 'relative', height: 22, marginTop: 2 }}>
+          {ticks.map((t) => (
+            <div key={t.iso} style={{ position: 'absolute', left: `${pct(t.iso)}%`, top: 0, height: '100%', borderLeft: '1px solid rgba(28,18,51,0.08)' }}>
+              <span style={{ position: 'absolute', top: 4, left: 3, fontSize: 10, color: 'rgba(28,18,51,0.5)', whiteSpace: 'nowrap', fontFamily: 'Space Mono, monospace' }}>{t.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'rgba(28,18,51,0.55)', flexWrap: 'wrap' }}>
+        <span><Dot color="#4B1A77" /> Estudo</span>
+        <span><Dot color="#FBB615" /> Férias</span>
+        <span><Dot color="#2A1153" /> Fim do curso (CoE)</span>
+        <span><Dot color="#FBB615" border /> Vencimento do visto</span>
+      </div>
+    </div>
+  )
+}
+
+function Marker({ left, color, label }: { left: number; color: string; label: string }) {
+  return (
+    <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${left}%`, width: 0, borderLeft: `2px dashed ${color}` }}>
+      <span style={{ position: 'absolute', top: -1, left: 4, fontSize: 9.5, fontWeight: 800, background: '#fff', padding: '1px 4px', borderRadius: 4, border: '1px solid rgba(28,18,51,0.10)', whiteSpace: 'nowrap' }}>{label}</span>
+    </div>
+  )
+}
+
+function Dot({ color, border = false }: { color: string; border?: boolean }) {
+  return <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: color, border: border ? '1px solid #2A1153' : 'none', verticalAlign: -1, marginRight: 6 }} />
 }
 
 const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }
