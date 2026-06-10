@@ -38,29 +38,29 @@ export function ChecklistBlock({ block, contentId, initialChecked = [] }: Props)
   return (
     <div style={{
       margin: '20px 0', background: '#fff', borderRadius: 14,
-      border: '1px solid rgba(3,24,45,0.08)', overflow: 'hidden',
+      border: '1px solid rgba(28,18,51,0.08)', overflow: 'hidden',
     }}>
       <div style={{
-        padding: '12px 16px', borderBottom: '1px solid rgba(3,24,45,0.06)',
+        padding: '12px 16px', borderBottom: '1px solid rgba(28,18,51,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#03182D' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#2A1153' }}>
           {block.title ?? 'Checklist'}
         </span>
         <span style={{
           fontSize: 12, fontWeight: 600,
-          color: done === total ? '#057570' : 'rgba(3,24,45,0.4)',
+          color: done === total ? '#4B1A77' : 'rgba(28,18,51,0.4)',
         }}>
           {done}/{total}
         </span>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'rgba(3,24,45,0.06)' }}>
+      <div style={{ height: 3, background: 'rgba(28,18,51,0.06)' }}>
         <div style={{
           height: '100%',
           width: `${total > 0 ? (done / total) * 100 : 0}%`,
-          background: '#057570',
+          background: '#4B1A77',
           transition: 'width 0.3s',
         }} />
       </div>
@@ -78,11 +78,11 @@ export function ChecklistBlock({ block, contentId, initialChecked = [] }: Props)
               type="checkbox"
               checked={checked.has(item.id)}
               onChange={() => toggle(item.id)}
-              style={{ width: 16, height: 16, accentColor: '#057570', cursor: 'pointer' }}
+              style={{ width: 16, height: 16, accentColor: '#4B1A77', cursor: 'pointer' }}
             />
             <span style={{
               fontSize: 14, lineHeight: 1.4,
-              color: checked.has(item.id) ? 'rgba(3,24,45,0.4)' : '#03182D',
+              color: checked.has(item.id) ? 'rgba(28,18,51,0.4)' : '#2A1153',
               textDecoration: checked.has(item.id) ? 'line-through' : 'none',
             }}>
               {item.label}

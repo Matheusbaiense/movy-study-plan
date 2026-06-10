@@ -74,9 +74,9 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#057570' }}>Movy Knowledge Base</div>
-          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#03182D' }}>Wiki</h1>
-          <p style={{ margin: 0, fontSize: 14, color: 'rgba(3,24,45,0.6)' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>Movy Knowledge Base</div>
+          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>Wiki</h1>
+          <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'} &middot;{' '}
             3 {locale === 'pt' ? 'idiomas' : locale === 'es' ? 'idiomas' : 'languages'}
           </p>
@@ -87,8 +87,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '10px 16px', borderRadius: 12, fontWeight: 600, fontSize: 14,
-              background: '#03182D', color: '#fff', border: '1px solid #03182D',
-              textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+              background: '#2A1153', color: '#fff', border: '1px solid #2A1153',
+              textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
             }}
           >
             <PlusIcon />
@@ -100,7 +100,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       {/* Search + filters */}
       <div style={{
         background: '#fff', borderRadius: 18, padding: 14, marginBottom: 18,
-        border: '1px solid rgba(3,24,45,0.06)', boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+        border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
       }}>
         <form method="GET">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px' }}>
@@ -111,18 +111,18 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               placeholder={locale === 'pt' ? 'Pesquisar processos...' : locale === 'es' ? 'Buscar procesos...' : 'Search processes...'}
               style={{
                 flex: 1, border: 'none', outline: 'none', fontSize: 15,
-                color: '#03182D', background: 'transparent', fontFamily: 'Sora, system-ui, sans-serif',
+                color: '#2A1153', background: 'transparent', fontFamily: 'Outfit, system-ui, sans-serif',
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(3,24,45,0.06)', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(28,18,51,0.06)', flexWrap: 'wrap', alignItems: 'center' }}>
             <select
               name="dept"
               defaultValue={dept ?? ''}
               style={{
-                padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(3,24,45,0.1)',
-                background: '#fff', fontSize: 13, color: '#03182D', fontFamily: 'Sora, system-ui, sans-serif',
+                padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
+                background: '#fff', fontSize: 13, color: '#2A1153', fontFamily: 'Outfit, system-ui, sans-serif',
                 cursor: 'pointer',
               }}
             >
@@ -139,8 +139,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
                 name="status"
                 defaultValue={status ?? ''}
                 style={{
-                  padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(3,24,45,0.1)',
-                  background: '#fff', fontSize: 13, color: '#03182D', fontFamily: 'Sora, system-ui, sans-serif',
+                  padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
+                  background: '#fff', fontSize: 13, color: '#2A1153', fontFamily: 'Outfit, system-ui, sans-serif',
                   cursor: 'pointer',
                 }}
               >
@@ -154,9 +154,9 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             <button
               type="submit"
               style={{
-                padding: '7px 14px', borderRadius: 10, border: '1px solid rgba(3,24,45,0.1)',
-                background: '#03182D', color: '#fff', fontSize: 13, fontWeight: 600,
-                fontFamily: 'Sora, system-ui, sans-serif', cursor: 'pointer',
+                padding: '7px 14px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
+                background: '#2A1153', color: '#fff', fontSize: 13, fontWeight: 600,
+                fontFamily: 'Outfit, system-ui, sans-serif', cursor: 'pointer',
               }}
             >
               {locale === 'pt' ? 'Filtrar' : locale === 'es' ? 'Filtrar' : 'Filter'}
@@ -169,8 +169,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.length === 0 ? (
           <div style={{
-            padding: 60, textAlign: 'center', color: 'rgba(3,24,45,0.5)',
-            background: '#fff', borderRadius: 18, border: '1px solid rgba(3,24,45,0.06)',
+            padding: 60, textAlign: 'center', color: 'rgba(28,18,51,0.5)',
+            background: '#fff', borderRadius: 18, border: '1px solid rgba(28,18,51,0.06)',
           }}>
             <SearchIcon large />
             <div style={{ marginTop: 10, fontSize: 14 }}>
@@ -179,7 +179,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             {canWrite && (
               <Link
                 href={`/${locale}/wiki/new`}
-                style={{ marginTop: 12, display: 'inline-block', fontSize: 13, color: '#057570', textDecoration: 'underline' }}
+                style={{ marginTop: 12, display: 'inline-block', fontSize: 13, color: '#4B1A77', textDecoration: 'underline' }}
               >
                 {locale === 'pt' ? 'Criar o primeiro artigo' : 'Create the first article'}
               </Link>
@@ -188,7 +188,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
         ) : (
           items.map((content) => {
             const deptSlug = content.departments?.slug ?? ''
-            const accent = content.departments?.color ?? DEPT_ACCENT[deptSlug] ?? '#03182D'
+            const accent = content.departments?.color ?? DEPT_ACCENT[deptSlug] ?? '#2A1153'
             const updatedDate = content.updated_at
               ? new Date(content.updated_at).toLocaleDateString(
                   locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-ES' : 'en-AU',
@@ -223,6 +223,6 @@ function PlusIcon() {
 
 function SearchIcon({ large }: { large?: boolean }) {
   const size = large ? 28 : 18
-  const color = large ? 'rgba(3,24,45,0.3)' : 'rgba(3,24,45,0.5)'
+  const color = large ? 'rgba(28,18,51,0.3)' : 'rgba(28,18,51,0.5)'
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
 }

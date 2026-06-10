@@ -8,7 +8,7 @@ export default function DepartmentLoading() {
             width: 50,
             height: 14,
             borderRadius: 4,
-            background: 'rgba(3,24,45,0.08)',
+            background: 'rgba(28,18,51,0.08)',
           }}
         />
         <div
@@ -16,7 +16,7 @@ export default function DepartmentLoading() {
             width: 80,
             height: 14,
             borderRadius: 4,
-            background: 'rgba(3,24,45,0.06)',
+            background: 'rgba(28,18,51,0.06)',
           }}
         />
       </div>
@@ -27,7 +27,7 @@ export default function DepartmentLoading() {
           height: 200,
           borderRadius: 20,
           background:
-            'linear-gradient(135deg, rgba(3,24,45,0.1), rgba(3,24,45,0.06))',
+            'linear-gradient(135deg, rgba(28,18,51,0.1), rgba(28,18,51,0.06))',
           marginBottom: 28,
           padding: '36px 40px',
           display: 'flex',
@@ -41,7 +41,7 @@ export default function DepartmentLoading() {
             width: 140,
             height: 12,
             borderRadius: 4,
-            background: 'rgba(3,24,45,0.08)',
+            background: 'rgba(28,18,51,0.08)',
           }}
         />
         <div
@@ -49,7 +49,7 @@ export default function DepartmentLoading() {
             width: 260,
             height: 32,
             borderRadius: 6,
-            background: 'rgba(3,24,45,0.1)',
+            background: 'rgba(28,18,51,0.1)',
           }}
         />
         <div
@@ -57,7 +57,7 @@ export default function DepartmentLoading() {
             width: 380,
             height: 14,
             borderRadius: 4,
-            background: 'rgba(3,24,45,0.06)',
+            background: 'rgba(28,18,51,0.06)',
           }}
         />
         <div style={{ display: 'flex', gap: 24, marginTop: 8 }}>
@@ -68,7 +68,7 @@ export default function DepartmentLoading() {
                   width: 40,
                   height: 22,
                   borderRadius: 4,
-                  background: 'rgba(3,24,45,0.08)',
+                  background: 'rgba(28,18,51,0.08)',
                 }}
               />
               <div
@@ -76,7 +76,7 @@ export default function DepartmentLoading() {
                   width: 60,
                   height: 10,
                   borderRadius: 3,
-                  background: 'rgba(3,24,45,0.06)',
+                  background: 'rgba(28,18,51,0.06)',
                 }}
               />
             </div>
@@ -101,8 +101,8 @@ export default function DepartmentLoading() {
               style={{
                 background: '#fff',
                 borderRadius: 16,
-                border: '1px solid rgba(3,24,45,0.06)',
-                boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+                border: '1px solid rgba(28,18,51,0.06)',
+                boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
                 overflow: 'hidden',
               }}
             >
@@ -119,7 +119,7 @@ export default function DepartmentLoading() {
                     width: 8,
                     height: 8,
                     borderRadius: 999,
-                    background: 'rgba(3,24,45,0.1)',
+                    background: 'rgba(28,18,51,0.1)',
                   }}
                 />
                 <div
@@ -127,11 +127,11 @@ export default function DepartmentLoading() {
                     width: 120,
                     height: 14,
                     borderRadius: 4,
-                    background: 'rgba(3,24,45,0.08)',
+                    background: 'rgba(28,18,51,0.08)',
                   }}
                 />
               </div>
-              <div style={{ borderTop: '1px solid rgba(3,24,45,0.06)' }}>
+              <div style={{ borderTop: '1px solid rgba(28,18,51,0.06)' }}>
                 {[1, 2, 3].map((row) => (
                   <div
                     key={row}
@@ -142,7 +142,7 @@ export default function DepartmentLoading() {
                       gap: 12,
                       borderBottom:
                         row < 3
-                          ? '1px solid rgba(3,24,45,0.06)'
+                          ? '1px solid rgba(28,18,51,0.06)'
                           : 'none',
                     }}
                   >
@@ -151,7 +151,7 @@ export default function DepartmentLoading() {
                         width: 7,
                         height: 7,
                         borderRadius: 999,
-                        background: 'rgba(3,24,45,0.08)',
+                        background: 'rgba(28,18,51,0.08)',
                       }}
                     />
                     <div
@@ -159,7 +159,7 @@ export default function DepartmentLoading() {
                         flex: 1,
                         height: 14,
                         borderRadius: 4,
-                        background: 'rgba(3,24,45,0.07)',
+                        background: 'rgba(28,18,51,0.07)',
                       }}
                     />
                     <div
@@ -167,7 +167,7 @@ export default function DepartmentLoading() {
                         width: 50,
                         height: 12,
                         borderRadius: 4,
-                        background: 'rgba(3,24,45,0.05)',
+                        background: 'rgba(28,18,51,0.05)',
                       }}
                     />
                   </div>
@@ -184,8 +184,8 @@ export default function DepartmentLoading() {
               background: '#fff',
               borderRadius: 18,
               padding: '16px 18px',
-              border: '1px solid rgba(3,24,45,0.06)',
-              boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+              border: '1px solid rgba(28,18,51,0.06)',
+              boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
             }}
           >
             <div
@@ -193,7 +193,7 @@ export default function DepartmentLoading() {
                 width: 60,
                 height: 10,
                 borderRadius: 3,
-                background: 'rgba(3,24,45,0.08)',
+                background: 'rgba(28,18,51,0.08)',
                 marginBottom: 14,
               }}
             />
@@ -212,7 +212,7 @@ export default function DepartmentLoading() {
                     width: 32,
                     height: 32,
                     borderRadius: 999,
-                    background: 'rgba(3,24,45,0.08)',
+                    background: 'rgba(28,18,51,0.08)',
                   }}
                 />
                 <div style={{ flex: 1 }}>
@@ -221,7 +221,7 @@ export default function DepartmentLoading() {
                       width: '70%',
                       height: 12,
                       borderRadius: 3,
-                      background: 'rgba(3,24,45,0.08)',
+                      background: 'rgba(28,18,51,0.08)',
                       marginBottom: 4,
                     }}
                   />
@@ -230,7 +230,7 @@ export default function DepartmentLoading() {
                       width: '50%',
                       height: 10,
                       borderRadius: 3,
-                      background: 'rgba(3,24,45,0.05)',
+                      background: 'rgba(28,18,51,0.05)',
                     }}
                   />
                 </div>
@@ -242,7 +242,7 @@ export default function DepartmentLoading() {
             style={{
               height: 44,
               borderRadius: 12,
-              background: 'rgba(3,24,45,0.08)',
+              background: 'rgba(28,18,51,0.08)',
             }}
           />
         </div>

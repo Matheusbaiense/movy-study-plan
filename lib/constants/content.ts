@@ -1,7 +1,7 @@
 export const STATUS_STYLES = {
-  published: { bg: 'rgba(5,117,112,0.12)', fg: '#057570', dot: '#057570' },
-  draft:     { bg: 'rgba(255,139,0,0.14)', fg: '#B95F00', dot: '#FF8B00' },
-  archived:  { bg: 'rgba(3,24,45,0.08)',   fg: '#03182D', dot: '#03182D' },
+  published: { bg: 'rgba(75,26,119,0.12)', fg: '#4B1A77', dot: '#4B1A77' },
+  draft:     { bg: 'rgba(243,107,28,0.14)', fg: '#B95F00', dot: '#F36B1C' },
+  archived:  { bg: 'rgba(28,18,51,0.08)',   fg: '#2A1153', dot: '#2A1153' },
 } as const
 
 export function getStatusLabel(status: string, locale: string): string {

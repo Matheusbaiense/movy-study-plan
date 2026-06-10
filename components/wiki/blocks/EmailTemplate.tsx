@@ -15,26 +15,26 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
   const Row = ({ label, value }: { label: string; value: string }) => (
     <div style={{
       display: 'flex', gap: 8, padding: '6px 14px',
-      borderBottom: '1px solid rgba(3,24,45,0.06)',
+      borderBottom: '1px solid rgba(28,18,51,0.06)',
     }}>
       <span style={{
-        fontSize: 11, fontWeight: 700, color: 'rgba(3,24,45,0.4)',
+        fontSize: 11, fontWeight: 700, color: 'rgba(28,18,51,0.4)',
         width: 60, flexShrink: 0, paddingTop: 2,
       }}>
         {label}
       </span>
-      <span style={{ fontSize: 13, color: '#03182D' }}>{value}</span>
+      <span style={{ fontSize: 13, color: '#2A1153' }}>{value}</span>
     </div>
   )
 
   return (
     <div style={{
       margin: '20px 0', borderRadius: 12,
-      border: '1px solid rgba(3,24,45,0.1)', overflow: 'hidden',
-      fontFamily: 'Sora, sans-serif',
+      border: '1px solid rgba(28,18,51,0.1)', overflow: 'hidden',
+      fontFamily: 'Outfit, sans-serif',
     }}>
       <div style={{
-        background: '#03182D', padding: '8px 14px',
+        background: '#2A1153', padding: '8px 14px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{
@@ -46,9 +46,9 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
         <button
           onClick={copyBody}
           style={{
-            fontSize: 11, color: copied ? '#057570' : '#FF8B00',
+            fontSize: 11, color: copied ? '#4B1A77' : '#F36B1C',
             background: 'none', border: 'none', cursor: 'pointer',
-            fontWeight: 600, fontFamily: 'Sora, sans-serif',
+            fontWeight: 600, fontFamily: 'Outfit, sans-serif',
           }}
         >
           {copied ? '✓ Copiado!' : 'Copiar corpo'}
@@ -60,7 +60,7 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
       <Row label="ASSUNTO" value={block.subject} />
       <div style={{
         padding: '14px', whiteSpace: 'pre-wrap',
-        fontSize: 13, color: '#03182D', lineHeight: 1.7,
+        fontSize: 13, color: '#2A1153', lineHeight: 1.7,
         background: '#FAFAFA',
       }}>
         {block.body}

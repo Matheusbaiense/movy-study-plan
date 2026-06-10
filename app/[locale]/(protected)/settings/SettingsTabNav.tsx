@@ -21,7 +21,7 @@ export function SettingsTabNav({ locale }: { locale: string }) {
     <nav style={{
       display: 'flex',
       gap: 0,
-      borderBottom: '1px solid rgba(3,24,45,0.08)',
+      borderBottom: '1px solid rgba(28,18,51,0.08)',
       marginBottom: 24,
       marginTop: 20,
     }}>
@@ -37,10 +37,10 @@ export function SettingsTabNav({ locale }: { locale: string }) {
               padding: '12px 20px',
               fontSize: 14,
               fontWeight: 600,
-              color: active ? '#FF8B00' : '#03182D',
+              color: active ? '#F36B1C' : '#2A1153',
               textDecoration: 'none',
-              fontFamily: 'Sora, sans-serif',
-              borderBottom: active ? '2px solid #FF8B00' : '2px solid transparent',
+              fontFamily: 'Outfit, sans-serif',
+              borderBottom: active ? '2px solid #F36B1C' : '2px solid transparent',
               marginBottom: -1,
               transition: 'border-color 0.15s ease, color 0.15s ease',
             }}

@@ -21,10 +21,10 @@ export default async function SettingsLayout({ children, params }: Props) {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#03182D', marginBottom: 20 }}>Settings</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2A1153', marginBottom: 20 }}>Settings</h1>
       <div style={{
         display: 'flex', gap: 6, marginBottom: 28,
-        borderBottom: '1px solid rgba(3,24,45,0.1)', paddingBottom: 0,
+        borderBottom: '1px solid rgba(28,18,51,0.1)', paddingBottom: 0,
       }}>
         {navItems.map(item => (
           <Link
@@ -32,7 +32,7 @@ export default async function SettingsLayout({ children, params }: Props) {
             href={item.href}
             style={{
               padding: '8px 16px', fontSize: 13, fontWeight: 500,
-              color: 'rgba(3,24,45,0.7)', textDecoration: 'none',
+              color: 'rgba(28,18,51,0.7)', textDecoration: 'none',
               borderBottom: '2px solid transparent', marginBottom: -1,
             }}
           >

@@ -2,14 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --movy-dark: #03182D;
-  --movy-red: #E72C03;
-  --movy-orange: #FF8B00;
-  --movy-green: #057570;
-  --movy-bg: #F4F2EE;
+  /* Movy Education brand palette (Brand Guide 2026) */
+  --movy-purple: #4B1A77;
+  --movy-purple-mid: #3A1560;
+  --movy-purple-deep: #2A1153;
+  --movy-purple-deeper: #190A38;
+  --movy-gold: #FBB615;
+  --movy-gold-soft: #FFC51C;
+  --movy-orange: #F36B1C;
+  --movy-red: #D23B2B;
+  --movy-ink: #1C1233;
+  --movy-ink-soft: #5A4E72;
+  --movy-paper: #F8F7FB;
+  --movy-lilac: #EFE9F6;
+  --movy-lilac-2: #E6DCF3;
+  --movy-line: #E0D6EE;
+  /* legacy aliases (kept for existing references) */
+  --movy-dark: #2A1153;
+  --movy-green: #4B1A77;
+  --movy-bg: #F8F7FB;
   --movy-light: #F9F9F9;
 }
 
@@ -18,9 +32,9 @@
 }
 
 body {
-  font-family: 'Sora', system-ui, sans-serif;
-  background-color: #F4F2EE;
-  color: #03182D;
+  font-family: 'Manrope', system-ui, sans-serif;
+  background-color: #F8F7FB;
+  color: #1C1233;
 }
 
 /* Prose styles for wiki content */
@@ -31,27 +45,27 @@ body {
 .wiki-content h1,
 .wiki-content h2,
 .wiki-content h3 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-weight: 600;
-  color: #03182D;
+  color: #2A1153;
   letter-spacing: -0.01em;
 }
 
 .wiki-content p {
-  color: rgba(3, 24, 45, 0.82);
+  color: rgba(28, 18, 51, 0.82);
   line-height: 1.7;
 }
 
 .wiki-content code {
-  background: rgba(3, 24, 45, 0.05);
+  background: rgba(28, 18, 51, 0.05);
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 0.875em;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
 }
 
 .wiki-content a {
-  color: #057570;
+  color: #4B1A77;
 }
 
 /* Scrollbar */
@@ -63,22 +77,22 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(3, 24, 45, 0.15);
+  background: rgba(28, 18, 51, 0.15);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(3, 24, 45, 0.3);
+  background: rgba(28, 18, 51, 0.3);
 }
 
 /* Prose styles for block-based wiki content */
-.movy-prose h2 { font-family: Sora, sans-serif; font-size: 22px; font-weight: 700; color: #03182D; margin: 28px 0 12px; letter-spacing: -0.015em; border-bottom: 2px solid rgba(3,24,45,0.06); padding-bottom: 8px; }
-.movy-prose h3 { font-family: Sora, sans-serif; font-size: 18px; font-weight: 600; color: #03182D; margin: 22px 0 8px; letter-spacing: -0.01em; }
-.movy-prose p { margin: 0 0 14px; color: rgba(3,24,45,0.82); font-size: 15px; line-height: 1.75; }
-.movy-prose ul, .movy-prose ol { margin: 0 0 14px; padding-left: 24px; color: rgba(3,24,45,0.82); }
+.movy-prose h2 { font-family: Outfit, sans-serif; font-size: 22px; font-weight: 700; color: #2A1153; margin: 28px 0 12px; letter-spacing: -0.015em; border-bottom: 2px solid rgba(28,18,51,0.06); padding-bottom: 8px; }
+.movy-prose h3 { font-family: Outfit, sans-serif; font-size: 18px; font-weight: 600; color: #2A1153; margin: 22px 0 8px; letter-spacing: -0.01em; }
+.movy-prose p { margin: 0 0 14px; color: rgba(28,18,51,0.82); font-size: 15px; line-height: 1.75; }
+.movy-prose ul, .movy-prose ol { margin: 0 0 14px; padding-left: 24px; color: rgba(28,18,51,0.82); }
 .movy-prose li { margin: 6px 0; font-size: 15px; line-height: 1.6; }
-.movy-prose code { background: rgba(3,24,45,0.05); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: ui-monospace, monospace; }
-.movy-prose a { color: #057570; text-decoration: underline; }
-.movy-prose strong { font-weight: 600; color: #03182D; }
+.movy-prose code { background: rgba(28,18,51,0.05); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: ui-monospace, monospace; }
+.movy-prose a { color: #4B1A77; text-decoration: underline; }
+.movy-prose strong { font-weight: 600; color: #2A1153; }
 
 /* Login animation */
 @keyframes movy-spin {

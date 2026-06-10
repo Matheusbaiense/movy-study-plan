@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
 import { updateStudyPlan } from '@/app/[locale]/(protected)/study-plans/actions'
 import { COURSE_PRESETS, COURSE_TYPES, createCourse, createExtraCosts, uid } from '@/lib/study-plans/defaults'
@@ -26,13 +27,14 @@ import type { ApplicantType, CourseType, StudyCourse, StudyPlanData } from '@/li
 
 interface Props {
   id: string
+  locale: string
   initialData: StudyPlanData
   status: string
 }
 
 const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Família', 'Single Parent']
 
-export function StudyPlanEditor({ id, initialData, status }: Props) {
+export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
   const [plan, setPlan] = useState(initialData)
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle')
   const [isPending, startTransition] = useTransition()
@@ -104,13 +106,18 @@ export function StudyPlanEditor({ id, initialData, status }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 28, letterSpacing: '-0.04em' }}>{plan.student || 'Cotação sem estudante'}</h1>
-            <p style={{ margin: '6px 0 0', color: 'rgba(3,24,45,0.58)', fontSize: 13 }}>
+            <p style={{ margin: '6px 0 0', color: 'rgba(28,18,51,0.58)', fontSize: 13 }}>
               {plan.courses.length} curso(s) · {planStudyWeeks(plan)} semanas de estudo · {money(planGrandTotal(plan))}
             </p>
           </div>
-          <button onClick={save} disabled={isPending} style={primaryButton}>
-            {isPending ? 'Salvando...' : saveState === 'saved' ? 'Salvo' : 'Salvar'}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Link href={`/${locale}/study-plans/${id}/proposal`} style={proposalButton}>
+              Proposta / PDF
+            </Link>
+            <button onClick={save} disabled={isPending} style={primaryButton}>
+              {isPending ? 'Salvando...' : saveState === 'saved' ? 'Salvo' : 'Salvar'}
+            </button>
+          </div>
         </div>
 
         {saveState === 'error' && (
@@ -157,7 +164,7 @@ export function StudyPlanEditor({ id, initialData, status }: Props) {
         >
           <div style={{ display: 'grid', gap: 14 }}>
             {plan.courses.map((course, courseIndex) => (
-              <div key={course.id} style={{ border: '1px solid rgba(3,24,45,0.09)', borderRadius: 14, padding: 16 }}>
+              <div key={course.id} style={{ border: '1px solid rgba(28,18,51,0.09)', borderRadius: 14, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                   <span style={{ ...pill, background: `${COURSE_TYPES[course.type].color}18`, color: COURSE_TYPES[course.type].color }}>
                     #{courseIndex + 1} {COURSE_TYPES[course.type].label}
@@ -263,9 +270,9 @@ export function StudyPlanEditor({ id, initialData, status }: Props) {
         <SummaryCard title="Cronograma">
           <div style={{ display: 'grid', gap: 9 }}>
             {schedule.slice(0, 8).map((row) => (
-              <div key={`${row.course.id}-${row.segment.id}`} style={{ display: 'grid', gap: 2, borderBottom: '1px solid rgba(3,24,45,0.06)', paddingBottom: 8 }}>
+              <div key={`${row.course.id}-${row.segment.id}`} style={{ display: 'grid', gap: 2, borderBottom: '1px solid rgba(28,18,51,0.06)', paddingBottom: 8 }}>
                 <strong style={{ fontSize: 12 }}>{row.segment.label}</strong>
-                <span style={{ color: 'rgba(3,24,45,0.56)', fontSize: 11 }}>{formatDate(row.start)} - {formatDate(row.end)} · {row.weeks} sem</span>
+                <span style={{ color: 'rgba(28,18,51,0.56)', fontSize: 11 }}>{formatDate(row.start)} - {formatDate(row.end)} · {row.weeks} sem</span>
               </div>
             ))}
           </div>
@@ -279,7 +286,7 @@ type ExtraCostCategory = StudyPlanData['extraCosts'][number]['category']
 
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section style={{ background: '#fff', border: '1px solid rgba(3,24,45,0.08)', borderRadius: 16, padding: 18 }}>
+    <section style={{ background: '#fff', border: '1px solid rgba(28,18,51,0.08)', borderRadius: 16, padding: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <h2 style={{ margin: 0, fontSize: 16, letterSpacing: '-0.02em' }}>{title}</h2>
         {action}
@@ -291,7 +298,7 @@ function Section({ title, action, children }: { title: string; action?: React.Re
 
 function SummaryCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section style={{ background: '#fff', border: '1px solid rgba(3,24,45,0.08)', borderRadius: 16, padding: 16 }}>
+    <section style={{ background: '#fff', border: '1px solid rgba(28,18,51,0.08)', borderRadius: 16, padding: 16 }}>
       <h2 style={{ margin: '0 0 12px', fontSize: 15 }}>{title}</h2>
       <div style={{ display: 'grid', gap: 9 }}>{children}</div>
     </section>
@@ -301,7 +308,7 @@ function SummaryCard({ title, children }: { title: string; children: React.React
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: 'grid', gap: 6 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(3,24,45,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(28,18,51,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
       {children}
     </label>
   )
@@ -314,16 +321,17 @@ function NumberInput({ value, onChange }: { value: number; onChange: (value: num
 function MiniStat({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline' }}>
-      <span style={{ color: 'rgba(3,24,45,0.52)', fontSize: 12 }}>{label}</span>
-      <strong style={{ color: '#03182D', fontSize: strong ? 15 : 12.5 }}>{value}</strong>
+      <span style={{ color: 'rgba(28,18,51,0.52)', fontSize: 12 }}>{label}</span>
+      <strong style={{ color: '#2A1153', fontSize: strong ? 15 : 12.5 }}>{value}</strong>
     </div>
   )
 }
 
 const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }
-const input = { width: '100%', border: '1px solid rgba(3,24,45,0.12)', borderRadius: 9, padding: '9px 10px', fontFamily: 'Sora, sans-serif', fontSize: 13, color: '#03182D', background: '#fff' }
-const primaryButton = { border: 0, borderRadius: 10, padding: '11px 16px', background: '#03182D', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Sora, sans-serif' }
-const ghostButton = { border: '1px solid rgba(3,24,45,0.12)', borderRadius: 9, padding: '8px 11px', background: '#fff', color: '#03182D', fontWeight: 700, cursor: 'pointer', fontFamily: 'Sora, sans-serif', fontSize: 12 }
-const dangerButton = { ...ghostButton, color: '#E72C03' }
+const input = { width: '100%', border: '1px solid rgba(28,18,51,0.12)', borderRadius: 9, padding: '9px 10px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: '#2A1153', background: '#fff' }
+const primaryButton = { border: 0, borderRadius: 10, padding: '11px 16px', background: '#2A1153', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
+const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 15px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
+const ghostButton = { border: '1px solid rgba(28,18,51,0.12)', borderRadius: 9, padding: '8px 11px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
+const dangerButton = { ...ghostButton, color: '#D23B2B' }
 const pill = { borderRadius: 999, padding: '4px 9px', fontSize: 11, fontWeight: 800 }
-const noticeDanger = { background: 'rgba(231,44,3,0.08)', border: '1px solid rgba(231,44,3,0.16)', color: '#9f1d03', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
+const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#9f1d03', borderRadius: 12, padding: '10px 12px', fontSize: 13 }

@@ -50,9 +50,9 @@ export default function LoginPage() {
         padding: '40px 24px',
         position: 'relative',
         overflow: 'hidden',
-        background: 'radial-gradient(900px 500px at 12% 18%, rgba(231,44,3,0.18), transparent 60%), radial-gradient(900px 600px at 88% 90%, rgba(5,117,112,0.22), transparent 60%), radial-gradient(700px 500px at 60% 10%, rgba(255,139,0,0.10), transparent 60%), #03182D',
+        background: 'radial-gradient(900px 500px at 12% 18%, rgba(251,182,21,0.16), transparent 60%), radial-gradient(900px 600px at 88% 90%, rgba(75,26,119,0.32), transparent 60%), radial-gradient(700px 500px at 60% 10%, rgba(243,107,28,0.12), transparent 60%), #190A38',
         color: '#F9F9F9',
-        fontFamily: 'Sora, system-ui, sans-serif',
+        fontFamily: 'Outfit, system-ui, sans-serif',
       }}
     >
       {/* Staircase motif */}
@@ -60,9 +60,9 @@ export default function LoginPage() {
         style={{ position: 'absolute', left: -40, bottom: -40, opacity: 0.07 }}
         width="380" height="380" viewBox="0 0 320 320" fill="none" aria-hidden
       >
-        <rect x="40" y="220" width="60" height="60" rx="6" fill="#E72C03" />
-        <rect x="100" y="160" width="60" height="120" rx="6" fill="#FF8B00" />
-        <rect x="160" y="100" width="60" height="180" rx="6" fill="#057570" />
+        <rect x="40" y="220" width="60" height="60" rx="6" fill="#FBB615" />
+        <rect x="100" y="160" width="60" height="120" rx="6" fill="#F36B1C" />
+        <rect x="160" y="100" width="60" height="180" rx="6" fill="#7A1E7E" />
         <rect x="220" y="40" width="60" height="240" rx="6" fill="#F9F9F9" />
       </svg>
 
@@ -73,8 +73,8 @@ export default function LoginPage() {
         </div>
 
         {/* Headline */}
-        <h1 style={{ margin: '0 0 56px', fontSize: 38, lineHeight: 1.08, fontWeight: 700, letterSpacing: '-0.025em' }}>
-          Amplify <span style={{ color: '#FF8B00' }}>me</span>.
+        <h1 style={{ margin: '0 0 56px', fontSize: 38, lineHeight: 1.08, fontWeight: 800, letterSpacing: '-0.03em' }}>
+          We <span style={{ color: '#FBB615' }}>move</span> people.
         </h1>
 
         {/* Error */}
@@ -83,8 +83,8 @@ export default function LoginPage() {
             marginBottom: 16,
             padding: '12px 16px',
             borderRadius: 12,
-            background: 'rgba(231,44,3,0.15)',
-            border: '1px solid rgba(231,44,3,0.3)',
+            background: 'rgba(210,59,43,0.15)',
+            border: '1px solid rgba(210,59,43,0.3)',
             fontSize: 14,
             color: '#fca5a5',
           }}>
@@ -106,10 +106,10 @@ export default function LoginPage() {
             borderRadius: 14,
             border: 'none',
             background: '#F9F9F9',
-            color: '#03182D',
+            color: '#2A1153',
             fontSize: 15,
             fontWeight: 600,
-            fontFamily: 'Sora, system-ui, sans-serif',
+            fontFamily: 'Outfit, system-ui, sans-serif',
             cursor: loading ? 'wait' : 'pointer',
             boxShadow: '0 16px 50px rgba(0,0,0,0.3)',
             transition: 'transform .15s ease',
@@ -124,8 +124,8 @@ export default function LoginPage() {
                 className="movy-spin"
                 style={{
                   width: 16, height: 16,
-                  border: '2px solid rgba(3,24,45,0.2)',
-                  borderTopColor: '#03182D',
+                  border: '2px solid rgba(28,18,51,0.2)',
+                  borderTopColor: '#2A1153',
                   borderRadius: 999,
                   display: 'inline-block',
                 }}
@@ -163,14 +163,14 @@ function MovyWordmark({ size = 28 }: { size?: number }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <MovyMark size={size} />
       <span style={{
-        fontFamily: 'Sora, system-ui, sans-serif',
+        fontFamily: 'Outfit, system-ui, sans-serif',
         fontWeight: 800,
         fontSize: Math.round(size * 0.62),
         letterSpacing: '-0.02em',
         color: '#F9F9F9',
       }}>Movy</span>
       <span style={{
-        fontFamily: 'Sora, system-ui, sans-serif',
+        fontFamily: 'Outfit, system-ui, sans-serif',
         fontWeight: 400,
         fontSize: 13,
         color: 'rgba(249,249,249,0.55)',
@@ -183,9 +183,9 @@ function MovyWordmark({ size = 28 }: { size?: number }) {
 function MovyMark({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-label="Movy">
-      <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#E72C03" />
-      <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#FF8B00" />
-      <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#057570" />
+      <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#FBB615" />
+      <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#F36B1C" />
+      <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#7A1E7E" />
     </svg>
   )
 }

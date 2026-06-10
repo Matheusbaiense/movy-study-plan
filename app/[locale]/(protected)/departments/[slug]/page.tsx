@@ -71,26 +71,26 @@ export default async function DepartmentPage({ params }: Props) {
         <div style={{ position: 'absolute', right: 24, top: 24, fontSize: 48, opacity: 0.3 }}>{dept.icon}</div>
         <div style={{
           display: 'inline-block', padding: '3px 10px', borderRadius: 20,
-          background: dept.color ?? '#03182D', color: '#fff',
+          background: dept.color ?? '#2A1153', color: '#fff',
           fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
           textTransform: 'uppercase', marginBottom: 12,
         }}>
           {dept.icon} {deptName}
         </div>
-        <h1 style={{ margin: '0 0 10px', fontSize: 28, fontWeight: 700, color: '#03182D', letterSpacing: '-0.02em' }}>
+        <h1 style={{ margin: '0 0 10px', fontSize: 28, fontWeight: 700, color: '#2A1153', letterSpacing: '-0.02em' }}>
           {deptName}
         </h1>
-        <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(3,24,45,0.6)', lineHeight: 1.6, maxWidth: 560 }}>
+        <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.6, maxWidth: 560 }}>
           {deptDesc}
         </p>
         <div style={{ display: 'flex', gap: 20 }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#03182D' }}>{totalContent}</div>
-            <div style={{ fontSize: 11, color: 'rgba(3,24,45,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#2A1153' }}>{totalContent}</div>
+            <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
           </div>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#03182D' }}>{members?.length ?? 0}</div>
-            <div style={{ fontSize: 11, color: 'rgba(3,24,45,0.5)' }}>{locale === 'pt' ? 'membros' : 'members'}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#2A1153' }}>{members?.length ?? 0}</div>
+            <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'membros' : 'members'}</div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default async function DepartmentPage({ params }: Props) {
         {/* Content by category */}
         <div>
           {Object.keys(grouped).length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 48, color: 'rgba(3,24,45,0.4)', fontSize: 14 }}>
+            <div style={{ textAlign: 'center', padding: 48, color: 'rgba(28,18,51,0.4)', fontSize: 14 }}>
               {locale === 'pt' ? 'Nenhum conteúdo publicado ainda.' : 'No published content yet.'}
             </div>
           ) : (
@@ -110,7 +110,7 @@ export default async function DepartmentPage({ params }: Props) {
                 category={category}
                 items={items}
                 locale={locale}
-                deptColor={dept.color ?? '#03182D'}
+                deptColor={dept.color ?? '#2A1153'}
                 titleFor={titleFor}
                 typeLabels={TYPE_LABELS}
               />
@@ -123,7 +123,7 @@ export default async function DepartmentPage({ params }: Props) {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '9px 16px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-                  background: dept.color ?? '#03182D', color: '#fff',
+                  background: dept.color ?? '#2A1153', color: '#fff',
                   textDecoration: 'none',
                 }}
               >
@@ -136,8 +136,8 @@ export default async function DepartmentPage({ params }: Props) {
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {members && members.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(3,24,45,0.07)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(3,24,45,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
+            <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(28,18,51,0.07)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
                 {locale === 'pt' ? 'Time' : 'Team'}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -145,17 +145,17 @@ export default async function DepartmentPage({ params }: Props) {
                   <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
                       width: 32, height: 32, borderRadius: '50%',
-                      background: dept.color ?? '#03182D',
+                      background: dept.color ?? '#2A1153',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
                     }}>
                       {(m.full_name ?? m.email).slice(0, 1).toUpperCase()}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: '#03182D' }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: '#2A1153' }}>
                         {m.full_name ?? m.email.split('@')[0]}
                       </div>
-                      <div style={{ fontSize: 11, color: 'rgba(3,24,45,0.45)', textTransform: 'capitalize' }}>
+                      <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.45)', textTransform: 'capitalize' }}>
                         {m.role.replace('_', ' ')}
                       </div>
                     </div>
@@ -165,14 +165,14 @@ export default async function DepartmentPage({ params }: Props) {
             </div>
           )}
 
-          <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(3,24,45,0.07)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(3,24,45,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
+          <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(28,18,51,0.07)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
-            <Link href={`/${locale}/wiki?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#057570', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
+            <Link href={`/${locale}/wiki?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
               → {locale === 'pt' ? 'Ver na wiki' : 'View in wiki'}
             </Link>
-            <Link href={`/${locale}/search?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#057570', textDecoration: 'none', fontWeight: 500 }}>
+            <Link href={`/${locale}/search?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', fontWeight: 500 }}>
               → {locale === 'pt' ? 'Buscar neste dept' : 'Search this dept'}
             </Link>
           </div>

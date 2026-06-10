@@ -23,21 +23,21 @@ export default async function UsersPage({ params }: Props) {
   const { data: users } = await query
 
   const ROLE_COLORS: Record<string, string> = {
-    super_admin: '#E72C03',
-    admin: '#FF8B00',
-    editor: '#057570',
-    reader: '#03182D',
+    super_admin: '#D23B2B',
+    admin: '#F36B1C',
+    editor: '#4B1A77',
+    reader: '#2A1153',
   }
 
   return (
     <div>
-      <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid rgba(3,24,45,0.08)' }}>
+      <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid rgba(28,18,51,0.08)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
               {['Nome', 'Email', 'Role', 'Dept', 'Status'].map(h => (
                 <th key={h} style={{
-                  background: '#03182D', color: '#F9F9F9',
+                  background: '#2A1153', color: '#F9F9F9',
                   padding: '10px 14px', textAlign: 'left',
                   fontSize: 11, fontWeight: 600, letterSpacing: '0.05em',
                 }}>
@@ -48,28 +48,28 @@ export default async function UsersPage({ params }: Props) {
           </thead>
           <tbody>
             {(users ?? []).map((u, i) => (
-              <tr key={u.id} style={{ background: i % 2 === 0 ? '#fff' : 'rgba(3,24,45,0.02)' }}>
-                <td style={{ padding: '10px 14px', color: '#03182D', fontWeight: 500 }}>
+              <tr key={u.id} style={{ background: i % 2 === 0 ? '#fff' : 'rgba(28,18,51,0.02)' }}>
+                <td style={{ padding: '10px 14px', color: '#2A1153', fontWeight: 500 }}>
                   {u.full_name ?? '—'}
                 </td>
-                <td style={{ padding: '10px 14px', color: 'rgba(3,24,45,0.6)' }}>
+                <td style={{ padding: '10px 14px', color: 'rgba(28,18,51,0.6)' }}>
                   {u.email}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{
                     fontSize: 11, fontWeight: 700,
-                    color: ROLE_COLORS[u.role] ?? '#03182D',
-                    background: `${ROLE_COLORS[u.role] ?? '#03182D'}15`,
+                    color: ROLE_COLORS[u.role] ?? '#2A1153',
+                    background: `${ROLE_COLORS[u.role] ?? '#2A1153'}15`,
                     padding: '2px 8px', borderRadius: 6, textTransform: 'capitalize',
                   }}>
                     {u.role.replace('_', ' ')}
                   </span>
                 </td>
-                <td style={{ padding: '10px 14px', color: 'rgba(3,24,45,0.6)' }}>
+                <td style={{ padding: '10px 14px', color: 'rgba(28,18,51,0.6)' }}>
                   {u.department ?? '—'}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: u.is_active ? '#057570' : '#E72C03' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: u.is_active ? '#4B1A77' : '#D23B2B' }}>
                     {u.is_active ? '● Ativo' : '○ Inativo'}
                   </span>
                 </td>

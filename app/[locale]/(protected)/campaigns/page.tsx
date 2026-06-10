@@ -48,8 +48,8 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 28 }}>
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8B5CF6' }}>Marketing</div>
-          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#03182D' }}>{label.title}</h1>
-          <p style={{ margin: 0, fontSize: 14, color: 'rgba(3,24,45,0.6)' }}>{label.subtitle}</p>
+          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>{label.title}</h1>
+          <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>{label.subtitle}</p>
         </div>
         {canWrite && (
           <button
@@ -58,9 +58,9 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '10px 16px', borderRadius: 12, fontWeight: 600, fontSize: 14,
-              background: 'rgba(3,24,45,0.1)', color: 'rgba(3,24,45,0.4)',
-              border: '1px dashed rgba(3,24,45,0.2)',
-              fontFamily: 'Sora, sans-serif', cursor: 'not-allowed',
+              background: 'rgba(28,18,51,0.1)', color: 'rgba(28,18,51,0.4)',
+              border: '1px dashed rgba(28,18,51,0.2)',
+              fontFamily: 'Outfit, sans-serif', cursor: 'not-allowed',
             }}
           >
             <PlusIcon />
@@ -73,8 +73,8 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.length === 0 ? (
           <div style={{
-            padding: 60, textAlign: 'center', color: 'rgba(3,24,45,0.5)',
-            background: '#fff', borderRadius: 18, border: '1px solid rgba(3,24,45,0.06)',
+            padding: 60, textAlign: 'center', color: 'rgba(28,18,51,0.5)',
+            background: '#fff', borderRadius: 18, border: '1px solid rgba(28,18,51,0.06)',
           }}>
             <MegaphoneIcon large />
             <div style={{ marginTop: 10, fontSize: 14 }}>{label.empty}</div>
@@ -97,8 +97,8 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
                 style={{
                   display: 'flex', gap: 18, alignItems: 'center',
                   padding: '18px 20px', borderRadius: 18,
-                  background: '#fff', border: '1px solid rgba(3,24,45,0.06)',
-                  boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+                  background: '#fff', border: '1px solid rgba(28,18,51,0.06)',
+                  boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
                 }}
               >
                 {/* Icon */}
@@ -134,17 +134,17 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
                     </span>
                   </div>
 
-                  <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 600, color: '#03182D' }}>
+                  <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 600, color: '#2A1153' }}>
                     {campaign.title}
                   </h3>
                   {campaign.description && (
-                    <p style={{ margin: 0, fontSize: 13, color: 'rgba(3,24,45,0.6)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: 'rgba(28,18,51,0.6)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {campaign.description}
                     </p>
                   )}
 
                   {updatedDate && (
-                    <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(3,24,45,0.5)' }}>
+                    <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>
                       {label.updated} {updatedDate}
                     </div>
                   )}
@@ -158,7 +158,7 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
   )
 }
 
-function MegaphoneIcon({ color = 'rgba(3,24,45,0.5)', large }: { color?: string; large?: boolean }) {
+function MegaphoneIcon({ color = 'rgba(28,18,51,0.5)', large }: { color?: string; large?: boolean }) {
   const size = large ? 28 : 18
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M3 10v4l11 5V5L3 10z"/><path d="M14 8a4 4 0 0 1 0 8"/></svg>
 }

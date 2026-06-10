@@ -15,10 +15,10 @@ interface AppShellProps {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  super_admin: '#E72C03',
-  admin: '#FF8B00',
-  editor: '#057570',
-  reader: '#03182D',
+  super_admin: '#D23B2B',
+  admin: '#F36B1C',
+  editor: '#4B1A77',
+  reader: '#2A1153',
 }
 
 export function AppShell({ profile, locale, children }: AppShellProps) {
@@ -43,7 +43,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     .slice(0, 2)
     .toUpperCase()
 
-  const roleColor = ROLE_COLORS[profile.role] ?? '#03182D'
+  const roleColor = ROLE_COLORS[profile.role] ?? '#2A1153'
 
   const mainNav = [
     { href: `/${locale}/home`, icon: 'home', label: locale === 'pt' ? 'Início' : locale === 'es' ? 'Inicio' : 'Home' },
@@ -84,7 +84,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           color: 'rgba(249,249,249,0.6)',
           fontSize: 13,
           cursor: 'pointer',
-          fontFamily: 'Sora, sans-serif',
+          fontFamily: 'Outfit, sans-serif',
           marginBottom: 18,
         }}
       >
@@ -121,7 +121,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
             key={dept.slug}
             href={`/${locale}/departments/${dept.slug}`}
             label={getDeptName(dept, locale)}
-            color={DEPT_COLORS[dept.slug] ?? '#03182D'}
+            color={DEPT_COLORS[dept.slug] ?? '#2A1153'}
             active={pathname.includes(`/departments/${dept.slug}`)}
             onClick={() => setMobileOpen(false)}
           />
@@ -166,7 +166,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           fontSize: 13,
           fontWeight: 600,
           color: '#fff',
-          fontFamily: 'Sora, sans-serif',
+          fontFamily: 'Outfit, sans-serif',
           flexShrink: 0,
         }}>
           {initials}
@@ -191,13 +191,13 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   )
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F4F2EE' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8F7FB' }}>
       {/* Desktop sidebar */}
       <aside
         style={{
           width: 264,
           flexShrink: 0,
-          background: '#03182D',
+          background: '#2A1153',
           display: 'flex',
           flexDirection: 'column',
           position: 'sticky',
@@ -213,7 +213,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(3,24,45,0.5)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(28,18,51,0.5)' }}
           className="lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
@@ -228,7 +228,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           left: 0,
           zIndex: 30,
           width: 264,
-          background: '#03182D',
+          background: '#2A1153',
           borderRight: '1px solid rgba(249,249,249,0.06)',
           transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 200ms ease-in-out',
@@ -248,7 +248,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
             alignItems: 'center',
             gap: 12,
             height: 56,
-            borderBottom: '1px solid rgba(3,24,45,0.08)',
+            borderBottom: '1px solid rgba(28,18,51,0.08)',
             background: 'rgba(249,249,249,0.7)',
             backdropFilter: 'blur(12px)',
             padding: '0 16px',
@@ -257,12 +257,12 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         >
           <button
             onClick={() => setMobileOpen(true)}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(3,24,45,0.7)' }}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(28,18,51,0.7)' }}
           >
             <HamburgerIcon />
           </button>
           <MovyMark size={24} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#03182D' }}>Internal Hub</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#2A1153' }}>Internal Hub</span>
         </header>
 
         {/* Desktop topbar */}
@@ -273,7 +273,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
             justifyContent: 'space-between',
             gap: 14,
             padding: '14px 32px',
-            borderBottom: '1px solid rgba(3,24,45,0.06)',
+            borderBottom: '1px solid rgba(28,18,51,0.06)',
             background: 'rgba(249,249,249,0.7)',
             backdropFilter: 'blur(12px)',
             position: 'sticky',
@@ -295,7 +295,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
               fontSize: 13,
               fontWeight: 600,
               color: '#fff',
-              fontFamily: 'Sora, sans-serif',
+              fontFamily: 'Outfit, sans-serif',
               cursor: 'pointer',
             }} title={profile.full_name ?? profile.email}>
               {initials}
@@ -348,7 +348,7 @@ function NavItem({ href, icon, label, active, onClick }: {
         color: active ? '#F9F9F9' : 'rgba(249,249,249,0.7)',
         fontSize: 13,
         fontWeight: active ? 600 : 500,
-        fontFamily: 'Sora, sans-serif',
+        fontFamily: 'Outfit, sans-serif',
         textDecoration: 'none',
         transition: 'background .15s ease',
       }}
@@ -356,7 +356,7 @@ function NavItem({ href, icon, label, active, onClick }: {
       <NavIcon name={icon} active={active} />
       <span style={{ flex: 1 }}>{label}</span>
       {active && (
-        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#FF8B00', flexShrink: 0 }} />
+        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#F36B1C', flexShrink: 0 }} />
       )}
     </Link>
   )
@@ -379,7 +379,7 @@ function NavItemDept({ href, label, color, active, onClick }: {
         color: active ? '#F9F9F9' : 'rgba(249,249,249,0.7)',
         fontSize: 13,
         fontWeight: active ? 600 : 500,
-        fontFamily: 'Sora, sans-serif',
+        fontFamily: 'Outfit, sans-serif',
         textDecoration: 'none',
         transition: 'background .15s ease',
       }}
@@ -387,7 +387,7 @@ function NavItemDept({ href, label, color, active, onClick }: {
       <span style={{ width: 8, height: 8, borderRadius: 999, background: color, marginLeft: 2, marginRight: 2, flexShrink: 0 }} />
       <span style={{ flex: 1 }}>{label}</span>
       {active && (
-        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#FF8B00', flexShrink: 0 }} />
+        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#F36B1C', flexShrink: 0 }} />
       )}
     </Link>
   )
@@ -442,17 +442,17 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
       {items.map((item, i) => (
         <span key={item.href} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {i > 0 && (
-            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="rgba(3,24,45,0.4)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="rgba(28,18,51,0.4)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 6l6 6-6 6" />
             </svg>
           )}
           <Link
             href={item.href}
             style={{
-              color: i === items.length - 1 ? '#03182D' : 'rgba(3,24,45,0.55)',
+              color: i === items.length - 1 ? '#2A1153' : 'rgba(28,18,51,0.55)',
               fontWeight: i === items.length - 1 ? 600 : 500,
               textDecoration: 'none',
-              fontFamily: 'Sora, sans-serif',
+              fontFamily: 'Outfit, sans-serif',
             }}
           >
             {item.label}
@@ -466,9 +466,9 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
 function MovyMark({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-label="Movy">
-      <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#E72C03" />
-      <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#FF8B00" />
-      <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#057570" />
+      <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#D23B2B" />
+      <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#F36B1C" />
+      <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#4B1A77" />
     </svg>
   )
 }

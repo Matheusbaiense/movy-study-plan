@@ -50,23 +50,23 @@ export default async function SearchPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ maxWidth: 800 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#03182D', marginBottom: 20 }}>
+      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2A1153', marginBottom: 20 }}>
         {locale === 'pt' ? 'Busca' : locale === 'es' ? 'Búsqueda' : 'Search'}
       </h1>
 
       {/* Search form */}
       <form method="GET" style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
         <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(3,24,45,0.4)' }} width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+          <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(28,18,51,0.4)' }} width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
           <input
             name="q"
             defaultValue={q}
             placeholder={locale === 'pt' ? 'Buscar...' : 'Search...'}
             style={{
               width: '100%', padding: '12px 14px 12px 40px',
-              borderRadius: 12, border: '1.5px solid rgba(3,24,45,0.12)',
-              fontSize: 14, fontFamily: 'Sora, sans-serif',
-              background: '#fff', color: '#03182D', outline: 'none',
+              borderRadius: 12, border: '1.5px solid rgba(28,18,51,0.12)',
+              fontSize: 14, fontFamily: 'Outfit, sans-serif',
+              background: '#fff', color: '#2A1153', outline: 'none',
               boxSizing: 'border-box' as const,
             }}
           />
@@ -77,8 +77,8 @@ export default async function SearchPage({ params, searchParams }: Props) {
             defaultValue={dept ?? ''}
             style={{
               flex: 1, padding: '9px 12px', borderRadius: 10,
-              border: '1px solid rgba(3,24,45,0.12)', fontSize: 13,
-              fontFamily: 'Sora, sans-serif', background: '#fff', color: '#03182D',
+              border: '1px solid rgba(28,18,51,0.12)', fontSize: 13,
+              fontFamily: 'Outfit, sans-serif', background: '#fff', color: '#2A1153',
             }}
           >
             <option value="">{locale === 'pt' ? 'Todos os departamentos' : 'All departments'}</option>
@@ -89,8 +89,8 @@ export default async function SearchPage({ params, searchParams }: Props) {
             defaultValue={type ?? ''}
             style={{
               flex: 1, padding: '9px 12px', borderRadius: 10,
-              border: '1px solid rgba(3,24,45,0.12)', fontSize: 13,
-              fontFamily: 'Sora, sans-serif', background: '#fff', color: '#03182D',
+              border: '1px solid rgba(28,18,51,0.12)', fontSize: 13,
+              fontFamily: 'Outfit, sans-serif', background: '#fff', color: '#2A1153',
             }}
           >
             <option value="">{locale === 'pt' ? 'Todos os tipos' : 'All types'}</option>
@@ -99,9 +99,9 @@ export default async function SearchPage({ params, searchParams }: Props) {
           <button
             type="submit"
             style={{
-              padding: '9px 18px', borderRadius: 10, background: '#03182D',
+              padding: '9px 18px', borderRadius: 10, background: '#2A1153',
               color: '#fff', border: 'none', fontSize: 13, fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'Sora, sans-serif',
+              cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
             }}
           >
             {locale === 'pt' ? 'Buscar' : 'Search'}
@@ -111,7 +111,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
 
       {/* Results count */}
       {(q || dept || type) && (
-        <p style={{ fontSize: 13, color: 'rgba(3,24,45,0.5)', marginBottom: 16 }}>
+        <p style={{ fontSize: 13, color: 'rgba(28,18,51,0.5)', marginBottom: 16 }}>
           {results.length} {locale === 'pt' ? 'resultado(s)' : 'result(s)'}
           {q ? ` para "${q}"` : ''}
         </p>
@@ -125,44 +125,44 @@ export default async function SearchPage({ params, searchParams }: Props) {
             href={`/${locale}/wiki/${item.slug}`}
             style={{
               display: 'block', padding: '14px 16px', borderRadius: 12,
-              background: '#fff', border: '1px solid rgba(3,24,45,0.07)',
+              background: '#fff', border: '1px solid rgba(28,18,51,0.07)',
               textDecoration: 'none',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
               <span style={{
-                fontSize: 11, fontWeight: 600, background: 'rgba(3,24,45,0.07)',
-                color: '#03182D', padding: '2px 8px', borderRadius: 6,
+                fontSize: 11, fontWeight: 600, background: 'rgba(28,18,51,0.07)',
+                color: '#2A1153', padding: '2px 8px', borderRadius: 6,
               }}>
                 {deptLabel(item.department_id)}
               </span>
               {item.content_type && (
                 <span style={{
-                  fontSize: 11, fontWeight: 600, background: '#FF8B0018',
-                  color: '#FF8B00', padding: '2px 8px', borderRadius: 6,
+                  fontSize: 11, fontWeight: 600, background: '#F36B1C18',
+                  color: '#F36B1C', padding: '2px 8px', borderRadius: 6,
                 }}>
                   {item.content_type}
                 </span>
               )}
               {isAdmin && item.status !== 'published' && (
-                <span style={{ fontSize: 11, color: '#E72C03' }}>{item.status}</span>
+                <span style={{ fontSize: 11, color: '#D23B2B' }}>{item.status}</span>
               )}
             </div>
             <div style={{
-              fontSize: 15, fontWeight: 500, color: '#03182D',
+              fontSize: 15, fontWeight: 500, color: '#2A1153',
               marginBottom: item.summary ? 4 : 0,
             }}>
               {titleFor(item)}
             </div>
             {item.summary && (
-              <div style={{ fontSize: 13, color: 'rgba(3,24,45,0.5)', lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: 'rgba(28,18,51,0.5)', lineHeight: 1.5 }}>
                 {item.summary}
               </div>
             )}
           </Link>
         ))}
         {results.length === 0 && (q || dept || type) && (
-          <div style={{ textAlign: 'center', padding: 48, color: 'rgba(3,24,45,0.4)', fontSize: 14 }}>
+          <div style={{ textAlign: 'center', padding: 48, color: 'rgba(28,18,51,0.4)', fontSize: 14 }}>
             {locale === 'pt' ? 'Nenhum resultado encontrado.' : 'No results found.'}
           </div>
         )}

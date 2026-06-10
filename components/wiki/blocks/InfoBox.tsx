@@ -1,9 +1,9 @@
 import type { InfoBoxBlock } from '@/types/blocks'
 
 const VARIANTS = {
-  tip:   { border: '#057570', bg: '#057570', label: '💡 Dica' },
-  warn:  { border: '#FF8B00', bg: '#FF8B00', label: '⚠️ Atenção' },
-  alert: { border: '#E72C03', bg: '#E72C03', label: '🚨 Alerta' },
+  tip:   { border: '#4B1A77', bg: '#4B1A77', label: '💡 Dica' },
+  warn:  { border: '#F36B1C', bg: '#F36B1C', label: '⚠️ Atenção' },
+  alert: { border: '#D23B2B', bg: '#D23B2B', label: '🚨 Alerta' },
   info:  { border: '#3B82F6', bg: '#3B82F6', label: 'ℹ️ Info' },
 } as const
 
@@ -18,7 +18,7 @@ export function InfoBox({ block }: { block: InfoBoxBlock }) {
         {block.title ?? v.label}
       </div>
       <div
-        style={{ fontSize: 13, color: '#03182D', lineHeight: 1.6 }}
+        style={{ fontSize: 13, color: '#2A1153', lineHeight: 1.6 }}
         dangerouslySetInnerHTML={{ __html: block.content }}
       />
     </div>

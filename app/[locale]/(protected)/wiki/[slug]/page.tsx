@@ -13,17 +13,17 @@ interface WikiSlugPageProps {
 }
 
 const STATUS_STYLES = {
-  published: { bg: 'rgba(5,117,112,0.12)', fg: '#057570', dot: '#057570' },
-  draft:     { bg: 'rgba(255,139,0,0.14)', fg: '#B95F00', dot: '#FF8B00' },
-  archived:  { bg: 'rgba(3,24,45,0.08)',   fg: '#03182D', dot: '#03182D' },
+  published: { bg: 'rgba(75,26,119,0.12)', fg: '#4B1A77', dot: '#4B1A77' },
+  draft:     { bg: 'rgba(243,107,28,0.14)', fg: '#B95F00', dot: '#F36B1C' },
+  archived:  { bg: 'rgba(28,18,51,0.08)',   fg: '#2A1153', dot: '#2A1153' },
 }
 
 const DEPT_ACCENTS: Record<string, string> = {
-  commercial: '#E72C03',
-  'student-support': '#057570',
-  visa: '#FF8B00',
+  commercial: '#D23B2B',
+  'student-support': '#4B1A77',
+  visa: '#F36B1C',
   marketing: '#8B5CF6',
-  technology: '#03182D',
+  technology: '#2A1153',
 }
 
 export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
@@ -62,7 +62,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
     ? (locale === 'en' ? dept.name_en : locale === 'es' ? dept.name_es : dept.name_pt)
     : null
 
-  const accent = dept?.color ?? DEPT_ACCENTS[dept?.slug ?? ''] ?? '#03182D'
+  const accent = dept?.color ?? DEPT_ACCENTS[dept?.slug ?? ''] ?? '#2A1153'
   const statusStyle = STATUS_STYLES[content.status as keyof typeof STATUS_STYLES] ?? STATUS_STYLES.draft
 
   const updatedAt = content.updated_at
@@ -107,23 +107,23 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
   return (
     <div>
       {/* Breadcrumbs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(3,24,45,0.55)', marginBottom: 16 }}>
-        <Link href={`/${locale}/home`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Sora, sans-serif' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(28,18,51,0.55)', marginBottom: 16 }}>
+        <Link href={`/${locale}/home`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
           {locale === 'pt' ? 'Início' : 'Home'}
         </Link>
         <ChevronIcon />
-        <Link href={`/${locale}/wiki`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Sora, sans-serif' }}>
+        <Link href={`/${locale}/wiki`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
           Wiki
         </Link>
         <ChevronIcon />
-        <span style={{ color: '#03182D', fontWeight: 500, fontFamily: 'Sora, sans-serif' }}>{title}</span>
+        <span style={{ color: '#2A1153', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>{title}</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'flex-start' }}>
         {/* Main article */}
         <div style={{
           background: '#fff', borderRadius: 18, padding: '32px 36px',
-          border: '1px solid rgba(3,24,45,0.06)', boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+          border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             {/* Dept chip */}
@@ -155,11 +155,11 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
             </span>
           </div>
 
-          <h1 style={{ margin: '0 0 10px', fontSize: 34, fontWeight: 700, letterSpacing: '-0.02em', color: '#03182D', lineHeight: 1.1 }}>
+          <h1 style={{ margin: '0 0 10px', fontSize: 34, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153', lineHeight: 1.1 }}>
             {title}
           </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'rgba(3,24,45,0.6)', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'rgba(28,18,51,0.6)', marginBottom: 24 }}>
             {updatedAt && (
               <span>{locale === 'pt' ? 'Atualizado em' : 'Updated'} {updatedAt}</span>
             )}
@@ -170,7 +170,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                   {content.tags.map((tag) => (
                     <span key={tag} style={{
                       fontSize: 11, padding: '2px 8px', borderRadius: 6,
-                      background: 'rgba(3,24,45,0.05)', color: 'rgba(3,24,45,0.7)', fontWeight: 500,
+                      background: 'rgba(28,18,51,0.05)', color: 'rgba(28,18,51,0.7)', fontWeight: 500,
                     }}>#{tag}</span>
                   ))}
                 </div>
@@ -190,14 +190,14 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
 
           {/* Edit/delete actions */}
           {canEdit && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(3,24,45,0.06)' }}>
+            <div style={{ display: 'flex', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(28,18,51,0.06)' }}>
               <Link
                 href={`/${locale}/wiki/${slug}/edit`}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '8px 14px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-                  background: 'rgba(3,24,45,0.05)', color: '#03182D', border: '1px solid transparent',
-                  textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+                  background: 'rgba(28,18,51,0.05)', color: '#2A1153', border: '1px solid transparent',
+                  textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
                 }}
               >
                 <EditIcon />
@@ -215,9 +215,9 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           {/* Available languages */}
           <div style={{
             background: '#fff', borderRadius: 18, padding: '16px 18px',
-            border: '1px solid rgba(3,24,45,0.06)', boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+            border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
           }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(3,24,45,0.5)', marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(28,18,51,0.5)', marginBottom: 10 }}>
               {locale === 'pt' ? 'Idiomas disponíveis' : 'Available languages'}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -225,12 +225,12 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                 <div key={code} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '8px 10px', borderRadius: 8,
-                  background: locale === code ? 'rgba(5,117,112,0.08)' : 'transparent',
+                  background: locale === code ? 'rgba(75,26,119,0.08)' : 'transparent',
                 }}>
-                  <span style={{ fontSize: 13, fontWeight: locale === code ? 600 : 500, color: '#03182D' }}>{label}</span>
+                  <span style={{ fontSize: 13, fontWeight: locale === code ? 600 : 500, color: '#2A1153' }}>{label}</span>
                   {hasLang[code]
                     ? <CheckIcon />
-                    : <span style={{ fontSize: 11, color: 'rgba(3,24,45,0.45)' }}>fallback → PT</span>}
+                    : <span style={{ fontSize: 11, color: 'rgba(28,18,51,0.45)' }}>fallback → PT</span>}
                 </div>
               ))}
             </div>
@@ -240,9 +240,9 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           {(related?.length ?? 0) > 0 && (
             <div style={{
               background: '#fff', borderRadius: 18, padding: '16px 18px',
-              border: '1px solid rgba(3,24,45,0.06)', boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+              border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
             }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(3,24,45,0.5)', marginBottom: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(28,18,51,0.5)', marginBottom: 10 }}>
                 {locale === 'pt' ? 'Relacionados' : 'Related'}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -254,10 +254,10 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                       href={`/${locale}/wiki/${r.slug}`}
                       style={{
                         display: 'block', padding: '8px 10px', borderRadius: 8,
-                        background: 'transparent', textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+                        background: 'transparent', textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
                       }}
                     >
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#03182D', marginBottom: 2 }}>{rTitle}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#2A1153', marginBottom: 2 }}>{rTitle}</div>
                     </Link>
                   )
                 })}
@@ -268,14 +268,14 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           {/* Back */}
           <div style={{
             background: '#fff', borderRadius: 18, padding: '14px 18px',
-            border: '1px solid rgba(3,24,45,0.06)', boxShadow: '0 1px 2px rgba(3,24,45,0.04)',
+            border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
           }}>
             <Link
               href={`/${locale}/wiki`}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontSize: 13, fontWeight: 500, color: 'rgba(3,24,45,0.7)',
-                textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+                fontSize: 13, fontWeight: 500, color: 'rgba(28,18,51,0.7)',
+                textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
               }}
             >
               <BackIcon />
@@ -292,7 +292,7 @@ function ChevronIcon() {
   return <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
 }
 function CheckIcon() {
-  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#057570" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#4B1A77" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
 }
 function EditIcon() {
   return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>

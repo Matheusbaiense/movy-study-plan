@@ -48,14 +48,14 @@ export default async function HomePage({ params }: Props) {
     <div style={{ maxWidth: 900 }}>
       {/* Greeting */}
       <div style={{ marginBottom: 32 }}>
-        <p style={{ fontSize: 13, color: 'rgba(3,24,45,0.5)', marginBottom: 6 }}>
+        <p style={{ fontSize: 13, color: 'rgba(28,18,51,0.5)', marginBottom: 6 }}>
           {greet}, {firstName} ·{' '}
           {new Date().toLocaleDateString(
             locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-ES' : 'en-AU',
             { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'Australia/Perth' }
           )}
         </p>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: '#03182D', margin: 0, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: 32, fontWeight: 700, color: '#2A1153', margin: 0, letterSpacing: '-0.02em' }}>
           {locale === 'pt' ? 'O que você precisa hoje?' : locale === 'es' ? '¿Qué necesitas hoy?' : 'What do you need today?'}
         </h1>
       </div>
@@ -63,16 +63,16 @@ export default async function HomePage({ params }: Props) {
       {/* Search bar */}
       <form action={`/${locale}/search`} method="GET" style={{ marginBottom: 36 }}>
         <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'rgba(3,24,45,0.4)' }} width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+          <svg style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'rgba(28,18,51,0.4)' }} width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
           <input
             name="q"
             placeholder={locale === 'pt' ? 'Buscar processos, templates, políticas...' : locale === 'es' ? 'Buscar procesos, plantillas, políticas...' : 'Search processes, templates, policies...'}
             style={{
               width: '100%', padding: '14px 16px 14px 46px',
-              borderRadius: 14, border: '1.5px solid rgba(3,24,45,0.12)',
-              fontSize: 15, fontFamily: 'Sora, sans-serif',
-              background: '#fff', color: '#03182D', outline: 'none',
-              boxShadow: '0 2px 8px rgba(3,24,45,0.06)',
+              borderRadius: 14, border: '1.5px solid rgba(28,18,51,0.12)',
+              fontSize: 15, fontFamily: 'Outfit, sans-serif',
+              background: '#fff', color: '#2A1153', outline: 'none',
+              boxShadow: '0 2px 8px rgba(28,18,51,0.06)',
               boxSizing: 'border-box' as const,
             }}
           />
@@ -82,10 +82,10 @@ export default async function HomePage({ params }: Props) {
       {/* Departments */}
       <section style={{ marginBottom: 36 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#03182D' }}>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#2A1153' }}>
             {locale === 'pt' ? 'Departamentos' : locale === 'es' ? 'Departamentos' : 'Departments'}
           </h2>
-          <span style={{ flex: 1, height: 1, background: 'rgba(3,24,45,0.08)' }} />
+          <span style={{ flex: 1, height: 1, background: 'rgba(28,18,51,0.08)' }} />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
           {DEPARTMENTS.map((d) => (
@@ -95,15 +95,15 @@ export default async function HomePage({ params }: Props) {
               style={{
                 display: 'block', padding: '16px 18px',
                 borderRadius: 14, background: '#fff',
-                border: '1px solid rgba(3,24,45,0.07)',
+                border: '1px solid rgba(28,18,51,0.07)',
                 textDecoration: 'none', transition: 'box-shadow 0.15s',
                 borderTop: `3px solid ${d.accent}`,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#03182D', marginBottom: 4 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#2A1153', marginBottom: 4 }}>
                 {getDeptName(d, locale)}
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(3,24,45,0.5)', lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)', lineHeight: 1.4 }}>
                 {getDeptDesc(d, locale)}
               </div>
             </Link>
@@ -115,11 +115,11 @@ export default async function HomePage({ params }: Props) {
       {recent && recent.length > 0 && (
         <section>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#03182D' }}>
+            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#2A1153' }}>
               {locale === 'pt' ? 'Atualizados recentemente' : locale === 'es' ? 'Actualizados recientemente' : 'Recently updated'}
             </h2>
-            <span style={{ flex: 1, height: 1, background: 'rgba(3,24,45,0.08)' }} />
-            <Link href={`/${locale}/wiki`} style={{ fontSize: 12, color: '#057570', textDecoration: 'none' }}>
+            <span style={{ flex: 1, height: 1, background: 'rgba(28,18,51,0.08)' }} />
+            <Link href={`/${locale}/wiki`} style={{ fontSize: 12, color: '#4B1A77', textDecoration: 'none' }}>
               {locale === 'pt' ? 'Ver todos →' : locale === 'es' ? 'Ver todos →' : 'View all →'}
             </Link>
           </div>
@@ -131,19 +131,19 @@ export default async function HomePage({ params }: Props) {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 16px', borderRadius: 10, background: '#fff',
-                  border: '1px solid rgba(3,24,45,0.06)',
+                  border: '1px solid rgba(28,18,51,0.06)',
                   textDecoration: 'none', transition: 'background 0.1s',
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: '#03182D', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#2A1153', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {titleFor(item)}
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(3,24,45,0.45)', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: 'rgba(28,18,51,0.45)', marginTop: 2 }}>
                     {deptLabel(item.department_id)} · {item.content_type ?? 'process'}
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(3,24,45,0.35)', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.35)', whiteSpace: 'nowrap' }}>
                   {item.updated_at
                     ? new Date(item.updated_at).toLocaleDateString(
                         locale === 'pt' ? 'pt-BR' : 'en-AU',
@@ -158,13 +158,13 @@ export default async function HomePage({ params }: Props) {
       )}
 
       {canWrite && (
-        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(3,24,45,0.08)' }}>
+        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(28,18,51,0.08)' }}>
           <Link
             href={`/${locale}/wiki/new`}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '10px 18px', borderRadius: 10, fontWeight: 600, fontSize: 14,
-              background: '#03182D', color: '#fff', textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+              background: '#2A1153', color: '#fff', textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
             }}
           >
             + {locale === 'pt' ? 'Novo conteúdo' : 'New content'}
