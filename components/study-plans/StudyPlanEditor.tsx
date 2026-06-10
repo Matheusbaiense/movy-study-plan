@@ -336,4 +336,4 @@ const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borde
 const ghostButton = { border: '1px solid rgba(28,18,51,0.12)', borderRadius: 9, padding: '8px 11px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
 const dangerButton = { ...ghostButton, color: '#D23B2B' }
 const pill = { borderRadius: 999, padding: '4px 9px', fontSize: 11, fontWeight: 800 }
-const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#9f1d03', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
+const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#D23B2B', borderRadius: 12, padding: '10px 12px', fontSize: 13 }

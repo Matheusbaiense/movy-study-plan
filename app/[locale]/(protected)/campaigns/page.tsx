@@ -47,7 +47,7 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 28 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8B5CF6' }}>Marketing</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#3A1560' }}>Marketing</div>
           <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>{label.title}</h1>
           <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>{label.subtitle}</p>
         </div>
@@ -82,7 +82,7 @@ export default async function CampaignsPage({ params }: CampaignsPageProps) {
         ) : (
           items.map((campaign) => {
             const deptSlug = campaign.departments?.slug ?? ''
-            const accent = campaign.departments?.color ?? DEPT_ACCENT[deptSlug] ?? '#8B5CF6'
+            const accent = campaign.departments?.color ?? DEPT_ACCENT[deptSlug] ?? '#3A1560'
             const statusStyle = STATUS_STYLES[campaign.status as keyof typeof STATUS_STYLES] ?? STATUS_STYLES.draft
             const updatedDate = campaign.updated_at
               ? new Date(campaign.updated_at).toLocaleDateString(

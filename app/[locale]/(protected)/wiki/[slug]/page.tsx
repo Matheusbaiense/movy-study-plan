@@ -14,16 +14,18 @@ interface WikiSlugPageProps {
 
 const STATUS_STYLES = {
   published: { bg: 'rgba(75,26,119,0.12)', fg: '#4B1A77', dot: '#4B1A77' },
-  draft:     { bg: 'rgba(243,107,28,0.14)', fg: '#B95F00', dot: '#F36B1C' },
+  draft:     { bg: 'rgba(243,107,28,0.14)', fg: '#F36B1C', dot: '#F36B1C' },
   archived:  { bg: 'rgba(28,18,51,0.08)',   fg: '#2A1153', dot: '#2A1153' },
 }
 
 const DEPT_ACCENTS: Record<string, string> = {
-  commercial: '#D23B2B',
-  'student-support': '#4B1A77',
-  visa: '#F36B1C',
-  marketing: '#8B5CF6',
+  commercial: '#4B1A77',
+  'student-support': '#F36B1C',
+  visa: '#FBB615',
+  marketing: '#3A1560',
   technology: '#2A1153',
+  finance: '#FFC51C',
+  administrative: '#5A4E72',
 }
 
 export default async function WikiSlugPage({ params }: WikiSlugPageProps) {

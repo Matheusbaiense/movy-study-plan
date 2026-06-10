@@ -1,9 +1,9 @@
 import type { ApplicantType, CourseType, ExtraCost, StudyCourse, StudyPlanData } from './types'
 
 export const COURSE_TYPES: Record<CourseType, { label: string; color: string }> = {
-  elicos: { label: 'ELICOS', color: '#2563EB' },
-  vet: { label: 'VET', color: '#7C3AED' },
-  he: { label: 'Higher Ed', color: '#0891B2' },
+  elicos: { label: 'ELICOS', color: '#4B1A77' },
+  vet: { label: 'VET', color: '#F36B1C' },
+  he: { label: 'Higher Ed', color: '#FBB615' },
 }
 
 const extraTemplates: Record<ApplicantType, Array<[ExtraCost['item'], ExtraCost['category']]>> = {

@@ -7,27 +7,27 @@
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO departments (slug, name_pt, name_en, name_es, color, icon, is_active, description_pt, description_en, description_es)
 VALUES
-  ('commercial',      'Comercial',       'Commercial',      'Comercial',       '#E72C03', '💼', true,
+  ('commercial',      'Comercial',       'Commercial',      'Comercial',       '#4B1A77', '💼', true,
    'Gestão de parcerias, propostas comerciais e pipeline de vendas.',
    'Partnership management, commercial proposals and sales pipeline.',
    'Gestión de asociaciones, propuestas comerciales y pipeline de ventas.'),
 
-  ('visa',            'Visa',            'Visa',            'Visa',            '#FF8B00', '🛂', true,
+  ('visa',            'Visa',            'Visa',            'Visa',            '#FBB615', '🛂', true,
    'Processos migratórios, vistos estudantis e compliance regulatório.',
    'Migration processes, student visas and regulatory compliance.',
    'Procesos migratorios, visados estudiantiles y cumplimiento normativo.'),
 
-  ('student-support', 'Student Support', 'Student Support', 'Student Support', '#057570', '🎓', true,
+  ('student-support', 'Student Support', 'Student Support', 'Student Support', '#F36B1C', '🎓', true,
    'Suporte completo ao estudante desde a matrícula até a graduação.',
    'Full student support from enrollment through graduation.',
    'Soporte completo al estudiante desde la matrícula hasta la graduación.'),
 
-  ('marketing',       'Marketing',       'Marketing',       'Marketing',       '#8B5CF6', '📣', true,
+  ('marketing',       'Marketing',       'Marketing',       'Marketing',       '#3A1560', '📣', true,
    'Campanhas, conteúdo, growth e brand da Movy.',
    'Campaigns, content, growth and Movy brand.',
    'Campañas, contenido, growth y marca Movy.'),
 
-  ('technology',      'Tecnologia',      'Technology',      'Tecnología',      '#03182D', '⚙️', true,
+  ('technology',      'Tecnologia',      'Technology',      'Tecnología',      '#2A1153', '⚙️', true,
    'Infraestrutura, integrações, automações e produto digital.',
    'Infrastructure, integrations, automation and digital product.',
    'Infraestructura, integraciones, automatizaciones y producto digital.')

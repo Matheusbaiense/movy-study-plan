@@ -51,8 +51,8 @@ CREATE TRIGGER checklist_progress_updated_at
 
 INSERT INTO public.departments (slug, name_pt, name_en, name_es, icon, color)
 VALUES
-  ('finance',        'Financeiro',     'Finance',        'Finanzas',       '💰', '#10B981'),
-  ('administrative', 'Administrativo', 'Administrative', 'Administrativo', '📋', '#6366F1')
+  ('finance',        'Financeiro',     'Finance',        'Finanzas',       '💰', '#FFC51C'),
+  ('administrative', 'Administrativo', 'Administrative', 'Administrativo', '📋', '#5A4E72')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ─── INDEXES ───────────────────────────────────────────────

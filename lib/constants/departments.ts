@@ -1,7 +1,7 @@
 export const DEPARTMENTS = [
   {
     slug: 'commercial',
-    accent: '#D23B2B',
+    accent: '#4B1A77',
     pillar: 'Career',
     name_pt: 'Comercial',
     name_en: 'Commercial',
@@ -12,7 +12,7 @@ export const DEPARTMENTS = [
   },
   {
     slug: 'student-support',
-    accent: '#4B1A77',
+    accent: '#F36B1C',
     pillar: 'Education',
     name_pt: 'Student Support',
     name_en: 'Student Support',
@@ -23,7 +23,7 @@ export const DEPARTMENTS = [
   },
   {
     slug: 'visa',
-    accent: '#F36B1C',
+    accent: '#FBB615',
     pillar: 'Migration',
     name_pt: 'Visa',
     name_en: 'Visa',
@@ -34,7 +34,7 @@ export const DEPARTMENTS = [
   },
   {
     slug: 'marketing',
-    accent: '#8B5CF6',
+    accent: '#3A1560',
     pillar: 'Backbone',
     name_pt: 'Marketing',
     name_en: 'Marketing',
@@ -56,7 +56,7 @@ export const DEPARTMENTS = [
   },
   {
     slug: 'finance',
-    accent: '#10B981',
+    accent: '#FFC51C',
     pillar: 'Operations',
     name_pt: 'Financeiro',
     name_en: 'Finance',
@@ -67,7 +67,7 @@ export const DEPARTMENTS = [
   },
   {
     slug: 'administrative',
-    accent: '#6366F1',
+    accent: '#5A4E72',
     pillar: 'Operations',
     name_pt: 'Administrativo',
     name_en: 'Administrative',

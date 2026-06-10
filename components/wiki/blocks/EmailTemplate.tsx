@@ -61,7 +61,7 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
       <div style={{
         padding: '14px', whiteSpace: 'pre-wrap',
         fontSize: 13, color: '#2A1153', lineHeight: 1.7,
-        background: '#FAFAFA',
+        background: '#F8F7FB',
       }}>
         {block.body}
       </div>

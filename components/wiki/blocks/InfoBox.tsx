@@ -4,7 +4,7 @@ const VARIANTS = {
   tip:   { border: '#4B1A77', bg: '#4B1A77', label: '💡 Dica' },
   warn:  { border: '#F36B1C', bg: '#F36B1C', label: '⚠️ Atenção' },
   alert: { border: '#D23B2B', bg: '#D23B2B', label: '🚨 Alerta' },
-  info:  { border: '#3B82F6', bg: '#3B82F6', label: 'ℹ️ Info' },
+  info:  { border: '#4B1A77', bg: '#4B1A77', label: 'ℹ️ Info' },
 } as const
 
 export function InfoBox({ block }: { block: InfoBoxBlock }) {

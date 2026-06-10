@@ -3,9 +3,8 @@
 Tokens derivados do **Movy Education Brand Guide 2026**. Fonte de verdade no código:
 `app/globals.css` (`:root`) e `tailwind.config.ts` (`theme.extend`).
 
-> Histórico: o projeto nasceu de uma base interna (FYME) com paleta navy/teal e fonte
-> Sora. Tudo isso foi substituído pela identidade Movy. Não reintroduzir cores antigas
-> (`#03182D`, `#057570`, `#E72C03`, `#FF8B00`) nem a fonte Sora.
+> Regra de manutenção: toda interface nova deve usar estes tokens oficiais da Movy.
+> Não criar paletas paralelas, fontes alternativas ou acentos fora deste guia.
 
 ## Paleta
 
