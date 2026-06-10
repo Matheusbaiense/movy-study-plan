@@ -9,6 +9,16 @@ export interface CourseSegment {
   weeks: number
 }
 
+// ELICOS sub-module (e.g. General English, Cambridge, IELTS, EAP).
+// The ELICOS course keeps a single enrolment + material; each module
+// carries its own per-week rate and number of weeks. Tuition = Σ(weeks × rate).
+export interface ElicosModule {
+  id: string
+  name: string
+  ratePerWeek: number
+  weeks: number
+}
+
 export interface StudyCourse {
   id: string
   type: CourseType
@@ -27,6 +37,10 @@ export interface StudyCourse {
   paymentParts: number
   paymentFrequency: string
   segments: CourseSegment[]
+  // Optional (backward compatible with stored plans):
+  modules?: ElicosModule[]            // ELICOS only: per-module rate + weeks
+  gapBeforeWeeks?: number             // transition holiday before this course (max 8, except fixed public-uni intakes)
+  paymentCadenceDays?: number         // 7 | 30 | 45 | 90 | 120 — interval between installments
 }
 
 export interface ExtraCost {

@@ -1,4 +1,4 @@
-import type { ApplicantType, CourseType, ExtraCost, StudyCourse, StudyPlanData } from './types'
+import type { ApplicantType, CourseSegment, CourseType, ElicosModule, ExtraCost, StudyCourse, StudyPlanData } from './types'
 
 export const COURSE_TYPES: Record<CourseType, { label: string; color: string }> = {
   elicos: { label: 'ELICOS', color: '#4B1A77' },
@@ -54,6 +54,46 @@ export const COURSE_PRESETS: Array<Partial<StudyCourse> & Pick<StudyCourse, 'typ
 
 export function uid(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`
+}
+
+// ── ELICOS modules, transition holiday and payment cadences ─────────────────
+
+export const ELICOS_MODULE_NAMES = ['General English', 'Cambridge', 'IELTS', 'EAP'] as const
+
+// Holiday between ELICOS and the AQF course (VET/HE). Within ELICOS itself the
+// rule is 12 study + 4 holiday; the transition holiday tops out at 8 weeks,
+// except for the few fixed public-university intakes.
+export const MAX_TRANSITION_HOLIDAY_WEEKS = 8
+
+export const PAYMENT_CADENCES: Array<{ label: string; days: number }> = [
+  { label: 'Semanal (7 dias)', days: 7 },
+  { label: 'A cada 30 dias', days: 30 },
+  { label: 'A cada 45 dias', days: 45 },
+  { label: 'A cada 90 dias', days: 90 },
+  { label: 'A cada 120 dias', days: 120 },
+]
+
+export function createElicosModule(name = 'General English', ratePerWeek = 260, moduleWeeks = 12): ElicosModule {
+  return { id: uid('mod'), name, ratePerWeek, weeks: moduleWeeks }
+}
+
+// Build study/holiday segments from ELICOS modules using the 12-week study +
+// 4-week holiday rule, labelling each study block with its active module.
+export function buildElicosSegments(modules: ElicosModule[]): CourseSegment[] {
+  const stream: string[] = []
+  for (const m of modules) {
+    const w = Math.max(0, Math.round(Number(m.weeks) || 0))
+    for (let i = 0; i < w; i++) stream.push(m.name)
+  }
+  const segments: CourseSegment[] = []
+  let i = 0
+  while (i < stream.length) {
+    const chunk = Math.min(12, stream.length - i)
+    segments.push({ id: uid('seg'), label: stream[i] || 'Inglês', kind: 'study', weeks: chunk })
+    i += chunk
+    if (i < stream.length) segments.push({ id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 })
+  }
+  return segments
 }
 
 export function defaultPaymentParts(type: CourseType) {
