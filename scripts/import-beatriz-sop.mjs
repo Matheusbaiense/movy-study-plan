@@ -6,7 +6,7 @@ const SOURCE =
 
 const OUT = path.resolve('supabase/migrations/005_beatriz_movy_content.sql')
 const JSON_OUT = path.resolve('data/beatriz-sop-content.json')
-const PUBLIC_IMAGE_DIR = path.resolve('public/imported')
+const DATA_IMAGE_DIR = path.resolve('data/imported')
 
 let imageCounter = 0
 
@@ -146,9 +146,9 @@ function writeDataImage(mime, base64) {
   imageCounter += 1
   const ext = mime.includes('png') ? 'png' : mime.includes('webp') ? 'webp' : 'jpg'
   const filename = `beatriz-sop-image-${imageCounter}.${ext}`
-  fs.mkdirSync(PUBLIC_IMAGE_DIR, { recursive: true })
-  fs.writeFileSync(path.join(PUBLIC_IMAGE_DIR, filename), Buffer.from(base64, 'base64'))
-  return `/imported/${filename}`
+  fs.mkdirSync(DATA_IMAGE_DIR, { recursive: true })
+  fs.writeFileSync(path.join(DATA_IMAGE_DIR, filename), Buffer.from(base64, 'base64'))
+  return `/api/imported/${filename}`
 }
 
 function cleanHtml(value) {
