@@ -76,7 +76,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>Movy Internal Hub</div>
           <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>
-            {locale === 'en' ? 'Knowledge Base' : 'Informacoes da Beatriz'}
+            {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
           <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'} &middot;{' '}

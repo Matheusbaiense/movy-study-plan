@@ -117,7 +117,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       </NavGroup>
 
       {/* Departments */}
-      <NavGroup label={locale === 'en' ? 'Beatriz Areas' : 'Areas da Beatriz'}>
+      <NavGroup label={locale === 'en' ? 'Areas' : 'Áreas'}>
         {DEPARTMENTS.map((dept) => (
           <NavItemDept
             key={dept.slug}

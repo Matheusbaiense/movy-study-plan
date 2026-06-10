@@ -38,8 +38,8 @@ export default async function HomePage({ params }: Props) {
         </h1>
         <p style={{ margin: 0, maxWidth: 680, color: 'rgba(28,18,51,0.64)', fontSize: 15, lineHeight: 1.6 }}>
           {locale === 'en'
-            ? 'Use this hub for proposals and Beatriz knowledge base. Everything else was removed from the main workflow.'
-            : 'Use este portal para criar propostas e consultar a base de informacoes da Beatriz. O resto saiu do fluxo principal.'}
+            ? 'Use this hub for proposals and the internal knowledge base. Everything else was removed from the main workflow.'
+            : 'Use este portal para criar propostas e consultar a base de informações interna. O resto saiu do fluxo principal.'}
         </p>
       </section>
 
@@ -93,10 +93,10 @@ export default async function HomePage({ params }: Props) {
             Informacoes
           </div>
           <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#2A1153' }}>
-            Base da Beatriz
+            Base de Informações
           </h2>
           <p style={{ margin: '0 0 18px', color: 'rgba(28,18,51,0.62)', fontSize: 13, lineHeight: 1.55 }}>
-            Processos, templates, vistos, suporte, politicas, links e atendimentos rebrandados para Movy.
+            Processos, templates, vistos, suporte, políticas, links e atendimentos da Movy.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link
@@ -134,7 +134,7 @@ export default async function HomePage({ params }: Props) {
       <section>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#2A1153' }}>
-            Areas da Beatriz
+            Áreas
           </h2>
           <span style={{ flex: 1, height: 1, background: 'rgba(28,18,51,0.08)' }} />
         </div>
