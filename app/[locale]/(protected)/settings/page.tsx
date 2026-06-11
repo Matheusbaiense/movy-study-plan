@@ -15,12 +15,6 @@ export default async function SettingsPage({ params }: Props) {
     supabase.from('contents').select('*', { count: 'exact', head: true }).eq('status', 'published'),
   ])
 
-  const LANGS = [
-    { code: 'pt', label: 'Português' },
-    { code: 'en', label: 'English' },
-    { code: 'es', label: 'Español' },
-  ]
-
   return (
     <div style={{ maxWidth: 640 }}>
       {/* Profile card */}
@@ -61,27 +55,6 @@ export default async function SettingsPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Language */}
-      <div style={{ background: '#fff', borderRadius: 14, padding: '20px 22px', border: '1px solid rgba(28,18,51,0.07)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
-          {locale === 'pt' ? 'Idioma' : 'Language'}
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {LANGS.map(lang => (
-            <a
-              key={lang.code}
-              href={`/${lang.code}/settings`}
-              style={{
-                padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none',
-                background: locale === lang.code ? '#2A1153' : 'rgba(28,18,51,0.06)',
-                color: locale === lang.code ? '#fff' : '#2A1153',
-              }}
-            >
-              {lang.label}
-            </a>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

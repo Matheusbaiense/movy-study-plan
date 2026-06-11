@@ -4,7 +4,7 @@
 -- Executar NO Supabase SQL Editor DEPOIS do primeiro login com Google.
 -- Run in Supabase SQL Editor AFTER your first Google login.
 --
--- Dashboard: https://supabase.com/dashboard/project/xpthmguzcbmndyyexfbt
+-- Supabase project id: xpthmguzcbmndyyexfbt
 -- ============================================================
 
 -- PASSO 1: Verificar se o teu perfil foi criado automaticamente

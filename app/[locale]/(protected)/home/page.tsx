@@ -90,7 +90,7 @@ export default async function HomePage({ params }: Props) {
 
         <div style={{ padding: 22, borderRadius: 16, background: '#fff', border: '1px solid rgba(28,18,51,0.08)' }}>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4B1A77', marginBottom: 10 }}>
-            Informacoes
+            Informações
           </div>
           <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#2A1153' }}>
             Base de Informações
@@ -112,20 +112,6 @@ export default async function HomePage({ params }: Props) {
               }}
             >
               Abrir informacoes
-            </Link>
-            <Link
-              href={`/${locale}/search`}
-              style={{
-                borderRadius: 10,
-                padding: '10px 14px',
-                background: 'rgba(75,26,119,0.08)',
-                color: '#4B1A77',
-                fontWeight: 700,
-                textDecoration: 'none',
-                fontSize: 13,
-              }}
-            >
-              Pesquisar
             </Link>
           </div>
         </div>

@@ -20,7 +20,7 @@
   --movy-lilac: #EFE9F6;
   --movy-lilac-2: #E6DCF3;
   --movy-line: #E0D6EE;
-  /* legacy aliases (kept for existing references) */
+  /* compatibility aliases */
   --movy-dark: #2A1153;
   --movy-green: #4B1A77;
   --movy-bg: #F8F7FB;
@@ -102,14 +102,14 @@ body {
   animation: movy-spin 0.8s linear infinite;
 }
 
-/* Imported SOP content */
-.legacy-sop {
+/* Imported knowledge content */
+.knowledge-sop {
   color: rgba(28, 18, 51, 0.84);
   font-size: 14px;
   line-height: 1.7;
 }
 
-.legacy-sop img {
+.knowledge-sop img {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
@@ -117,7 +117,7 @@ body {
   margin: 12px 0;
 }
 
-.legacy-sop table {
+.knowledge-sop table {
   width: 100%;
   border-collapse: collapse;
   margin: 14px 0 20px;
@@ -127,45 +127,40 @@ body {
   border: 1px solid rgba(28, 18, 51, 0.08);
 }
 
-.legacy-sop th {
+.knowledge-sop th {
   background: rgba(75, 26, 119, 0.08);
   color: #2A1153;
   font-weight: 800;
   text-align: left;
 }
 
-.legacy-sop th,
-.legacy-sop td {
+.knowledge-sop th,
+.knowledge-sop td {
   padding: 10px 12px;
   border-bottom: 1px solid rgba(28, 18, 51, 0.07);
   vertical-align: top;
 }
 
-.legacy-sop ul,
-.legacy-sop ol {
+.knowledge-sop ul,
+.knowledge-sop ol {
   padding-left: 22px;
   margin: 10px 0 16px;
 }
 
-.legacy-sop li {
+.knowledge-sop li {
   margin: 5px 0;
 }
 
-.legacy-sop a {
+.knowledge-sop a {
   color: #4B1A77;
   text-decoration: underline;
 }
 
-.legacy-sop .box,
-.legacy-sop .tcard,
-.legacy-sop .pcard,
-.legacy-sop .icard,
-.legacy-sop .tc-card,
-.legacy-sop .fdb-card,
-.legacy-sop .fdb-rec,
-.legacy-sop .fdb-insight,
-.legacy-sop .atd-kpi,
-.legacy-sop .atd-motivos-card {
+.knowledge-sop .box,
+.knowledge-sop .tcard,
+.knowledge-sop .pcard,
+.knowledge-sop .icard,
+.knowledge-sop .tc-card {
   border: 1px solid rgba(28, 18, 51, 0.08);
   border-left: 4px solid #4B1A77;
   border-radius: 10px;
@@ -174,21 +169,19 @@ body {
   background: #fff;
 }
 
-.legacy-sop .warn,
-.legacy-sop .alert {
+.knowledge-sop .warn,
+.knowledge-sop .alert {
   border-left-color: #D23B2B;
   background: rgba(210, 59, 43, 0.06);
 }
 
-.legacy-sop .tip,
-.legacy-sop .info {
+.knowledge-sop .tip,
+.knowledge-sop .info {
   border-left-color: #F36B1C;
   background: rgba(243, 107, 28, 0.06);
 }
 
-.legacy-sop .sh,
-.legacy-sop .fdb-sh,
-.legacy-sop .atd-chart-title {
+.knowledge-sop .sh {
   margin: 18px 0 8px;
   font-family: Outfit, sans-serif;
   font-size: 12px;
@@ -198,10 +191,8 @@ body {
   color: #4B1A77;
 }
 
-.legacy-sop .step,
-.legacy-sop .ci,
-.legacy-sop .fdb-nps-row,
-.legacy-sop .atd-bar-row {
+.knowledge-sop .step,
+.knowledge-sop .ci {
   display: flex;
   gap: 10px;
   align-items: flex-start;
@@ -209,8 +200,8 @@ body {
   border-bottom: 1px solid rgba(28, 18, 51, 0.06);
 }
 
-.legacy-sop .step-n,
-.legacy-sop .cb {
+.knowledge-sop .step-n,
+.knowledge-sop .cb {
   width: 24px;
   height: 24px;
   border-radius: 999px;
@@ -224,25 +215,21 @@ body {
   font-weight: 800;
 }
 
-.legacy-sop .cb {
+.knowledge-sop .cb {
   border: 1px solid rgba(75, 26, 119, 0.28);
   background: #fff;
 }
 
-.legacy-sop .step-t,
-.legacy-sop .ct,
-.legacy-sop .tcard-lbl,
-.legacy-sop .fdb-card-name,
-.legacy-sop .fdb-rec-ttl {
+.knowledge-sop .step-t,
+.knowledge-sop .ct,
+.knowledge-sop .tcard-lbl {
   font-weight: 800;
   color: #2A1153;
 }
 
-.legacy-sop .step-note,
-.legacy-sop .cn,
-.legacy-sop .mut,
-.legacy-sop .fdb-card-meta,
-.legacy-sop .fdb-rec-desc {
+.knowledge-sop .step-note,
+.knowledge-sop .cn,
+.knowledge-sop .mut {
   color: rgba(28, 18, 51, 0.58);
   font-size: 12px;
 }

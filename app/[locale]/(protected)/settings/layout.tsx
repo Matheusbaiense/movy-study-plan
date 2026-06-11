@@ -22,7 +22,7 @@ export default async function SettingsLayout({ children, params }: Props) {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2A1153', marginBottom: 20 }}>
-        {locale === 'pt' ? 'Configuracoes' : 'Settings'}
+        {locale === 'pt' ? 'Configurações' : 'Settings'}
       </h1>
       <div style={{
         display: 'flex', gap: 6, marginBottom: 28,

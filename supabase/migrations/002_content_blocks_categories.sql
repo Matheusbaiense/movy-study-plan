@@ -1,6 +1,6 @@
 -- ============================================================
 -- Movy Internal Hub — Migration 002: Content Blocks & Categories
--- Run in: Supabase Dashboard → SQL Editor
+-- Run in: Supabase SQL Editor
 -- ============================================================
 
 -- ─── EXTEND CONTENTS TABLE ─────────────────────────────────

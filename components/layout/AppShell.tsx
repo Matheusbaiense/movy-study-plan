@@ -46,16 +46,16 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const roleColor = ROLE_COLORS[profile.role] ?? '#2A1153'
 
   const mainNav = [
-    { href: `/${locale}/home`, icon: 'home', label: 'Dashboard' },
+    { href: `/${locale}/home`, icon: 'home', label: 'Home' },
     { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
     { href: `/${locale}/financial`, icon: 'calc', label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
-    { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informacoes' },
+    { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informações' },
     { href: `/${locale}/departments`, icon: 'areas', label: locale === 'en' ? 'Departments' : 'Departamentos' },
   ]
 
   const adminNav = isAdminOrAbove(profile.role)
     ? [
-        { href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configuracoes' : 'Settings' },
+        { href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configurações' : 'Settings' },
       ]
     : []
 
@@ -320,52 +320,19 @@ function NavItem({ href, icon, label, active, onClick }: {
   )
 }
 
-function NavItemDept({ href, label, color, active, onClick }: {
-  href: string; label: string; color: string; active: boolean; onClick: () => void
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 11,
-        padding: '8px 11px',
-        background: active ? 'rgba(249,249,249,0.1)' : 'transparent',
-        borderRadius: 9,
-        color: active ? '#F9F9F9' : 'rgba(249,249,249,0.7)',
-        fontSize: 13,
-        fontWeight: active ? 600 : 500,
-        fontFamily: 'Outfit, sans-serif',
-        textDecoration: 'none',
-        transition: 'background .15s ease',
-      }}
-    >
-      <span style={{ width: 8, height: 8, borderRadius: 999, background: color, marginLeft: 2, marginRight: 2, flexShrink: 0 }} />
-      <span style={{ flex: 1 }}>{label}</span>
-      {active && (
-        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#F36B1C', flexShrink: 0 }} />
-      )}
-    </Link>
-  )
-}
-
 function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: string }) {
   const segments = pathname.replace(`/${locale}`, '').split('/').filter(Boolean)
-  const homeLabel = locale === 'en' ? 'Home' : 'Inicio'
+  const homeLabel = 'Home'
   const items = [{ label: homeLabel, href: `/${locale}/home` }]
 
   const labelMap: Record<string, string> = {
     home: homeLabel,
-    dashboard: homeLabel,
-    search: locale === 'en' ? 'Search' : 'Busca',
     departments: locale === 'en' ? 'Departments' : 'Departamentos',
     settings: 'Settings',
-    wiki: locale === 'en' ? 'Knowledge' : 'Informacoes',
+    wiki: locale === 'en' ? 'Knowledge' : 'Informações',
     financial: locale === 'en' ? 'Financial' : 'Capacidade Financeira',
     'study-plans': locale === 'en' ? 'Proposals' : 'Propostas',
-    users: locale === 'pt' ? 'Usuarios' : 'Users',
+    users: locale === 'pt' ? 'Usuários' : 'Users',
     'audit-log': 'Audit Log',
   }
 
@@ -439,27 +406,14 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
   const icons: Record<string, React.ReactNode> = {
     home: <><path d="M3 11l9-8 9 8" {...s} /><path d="M5 10v10h14V10" {...s} /></>,
     quote: <><path d="M5 5h14v14H5z" {...s} /><path d="M8 9h8M8 13h5M15 16l1.5 1.5L20 14" {...s} /></>,
-    search: <><circle cx="11" cy="11" r="6" {...s} /><path d="M20 20l-4-4" {...s} /></>,
     book: <><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" {...s} /><path d="M4 17a3 3 0 0 1 3-3h11" {...s} /></>,
     areas: <><path d="M4 5h7v7H4z" {...s} /><path d="M13 5h7v7h-7z" {...s} /><path d="M4 14h7v5H4z" {...s} /><path d="M13 14h7v5h-7z" {...s} /></>,
     calc: <><rect x="5" y="3" width="14" height="18" rx="2" {...s} /><path d="M8 7h8M8 11h8M8 15h8" {...s} /></>,
-    megaphone: <><path d="M3 10v4l11 5V5L3 10z" {...s} /><path d="M14 8a4 4 0 0 1 0 8" {...s} /></>,
-    users: <><circle cx="9" cy="8" r="3.5" {...s} /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" {...s} /><circle cx="17" cy="9" r="2.5" {...s} /><path d="M15 20c0-2.5 2-4.5 4.5-4.5" {...s} /></>,
-    log: <><path d="M5 4h11l3 3v13H5z" {...s} /><path d="M8 9h8M8 13h8M8 17h5" {...s} /></>,
     settings: <><circle cx="12" cy="12" r="3" {...s} /><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" {...s} /></>,
   }
   return (
     <svg width={16} height={16} viewBox="0 0 24 24">
       {icons[name] ?? null}
-    </svg>
-  )
-}
-
-function SearchIcon() {
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.35-4.35" />
     </svg>
   )
 }

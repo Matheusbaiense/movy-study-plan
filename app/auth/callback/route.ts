@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const locale = url.searchParams.get('locale') ?? 'pt'
 
   if (code) {
-    const redirectTo = new URL(`/${locale}/dashboard`, request.url)
+    const redirectTo = new URL(`/${locale}/home`, request.url)
     const response = NextResponse.redirect(redirectTo)
 
     const supabase = createServerClient(
