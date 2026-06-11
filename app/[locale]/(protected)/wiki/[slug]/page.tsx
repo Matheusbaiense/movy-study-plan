@@ -108,7 +108,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
         </Link>
         <ChevronIcon />
         <Link href={`/${locale}/wiki`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
-          {locale === 'en' ? 'Knowledge' : 'Informacoes'}
+          {locale === 'en' ? 'Knowledge' : 'Informações'}
         </Link>
         <ChevronIcon />
         <span style={{ color: '#2A1153', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>{title}</span>
@@ -116,10 +116,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'flex-start' }}>
         {/* Main article */}
-        <div style={{
-          background: '#fff', borderRadius: 18, padding: '32px 36px',
-          border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-        }}>
+        <div className="movy-card" style={{ padding: '32px 36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             {/* Dept chip */}
             {deptName && (
@@ -151,7 +148,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
             </span>
           </div>
 
-          <h1 style={{ margin: '0 0 10px', fontSize: 34, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153', lineHeight: 1.1 }}>
+          <h1 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(28px, 3.4vw, 40px)', fontWeight: 800, letterSpacing: '-0.035em', color: '#2A1153', lineHeight: 1.04 }}>
             {title}
           </h1>
 
@@ -211,11 +208,8 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 24 }}>
           {/* Related */}
           {(related?.length ?? 0) > 0 && (
-            <div style={{
-              background: '#fff', borderRadius: 18, padding: '16px 18px',
-              border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-            }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(28,18,51,0.5)', marginBottom: 10 }}>
+            <div className="movy-card" style={{ padding: '16px 18px' }}>
+              <div className="movy-kicker" style={{ fontSize: 10, marginBottom: 12 }}>
                 {locale === 'pt' ? 'Relacionados' : 'Related'}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -240,10 +234,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           )}
 
           {/* Back */}
-          <div style={{
-            background: '#fff', borderRadius: 18, padding: '14px 18px',
-            border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-          }}>
+          <div className="movy-card" style={{ padding: '14px 18px' }}>
             <Link
               href={`/${locale}/wiki`}
               prefetch={false}
@@ -254,7 +245,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
               }}
             >
               <BackIcon />
-              {locale === 'pt' ? 'Voltar as informacoes' : locale === 'es' ? 'Volver a informaciones' : 'Back to knowledge'}
+              {locale === 'pt' ? 'Voltar às informações' : locale === 'es' ? 'Volver a informaciones' : 'Back to knowledge'}
             </Link>
           </div>
         </div>

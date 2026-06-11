@@ -14,32 +14,26 @@ export default function ProtectedError({
   }, [error])
 
   return (
-    <div style={{
-      minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 32, textAlign: 'center',
-    }}>
-      <div>
+    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+      <div style={{ maxWidth: 400 }}>
         <div style={{
-          width: 52, height: 52, borderRadius: 16, background: 'rgba(210,59,43,0.1)',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+          width: 54, height: 54, borderRadius: 16, background: 'rgba(243,107,28,0.1)', border: '1px solid rgba(243,107,28,0.2)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
         }}>
-          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#D23B2B" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#F36B1C" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
           </svg>
         </div>
-        <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 600, color: '#2A1153' }}>
+        <div className="movy-kicker" style={{ marginBottom: 10 }}>Erro</div>
+        <h2 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 800, letterSpacing: '-0.035em', color: '#2A1153' }}>
           Algo deu errado
         </h2>
-        <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', maxWidth: 360 }}>
+        <p style={{ margin: '0 0 22px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.55 }}>
           {error.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.'}
         </p>
         <button
           onClick={reset}
-          style={{
-            padding: '9px 18px', borderRadius: 10, background: '#2A1153', color: '#fff',
-            border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            fontFamily: 'Outfit, sans-serif',
-          }}
+          style={{ padding: '11px 20px', borderRadius: 10, background: '#F36B1C', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
         >
           Tentar novamente
         </button>
