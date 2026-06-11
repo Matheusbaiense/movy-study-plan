@@ -58,15 +58,10 @@ export default async function DepartmentPage({ params }: Props) {
         border: `1px solid ${dept.color}30`,
       }}>
         <div style={{ position: 'absolute', right: 24, top: 24, fontSize: 48, opacity: 0.3 }}>{dept.icon}</div>
-        <div style={{
-          display: 'inline-block', padding: '3px 10px', borderRadius: 20,
-          background: dept.color ?? '#2A1153', color: '#fff',
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
-          textTransform: 'uppercase', marginBottom: 12,
-        }}>
+        <div className="movy-kicker" style={{ color: dept.color ?? '#4B1A77', marginBottom: 12 }}>
           {dept.icon} {deptName}
         </div>
-        <h1 style={{ margin: '0 0 10px', fontSize: 28, fontWeight: 700, color: '#2A1153', letterSpacing: '-0.02em' }}>
+        <h1 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(26px, 3.2vw, 34px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.035em' }}>
           {deptName}
         </h1>
         <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.6, maxWidth: 560 }}>
@@ -74,8 +69,8 @@ export default async function DepartmentPage({ params }: Props) {
         </p>
         <div style={{ display: 'flex', gap: 20 }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#2A1153' }}>{totalContent}</div>
-            <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
+            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: dept.color ?? '#2A1153' }}>{totalContent}</div>
+            <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
           </div>
         </div>
       </div>

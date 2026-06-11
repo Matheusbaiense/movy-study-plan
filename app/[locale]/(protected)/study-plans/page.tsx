@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/get-user'
 import { createStudyPlan } from './actions'
 import { NewQuoteButton } from '@/components/study-plans/NewQuoteButton'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
+import { color, ink, font, purpleA } from '@/lib/ui/theme'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
 interface Props {
@@ -23,11 +24,16 @@ export default async function StudyPlansPage({ params }: Props) {
   const rows = (plans ?? []) as StudyPlanRow[]
 
   return (
-    <div style={{ display: 'grid', gap: 22 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+    <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.04em', color: '#2A1153' }}>Cotações & Study Plans</h1>
-          <p style={{ margin: '8px 0 0', color: 'rgba(28,18,51,0.62)', fontSize: 14 }}>
+          <div className="movy-kicker" style={{ color: color.purple }}>
+            {locale === 'en' ? 'Proposals' : 'Propostas'}
+          </div>
+          <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep }}>
+            Cotações &amp; Study Plans
+          </h1>
+          <p style={{ margin: 0, color: ink(0.62), fontSize: 14 }}>
             Crie, simule e acompanhe planos de estudo com histórico de alterações.
           </p>
         </div>
@@ -36,12 +42,12 @@ export default async function StudyPlansPage({ params }: Props) {
         </form>
       </div>
 
-      <div style={{ overflow: 'hidden', border: '1px solid rgba(28,18,51,0.08)', borderRadius: 16, background: '#fff' }}>
+      <div className="movy-card" style={{ overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
               {['Estudante', 'Tipo', 'Status', 'Total estimado', 'Atualizado', ''].map((header) => (
-                <th key={header} style={{ padding: '12px 16px', textAlign: 'left', color: 'rgba(28,18,51,0.54)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid rgba(28,18,51,0.08)' }}>
+                <th key={header} className="movy-kicker" style={{ padding: '13px 16px', textAlign: 'left', color: ink(0.45), fontSize: 10, borderBottom: `1px solid ${color.line}` }}>
                   {header}
                 </th>
               ))}
@@ -50,7 +56,7 @@ export default async function StudyPlansPage({ params }: Props) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ padding: 42, textAlign: 'center', color: 'rgba(28,18,51,0.54)' }}>
+                <td colSpan={6} style={{ padding: 42, textAlign: 'center', color: ink(0.54) }}>
                   Nenhuma cotação ainda. Crie a primeira para começar.
                 </td>
               </tr>
@@ -58,25 +64,25 @@ export default async function StudyPlansPage({ params }: Props) {
               rows.map((plan) => {
                 const data = plan.data as StudyPlanData
                 return (
-                  <tr key={plan.id} style={{ borderBottom: '1px solid rgba(28,18,51,0.06)' }}>
+                  <tr key={plan.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
                     <td style={{ padding: '14px 16px' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ color: '#2A1153', fontWeight: 700, textDecoration: 'none' }}>
+                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ fontFamily: font.display, color: color.purpleDeep, fontWeight: 800, textDecoration: 'none' }}>
                         {plan.student_name || data.student || 'Sem estudante'}
                       </Link>
-                      <div style={{ marginTop: 3, color: 'rgba(28,18,51,0.48)', fontSize: 12 }}>{plan.title}</div>
+                      <div style={{ marginTop: 3, color: ink(0.48), fontSize: 12 }}>{plan.title}</div>
                     </td>
-                    <td style={{ padding: '14px 16px', color: 'rgba(28,18,51,0.68)' }}>{plan.applicant_type}</td>
+                    <td style={{ padding: '14px 16px', color: ink(0.68) }}>{plan.applicant_type}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span style={{ borderRadius: 999, padding: '3px 9px', background: 'rgba(75,26,119,0.1)', color: '#4B1A77', fontWeight: 700, fontSize: 11 }}>
+                      <span style={{ borderRadius: 999, padding: '3px 10px', background: purpleA(0.1), color: color.purple, fontWeight: 700, fontSize: 11, textTransform: 'capitalize' }}>
                         {plan.status}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px', fontWeight: 700 }}>{money(planGrandTotal(data))}</td>
-                    <td style={{ padding: '14px 16px', color: 'rgba(28,18,51,0.55)' }}>
+                    <td style={{ padding: '14px 16px', fontFamily: font.display, fontWeight: 800, color: color.purpleDeep }}>{money(planGrandTotal(data))}</td>
+                    <td style={{ padding: '14px 16px', fontFamily: font.mono, fontSize: 11, color: ink(0.55) }}>
                       {plan.updated_at ? new Date(plan.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
                     </td>
                     <td style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}/proposal`} prefetch={false} style={{ color: '#4B1A77', fontWeight: 700, textDecoration: 'none', fontSize: 12 }}>
+                      <Link href={`/${locale}/study-plans/${plan.id}/proposal`} prefetch={false} style={{ color: color.purple, fontWeight: 800, textDecoration: 'none', fontSize: 12, fontFamily: font.display }}>
                         Proposta →
                       </Link>
                     </td>
