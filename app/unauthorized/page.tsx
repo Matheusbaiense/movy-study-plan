@@ -8,40 +8,36 @@ export default function UnauthorizedPage() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '40px 24px',
-      background: 'radial-gradient(900px 500px at 12% 18%, rgba(210,59,43,0.18), transparent 60%), radial-gradient(900px 600px at 88% 90%, rgba(75,26,119,0.22), transparent 60%), #2A1153',
+      background: 'radial-gradient(900px 500px at 12% 18%, rgba(243,107,28,0.16), transparent 60%), radial-gradient(900px 600px at 88% 90%, rgba(75,26,119,0.4), transparent 60%), #190A38',
       fontFamily: 'Outfit, system-ui, sans-serif',
       color: '#F9F9F9',
     }}>
-      <div style={{ textAlign: 'center', maxWidth: 420 }}>
-        {/* MovyMark */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
-          <svg width={40} height={40} viewBox="0 0 64 64" fill="none" aria-label="Movy">
-            <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#D23B2B" />
-            <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#F36B1C" />
-            <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#4B1A77" />
+      <div style={{ textAlign: 'center', maxWidth: 440 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 34 }}>
+          <svg width={48} height={48} viewBox="0 0 120 120" aria-label="Movy" style={{ overflow: 'visible' }}>
+            <use href="#movySymColor" />
           </svg>
         </div>
 
-        {/* Icon */}
         <div style={{
-          width: 60, height: 60, borderRadius: 18,
-          background: 'rgba(210,59,43,0.15)',
-          border: '1px solid rgba(210,59,43,0.25)',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 20,
+          width: 60, height: 60, borderRadius: 16,
+          background: 'rgba(243,107,28,0.14)', border: '1px solid rgba(243,107,28,0.3)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22,
         }}>
-          <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#D23B2B" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#FBB615" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
             <rect x="5" y="11" width="14" height="9" rx="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
           </svg>
         </div>
 
-        <h1 style={{ margin: '0 0 10px', fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>
-          Acesso Negado
+        <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#FBB615', marginBottom: 12 }}>
+          Acesso restrito
+        </div>
+        <h1 style={{ margin: '0 0 12px', fontFamily: 'Outfit, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.96 }}>
+          Acesso negado
         </h1>
-        <p style={{ margin: '0 0 28px', fontSize: 15, color: 'rgba(249,249,249,0.6)', lineHeight: 1.6 }}>
-          Sua conta n&atilde;o tem acesso ao Movy Internal Hub.
-          Entre em contato com o administrador para solicitar acesso.
+        <p style={{ margin: '0 0 28px', fontSize: 15, color: 'rgba(249,249,249,0.62)', lineHeight: 1.6 }}>
+          Sua conta não tem acesso ao Movy Internal Hub. Fale com um administrador para solicitar acesso.
         </p>
 
         <Link
@@ -50,15 +46,14 @@ export default function UnauthorizedPage() {
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '12px 24px', borderRadius: 12,
             background: '#F9F9F9', color: '#2A1153',
-            fontSize: 14, fontWeight: 600, textDecoration: 'none',
-            fontFamily: 'Outfit, sans-serif',
+            fontSize: 14, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
           }}
         >
-          Voltar ao Login
+          Voltar ao login
         </Link>
 
-        <div style={{ marginTop: 32, fontSize: 12, color: 'rgba(249,249,249,0.3)' }}>
-          Powered by Movy Technology
+        <div style={{ marginTop: 34, fontFamily: '"Space Mono", monospace', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(249,249,249,0.3)' }}>
+          Movy Education · Internal Hub
         </div>
       </div>
     </main>
