@@ -33,8 +33,13 @@ export const ink = (a: number) => `rgba(28,18,51,${a})`
 export const purpleA = (a: number) => `rgba(75,26,119,${a})`
 
 export const font = {
+  /** Display + headlines — Outfit, geometric & confident, echoes the wordmark (Brand Guide p.19) */
   display: 'Outfit, system-ui, sans-serif',
+  /** UI: buttons, nav, labels, table cells */
+  ui: 'Outfit, system-ui, sans-serif',
+  /** Reading / body copy — Manrope */
   body: 'Manrope, system-ui, sans-serif',
+  /** Kickers, meta, hex codes, technical labels — Space Mono */
   mono: '"Space Mono", ui-monospace, monospace',
 } as const
 
@@ -46,11 +51,13 @@ export const radius = {
   pill: 999,
 } as const
 
-/** Layered, purple-tinted shadows — depth without grey mud. */
+/** Editorial: structure comes from hairline borders, not soft shadow.
+ *  Shadows reserved for genuine elevation (hover, overlays) only. */
 export const shadow = {
+  none: 'none',
   sm: '0 1px 2px rgba(42,17,83,0.05)',
-  card: '0 1px 2px rgba(42,17,83,0.04), 0 14px 40px -16px rgba(42,17,83,0.16)',
-  lift: '0 2px 4px rgba(42,17,83,0.06), 0 22px 50px -18px rgba(42,17,83,0.24)',
+  card: 'none',
+  lift: '0 10px 28px -18px rgba(42,17,83,0.45)',
   inset: 'inset 0 1px 0 rgba(255,255,255,0.6)',
 } as const
 

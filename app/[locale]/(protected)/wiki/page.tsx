@@ -74,8 +74,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
-          <div className="movy-kicker" style={{ color: '#4B1A77' }}>Movy Internal Hub</div>
-          <h1 style={{ margin: '8px 0 4px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: '#2A1153' }}>
+          <div className="movy-kicker">Movy Internal Hub</div>
+          <h1 style={{ margin: '8px 0 4px', fontFamily: '"Bricolage Grotesque", Outfit, sans-serif', fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: '#2A1153' }}>
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
           <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>

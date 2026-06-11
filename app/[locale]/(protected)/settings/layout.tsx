@@ -22,7 +22,7 @@ export default async function SettingsLayout({ children, params }: Props) {
 
   return (
     <div>
-      <div className="movy-kicker" style={{ color: color.purple }}>
+      <div className="movy-kicker">
         {locale === 'pt' ? 'Administração' : 'Administration'}
       </div>
       <h1 style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, letterSpacing: '-0.035em', color: color.purpleDeep, margin: '8px 0 18px' }}>

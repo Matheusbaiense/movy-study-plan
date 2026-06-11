@@ -52,16 +52,17 @@ export default async function DepartmentPage({ params }: Props) {
     <div>
       {/* Hero */}
       <div style={{
-        borderRadius: 20, padding: '32px 36px', marginBottom: 32,
+        borderRadius: 14, padding: '30px 34px 30px 38px', marginBottom: 32,
         position: 'relative', overflow: 'hidden',
-        background: `linear-gradient(135deg, ${dept.color}18 0%, ${dept.color}08 100%)`,
-        border: `1px solid ${dept.color}30`,
+        background: `${dept.color}0D`,
+        border: `1px solid ${dept.color}26`,
       }}>
-        <div style={{ position: 'absolute', right: 24, top: 24, fontSize: 48, opacity: 0.3 }}>{dept.icon}</div>
+        <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, background: dept.color ?? '#4B1A77' }} />
+        <div style={{ position: 'absolute', right: 24, top: 24, fontSize: 48, opacity: 0.2 }}>{dept.icon}</div>
         <div className="movy-kicker" style={{ color: dept.color ?? '#4B1A77', marginBottom: 12 }}>
           {dept.icon} {deptName}
         </div>
-        <h1 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(26px, 3.2vw, 34px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.035em' }}>
+        <h1 style={{ margin: '0 0 10px', fontFamily: '"Bricolage Grotesque", Outfit, sans-serif', fontSize: 'clamp(28px, 3.6vw, 40px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.03em', lineHeight: 0.98 }}>
           {deptName}
         </h1>
         <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.6, maxWidth: 560 }}>

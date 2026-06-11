@@ -27,7 +27,7 @@ export default async function StudyPlansPage({ params }: Props) {
     <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <div className="movy-kicker" style={{ color: color.purple }}>
+          <div className="movy-kicker">
             {locale === 'en' ? 'Proposals' : 'Propostas'}
           </div>
           <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep }}>
@@ -56,8 +56,16 @@ export default async function StudyPlansPage({ params }: Props) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ padding: 42, textAlign: 'center', color: ink(0.54) }}>
-                  Nenhuma cotação ainda. Crie a primeira para começar.
+                <td colSpan={6} style={{ padding: '56px 24px', textAlign: 'center' }}>
+                  <svg viewBox="0 0 120 120" width={52} height={52} aria-hidden style={{ color: color.purple, opacity: 0.16, margin: '0 auto' }}>
+                    <use href="#movySymMono" />
+                  </svg>
+                  <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 800, color: color.purpleDeep, marginTop: 14, letterSpacing: '-0.015em' }}>
+                    Nenhuma cotação ainda
+                  </div>
+                  <div style={{ color: ink(0.5), fontSize: 13.5, marginTop: 4 }}>
+                    Clique em <strong style={{ color: color.orange }}>+ Nova cotação</strong> para criar a primeira.
+                  </div>
                 </td>
               </tr>
             ) : (

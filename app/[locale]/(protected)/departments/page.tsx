@@ -15,7 +15,7 @@ export default async function DepartmentsPage({ params }: DepartmentsPageProps) 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
       <div>
-        <div className="movy-kicker" style={{ color: color.purple }}>
+        <div className="movy-kicker">
           Movy Internal Hub
         </div>
         <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep }}>
