@@ -100,6 +100,31 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
     updateCourse(course.id, { start: course.type === 'elicos' ? nextMonday(value) : value })
   }
 
+  function updateStandardCourseDuration(course: StudyCourse, patch: { studyWeeks?: number; holidayWeeks?: number }) {
+    const studySegment = course.segments.find((segment) => segment.kind === 'study')
+    const holidaySegment = course.segments.find((segment) => segment.kind === 'holiday')
+    const studyWeeks = Math.max(1, Math.round(patch.studyWeeks ?? studySegment?.weeks ?? courseStudyWeeks(course) ?? 24))
+    const holidayWeeks = Math.max(0, Math.round(patch.holidayWeeks ?? holidaySegment?.weeks ?? 0))
+    updateCourse(course.id, {
+      segments: [
+        {
+          id: studySegment?.id ?? uid('seg'),
+          label: course.name || COURSE_TYPES[course.type].label,
+          kind: 'study' as const,
+          weeks: studyWeeks,
+        },
+        ...(holidayWeeks > 0
+          ? [{
+              id: holidaySegment?.id ?? uid('seg'),
+              label: 'Ferias',
+              kind: 'holiday' as const,
+              weeks: holidayWeeks,
+            }]
+          : []),
+      ],
+    })
+  }
+
   function save() {
     startTransition(async () => {
       try {
@@ -277,6 +302,35 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   )}
                   <Field label="Bolsa / desconto"><NumberInput value={course.scholarship} onChange={(value) => updateCourse(course.id, { scholarship: value })} /></Field>
                 </div>
+
+                {course.type !== 'elicos' && (
+                  <div className="course-type-panel">
+                    <Field label="Duracao do curso (semanas)">
+                      <NumberInput
+                        value={course.segments.find((segment) => segment.kind === 'study')?.weeks ?? courseStudyWeeks(course)}
+                        onChange={(value) => updateStandardCourseDuration(course, { studyWeeks: value })}
+                      />
+                    </Field>
+                    <Field label="Ferias no CoE (semanas)">
+                      <NumberInput
+                        value={course.segments.find((segment) => segment.kind === 'holiday')?.weeks ?? 0}
+                        onChange={(value) => updateStandardCourseDuration(course, { holidayWeeks: value })}
+                      />
+                    </Field>
+                    {course.type === 'vet' && (
+                      <Field label="Material cobrado pela escola">
+                        <select
+                          style={input}
+                          value={course.hasMaterial ? 'yes' : 'no'}
+                          onChange={(e) => updateCourse(course.id, { hasMaterial: e.target.value === 'yes' })}
+                        >
+                          <option value="no">Nao</option>
+                          <option value="yes">Sim</option>
+                        </select>
+                      </Field>
+                    )}
+                  </div>
+                )}
 
                 {courseIndex > 0 && (
                   <div style={{ marginTop: 12 }}>
@@ -636,6 +690,16 @@ const editorStyles = `
   flex-wrap: wrap;
   min-width: 0;
   width: 100%;
+}
+.course-type-panel {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(28,18,51,0.08);
+  border-radius: 12px;
+  background: #FBFAFE;
 }
 .timeline-shell {
   display: grid;

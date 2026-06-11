@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { isAdminOrAbove } from '@/lib/permissions/can'
-import { DEPARTMENTS, DEPT_COLORS, getDeptName } from '@/lib/constants/departments'
+import { DEPARTMENTS, getDeptName } from '@/lib/constants/departments'
 import type { Profile } from '@/lib/auth/get-user'
 
 interface AppShellProps {
@@ -46,22 +46,21 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const roleColor = ROLE_COLORS[profile.role] ?? '#2A1153'
 
   const mainNav = [
-    { href: `/${locale}/home`, icon: 'home', label: 'Inicio' },
+    { href: `/${locale}/home`, icon: 'home', label: 'Dashboard' },
     { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
     { href: `/${locale}/financial`, icon: 'calc', label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
     { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informacoes' },
+    { href: `/${locale}/departments`, icon: 'areas', label: locale === 'en' ? 'Departments' : 'Departamentos' },
   ]
 
   const adminNav = isAdminOrAbove(profile.role)
     ? [
-        { href: `/${locale}/settings/users`, icon: 'users', label: locale === 'pt' ? 'Usuarios' : 'Users' },
-        { href: `/${locale}/settings/audit-log`, icon: 'log', label: 'Audit Log' },
         { href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configuracoes' : 'Settings' },
       ]
     : []
 
   const SidebarContent = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '22px 18px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflowY: 'auto', padding: '22px 18px', boxSizing: 'border-box' }}>
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, padding: '0 6px' }}>
         <MovyMark size={32} />
@@ -71,40 +70,8 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         </div>
       </div>
 
-      {/* Search shortcut */}
-      <button
-        type="button"
-        onClick={() => router.push(`/${locale}/search`)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          width: '100%',
-          padding: '10px 12px',
-          borderRadius: 10,
-          background: 'rgba(249,249,249,0.06)',
-          border: '1px solid rgba(249,249,249,0.08)',
-          color: 'rgba(249,249,249,0.6)',
-          fontSize: 13,
-          cursor: 'pointer',
-          fontFamily: 'Outfit, sans-serif',
-          marginBottom: 18,
-        }}
-      >
-        <SearchIcon />
-        <span style={{ flex: 1, textAlign: 'left' }}>
-          {locale === 'pt' ? 'Pesquisar informacoes...' : 'Search knowledge...'}
-        </span>
-        <kbd style={{
-          fontSize: 10, padding: '1px 5px', borderRadius: 4,
-          background: 'rgba(249,249,249,0.08)',
-          fontFamily: 'ui-monospace, monospace',
-          color: 'rgba(249,249,249,0.6)',
-        }}>Ctrl K</kbd>
-      </button>
-
       {/* Main nav */}
-      <NavGroup label="Main">
+      <NavGroup label="Portal">
         {mainNav.map((item) => (
           <NavItem
             key={item.href}
@@ -112,20 +79,6 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
             icon={item.icon}
             label={item.label}
             active={isActive(item.href)}
-            onClick={() => setMobileOpen(false)}
-          />
-        ))}
-      </NavGroup>
-
-      {/* Departments */}
-      <NavGroup label={locale === 'en' ? 'Areas' : 'Áreas'}>
-        {DEPARTMENTS.map((dept) => (
-          <NavItemDept
-            key={dept.slug}
-            href={`/${locale}/departments/${dept.slug}`}
-            label={getDeptName(dept, locale)}
-            color={DEPT_COLORS[dept.slug] ?? '#2A1153'}
-            active={pathname.includes(`/departments/${dept.slug}`)}
             onClick={() => setMobileOpen(false)}
           />
         ))}
@@ -207,6 +160,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           top: 0,
           height: '100vh',
           borderRight: '1px solid rgba(249,249,249,0.06)',
+          overflow: 'hidden',
         }}
         className="hidden lg:flex"
       >
@@ -236,6 +190,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 200ms ease-in-out',
           height: '100vh',
+          overflow: 'hidden',
         }}
         className="lg:hidden"
       >
@@ -405,9 +360,11 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
     home: homeLabel,
     dashboard: homeLabel,
     search: locale === 'en' ? 'Search' : 'Busca',
-    departments: locale === 'en' ? 'Areas' : 'Areas',
+    departments: locale === 'en' ? 'Departments' : 'Departamentos',
     settings: 'Settings',
     wiki: locale === 'en' ? 'Knowledge' : 'Informacoes',
+    financial: locale === 'en' ? 'Financial' : 'Capacidade Financeira',
+    'study-plans': locale === 'en' ? 'Proposals' : 'Propostas',
     users: locale === 'pt' ? 'Usuarios' : 'Users',
     'audit-log': 'Audit Log',
   }
@@ -484,6 +441,7 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
     quote: <><path d="M5 5h14v14H5z" {...s} /><path d="M8 9h8M8 13h5M15 16l1.5 1.5L20 14" {...s} /></>,
     search: <><circle cx="11" cy="11" r="6" {...s} /><path d="M20 20l-4-4" {...s} /></>,
     book: <><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" {...s} /><path d="M4 17a3 3 0 0 1 3-3h11" {...s} /></>,
+    areas: <><path d="M4 5h7v7H4z" {...s} /><path d="M13 5h7v7h-7z" {...s} /><path d="M4 14h7v5H4z" {...s} /><path d="M13 14h7v5h-7z" {...s} /></>,
     calc: <><rect x="5" y="3" width="14" height="18" rx="2" {...s} /><path d="M8 7h8M8 11h8M8 15h8" {...s} /></>,
     megaphone: <><path d="M3 10v4l11 5V5L3 10z" {...s} /><path d="M14 8a4 4 0 0 1 0 8" {...s} /></>,
     users: <><circle cx="9" cy="8" r="3.5" {...s} /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" {...s} /><circle cx="17" cy="9" r="2.5" {...s} /><path d="M15 20c0-2.5 2-4.5 4.5-4.5" {...s} /></>,

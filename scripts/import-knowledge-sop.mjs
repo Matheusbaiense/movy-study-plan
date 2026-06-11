@@ -4,7 +4,7 @@ import path from 'node:path'
 const SOURCE =
   'C:/Users/baien/Downloads/Movy Internal Hub-handoff/movy-internal-hub/project/uploads/legacy-sop-site.html'
 
-const OUT = path.resolve('supabase/migrations/005_knowledge_movy_content.sql')
+const OUT = path.resolve('supabase/migrations/005_movy_knowledge_content.sql')
 const JSON_OUT = path.resolve('data/knowledge-sop-content.json')
 const DATA_IMAGE_DIR = path.resolve('data/imported')
 
@@ -65,21 +65,7 @@ const AREAS = {
     name: 'Links & Recursos',
     icon: null,
     color: '#057570',
-    description: 'Links uteis, recursos oficiais, intake dates e contatos internos.',
-  },
-  feedbacks: {
-    slug: 'feedbacks',
-    name: 'Feedbacks',
-    icon: null,
-    color: '#A63A50',
-    description: 'Dashboard e analise de feedbacks de estudantes.',
-  },
-  atendimentos: {
-    slug: 'atendimentos',
-    name: 'Atendimentos',
-    icon: null,
-    color: '#7A4DB3',
-    description: 'Base de atendimentos, indicadores e motivos de contato.',
+    description: 'Links uteis, recursos oficiais, intake dates e referencias operacionais.',
   },
 }
 
@@ -87,8 +73,6 @@ const TYPE_BY_AREA = {
   rh: 'policy',
   ref: 'reference',
   nomenclaturas: 'reference',
-  feedbacks: 'reference',
-  atendimentos: 'reference',
 }
 
 function rebrand(value) {

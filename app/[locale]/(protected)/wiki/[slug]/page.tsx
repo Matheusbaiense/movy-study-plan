@@ -74,13 +74,6 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
         year: 'numeric',
       }).format(new Date(content.updated_at))
     : null
-
-  const hasLang = {
-    pt: !!content.title_pt,
-    en: !!content.title_en,
-    es: !!content.title_es,
-  }
-
   const { data: progress } = await supabase
     .from('checklist_progress')
     .select('checked_items')
@@ -214,30 +207,6 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
 
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 24 }}>
-          {/* Available languages */}
-          <div style={{
-            background: '#fff', borderRadius: 18, padding: '16px 18px',
-            border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-          }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(28,18,51,0.5)', marginBottom: 10 }}>
-              {locale === 'pt' ? 'Idiomas disponíveis' : 'Available languages'}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {([['pt', 'Portugues'], ['en', 'English'], ['es', 'Español']] as const).map(([code, label]) => (
-                <div key={code} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '8px 10px', borderRadius: 8,
-                  background: locale === code ? 'rgba(75,26,119,0.08)' : 'transparent',
-                }}>
-                  <span style={{ fontSize: 13, fontWeight: locale === code ? 600 : 500, color: '#2A1153' }}>{label}</span>
-                  {hasLang[code]
-                    ? <CheckIcon />
-                    : <span style={{ fontSize: 11, color: 'rgba(28,18,51,0.45)' }}>fallback → PT</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Related */}
           {(related?.length ?? 0) > 0 && (
             <div style={{
@@ -292,9 +261,6 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
 
 function ChevronIcon() {
   return <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-}
-function CheckIcon() {
-  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#4B1A77" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
 }
 function EditIcon() {
   return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>

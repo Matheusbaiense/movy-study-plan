@@ -96,7 +96,7 @@ export default async function HomePage({ params }: Props) {
             Base de Informações
           </h2>
           <p style={{ margin: '0 0 18px', color: 'rgba(28,18,51,0.62)', fontSize: 13, lineHeight: 1.55 }}>
-            Processos, templates, vistos, suporte, políticas, links e atendimentos da Movy.
+            Processos, templates, vistos, suporte, políticas e links da Movy.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link

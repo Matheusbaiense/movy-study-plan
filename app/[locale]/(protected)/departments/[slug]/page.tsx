@@ -38,12 +38,6 @@ export default async function DepartmentPage({ params }: Props) {
     grouped[key].push(c)
   }
 
-  const { data: members } = await supabase
-    .from('profiles')
-    .select('id, full_name, email, role, avatar_url')
-    .eq('department', slug)
-    .eq('is_active', true)
-
   const deptName = locale === 'en' ? dept.name_en : locale === 'es' ? dept.name_es : dept.name_pt
   const deptDesc = locale === 'en' ? (dept.description_en ?? '') : locale === 'es' ? (dept.description_es ?? '') : (dept.description_pt ?? '')
   const totalContent = contents?.length ?? 0
@@ -82,10 +76,6 @@ export default async function DepartmentPage({ params }: Props) {
           <div>
             <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#2A1153' }}>{totalContent}</div>
             <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: dept.color ?? '#2A1153' }}>{members?.length ?? 0}</div>
-            <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'membros' : 'members'}</div>
           </div>
         </div>
       </div>
@@ -129,45 +119,12 @@ export default async function DepartmentPage({ params }: Props) {
 
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {members && members.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(28,18,51,0.07)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
-                {locale === 'pt' ? 'Time' : 'Team'}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {members.map(m => (
-                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%',
-                      background: dept.color ?? '#2A1153',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
-                    }}>
-                      {(m.full_name ?? m.email).slice(0, 1).toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: '#2A1153' }}>
-                        {m.full_name ?? m.email.split('@')[0]}
-                      </div>
-                      <div style={{ fontSize: 11, color: 'rgba(28,18,51,0.45)', textTransform: 'capitalize' }}>
-                        {m.role.replace('_', ' ')}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(28,18,51,0.07)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
             <Link href={`/${locale}/wiki?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
               {'->'} {locale === 'pt' ? 'Ver nas informacoes' : 'View knowledge'}
-            </Link>
-            <Link href={`/${locale}/search?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', fontWeight: 500 }}>
-              {'->'} {locale === 'pt' ? 'Buscar nesta area' : 'Search this area'}
             </Link>
           </div>
         </div>

@@ -79,8 +79,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
           <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>
-            {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'} &middot;{' '}
-            3 {locale === 'pt' ? 'idiomas' : locale === 'es' ? 'idiomas' : 'languages'}
+            {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}
           </p>
         </div>
         {canWrite && (
