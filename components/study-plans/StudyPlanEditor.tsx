@@ -42,6 +42,7 @@ import {
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
 import type { ApplicantType, CourseType, ElicosModule, StudentLocation, StudyCourse, StudyPlanData, Timetable } from '@/lib/study-plans/types'
+import { color, ink, font } from '@/lib/ui/theme'
 
 interface Props {
   id: string
@@ -190,9 +191,12 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
       <div style={{ display: 'grid', gap: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: 28, letterSpacing: '-0.04em' }}>{plan.student || 'Cotacao sem estudante'}</h1>
-            <p style={{ margin: '6px 0 0', color: 'rgba(28,18,51,0.58)', fontSize: 13 }}>
-              {plan.courses.length} curso(s) | {planStudyWeeks(plan)} semanas de estudo | {money(planGrandTotal(plan))}
+            <span className="movy-kicker">Proposta</span>
+            <h1 style={{ margin: '8px 0 0', fontFamily: font.display, fontSize: 'clamp(26px, 3.2vw, 38px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: color.purpleDeep }}>
+              {plan.student || 'Cotação sem estudante'}
+            </h1>
+            <p style={{ margin: '10px 0 0', fontFamily: font.mono, fontSize: 12, color: ink(0.5), letterSpacing: '0.02em' }}>
+              {plan.courses.length} curso(s) · {planStudyWeeks(plan)} sem de estudo · {money(planGrandTotal(plan))}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -206,7 +210,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
         </div>
 
         {saveState === 'error' && (
-          <div style={noticeDanger}>Nao consegui salvar. Verifique sua sessao e tente novamente.</div>
+          <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
         )}
 
         <Section title="Dados do estudante">
@@ -226,10 +230,10 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 {applicantTypes.map((type) => <option key={type}>{type}</option>)}
               </select>
             </Field>
-            <Field label="Situacao do estudante">
+            <Field label="Situação do estudante">
               <select style={input} value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
-                <option value="offshore">Offshore (fora da Australia)</option>
-                <option value="onshore">Onshore (na Australia)</option>
+                <option value="offshore">Offshore (fora da Austrália)</option>
+                <option value="onshore">Onshore (na Austrália)</option>
               </select>
             </Field>
             <Field label="Vencimento do visto atual">
@@ -283,7 +287,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 <div style={grid2}>
                   <Field label="Escola / provedor"><input style={input} value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
                   <Field label="Curso"><input style={input} value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
-                  <Field label={course.type === 'elicos' ? 'Data de inicio (segunda-feira)' : 'Data de inicio'}>
+                  <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
                     <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
                   </Field>
                   <Field label="Turno">
@@ -294,7 +298,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   {course.type !== 'elicos' && (
                     <Field label="Tuition total"><NumberInput value={course.tuition} onChange={(value) => updateCourse(course.id, { tuition: value })} /></Field>
                   )}
-                  <Field label="Matricula"><NumberInput value={course.enrolmentFee} onChange={(value) => updateCourse(course.id, { enrolmentFee: value })} /></Field>
+                  <Field label="Matrícula"><NumberInput value={course.enrolmentFee} onChange={(value) => updateCourse(course.id, { enrolmentFee: value })} /></Field>
                   {course.type !== 'he' && (
                     <Field label={course.type === 'vet' ? 'Material (opcional)' : 'Material'}>
                       <NumberInput value={course.materialFee} onChange={(value) => updateCourse(course.id, { materialFee: value })} />
@@ -305,13 +309,13 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
 
                 {course.type !== 'elicos' && (
                   <div className="course-type-panel">
-                    <Field label="Duracao do curso (semanas)">
+                    <Field label="Duração do curso (semanas)">
                       <NumberInput
                         value={course.segments.find((segment) => segment.kind === 'study')?.weeks ?? courseStudyWeeks(course)}
                         onChange={(value) => updateStandardCourseDuration(course, { studyWeeks: value })}
                       />
                     </Field>
-                    <Field label="Ferias no CoE (semanas)">
+                    <Field label="Férias no CoE (semanas)">
                       <NumberInput
                         value={course.segments.find((segment) => segment.kind === 'holiday')?.weeks ?? 0}
                         onChange={(value) => updateStandardCourseDuration(course, { holidayWeeks: value })}
@@ -324,7 +328,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                           value={course.hasMaterial ? 'yes' : 'no'}
                           onChange={(e) => updateCourse(course.id, { hasMaterial: e.target.value === 'yes' })}
                         >
-                          <option value="no">Nao</option>
+                          <option value="no">Não</option>
                           <option value="yes">Sim</option>
                         </select>
                       </Field>
@@ -334,7 +338,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
 
                 {courseIndex > 0 && (
                   <div style={{ marginTop: 12 }}>
-                    <Field label={`Ferias de transicao antes deste curso (semanas | max ${MAX_TRANSITION_HOLIDAY_WEEKS})`}>
+                    <Field label={`Férias de transição antes deste curso (semanas · máx ${MAX_TRANSITION_HOLIDAY_WEEKS})`}>
                       <NumberInput
                         value={course.gapBeforeWeeks ?? 0}
                         onChange={(value) => updateCourse(course.id, { gapBeforeWeeks: Math.max(0, Math.min(MAX_TRANSITION_HOLIDAY_WEEKS, Math.round(value))) })}
@@ -346,13 +350,13 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 {course.type === 'elicos' && (
                   <>
                     <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
-                      <Field label="Estudo antes de ferias (semanas)">
+                      <Field label="Estudo antes de férias (semanas)">
                         <NumberInput
                           value={course.studyWeeksBeforeHoliday ?? DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY}
                           onChange={(value) => updateElicosPattern(course, { studyWeeksBeforeHoliday: Math.max(1, Math.round(value)) })}
                         />
                       </Field>
-                      <Field label="Ferias entre blocos (semanas)">
+                      <Field label="Férias entre blocos (semanas)">
                         <NumberInput
                           value={course.holidayWeeks ?? DEFAULT_ELICOS_HOLIDAY_WEEKS}
                           onChange={(value) => updateElicosPattern(course, { holidayWeeks: Math.max(0, Math.round(value)) })}
@@ -371,7 +375,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                 <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                   <MiniStat label="Estudo" value={`${courseStudyWeeks(course)} sem`} />
                   <MiniStat label="Tuition" value={money(courseTuition(course))} />
-                  <MiniStat label="Deposito" value={money(courseDeposit(course))} />
+                  <MiniStat label="Depósito" value={money(courseDeposit(course))} />
                   <MiniStat label="Total" value={money(courseTotal(course))} />
                 </div>
               </div>
@@ -392,7 +396,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   <option value="oshc">OSHC</option>
                   <option value="visa">Visto</option>
                   <option value="admin">Admin</option>
-                  <option value="medical">Medico</option>
+                  <option value="medical">Médico</option>
                   <option value="other">Outro</option>
                 </select>
                 <NumberInput value={extra.amount} onChange={(value) => patchPlan({ extraCosts: plan.extraCosts.map((item) => item.id === extra.id ? { ...item, amount: value } : item) })} />
@@ -422,7 +426,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                         <Field label="Entrada (sem)"><NumberInput value={course.depositWeeks} onChange={(value) => updateCourse(course.id, { depositWeeks: value })} /></Field>
                       )}
                       <Field label="Parcelas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
-                      <Field label="Cadencia das parcelas">
+                      <Field label="Cadência das parcelas">
                         <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
                           {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
                         </select>
@@ -477,9 +481,9 @@ type ExtraCostCategory = StudyPlanData['extraCosts'][number]['category']
 
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section style={{ background: '#fff', border: '1px solid rgba(28,18,51,0.08)', borderRadius: 16, padding: 18 }}>
+    <section className="movy-card" style={{ padding: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: 16, letterSpacing: '-0.02em' }}>{title}</h2>
+        <h2 className="movy-kicker" style={{ margin: 0, fontSize: 12 }}>{title}</h2>
         {action}
       </div>
       {children}
@@ -489,8 +493,8 @@ function Section({ title, action, children }: { title: string; action?: React.Re
 
 function SummaryCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section style={{ background: '#fff', border: '1px solid rgba(28,18,51,0.08)', borderRadius: 16, padding: 16 }}>
-      <h2 style={{ margin: '0 0 12px', fontSize: 15 }}>{title}</h2>
+    <section className="movy-card" style={{ padding: 18 }}>
+      <h2 className="movy-kicker" style={{ margin: '0 0 14px', fontSize: 11 }}>{title}</h2>
       <div style={{ display: 'grid', gap: 9 }}>{children}</div>
     </section>
   )
@@ -512,13 +516,13 @@ function NumberInput({ value, onChange }: { value: number; onChange: (value: num
 function MiniStat({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline' }}>
-      <span style={{ color: 'rgba(28,18,51,0.52)', fontSize: 12 }}>{label}</span>
-      <strong style={{ color: '#2A1153', fontSize: strong ? 15 : 12.5 }}>{value}</strong>
+      <span style={{ color: ink(0.52), fontSize: 12 }}>{label}</span>
+      <strong style={{ fontFamily: font.display, color: strong ? color.purple : color.purpleDeep, fontSize: strong ? 16 : 13, letterSpacing: strong ? '-0.01em' : 0 }}>{value}</strong>
     </div>
   )
 }
 
-const MODULE_HEADER = ['Modulo', 'Valor/sem', 'Semanas'] as const
+const MODULE_HEADER = ['Módulo', 'Valor/sem', 'Semanas'] as const
 
 function ModuleEditor({
   modules,
@@ -537,10 +541,10 @@ function ModuleEditor({
   return (
     <div style={{ marginTop: 12, border: '1px dashed rgba(28,18,51,0.16)', borderRadius: 12, padding: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#4B1A77' }}>
-          Modulos de ingles | {studyWeeksBeforeHoliday} estudo + {holidayWeeks} ferias
+        <span className="movy-kicker" style={{ fontSize: 11 }}>
+          Módulos de inglês · {studyWeeksBeforeHoliday} estudo + {holidayWeeks} férias
         </span>
-        <button type="button" style={ghostButton} onClick={() => onChange([...modules, createElicosModule()])}>+ Modulo</button>
+        <button type="button" style={ghostButton} onClick={() => onChange([...modules, createElicosModule()])}>+ Módulo</button>
       </div>
       {modules.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px auto', gap: 8, marginBottom: 6 }}>
@@ -559,9 +563,9 @@ function ModuleEditor({
             <button type="button" style={dangerButton} onClick={() => onChange(modules.filter((x) => x.id !== m.id))}>x</button>
           </div>
         ))}
-        {modules.length === 0 && <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Adicione ao menos um modulo (ex.: General English).</span>}
+        {modules.length === 0 && <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Adicione ao menos um módulo (ex.: General English).</span>}
       </div>
-      <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>Tuition do ELICOS = soma de semanas por valor semanal dos modulos.</div>
+      <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>Tuition do ELICOS = soma de semanas por valor semanal dos módulos.</div>
     </div>
   )
 }
@@ -593,10 +597,10 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
   return (
     <div className="timeline-shell">
       <div className="timeline-summary">
-        <MiniStat label="Inicio" value={formatDate(rangeStart)} />
+        <MiniStat label="Início" value={formatDate(rangeStart)} />
         <MiniStat label="Fim CoE" value={formatDate(coe)} />
         <MiniStat label="Visto estimado" value={visaDate ? formatDate(visaDate) : '-'} />
-        <MiniStat label="Duracao total" value={`${Math.ceil((total + 1) / 7)} sem`} />
+        <MiniStat label="Duração total" value={`${Math.ceil((total + 1) / 7)} sem`} />
       </div>
 
       <div className="timeline-scroll">
@@ -633,7 +637,7 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
 
       <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'rgba(28,18,51,0.55)', flexWrap: 'wrap' }}>
         <span><Dot color="#4B1A77" /> Estudo</span>
-        <span><Dot color="#FBB615" /> Ferias</span>
+        <span><Dot color="#FBB615" /> Férias</span>
         <span><Dot color="#2A1153" /> Fim do curso</span>
         <span><Dot color="#FBB615" border /> Visto</span>
       </div>
@@ -653,13 +657,14 @@ function Dot({ color, border = false }: { color: string; border?: boolean }) {
   return <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: color, border: border ? '1px solid #2A1153' : 'none', verticalAlign: -1, marginRight: 6 }} />
 }
 
+const HAIR = '#E0D6EE'
 const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }
-const input = { width: '100%', border: '1px solid rgba(28,18,51,0.12)', borderRadius: 9, padding: '9px 10px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: '#2A1153', background: '#fff' }
-const primaryButton = { border: 0, borderRadius: 10, padding: '11px 16px', background: '#2A1153', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
-const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 15px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
-const ghostButton = { border: '1px solid rgba(28,18,51,0.12)', borderRadius: 9, padding: '8px 11px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
+const input = { width: '100%', border: `1px solid ${HAIR}`, borderRadius: 9, padding: '10px 11px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: '#2A1153', background: '#fff', outline: 'none' }
+const primaryButton = { border: 0, borderRadius: 10, padding: '11px 18px', background: '#F36B1C', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
+const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
+const ghostButton = { border: `1px solid ${HAIR}`, borderRadius: 9, padding: '8px 12px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
 const dangerButton = { ...ghostButton, color: '#D23B2B' }
-const pill = { borderRadius: 999, padding: '4px 9px', fontSize: 11, fontWeight: 800 }
+const pill = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800, fontFamily: 'Space Mono, monospace', letterSpacing: '0.04em' }
 const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#D23B2B', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
 
 const editorStyles = `
@@ -776,10 +781,10 @@ const editorStyles = `
   min-width: 3px;
 }
 .timeline-bar.study {
-  background: linear-gradient(135deg, #4B1A77, #7A1E7E);
+  background: #4B1A77;
 }
 .timeline-bar.holiday {
-  background: linear-gradient(135deg, #FBB615, #F36B1C);
+  background: #FBB615;
 }
 @media (max-width: 1060px) {
   .sp-editor-layout {
