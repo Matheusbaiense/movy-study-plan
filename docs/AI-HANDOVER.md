@@ -165,7 +165,49 @@ Se o MCP da Vercel falhar com 403, usar Vercel CLI autenticado localmente.
 5. Revisar se ainda existe texto legado ou nomes proprios em UI, seeds, migrations e testes.
 6. Depois de estabilizar, atualizar documentacao de uso para equipe Movy.
 
+## Próximo agente — COMECE AQUI
+
+Frontend redesenhado e alinhado ao **Movy Brand Guide 2026** (logo "vela", Outfit/Manrope/
+Space Mono, kicker laranja/dourado). Design = `docs/FRONTEND-REFACTOR.md` + o guide em
+`C:\Users\baien\Downloads\movy-guideline`. Tudo mergeado na `main` / em produção.
+**Regras:** NUNCA reintroduzir a marca de 3 barras (use `components/brand/MovyMark.tsx` ou
+`<use href="#movySymColor|Mono">`); nada de Bricolage (fonte = Outfit display + Manrope corpo
++ Space Mono labels); não hardcodar hex — use `lib/ui/theme.ts` + `.movy-card`/`.movy-kicker`.
+
+### Feature 2 — Gestor de Presets das escolas (PLANEJADO, não implementado)
+
+Admin edita preços/escolas em Configurações sem mexer em código. Hoje os presets são a const
+`COURSE_PRESETS` em `lib/study-plans/defaults.ts`. Passos (nesta ordem):
+
+1. **Aplicar** `supabase/migrations/008_course_presets.sql` (já escrita, NÃO aplicada) via
+   Supabase MCP `apply_migration` ou SQL editor. Cria `course_presets` (RLS: active users
+   leem, admin gere) e popula com os presets atuais.
+2. **Tipos**: `generate_typescript_types` do Supabase → `types/supabase.ts` (ou cast como em
+   `allowed_emails`).
+3. **Server actions** `settings/presets/actions.ts` — espelhar `settings/users/actions.ts`
+   (requireAdmin + service client + audit): create/update/delete preset, validando números/tipo.
+4. **UI** `settings/presets/page.tsx` + `PresetsManager.tsx` (client) — listar por tipo
+   (ELICOS/VET/HE), editar preço/matrícula/material/parcelas, adicionar/remover. Reusar
+   `.movy-card` + kicker laranja + tokens. Add aba "Presets" em `settings/layout.tsx`.
+5. **Ligar o editor**: em `study-plans/[id]/page.tsx` (server) buscar `course_presets` ativos
+   (por sort_order) e passar prop `presets` a `StudyPlanEditor`; o dropdown "Aplicar preset…"
+   e `applyPreset` passam a usar a prop em vez de `COURSE_PRESETS` (manter a const como fallback).
+
 ## Log de Handover
+
+### 2026-06-11 - Redesign de marca + planejamento de férias + promoção
+- Redesign completo alinhado ao Brand Guide 2026 (marca "vela", Outfit, kicker laranja/dourado)
+  em TODAS as telas: home, shell, login, propostas (lista + editor), capacidade financeira,
+  informações (lista + artigo), departamentos (lista + detalhe), configurações (geral, usuários,
+  audit-log), unauthorized, error. Acentos PT corrigidos (editor, calculadora, departamentos).
+- IA da Home: foco em Proposta + Capacidade Financeira; CRM "em breve"; conhecimento só pelo
+  menu; Home é o 1º item da nav. Bugs do hambúrguer/avatar corrigidos; avatar tem menu.
+- Proposta: toggle "incluir planejamento de férias" + nova seção "Planejamento de férias &
+  cronograma" (barra estudo/férias + lista + datas-chave). `node --test` 4/4; type-check verde.
+- Branch `feat/frontend-editorial` mergeada na `main` e deployada em produção.
+- PENDENTE: Feature 2 (gestor de presets) — ver "Próximo agente — COMECE AQUI" e a migration
+  `008_course_presets.sql` (escrita, não aplicada). Resíduos menores: WikiForm/new/edit,
+  StudyPlanProposal já com a vela, loading skeletons, acento "Manha" (turno).
 
 ### 2026-06-11 - Limpeza forte e deploy
 
