@@ -51,16 +51,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
   const visa = useMemo(() => planNewVisaDate(data), [data])
   const issued = updatedAt ? new Date(updatedAt) : new Date()
   const validity = new Date(issued.getTime() + 30 * 24 * 60 * 60 * 1000)
-
-  const scheduleByCourse = useMemo(() => {
-    const map = new Map<string, ReturnType<typeof buildSchedule>>()
-    for (const row of schedule) {
-      const list = map.get(row.course.id) ?? []
-      list.push(row)
-      map.set(row.course.id, list)
-    }
-    return map
-  }, [schedule])
+  const showHolidays = data.includeHolidayPlanning !== false
 
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
@@ -78,10 +69,10 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
       <article id="movy-proposal" style={page}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={logoMark}>M</span>
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.04em', color: INK }}>
-                Movy <span style={{ color: GOLD }}>Education</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+              <svg viewBox="0 0 120 120" width={36} height={36} aria-hidden style={{ overflow: 'visible' }}><use href="#movySymColor" /></svg>
+              <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: INK, fontFamily: 'Outfit, sans-serif' }}>
+                MOVY <span style={{ color: GOLD }}>EDUCATION</span>
               </span>
             </div>
             <h1 style={{ margin: '18px 0 0', fontSize: 30, letterSpacing: '-0.04em', color: INK }}>Plano de Estudos</h1>
@@ -103,14 +94,18 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
           <Detail label="Vencimento do visto atual" value={data.currentVisaExpiry ? formatDate(data.currentVisaExpiry) : 'A confirmar'} />
         </section>
 
-        <SummaryStrip data={data} />
+        <SummaryStrip data={data} showHolidays={showHolidays} />
 
         <SectionTitle>Cursos</SectionTitle>
         <div style={{ display: 'grid', gap: 14 }}>
           {data.courses.map((course, index) => (
-            <CourseBlock key={course.id} course={course} index={index} schedule={scheduleByCourse.get(course.id) ?? []} />
+            <CourseBlock key={course.id} course={course} index={index} />
           ))}
         </div>
+
+        {showHolidays && schedule.length > 0 && (
+          <HolidayPlanning data={data} schedule={schedule} visaDate={visa.date} />
+        )}
 
         {data.extraCosts.length > 0 && (
           <>
@@ -187,18 +182,77 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
   )
 }
 
-function SummaryStrip({ data }: { data: StudyPlanData }) {
+function SummaryStrip({ data, showHolidays }: { data: StudyPlanData; showHolidays: boolean }) {
   return (
     <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, margin: '6px 0 24px' }}>
       <Stat label="Semanas de estudo" value={`${planStudyWeeks(data)}`} />
-      <Stat label="Semanas de férias" value={`${planHolidayWeeks(data)}`} />
+      {showHolidays
+        ? <Stat label="Semanas de férias" value={`${planHolidayWeeks(data)}`} />
+        : <Stat label="Duração do visto" value={`${planVisaWeeks(data)} sem`} />}
       <Stat label="Cursos" value={`${data.courses.length}`} />
       <Stat label="Total geral" value={money(planGrandTotal(data))} accent />
     </section>
   )
 }
 
-function CourseBlock({ course, index, schedule }: { course: StudyCourse; index: number; schedule: ReturnType<typeof buildSchedule> }) {
+function HolidayPlanning({ data, schedule, visaDate }: { data: StudyPlanData; schedule: ReturnType<typeof buildSchedule>; visaDate: string }) {
+  const dated = schedule.filter((r) => r.start && r.end)
+  const totalWeeks = schedule.reduce((sum, r) => sum + (r.weeks || 0), 0) || 1
+  const start = dated[0]?.start
+  const lastStudy = [...dated].reverse().find((r) => r.segment.kind === 'study')
+  const coe = lastStudy?.end ?? dated[dated.length - 1]?.end
+
+  return (
+    <>
+      <SectionTitle>Planejamento de férias &amp; cronograma</SectionTitle>
+      <div style={planningCard} className="proposal-block">
+        {/* Sequential study/holiday bar */}
+        <div style={{ display: 'flex', height: 26, borderRadius: 8, overflow: 'hidden', border: `1px solid ${HAIR}` }}>
+          {schedule.map((r) => (
+            <div
+              key={`${r.course.id}-${r.segment.id}`}
+              title={`${r.segment.label} · ${r.weeks} sem`}
+              style={{ width: `${(r.weeks / totalWeeks) * 100}%`, minWidth: 2, background: r.segment.kind === 'study' ? PURPLE : GOLD }}
+            />
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 18, marginTop: 10, fontSize: 12, color: MUTED }}>
+          <span><Dot color={PURPLE} /> Estudo · {planStudyWeeks(data)} sem</span>
+          <span><Dot color={GOLD} /> Férias · {planHolidayWeeks(data)} sem</span>
+        </div>
+
+        {/* Schedule list */}
+        <div style={{ marginTop: 16, display: 'grid', gap: 5 }}>
+          {schedule.map((r) => (
+            <div key={`row-${r.course.id}-${r.segment.id}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 12.5, padding: '5px 0', borderBottom: `1px dashed ${HAIR}` }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <Dot color={r.segment.kind === 'study' ? PURPLE : GOLD} />
+                <strong style={{ color: INK }}>{r.segment.label}</strong>
+                <span style={{ color: MUTED }}>· {r.course.provider || COURSE_TYPES[r.course.type].label}</span>
+              </span>
+              <span style={{ color: MUTED, whiteSpace: 'nowrap' }}>
+                {r.start ? `${formatDate(r.start)} – ${formatDate(r.end)}` : 'A confirmar'} · {r.weeks} sem
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Key dates */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 16 }}>
+          <Stat label="Início" value={start ? formatDate(start) : 'A confirmar'} />
+          <Stat label="Fim do curso (CoE)" value={coe ? formatDate(coe) : 'A confirmar'} />
+          <Stat label="Visto estimado" value={visaDate ? formatDate(visaDate) : 'A confirmar'} />
+        </div>
+      </div>
+    </>
+  )
+}
+
+function Dot({ color }: { color: string }) {
+  return <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 3, background: color, verticalAlign: -1, marginRight: 2 }} />
+}
+
+function CourseBlock({ course, index }: { course: StudyCourse; index: number }) {
   const type = COURSE_TYPES[course.type]
   return (
     <div style={courseCard} className="proposal-block">
@@ -215,19 +269,6 @@ function CourseBlock({ course, index, schedule }: { course: StudyCourse; index: 
           <div style={{ fontSize: 18, fontWeight: 800, color: INK }}>{money(courseTotal(course))}</div>
         </div>
       </div>
-
-      {schedule.length > 0 && (
-        <div style={{ marginTop: 12, display: 'grid', gap: 6 }}>
-          {schedule.map((row) => (
-            <div key={`${row.course.id}-${row.segment.id}`} style={scheduleRow}>
-              <span style={{ fontWeight: 700, color: INK }}>{row.segment.label}</span>
-              <span style={{ color: MUTED }}>
-                {row.start ? `${formatDate(row.start)} – ${formatDate(row.end)}` : 'Datas a confirmar'} · {row.weeks} sem
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
 
       <div style={{ marginTop: 12, borderTop: `1px solid ${HAIR}`, paddingTop: 10, display: 'grid', gap: 4 }}>
         <CostLine label="Matrícula" value={money(course.enrolmentFee)} />
@@ -300,7 +341,6 @@ const page: React.CSSProperties = {
   color: INK,
 }
 const toolbar: React.CSSProperties = { width: '210mm', maxWidth: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }
-const logoMark: React.CSSProperties = { width: 34, height: 34, borderRadius: 9, background: INK, color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 18 }
 const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
 const courseCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const totalsPanel: React.CSSProperties = { marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: 'rgba(28,18,51,0.04)', border: `1px solid ${HAIR}`, borderRadius: 14, padding: '18px 20px' }
@@ -309,7 +349,7 @@ const table: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', 
 const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
 const tdLabel: React.CSSProperties = { padding: '9px 0', color: 'rgba(28,18,51,0.82)' }
 const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap' }
-const scheduleRow: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', fontSize: 12.5, padding: '4px 0', borderBottom: `1px dashed ${HAIR}` }
+const planningCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const pill: React.CSSProperties = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800 }
 const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 10, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
 const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 10.5, color: MUTED }

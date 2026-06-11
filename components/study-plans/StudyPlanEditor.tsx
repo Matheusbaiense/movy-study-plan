@@ -117,7 +117,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
         ...(holidayWeeks > 0
           ? [{
               id: holidaySegment?.id ?? uid('seg'),
-              label: 'Ferias',
+              label: 'Férias',
               kind: 'holiday' as const,
               weeks: holidayWeeks,
             }]
@@ -383,7 +383,25 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
           </div>
         </Section>
 
-        <Section title="Linha do tempo">
+        <Section
+          title="Linha do tempo"
+          action={
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: ink(0.72), fontFamily: font.ui }}>
+              <input
+                type="checkbox"
+                checked={plan.includeHolidayPlanning !== false}
+                onChange={(e) => patchPlan({ includeHolidayPlanning: e.target.checked })}
+                style={{ width: 16, height: 16, accentColor: color.orange, cursor: 'pointer' }}
+              />
+              Incluir planejamento de férias na proposta
+            </label>
+          }
+        >
+          {plan.includeHolidayPlanning === false && (
+            <div style={{ marginBottom: 12, fontSize: 12.5, color: ink(0.55), background: color.lilac, border: `1px solid ${color.line}`, borderRadius: 10, padding: '9px 12px' }}>
+              O planejamento de férias e o cronograma <strong>não</strong> sairão na proposta — apenas valores e pagamento.
+            </div>
+          )}
           <Timeline plan={plan} visaDate={visa.date} />
         </Section>
 

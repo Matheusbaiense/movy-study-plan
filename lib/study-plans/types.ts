@@ -69,6 +69,8 @@ export interface StudyPlanData {
   payments: PaymentItem[]
   notes: string
   studentLocation?: StudentLocation
+  /** Show the holiday/timeline planning in the generated proposal. Default true. */
+  includeHolidayPlanning?: boolean
 }
 
 export interface StudyPlanRow {

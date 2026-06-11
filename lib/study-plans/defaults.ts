@@ -99,7 +99,7 @@ export function buildElicosSegments(
     segments.push({ id: uid('seg'), label: stream[cursor] || 'Ingles', kind: 'study', weeks: chunk })
     cursor += chunk
     if (cursor < stream.length && breakWeeks > 0) {
-      segments.push({ id: uid('seg'), label: 'Ferias', kind: 'holiday', weeks: breakWeeks })
+      segments.push({ id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: breakWeeks })
     }
   }
   return segments
@@ -156,7 +156,7 @@ export function createCourse(type: CourseType): StudyCourse {
       ? buildElicosSegments(modules, studyWeeksBeforeHoliday, holidayWeeks)
       : [
           { id: uid('seg'), label: COURSE_TYPES[type].label, kind: 'study', weeks: 24 },
-          { id: uid('seg'), label: 'Ferias', kind: 'holiday', weeks: 4 },
+          { id: uid('seg'), label: 'Férias', kind: 'holiday', weeks: 4 },
         ],
   }
 }
@@ -174,5 +174,6 @@ export function createBlankStudyPlan(): StudyPlanData {
     extraCosts: createExtraCosts('Individual'),
     payments: [],
     notes: '*Data estimada de vencimento do visto a ser confirmada na carta de oferta.',
+    includeHolidayPlanning: true,
   }
 }
