@@ -194,3 +194,10 @@ Se o MCP da Vercel falhar com 403, usar Vercel CLI autenticado localmente.
 - Correcao aplicada: links internos protegidos passaram a usar `prefetch={false}` para carregar dados apenas quando o usuario clica.
 - QA: `node --test tests\study-financial.test.mjs`, `npm run type-check` e `npm run build` passaram em copia temporaria limpa `C:\Users\baien\AppData\Local\Codex\movy-study-plan-perf-verify-20260611`.
 - Observacao: nao usar `npm ci` diretamente dentro do workspace em Google Drive; ficou lento/travado. Para QA, usar copia temporaria local com `node_modules` fora do Drive.
+
+### 2026-06-11 - Browser QA producao
+
+- Browser QA deslogado em `https://movy-study-plan.vercel.app` passou para login, erro de credencial invalida e redirects de rotas protegidas.
+- Rotas testadas deslogado: `/pt/home`, `/pt/dashboard`, `/pt/wiki`, `/pt/departments`, `/pt/study-plans`, `/pt/financial`, `/pt/settings`; todas redirecionaram para `/pt/login` sem console errors.
+- Login mobile em 390x844 passou sem overflow horizontal, com inputs/botoes visiveis.
+- Achado pendente: botao Google ainda leva para `accounts.google.com` com `redirect_uri=https://xpthmguzcbmndyyexfbt.supabase.co/auth/v1/callback` e mostra "continue to xpthmguzcbmndyyexfbt.supabase.co". Isso exige ajuste de dominio/auth custom domain no Supabase/Google, nao e apenas front-end.
