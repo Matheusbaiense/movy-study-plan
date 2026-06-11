@@ -115,13 +115,16 @@ Push a feature branch first to get a **preview URL** for visual review before me
   (hamburger showed on desktop, toggles dead). Responsive chrome fixed; avatar opens a real
   menu (profile + Settings + Sign out).
 - **Data finishing**: PT/ES accents fixed in `departments.ts`; FYME teal accent removed.
-- **Done this pass**: foundation, Home, Shell, login mark, study-plans list (empty state),
-  Financial calculator (sail doc + accents). Settings/wiki/departments kickers → orange.
-- **Still TODO (next)**: `StudyPlanEditor.tsx` (the #1 focus screen — restyle presentation
-  only, keep money/date logic; re-run `node --test tests/study-financial.test.mjs`),
-  `StudyPlanProposal.tsx` (PDF — use the sail lockup), `settings/audit-log`,
-  `departments/CategorySection`, wiki detail/forms, edge states. Mojibake likely lurks in
-  more PT strings — fix accents as you touch each file.
+- **Done**: foundation, Home, Shell, login, study-plans list, **StudyPlanEditor** (cards +
+  orange kickers + flat timeline + ~20 accents; `node --test` 4/4 green), Financial
+  calculator, Settings (layout/overview/users/**audit-log**), Wiki (list + **article
+  detail**), Departments (list + detail + **CategorySection**), **unauthorized + error**.
+- **Still TODO (minor)**: `StudyPlanProposal.tsx` (PDF — swap to the sail lockup),
+  `components/wiki/WikiForm.tsx` + `wiki/new` + `wiki/[slug]/edit` (content-authoring form),
+  `loading.tsx` skeletons (mirror the new card shapes), and a few residual accents
+  (e.g. "Manha" timetable option — needs a label map to avoid changing the stored value).
+- **Validation**: type-check green after every file; preview runs locally with an auth
+  bypass (clone-only `MOVY_PREVIEW=1`). Branch `feat/frontend-editorial`, not yet promoted.
 
 ### 2026-06-11 — Foundation + Home + Shell + nav surfaces (earlier pass)
 - Added `lib/ui/theme.ts` tokens; atmosphere/motion/card utilities in `app/globals.css`.
