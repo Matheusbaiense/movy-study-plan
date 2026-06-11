@@ -6,7 +6,10 @@ import { useParams } from 'next/navigation'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const params = useParams()
   const locale = (params?.locale as string) ?? 'pt'
 
@@ -31,6 +34,32 @@ export default function LoginPage() {
       setError('Falha ao iniciar login. Por favor tente novamente.')
       setLoading(false)
     }
+  }
+
+  async function handlePasswordLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setEmailLoading(true)
+    setError(null)
+
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+    if (authError) {
+      setError(
+        locale === 'en'
+          ? 'Invalid email or password.'
+          : locale === 'es'
+          ? 'Email o contraseña inválidos.'
+          : 'Email ou senha inválidos.'
+      )
+      setEmailLoading(false)
+      return
+    }
+
+    window.location.href = `/${locale}/home`
   }
 
   const continueText = locale === 'pt' ? 'Continuar com Google' : locale === 'es' ? 'Continuar con Google' : 'Continue with Google'
@@ -140,6 +169,62 @@ export default function LoginPage() {
           )}
         </button>
 
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0' }}>
+          <span style={{ flex: 1, height: 1, background: 'rgba(249,249,249,0.15)' }} />
+          <span style={{ fontSize: 12, color: 'rgba(249,249,249,0.4)', fontWeight: 600 }}>
+            {locale === 'en' ? 'or' : locale === 'es' ? 'o' : 'ou'}
+          </span>
+          <span style={{ flex: 1, height: 1, background: 'rgba(249,249,249,0.15)' }} />
+        </div>
+
+        {/* Email + password form */}
+        <form onSubmit={handlePasswordLogin} style={{ display: 'grid', gap: 10, textAlign: 'left' }}>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={locale === 'en' ? 'Email' : 'Email'}
+            autoComplete="email"
+            style={loginInputStyle}
+          />
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={locale === 'en' ? 'Password' : locale === 'es' ? 'Contraseña' : 'Senha'}
+            autoComplete="current-password"
+            style={loginInputStyle}
+          />
+          <button
+            type="submit"
+            disabled={emailLoading}
+            style={{
+              width: '100%',
+              padding: '14px 18px',
+              borderRadius: 14,
+              border: '1px solid rgba(249,249,249,0.25)',
+              background: 'rgba(249,249,249,0.06)',
+              color: '#F9F9F9',
+              fontSize: 15,
+              fontWeight: 700,
+              fontFamily: 'Outfit, system-ui, sans-serif',
+              cursor: emailLoading ? 'wait' : 'pointer',
+              opacity: emailLoading ? 0.7 : 1,
+            }}
+          >
+            {emailLoading
+              ? 'Autenticando…'
+              : locale === 'en'
+              ? 'Sign in'
+              : locale === 'es'
+              ? 'Entrar'
+              : 'Entrar'}
+          </button>
+        </form>
+
         {/* Domain note */}
         <div style={{
           marginTop: 22,
@@ -156,6 +241,18 @@ export default function LoginPage() {
       </div>
     </main>
   )
+}
+
+const loginInputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '14px 16px',
+  borderRadius: 14,
+  border: '1px solid rgba(249,249,249,0.2)',
+  background: 'rgba(249,249,249,0.04)',
+  color: '#F9F9F9',
+  fontSize: 15,
+  fontFamily: 'Outfit, system-ui, sans-serif',
+  outline: 'none',
 }
 
 function MovyWordmark({ size = 28 }: { size?: number }) {
