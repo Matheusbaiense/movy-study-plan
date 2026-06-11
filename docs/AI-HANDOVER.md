@@ -174,7 +174,30 @@ Space Mono, kicker laranja/dourado). Design = `docs/FRONTEND-REFACTOR.md` + o gu
 `<use href="#movySymColor|Mono">`); nada de Bricolage (fonte = Outfit display + Manrope corpo
 + Space Mono labels); não hardcodar hex — use `lib/ui/theme.ts` + `.movy-card`/`.movy-kicker`.
 
-### Feature 2 — Gestor de Presets das escolas (PLANEJADO, não implementado)
+### Feature A — Cotação de câmbio ao vivo AUD→BRL (FAZER ANTES DOS PRESETS)
+
+Objetivo: o orçamento/proposta sempre traz o câmbio **do dia, com data e hora**, pra mostrar
+ao cliente que a Movy **não trabalha com câmbio congelado**. Hoje `exchangeRate` é fixo
+(default 3.35) em `components/financial/FinancialCalculator.tsx` e `StudyPlanData`.
+
+Passos:
+1. **Fonte de câmbio**: o Google não tem API oficial de câmbio gratuita. Usar uma pública
+   estável e sem chave: `https://open.er-api.com/v6/latest/AUD` (tem `rates.BRL` +
+   `time_last_update_utc`), ou `https://api.frankfurter.app/latest?from=AUD&to=BRL` (ECB), ou
+   `exchangerate.host`. Escolher uma + definir fallback (última conhecida / valor manual).
+2. **Route handler** `app/api/fx/route.ts` (server) — busca AUD→BRL com cache/`revalidate`
+   (ex.: 1h) pra não estourar rate limit; retorna `{ rate, asOf }` (ISO). Em erro, retorna o
+   último valor conhecido ou `null`.
+3. **Calculadora**: no mount, `fetch('/api/fx')` e prefill `exchangeRate`; mostrar label
+   "Cotação AUD→BRL de DD/MM às HH:MM (Perth)" com botão "atualizar". Manter editável (override).
+4. **Proposta/PDF e calculadora**: exibir o câmbio usado + timestamp ("Câmbio AUD→BRL: X,XX ·
+   cotado em DD/MM HH:MM") — esse é o respaldo visual contra "câmbio congelado".
+5. **Travar por proposta (recomendado)**: adicionar `fxRate?: number` e `fxAsOf?: string` em
+   `StudyPlanData`; ao gerar, gravar a cotação/horário daquele momento para o PDF manter o
+   valor da época, **mostrando a data/hora** (cotação daquele dia, não congelada à toa).
+6. Timezone: usar `Australia/Perth` na exibição (o app já usa esse TZ).
+
+### Feature B — Gestor de Presets das escolas (PLANEJADO, depois da Feature A)
 
 Admin edita preços/escolas em Configurações sem mexer em código. Hoje os presets são a const
 `COURSE_PRESETS` em `lib/study-plans/defaults.ts`. Passos (nesta ordem):
@@ -205,8 +228,9 @@ Admin edita preços/escolas em Configurações sem mexer em código. Hoje os pre
 - Proposta: toggle "incluir planejamento de férias" + nova seção "Planejamento de férias &
   cronograma" (barra estudo/férias + lista + datas-chave). `node --test` 4/4; type-check verde.
 - Branch `feat/frontend-editorial` mergeada na `main` e deployada em produção.
-- PENDENTE: Feature 2 (gestor de presets) — ver "Próximo agente — COMECE AQUI" e a migration
-  `008_course_presets.sql` (escrita, não aplicada). Resíduos menores: WikiForm/new/edit,
+- PENDENTE (ordem): Feature A = cotação de câmbio ao vivo AUD→BRL (respaldo data/hora, não
+  congelado); depois Feature B = gestor de presets (migration `008_course_presets.sql` escrita,
+  não aplicada). Ver "Próximo agente — COMECE AQUI". Resíduos menores: WikiForm/new/edit,
   StudyPlanProposal já com a vela, loading skeletons, acento "Manha" (turno).
 
 ### 2026-06-11 - Limpeza forte e deploy
