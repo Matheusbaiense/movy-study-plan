@@ -279,10 +279,8 @@ function MovyWordmark({ size = 28 }: { size?: number }) {
 
 function MovyMark({ size = 36 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-label="Movy">
-      <path d="M22 8 C24 8, 26 9, 26 13 L20 50 C19 56, 16 58, 13 58 C10 58, 8 56, 9 51 L17 13 C18 10, 20 8, 22 8 Z" fill="#FBB615" />
-      <path d="M34 14 C36 14, 38 15, 38 19 L32 51 C31 56, 28 58, 25 58 C22 58, 20 56, 21 52 L29 19 C30 16, 32 14, 34 14 Z" fill="#F36B1C" />
-      <path d="M46 20 C48 20, 50 21, 50 25 L44 52 C43 56, 40 58, 37 58 C34 58, 32 56, 33 53 L41 25 C42 22, 44 20, 46 20 Z" fill="#4B1A77" />
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-label="Movy" style={{ overflow: 'visible' }}>
+      <use href="#movySymColor" />
     </svg>
   )
 }

@@ -100,7 +100,30 @@ Push a feature branch first to get a **preview URL** for visual review before me
 
 ## Log
 
-### 2026-06-11 — Foundation + Home + Shell + nav surfaces (this pass)
+### 2026-06-11 — Brand-aligned pass (source of truth: Movy Brand Guide 2026)
+- **Real sail mark** (`components/brand/BrandDefs.tsx` + `MovyMark.tsx`) — the "sail in
+  motion" (purple wing + gold sail). Defs rendered once in `app/layout.tsx`; consumed via
+  `<use href="#movySymColor|Mono">`. Replaced the old 3-bar mark in shell + login; used as
+  ghost watermark on dark panels. **Do not reintroduce the 3-bar mark.**
+- **Type reverted to Outfit** (Brand Guide mandates Outfit display + Manrope body + Space
+  Mono labels). Bricolage removed — it was off-brand.
+- **Kicker = Space Mono, orange (light) / gold (dark), wide tracking** (`.movy-kicker`
+  default orange; `.movy-kicker--gold` for dark). Drop inline kicker colors so they inherit.
+- **IA priority**: Home leads with Proposta + Capacidade Financeira; CRM "em breve" teaser;
+  **no knowledge/areas on Home** (wiki only via the menu icon). Home is first in the nav.
+- **Shell bugs fixed**: inline `display:flex` was overriding Tailwind `hidden`/`lg:*`
+  (hamburger showed on desktop, toggles dead). Responsive chrome fixed; avatar opens a real
+  menu (profile + Settings + Sign out).
+- **Data finishing**: PT/ES accents fixed in `departments.ts`; FYME teal accent removed.
+- **Done this pass**: foundation, Home, Shell, login mark, study-plans list (empty state),
+  Financial calculator (sail doc + accents). Settings/wiki/departments kickers → orange.
+- **Still TODO (next)**: `StudyPlanEditor.tsx` (the #1 focus screen — restyle presentation
+  only, keep money/date logic; re-run `node --test tests/study-financial.test.mjs`),
+  `StudyPlanProposal.tsx` (PDF — use the sail lockup), `settings/audit-log`,
+  `departments/CategorySection`, wiki detail/forms, edge states. Mojibake likely lurks in
+  more PT strings — fix accents as you touch each file.
+
+### 2026-06-11 — Foundation + Home + Shell + nav surfaces (earlier pass)
 - Added `lib/ui/theme.ts` tokens; atmosphere/motion/card utilities in `app/globals.css`.
 - `AppShell`: deep-purple gradient sidebar, gold active accent, staircase motif, atmosphere.
 - `home/page.tsx`: editorial bento (dominant Proposta hero with motif + Informações),
