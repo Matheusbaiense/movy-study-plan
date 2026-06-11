@@ -70,15 +70,15 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
   }
 
   return (
-    <div>
+    <div className="movy-stagger">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>Movy Internal Hub</div>
-          <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>
+          <div className="movy-kicker" style={{ color: '#4B1A77' }}>Movy Internal Hub</div>
+          <h1 style={{ margin: '8px 0 4px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: '#2A1153' }}>
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
-          <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.6)' }}>
+          <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}
           </p>
         </div>
@@ -100,10 +100,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       </div>
 
       {/* Search + filters */}
-      <div style={{
-        background: '#fff', borderRadius: 18, padding: 14, marginBottom: 18,
-        border: '1px solid rgba(28,18,51,0.06)', boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-      }}>
+      <div className="movy-card" style={{ padding: 14, marginBottom: 18 }}>
         <form method="GET">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px' }}>
             <SearchIcon />

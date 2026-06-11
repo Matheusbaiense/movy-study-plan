@@ -1,7 +1,8 @@
 import { getUser } from '@/lib/auth/get-user'
 import { isAdminOrAbove } from '@/lib/permissions/can'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { color, font } from '@/lib/ui/theme'
+import { SettingsTabs } from './SettingsTabs'
 
 interface Props {
   children: React.ReactNode
@@ -13,36 +14,21 @@ export default async function SettingsLayout({ children, params }: Props) {
   const { profile } = await getUser(locale)
   if (!isAdminOrAbove(profile.role)) redirect(`/${locale}/home`)
 
-  const navItems = [
+  const tabs = [
     { href: `/${locale}/settings`, label: locale === 'pt' ? 'Visão geral' : 'Overview' },
     { href: `/${locale}/settings/users`, label: locale === 'pt' ? 'Usuários' : 'Users' },
-    { href: `/${locale}/settings/audit-log`, label: locale === 'pt' ? 'Audit Log' : 'Audit Log' },
+    { href: `/${locale}/settings/audit-log`, label: 'Audit Log' },
   ]
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2A1153', marginBottom: 20 }}>
+      <div className="movy-kicker" style={{ color: color.purple }}>
+        {locale === 'pt' ? 'Administração' : 'Administration'}
+      </div>
+      <h1 style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, letterSpacing: '-0.035em', color: color.purpleDeep, margin: '8px 0 18px' }}>
         {locale === 'pt' ? 'Configurações' : 'Settings'}
       </h1>
-      <div style={{
-        display: 'flex', gap: 6, marginBottom: 28,
-        borderBottom: '1px solid rgba(28,18,51,0.1)', paddingBottom: 0,
-      }}>
-        {navItems.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            style={{
-              padding: '8px 16px', fontSize: 13, fontWeight: 500,
-              color: 'rgba(28,18,51,0.7)', textDecoration: 'none',
-              borderBottom: '2px solid transparent', marginBottom: -1,
-            }}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
+      <SettingsTabs tabs={tabs} />
       {children}
     </div>
   )

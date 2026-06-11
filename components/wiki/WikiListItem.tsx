@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { STATUS_STYLES, getStatusLabel } from '@/lib/constants/content'
+import { color, ink, font } from '@/lib/ui/theme'
 
 interface WikiListItemProps {
   href: string
@@ -22,22 +23,10 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
     <Link
       href={href}
       prefetch={false}
+      className="movy-card movy-card--hover"
       style={{
         display: 'flex', gap: 18, alignItems: 'center',
-        padding: '18px 20px', borderRadius: 18,
-        background: '#fff', border: '1px solid rgba(28,18,51,0.06)',
-        boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-        textDecoration: 'none', transition: 'box-shadow .2s ease, transform .2s ease',
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement
-        el.style.boxShadow = '0 8px 28px rgba(28,18,51,0.08)'
-        el.style.transform = 'translateY(-1px)'
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement
-        el.style.boxShadow = '0 1px 2px rgba(28,18,51,0.04)'
-        el.style.transform = 'none'
+        padding: '18px 20px', textDecoration: 'none',
       }}
     >
       {/* Dept icon */}
@@ -59,7 +48,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
           {deptName && (
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+              padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700,
               background: `${accent}14`, color: accent,
             }}>
               <span style={{ width: 6, height: 6, borderRadius: 999, background: accent }} />
@@ -68,7 +57,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
           )}
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+            padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700,
             background: statusStyle.bg, color: statusStyle.fg,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: 999, background: statusStyle.dot }} />
@@ -76,16 +65,16 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
           </span>
         </div>
 
-        <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 600, color: '#2A1153' }}>
+        <h3 style={{ margin: '0 0 4px', fontFamily: font.display, fontSize: 16, fontWeight: 800, letterSpacing: '-0.01em', color: color.purpleDeep }}>
           {title}
         </h3>
         {excerpt && (
-          <p style={{ margin: 0, fontSize: 13, color: 'rgba(28,18,51,0.6)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ margin: 0, fontSize: 13, color: ink(0.6), lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {excerpt}
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: 14, marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>
+        <div style={{ display: 'flex', gap: 12, marginTop: 8, fontFamily: font.mono, fontSize: 11, color: ink(0.45) }}>
           <span>{updatedDate}</span>
           {tags && tags.length > 0 && (
             <>
@@ -96,7 +85,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
         </div>
       </div>
 
-      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="rgba(28,18,51,0.3)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={ink(0.3)} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 6l6 6-6 6"/>
       </svg>
     </Link>

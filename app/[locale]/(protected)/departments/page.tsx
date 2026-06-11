@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getUser } from '@/lib/auth/get-user'
 import { DEPARTMENTS, getDeptDesc, getDeptName } from '@/lib/constants/departments'
+import { color, ink, font, accentRamp } from '@/lib/ui/theme'
 
 interface DepartmentsPageProps {
   params: Promise<{ locale: string }>
@@ -9,17 +10,18 @@ interface DepartmentsPageProps {
 export default async function DepartmentsPage({ params }: DepartmentsPageProps) {
   const { locale } = await params
   await getUser(locale)
+  const isEn = locale === 'en'
 
   return (
-    <div style={{ display: 'grid', gap: 24 }}>
+    <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
       <div>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B1A77' }}>
+        <div className="movy-kicker" style={{ color: color.purple }}>
           Movy Internal Hub
         </div>
-        <h1 style={{ margin: '6px 0 4px', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#2A1153' }}>
-          {locale === 'en' ? 'Areas' : 'Áreas'}
+        <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep }}>
+          {isEn ? 'Areas' : 'Áreas'}
         </h1>
-        <p style={{ margin: 0, fontSize: 14, color: 'rgba(28,18,51,0.62)', maxWidth: 620, lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontSize: 14.5, color: ink(0.62), maxWidth: 620, lineHeight: 1.55 }}>
           {locale === 'pt'
             ? 'Processos, documentos e conhecimento operacional da Movy, organizados por área.'
             : locale === 'es'
@@ -28,34 +30,37 @@ export default async function DepartmentsPage({ params }: DepartmentsPageProps) 
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 14 }}>
-        {DEPARTMENTS.map((dept) => (
-          <Link
-            key={dept.slug}
-            href={`/${locale}/departments/${dept.slug}`}
-            prefetch={false}
-            style={{
-              display: 'block',
-              padding: '18px 20px',
-              borderRadius: 14,
-              background: '#fff',
-              border: '1px solid rgba(28,18,51,0.07)',
-              borderTop: `4px solid ${dept.accent}`,
-              textDecoration: 'none',
-              boxShadow: '0 1px 2px rgba(28,18,51,0.04)',
-            }}
-          >
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: dept.accent, marginBottom: 8 }}>
-              {dept.pillar}
-            </div>
-            <h2 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700, color: '#2A1153' }}>
-              {getDeptName(dept, locale)}
-            </h2>
-            <p style={{ margin: 0, fontSize: 13, color: 'rgba(28,18,51,0.6)', lineHeight: 1.5 }}>
-              {getDeptDesc(dept, locale)}
-            </p>
-          </Link>
-        ))}
+      <div style={{ display: 'grid', gap: 12 }} className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {DEPARTMENTS.map((dept, i) => {
+          const accent = dept.accent ?? accentRamp[i % accentRamp.length]
+          return (
+            <Link
+              key={dept.slug}
+              href={`/${locale}/departments/${dept.slug}`}
+              prefetch={false}
+              className="movy-card movy-card--hover"
+              style={{
+                position: 'relative',
+                display: 'block',
+                minHeight: 132,
+                padding: '18px 20px 18px 22px',
+                textDecoration: 'none',
+                overflow: 'hidden',
+              }}
+            >
+              <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: accent }} />
+              <div className="movy-kicker" style={{ color: accent, fontSize: 10, marginBottom: 8 }}>
+                {dept.pillar}
+              </div>
+              <h2 style={{ margin: '0 0 6px', fontFamily: font.display, fontSize: 18, fontWeight: 800, letterSpacing: '-0.015em', color: color.purpleDeep }}>
+                {getDeptName(dept, locale)}
+              </h2>
+              <p style={{ margin: 0, fontSize: 13, color: ink(0.58), lineHeight: 1.5 }}>
+                {getDeptDesc(dept, locale)}
+              </p>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

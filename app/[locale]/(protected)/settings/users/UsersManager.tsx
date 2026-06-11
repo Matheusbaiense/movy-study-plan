@@ -11,6 +11,7 @@ import {
   removeAllowedEmail,
   type ActionResult,
 } from './actions'
+import { color, ink, font, roleColor } from '@/lib/ui/theme'
 
 type Role = 'reader' | 'editor' | 'admin' | 'super_admin'
 
@@ -35,12 +36,7 @@ interface Props {
   serviceConfigured?: boolean
 }
 
-const ROLE_COLORS: Record<Role, string> = {
-  super_admin: '#D23B2B',
-  admin: '#F36B1C',
-  editor: '#4B1A77',
-  reader: '#2A1153',
-}
+const ROLE_COLORS = roleColor as Record<Role, string>
 
 const ROLE_LABELS: Record<Role, string> = {
   super_admin: 'Super Admin',
@@ -72,7 +68,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
   }
 
   return (
-    <div style={{ display: 'grid', gap: 24 }}>
+    <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
       {!serviceConfigured && (
         <div
           style={{
@@ -386,10 +382,10 @@ function AddAllowedForm({
 
 function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <section style={{ background: '#fff', borderRadius: 14, padding: '18px 20px', border: '1px solid rgba(28,18,51,0.07)' }}>
+    <section className="movy-card" style={{ padding: '18px 20px' }}>
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#2A1153' }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)', marginTop: 3 }}>{subtitle}</div>}
+        <div style={{ fontFamily: font.display, fontSize: 15, fontWeight: 800, color: color.purpleDeep, letterSpacing: '-0.01em' }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 12, color: ink(0.5), marginTop: 3, lineHeight: 1.5 }}>{subtitle}</div>}
       </div>
       {children}
     </section>
@@ -452,11 +448,11 @@ function SmallBtn({
 const inputStyle: React.CSSProperties = {
   padding: '9px 11px',
   borderRadius: 10,
-  border: '1px solid rgba(28,18,51,0.15)',
+  border: `1px solid ${ink(0.15)}`,
   background: '#fff',
   fontSize: 13,
-  color: '#2A1153',
-  fontFamily: 'Outfit, system-ui, sans-serif',
+  color: color.purpleDeep,
+  fontFamily: font.display,
   outline: 'none',
 }
 
@@ -465,11 +461,11 @@ function primaryBtn(pending: boolean): React.CSSProperties {
     padding: '10px 16px',
     borderRadius: 10,
     border: 'none',
-    background: '#2A1153',
+    background: color.purpleDeep,
     color: '#fff',
     fontSize: 13,
-    fontWeight: 700,
-    fontFamily: 'Outfit, system-ui, sans-serif',
+    fontWeight: 800,
+    fontFamily: font.display,
     cursor: pending ? 'wait' : 'pointer',
     opacity: pending ? 0.7 : 1,
   }
