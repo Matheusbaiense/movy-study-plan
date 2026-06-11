@@ -102,6 +102,14 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
       <div style={{ flex: 1 }} />
 
+      {/* Ascending "movement" motif — echoes the login staircase */}
+      <svg width="100%" height="40" viewBox="0 0 220 40" fill="none" aria-hidden style={{ opacity: 0.5, marginBottom: 12 }}>
+        <rect x="6" y="28" width="22" height="10" rx="2" fill="#FBB615" fillOpacity="0.5" />
+        <rect x="32" y="20" width="22" height="18" rx="2" fill="#F36B1C" fillOpacity="0.45" />
+        <rect x="58" y="12" width="22" height="26" rx="2" fill="#4B1A77" fillOpacity="0.7" />
+        <rect x="84" y="4" width="22" height="34" rx="2" fill="rgba(249,249,249,0.18)" />
+      </svg>
+
       {/* User card */}
       <div style={{
         display: 'flex',
@@ -147,13 +155,13 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   )
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8F7FB' }}>
+    <div className="movy-atmosphere" style={{ display: 'flex', minHeight: '100vh', background: '#F8F7FB' }}>
       {/* Desktop sidebar */}
       <aside
         style={{
           width: 264,
           flexShrink: 0,
-          background: '#2A1153',
+          background: 'linear-gradient(180deg, #2A1153 0%, #1E0D44 64%, #190A38 100%)',
           display: 'flex',
           flexDirection: 'column',
           position: 'sticky',
@@ -185,7 +193,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           left: 0,
           zIndex: 30,
           width: 264,
-          background: '#2A1153',
+          background: 'linear-gradient(180deg, #2A1153 0%, #1E0D44 64%, #190A38 100%)',
           borderRight: '1px solid rgba(249,249,249,0.06)',
           transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 200ms ease-in-out',
@@ -315,7 +323,7 @@ function NavItem({ href, icon, label, active, onClick }: {
       <NavIcon name={icon} active={active} />
       <span style={{ flex: 1 }}>{label}</span>
       {active && (
-        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#F36B1C', flexShrink: 0 }} />
+        <span style={{ width: 4, height: 16, borderRadius: 2, background: '#FBB615', flexShrink: 0 }} />
       )}
     </Link>
   )
