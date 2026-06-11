@@ -47,6 +47,15 @@ export async function middleware(request: NextRequest) {
   // Build a response we can attach cookies to
   const response = i18nResponse ?? NextResponse.next({ request })
 
+  const isPublic =
+    pathname.includes('/login') ||
+    pathname === '/unauthorized' ||
+    pathname === '/'
+
+  if (isPublic) {
+    return response
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -72,12 +81,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isPublic =
-    pathname.includes('/login') ||
-    pathname === '/unauthorized' ||
-    pathname === '/'
-
-  if (!user && !isPublic) {
+  if (!user) {
     const locale =
       routing.locales.find((l) => pathname.startsWith(`/${l}`)) ??
       routing.defaultLocale

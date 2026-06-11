@@ -295,6 +295,7 @@ function NavItem({ href, icon, label, active, onClick }: {
   return (
     <Link
       href={href}
+      prefetch={false}
       onClick={onClick}
       style={{
         display: 'flex',
@@ -375,6 +376,7 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
           )}
           <Link
             href={item.href}
+            prefetch={false}
             style={{
               color: i === items.length - 1 ? '#2A1153' : 'rgba(28,18,51,0.55)',
               fontWeight: i === items.length - 1 ? 600 : 500,

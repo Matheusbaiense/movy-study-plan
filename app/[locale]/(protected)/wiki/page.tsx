@@ -85,6 +85,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
         {canWrite && (
           <Link
             href={`/${locale}/wiki/new`}
+            prefetch={false}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '10px 16px', borderRadius: 12, fontWeight: 600, fontSize: 14,
@@ -180,6 +181,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             {canWrite && (
               <Link
                 href={`/${locale}/wiki/new`}
+                prefetch={false}
                 style={{ marginTop: 12, display: 'inline-block', fontSize: 13, color: '#4B1A77', textDecoration: 'underline' }}
               >
                 {locale === 'pt' ? 'Criar o primeiro artigo' : 'Create the first article'}

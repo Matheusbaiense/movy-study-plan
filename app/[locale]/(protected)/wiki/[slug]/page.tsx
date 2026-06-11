@@ -103,11 +103,11 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
     <div>
       {/* Breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(28,18,51,0.55)', marginBottom: 16 }}>
-        <Link href={`/${locale}/home`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+        <Link href={`/${locale}/home`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
           {locale === 'pt' ? 'Início' : 'Home'}
         </Link>
         <ChevronIcon />
-        <Link href={`/${locale}/wiki`} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+        <Link href={`/${locale}/wiki`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
           {locale === 'en' ? 'Knowledge' : 'Informacoes'}
         </Link>
         <ChevronIcon />
@@ -125,6 +125,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
             {deptName && (
               <Link
                 href={`/${locale}/departments/${dept?.slug}`}
+                prefetch={false}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -188,6 +189,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
             <div style={{ display: 'flex', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(28,18,51,0.06)' }}>
               <Link
                 href={`/${locale}/wiki/${slug}/edit`}
+                prefetch={false}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '8px 14px', borderRadius: 10, fontWeight: 600, fontSize: 13,
@@ -223,6 +225,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                     <Link
                       key={r.slug}
                       href={`/${locale}/wiki/${r.slug}`}
+                      prefetch={false}
                       style={{
                         display: 'block', padding: '8px 10px', borderRadius: 8,
                         background: 'transparent', textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
@@ -243,6 +246,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           }}>
             <Link
               href={`/${locale}/wiki`}
+              prefetch={false}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 fontSize: 13, fontWeight: 500, color: 'rgba(28,18,51,0.7)',

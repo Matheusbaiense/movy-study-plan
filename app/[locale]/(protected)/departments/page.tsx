@@ -33,6 +33,7 @@ export default async function DepartmentsPage({ params }: DepartmentsPageProps) 
           <Link
             key={dept.slug}
             href={`/${locale}/departments/${dept.slug}`}
+            prefetch={false}
             style={{
               display: 'block',
               padding: '18px 20px',

@@ -21,6 +21,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
   return (
     <Link
       href={href}
+      prefetch={false}
       style={{
         display: 'flex', gap: 18, alignItems: 'center',
         padding: '18px 20px', borderRadius: 18,

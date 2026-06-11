@@ -67,7 +67,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
       <style>{printStyles}</style>
 
       <div className="proposal-toolbar" style={toolbar}>
-        <Link href={backHref} style={ghostButton}>← Voltar ao editor</Link>
+        <Link href={backHref} prefetch={false} style={ghostButton}>← Voltar ao editor</Link>
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" onClick={() => window.print()} style={primaryButton}>
             Salvar PDF / Imprimir

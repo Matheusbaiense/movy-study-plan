@@ -104,6 +104,7 @@ export default async function DepartmentPage({ params }: Props) {
             <div style={{ marginTop: 20 }}>
               <Link
                 href={`/${locale}/wiki/new`}
+                prefetch={false}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '9px 16px', borderRadius: 10, fontWeight: 600, fontSize: 13,
@@ -123,7 +124,7 @@ export default async function DepartmentPage({ params }: Props) {
             <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
-            <Link href={`/${locale}/wiki?dept=${slug}`} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
+            <Link href={`/${locale}/wiki?dept=${slug}`} prefetch={false} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
               {'->'} {locale === 'pt' ? 'Ver nas informacoes' : 'View knowledge'}
             </Link>
           </div>

@@ -196,7 +196,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Link href={`/${locale}/study-plans/${id}/proposal`} style={proposalButton}>
+            <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
               Proposta / PDF
             </Link>
             <button onClick={save} disabled={isPending} style={primaryButton}>

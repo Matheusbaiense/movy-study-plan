@@ -60,6 +60,7 @@ export function CategorySection({ category, items, locale, deptColor, typeLabels
             <Link
               key={item.id}
               href={`/${locale}/wiki/${item.slug}`}
+              prefetch={false}
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '11px 14px', borderRadius: 10, background: '#fff',

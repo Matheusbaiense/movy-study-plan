@@ -73,6 +73,7 @@ export default async function HomePage({ params }: Props) {
             </form>
             <Link
               href={`/${locale}/study-plans`}
+              prefetch={false}
               style={{
                 borderRadius: 10,
                 padding: '10px 14px',
@@ -101,6 +102,7 @@ export default async function HomePage({ params }: Props) {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link
               href={`/${locale}/wiki`}
+              prefetch={false}
               style={{
                 borderRadius: 10,
                 padding: '10px 14px',
@@ -129,6 +131,7 @@ export default async function HomePage({ params }: Props) {
             <Link
               key={dept.slug}
               href={`/${locale}/departments/${dept.slug}`}
+              prefetch={false}
               style={{
                 display: 'block',
                 minHeight: 118,
@@ -167,6 +170,7 @@ export default async function HomePage({ params }: Props) {
               <Link
                 key={item.id}
                 href={`/${locale}/wiki/${item.slug}`}
+                prefetch={false}
                 style={{
                   display: 'block',
                   padding: '14px 16px',

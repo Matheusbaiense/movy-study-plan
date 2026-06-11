@@ -185,3 +185,12 @@ Se o MCP da Vercel falhar com 403, usar Vercel CLI autenticado localmente.
 
 - Criado este handover para manter Codex e Claude alinhados.
 - `CLAUDE.md` deve apontar para este documento como leitura obrigatoria.
+
+### 2026-06-11 - Performance de carregamento
+
+- Diagnostico: as paginas protegidas estavam lentas principalmente por duas causas combinadas: `getUser()` repetido na mesma renderizacao e prefetch automatico do Next em menus/listas protegidas, disparando varias chamadas Supabase em background.
+- Correcao aplicada: `getUser()` passou a usar `cache()` do React por request.
+- Correcao aplicada: middleware nao chama Supabase em rotas publicas como login/unauthorized/root.
+- Correcao aplicada: links internos protegidos passaram a usar `prefetch={false}` para carregar dados apenas quando o usuario clica.
+- QA: `node --test tests\study-financial.test.mjs`, `npm run type-check` e `npm run build` passaram em copia temporaria limpa `C:\Users\baien\AppData\Local\Codex\movy-study-plan-perf-verify-20260611`.
+- Observacao: nao usar `npm ci` diretamente dentro do workspace em Google Drive; ficou lento/travado. Para QA, usar copia temporaria local com `node_modules` fora do Drive.

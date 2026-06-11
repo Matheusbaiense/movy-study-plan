@@ -32,6 +32,7 @@ export default async function SettingsLayout({ children, params }: Props) {
           <Link
             key={item.href}
             href={item.href}
+            prefetch={false}
             style={{
               padding: '8px 16px', fontSize: 13, fontWeight: 500,
               color: 'rgba(28,18,51,0.7)', textDecoration: 'none',

@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { Tables } from '@/types/supabase'
 
 export type Profile = Tables<'profiles'>
 
-export async function getUser(locale = 'pt'): Promise<{ profile: Profile }> {
+export const getUser = cache(async function getUser(locale = 'pt'): Promise<{ profile: Profile }> {
   const supabase = await createClient()
 
   const {
@@ -26,4 +27,4 @@ export async function getUser(locale = 'pt'): Promise<{ profile: Profile }> {
   }
 
   return { profile }
-}
+})

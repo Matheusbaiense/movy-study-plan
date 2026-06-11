@@ -60,7 +60,7 @@ export default async function StudyPlansPage({ params }: Props) {
                 return (
                   <tr key={plan.id} style={{ borderBottom: '1px solid rgba(28,18,51,0.06)' }}>
                     <td style={{ padding: '14px 16px' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}`} style={{ color: '#2A1153', fontWeight: 700, textDecoration: 'none' }}>
+                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ color: '#2A1153', fontWeight: 700, textDecoration: 'none' }}>
                         {plan.student_name || data.student || 'Sem estudante'}
                       </Link>
                       <div style={{ marginTop: 3, color: 'rgba(28,18,51,0.48)', fontSize: 12 }}>{plan.title}</div>
@@ -76,7 +76,7 @@ export default async function StudyPlansPage({ params }: Props) {
                       {plan.updated_at ? new Date(plan.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
                     </td>
                     <td style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}/proposal`} style={{ color: '#4B1A77', fontWeight: 700, textDecoration: 'none', fontSize: 12 }}>
+                      <Link href={`/${locale}/study-plans/${plan.id}/proposal`} prefetch={false} style={{ color: '#4B1A77', fontWeight: 700, textDecoration: 'none', fontSize: 12 }}>
                         Proposta →
                       </Link>
                     </td>
