@@ -14,8 +14,9 @@ import {
 const INK = '#2A1153'
 const PURPLE = '#4B1A77'
 const GOLD = '#FBB615'
-const MUTED = 'rgba(28,18,51,0.58)'
-const HAIR = 'rgba(28,18,51,0.10)'
+const ORANGE = '#F36B1C'
+const MUTED = '#5A4E72'
+const HAIR = '#E0D6EE'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
@@ -57,9 +58,10 @@ export function FinancialCalculator() {
       <style dangerouslySetInnerHTML={{ __html: styles }} />
 
       <div className="fc-form">
-        <div className="fc-no-print">
-          <h1 className="fc-title">Capacidade Financeira</h1>
-          <p className="fc-subtitle">Calculadora de proof of funds para visto de estudante australiano.</p>
+        <div className="fc-no-print fc-head">
+          <span className="movy-kicker">Comprovação · Visto de estudante</span>
+          <h1 className="fc-title">Capacidade financeira</h1>
+          <p className="fc-subtitle">Calculadora de proof of funds para o visto de estudante australiano, em AUD e BRL.</p>
         </div>
 
         <Section title="Dados do estudante">
@@ -67,16 +69,16 @@ export function FinancialCalculator() {
             <Field label="Estudante">
               <input style={input} value={data.student} onChange={(event) => set('student', event.target.value)} />
             </Field>
-            <Field label="Data estimada da aplicacao">
+            <Field label="Data estimada da aplicação">
               <input style={input} type="date" value={data.applicationDate} onChange={(event) => set('applicationDate', event.target.value)} />
             </Field>
-            <Field label="Localizacao na aplicacao">
+            <Field label="Localização na aplicação">
               <select style={input} value={data.location} onChange={(event) => set('location', event.target.value as StudentLocation)}>
                 <option value="offshore">Offshore</option>
                 <option value="onshore">Onshore</option>
               </select>
             </Field>
-            <Field label="Duracao do visto (meses)">
+            <Field label="Duração do visto (meses)">
               <NumberInput value={data.visaMonths} onChange={(value) => setNumber('visaMonths', value)} />
             </Field>
           </div>
@@ -96,15 +98,15 @@ export function FinancialCalculator() {
           </div>
         </Section>
 
-        <Section title="Valores da simulacao">
+        <Section title="Valores da simulação">
           <div className="fc-grid">
-            <Field label="Cotacao AUD para BRL">
+            <Field label="Cotação AUD para BRL">
               <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
             </Field>
             <Field label="Curso remanescente (AUD)">
               <NumberInput value={data.remainingCourseFee} onChange={(value) => setNumber('remainingCourseFee', value)} />
             </Field>
-            <Field label={customTravel ? 'Passagem personalizada (AUD)' : 'Passagem automatica (AUD)'}>
+            <Field label={customTravel ? 'Passagem personalizada (AUD)' : 'Passagem automática (AUD)'}>
               <div className="fc-inline">
                 <NumberInput
                   value={customTravel ? data.travelCost : calculatedTravel}
@@ -139,12 +141,12 @@ export function FinancialCalculator() {
 
         <article id="fc-doc" style={docCard}>
           <div className="fc-brand">
-            <span style={logoMark}>M</span>
-            <span>Movy <b>Education</b></span>
+            <svg viewBox="0 0 120 120" width={34} height={34} aria-hidden><use href="#movySymColor" /></svg>
+            <span>MOVY <b>EDUCATION</b></span>
           </div>
-          <h2 className="fc-doc-title">Demonstracao de Capacidade Financeira</h2>
+          <h2 className="fc-doc-title">Demonstração de Capacidade Financeira</h2>
           <p className="fc-doc-meta">
-            {data.student || 'Estudante'} | {data.location === 'offshore' ? 'Offshore' : 'Onshore'} | {data.visaMonths} meses | {formatDateBr(applicationDate)}
+            {data.student || 'Estudante'} · {data.location === 'offshore' ? 'Offshore' : 'Onshore'} · {data.visaMonths} meses · {formatDateBr(applicationDate)}
           </p>
           <div className="fc-rule" />
 
@@ -164,7 +166,7 @@ export function FinancialCalculator() {
             </tbody>
             <tfoot>
               <tr>
-                <td>Total capacidade financeira</td>
+                <td>Total da capacidade financeira</td>
                 <td>{formatAud(result.totalAud)}</td>
                 <td>{formatBrl(result.totalBrl)}</td>
               </tr>
@@ -172,7 +174,7 @@ export function FinancialCalculator() {
           </table>
 
           <p className="fc-note">
-            Cotacao AUD para BRL: {data.exchangeRate}. Valores estimados; o valor em reais varia com o cambio.
+            Cotação AUD para BRL: {data.exchangeRate}. Valores estimados; o valor em reais varia com o câmbio.
           </p>
         </article>
       </aside>
@@ -242,16 +244,17 @@ const input: React.CSSProperties = {
   width: '100%',
   border: `1px solid ${HAIR}`,
   borderRadius: 9,
-  padding: '9px 10px',
+  padding: '10px 11px',
   fontFamily: 'Outfit, sans-serif',
   fontSize: 13,
   color: INK,
+  outline: 'none',
 }
 
 const primaryButton: React.CSSProperties = {
   border: 0,
   borderRadius: 10,
-  padding: '11px 16px',
+  padding: '11px 18px',
   background: INK,
   color: '#fff',
   fontWeight: 700,
@@ -262,7 +265,7 @@ const primaryButton: React.CSSProperties = {
 const secondaryButton: React.CSSProperties = {
   border: `1px solid ${HAIR}`,
   borderRadius: 9,
-  padding: '9px 11px',
+  padding: '9px 12px',
   background: '#fff',
   color: INK,
   fontWeight: 700,
@@ -274,55 +277,45 @@ const secondaryButton: React.CSSProperties = {
 const docCard: React.CSSProperties = {
   background: '#fff',
   border: `1px solid ${HAIR}`,
-  borderRadius: 16,
-  padding: '22px 24px',
-  boxShadow: '0 12px 40px rgba(28,18,51,0.08)',
+  borderRadius: 14,
+  padding: '24px 26px',
+  boxShadow: '0 18px 46px -24px rgba(42,17,83,0.32)',
   fontFamily: 'Outfit, system-ui, sans-serif',
 }
 
-const logoMark: React.CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 8,
-  background: INK,
-  color: '#fff',
-  display: 'grid',
-  placeItems: 'center',
-  fontWeight: 800,
-  fontSize: 16,
-}
-
 const styles = `
-.fc-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 390px); gap: 20px; align-items: start; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
-.fc-form { display: grid; gap: 18px; min-width: 0; }
-.fc-title { margin: 0; font-size: 28px; letter-spacing: 0; color: ${INK}; }
-.fc-subtitle { margin: 6px 0 0; color: ${MUTED}; font-size: 13px; }
-.fc-section { background: #fff; border: 1px solid ${HAIR}; border-radius: 16px; padding: 18px; }
-.fc-section h2 { margin: 0 0 14px; font-size: 15px; letter-spacing: 0; color: ${INK}; }
+.fc-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); gap: 22px; align-items: start; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
+.fc-form { display: grid; gap: 16px; min-width: 0; }
+.fc-head { margin-bottom: 4px; }
+.fc-title { margin: 8px 0 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 42px); letter-spacing: -0.035em; line-height: 0.96; color: ${INK}; }
+.fc-subtitle { margin: 10px 0 0; color: ${MUTED}; font-size: 14px; line-height: 1.5; max-width: 52ch; }
+.fc-section { background: #fff; border: 1px solid ${HAIR}; border-radius: 12px; padding: 18px 20px; }
+.fc-section h2 { margin: 0 0 16px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: ${ORANGE}; }
 .fc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
 .fc-field { display: grid; gap: 6px; min-width: 0; }
-.fc-field > span { font-size: 11px; font-weight: 700; color: ${MUTED}; text-transform: uppercase; letter-spacing: 0.06em; }
+.fc-field > span { font-size: 11px; font-weight: 700; color: ${MUTED}; text-transform: uppercase; letter-spacing: 0.05em; }
 .fc-inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-.fc-help { margin: 10px 0 0; font-size: 11px; color: ${MUTED}; line-height: 1.45; }
+.fc-help { margin: 12px 0 0; font-size: 11.5px; color: ${MUTED}; line-height: 1.5; }
 .fc-constants { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.fc-constants div { display: grid; gap: 3px; padding: 10px; border-radius: 10px; background: #F8F7FB; }
-.fc-constants span { color: ${MUTED}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-.fc-constants strong { color: ${INK}; font-size: 13px; }
+.fc-constants div { display: grid; gap: 3px; padding: 11px 12px; border-radius: 10px; background: #F8F7FB; border: 1px solid ${HAIR}; }
+.fc-constants span { color: ${MUTED}; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.fc-constants strong { color: ${INK}; font-family: 'Outfit', sans-serif; font-size: 15px; }
 .fc-result { position: sticky; top: 20px; display: grid; gap: 14px; min-width: 0; }
 .fc-actions { display: flex; justify-content: flex-end; }
-.fc-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; font-size: 18px; font-weight: 800; letter-spacing: 0; color: ${INK}; }
+.fc-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; color: ${INK}; }
 .fc-brand b { color: ${GOLD}; }
-.fc-doc-title { margin: 12px 0 2px; font-size: 20px; letter-spacing: 0; color: ${INK}; }
-.fc-doc-meta { margin: 0; font-size: 12px; color: ${MUTED}; }
-.fc-rule { height: 3px; background: linear-gradient(90deg, ${INK}, ${PURPLE} 55%, ${GOLD}); border-radius: 3px; margin: 14px 0 16px; }
+.fc-doc-title { margin: 14px 0 3px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: -0.02em; color: ${INK}; }
+.fc-doc-meta { margin: 0; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.02em; color: ${MUTED}; }
+.fc-rule { height: 3px; background: linear-gradient(90deg, ${PURPLE}, ${ORANGE} 55%, ${GOLD}); border-radius: 3px; margin: 16px 0 16px; }
 .fc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.fc-table th { text-align: right; padding: 8px 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: ${MUTED}; border-bottom: 1px solid ${HAIR}; }
+.fc-table th { text-align: right; padding: 8px 0; font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: ${MUTED}; border-bottom: 1px solid ${HAIR}; }
 .fc-table th:first-child { text-align: left; }
-.fc-table td { padding: 9px 0; color: rgba(28,18,51,0.82); text-align: right; border-bottom: 1px solid ${HAIR}; }
+.fc-table td { padding: 10px 0; color: rgba(28,18,51,0.82); text-align: right; border-bottom: 1px solid ${HAIR}; }
 .fc-table td:first-child { text-align: left; }
 .fc-table tbody td:nth-child(2) { font-weight: 700; color: ${INK}; }
-.fc-table tfoot td { border-top: 2px solid ${INK}; border-bottom: 0; font-weight: 800; color: ${INK}; }
-.fc-note { margin: 16px 0 0; font-size: 10.5px; color: ${MUTED}; line-height: 1.5; border-left: 3px solid ${GOLD}; padding-left: 10px; }
+.fc-table tfoot td { border-top: 2px solid ${INK}; border-bottom: 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; color: ${INK}; padding-top: 12px; }
+.fc-table tfoot td:nth-child(3) { color: ${PURPLE}; }
+.fc-note { margin: 16px 0 0; font-size: 11px; color: ${MUTED}; line-height: 1.5; border-left: 3px solid ${GOLD}; padding-left: 11px; }
 #fc-doc, #fc-doc * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 @media (max-width: 960px) {
   .fc-shell { grid-template-columns: 1fr; }
