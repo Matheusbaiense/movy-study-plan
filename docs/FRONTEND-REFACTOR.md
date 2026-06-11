@@ -42,27 +42,30 @@ progress) + strong typographic hierarchy.
 `ink(a)` → `rgba(28,18,51,a)` (text/borders). `purpleA(a)` → purple tint.
 `font.display` Outfit, `font.body` Manrope, `font.mono` Space Mono.
 
-## Page-by-page TODO (not yet done)
+## Page-by-page TODO
 
 Apply the same patterns (kicker + display heading + `.movy-card` + stagger + hover-lift,
 tokens not hex). Each item is independent and safe to do in isolation.
 
-1. **`settings/users` (`UsersManager.tsx`)** — already functional; restyle cards/table to
-   `.movy-card`, kickers, token colors. Keep all server-action logic untouched.
-2. **`settings/page.tsx` + `settings/layout.tsx`** — profile/stats cards → `.movy-card`;
-   tab nav → underline-on-active with gold; kicker headers.
-3. **`wiki/page.tsx`** — search/filter bar and list: lift to `.movy-card`, mono meta,
-   featured-first list. The `WikiListItem` component carries most of the styling.
-4. **`departments/page.tsx` + `departments/[slug]/page.tsx`** — same area-card language as
-   Home (left accent rail, kicker pillar, hover-lift).
-5. **`study-plans/page.tsx`** (list) — proposal rows as `.movy-card--hover`, status pills.
-6. **`study-plans/[id]` editor (`StudyPlanEditor.tsx`)** — biggest file. Restyle the
-   shell, section headers (kickers), inputs and the **timeline** only. ⚠️ Do NOT change
-   calculation/date logic. Re-run `node --test tests/study-financial.test.mjs` after.
-7. **`financial/FinancialCalculator.tsx`** — inputs + result card to tokens; result total
-   as a display-scale number with gold accent.
-8. **`login/page.tsx`** — already strong; optionally align inputs with `.movy-card` tone.
-9. **`unauthorized/page.tsx` + `error.tsx` + `loading.tsx`** — brand the empty/edge states.
+- [x] **`settings/users` (`UsersManager.tsx`)** — token colors + `.movy-card` surfaces.
+- [x] **`settings/page.tsx` + `settings/layout.tsx`** — kicker+display header, gold
+      active tabs (`SettingsTabs.tsx`), token cards.
+- [x] **`wiki/page.tsx` + `WikiListItem.tsx`** — display header, mono meta, `.movy-card`
+      list items (CSS hover, JS hover handlers removed).
+- [x] **`departments/page.tsx` + `departments/[slug]/page.tsx`** — area-card language
+      (accent rail, kicker, hover-lift) + display hero.
+- [x] **`study-plans/page.tsx`** (list) — `.movy-card` table, mono dates, token pills.
+- [ ] **`study-plans/[id]` editor (`StudyPlanEditor.tsx`)** — biggest file, NOT done.
+      Restyle the shell, section headers (kickers), inputs and the **timeline** only.
+      ⚠️ Do NOT change calculation/date logic. Re-run `node --test tests/study-financial.test.mjs` after.
+- [ ] **`financial/FinancialCalculator.tsx`** — NOT done. Inputs + result card to tokens;
+      result total as a display-scale number with gold accent. Has an inline CSS string via
+      `dangerouslySetInnerHTML` — fold those values onto the tokens.
+- [ ] **`components/departments/CategorySection.tsx`** — align cards with `.movy-card`.
+- [ ] **`settings/audit-log/page.tsx`** — table to `.movy-card`, mono timestamps.
+- [ ] **`login/page.tsx`** — already strong; optional input polish.
+- [ ] **`unauthorized/page.tsx` + `error.tsx` + `loading.tsx`** — brand the edge states
+      (the home `loading.tsx` skeletons should mirror the new card shapes).
 
 ## Known brand bug to fix
 
@@ -97,9 +100,15 @@ Push a feature branch first to get a **preview URL** for visual review before me
 
 ## Log
 
-### 2026-06-11 — Foundation + Home + Shell (this pass)
+### 2026-06-11 — Foundation + Home + Shell + nav surfaces (this pass)
 - Added `lib/ui/theme.ts` tokens; atmosphere/motion/card utilities in `app/globals.css`.
 - `AppShell`: deep-purple gradient sidebar, gold active accent, staircase motif, atmosphere.
 - `home/page.tsx`: editorial bento (dominant Proposta hero with motif + Informações),
   area cards with accent rail + featured cell, mono-dated recent list, staggered load.
-- type-check + build green. Remaining pages tracked in the TODO above.
+- Settings (layout/overview/users + new `SettingsTabs`), Departments (list + detail hero),
+  Wiki (header + `WikiListItem`), Study-Plans list — all converted to tokens + `.movy-card`.
+- type-check + build green after every batch (clone `...verify-quote`).
+- Branch: `feat/frontend-editorial` (commits 67b2200, bf1a2ae, 6624e05). NOT merged to
+  main / NOT in production yet — pending user visual review.
+- **Remaining (next agent):** StudyPlanEditor + FinancialCalculator (logic-heavy, restyle
+  presentation only), CategorySection, audit-log, login polish, edge states. See TODO.
