@@ -182,8 +182,10 @@ exige WISE_API_TOKEN **completo** — read-only dá 401 em quote); (2) Wise mid-
 (token read-only); (3) open.er-api; (4) frankfurter. Cache 1h em memória. Retorna
 `{ rate, asOf, source, mid?, feePct? }`. A calculadora preenche o `exchangeRate`, mostra a fonte
 + data/hora, e o documento traz "mid X + Y% Wise". `WISE_PROFILE_ID` opcional (senão busca o
-business). PENDENTE: validar o quote em produção com o token completo (ver logs de runtime do
-`/api/fx`); o read-only `6f40…` foi exposto no chat e deve ser revogado. a calculadora `FinancialCalculator.tsx`
+business). **VALIDADO em produção (2026-06-12):** `/api/fx` → `source: "Wise (com taxas)"`, mid
+3.5761 + 0.92% fee = 3.609 BRL/AUD. O `/api/fx` foi tornado **público** no `middleware.ts` (antes o
+i18n+auth quebrava o fetch; `/api/*` não era excluído da matcher do next-intl — conferir `/api/imported`).
+PENDENTE do usuário: revogar o token read-only `6f40…`. a calculadora `FinancialCalculator.tsx`
 faz prefill do `exchangeRate` no mount, mostra "Cotação de DD/MM HH:MM (Perth)" + botão
 "atualizar", e o documento impresso traz "Câmbio AUD→BRL: X · cotado em DD/MM HH:MM · fonte …"
 (o respaldo). Continua editável (override manual). Granularidade diária (tier grátis).
