@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   COST,
   computeFinancialCapacity,
@@ -36,6 +36,9 @@ const initial: FinancialInput = {
 export function FinancialCalculator() {
   const [data, setData] = useState<FinancialInput>(initial)
   const [customTravel, setCustomTravel] = useState(false)
+  const [fxAsOf, setFxAsOf] = useState<string | null>(null)
+  const [fxSource, setFxSource] = useState<string | null>(null)
+  const [fxLoading, setFxLoading] = useState(false)
   const calculatedTravel = useMemo(() => defaultTravelCost(data), [data])
   const effectiveData = useMemo(
     () => (customTravel ? data : { ...data, travelCost: calculatedTravel }),
@@ -50,6 +53,33 @@ export function FinancialCalculator() {
   function setNumber<K extends keyof FinancialInput>(key: K, value: number) {
     set(key, value as FinancialInput[K])
   }
+
+  async function loadFx() {
+    setFxLoading(true)
+    try {
+      const res = await fetch('/api/fx', { cache: 'no-store' })
+      const j = await res.json()
+      if (typeof j.rate === 'number' && Number.isFinite(j.rate)) {
+        set('exchangeRate', j.rate)
+        setFxAsOf(j.asOf ?? null)
+        setFxSource(j.source ?? null)
+      }
+    } catch {
+      // keep the manual rate on failure
+    } finally {
+      setFxLoading(false)
+    }
+  }
+
+  // Prefill with the day's live AUD→BRL rate on first load.
+  useEffect(() => {
+    loadFx()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const fxStamp = fxAsOf
+    ? new Date(fxAsOf).toLocaleString('pt-BR', { timeZone: 'Australia/Perth', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : null
 
   const applicationDate = data.applicationDate || todayIso()
 
@@ -101,7 +131,15 @@ export function FinancialCalculator() {
         <Section title="Valores da simulação">
           <div className="fc-grid">
             <Field label="Cotação AUD para BRL">
-              <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
+              <div style={{ display: 'grid', gap: 6 }}>
+                <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: MUTED, fontFamily: '"Space Mono", monospace' }}>
+                  <span>{fxLoading ? 'Buscando cotação…' : fxStamp ? `Cotação de ${fxStamp} (Perth)` : 'Cotação manual'}</span>
+                  <button type="button" onClick={loadFx} disabled={fxLoading} style={{ border: 'none', background: 'transparent', color: ORANGE, fontWeight: 700, cursor: fxLoading ? 'wait' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 11, padding: 0 }}>
+                    atualizar
+                  </button>
+                </div>
+              </div>
             </Field>
             <Field label="Curso remanescente (AUD)">
               <NumberInput value={data.remainingCourseFee} onChange={(value) => setNumber('remainingCourseFee', value)} />
@@ -174,7 +212,7 @@ export function FinancialCalculator() {
           </table>
 
           <p className="fc-note">
-            Cotação AUD para BRL: {data.exchangeRate}. Valores estimados; o valor em reais varia com o câmbio.
+            Câmbio AUD→BRL: {data.exchangeRate}{fxStamp ? ` · cotado em ${fxStamp} (Perth)` : ''}{fxSource ? ` · fonte ${fxSource}` : ''}. Valores estimados; o valor em reais varia com o câmbio.
           </p>
         </article>
       </aside>

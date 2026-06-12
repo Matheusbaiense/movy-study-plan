@@ -174,11 +174,14 @@ Space Mono, kicker laranja/dourado). Design = `docs/FRONTEND-REFACTOR.md` + o gu
 `<use href="#movySymColor|Mono">`); nada de Bricolage (fonte = Outfit display + Manrope corpo
 + Space Mono labels); não hardcodar hex — use `lib/ui/theme.ts` + `.movy-card`/`.movy-kicker`.
 
-### Feature A — Cotação de câmbio ao vivo AUD→BRL (FAZER ANTES DOS PRESETS)
+### Feature A — Cotação de câmbio ao vivo AUD→BRL  ✅ FEITO (2026-06-12)
 
-Objetivo: o orçamento/proposta sempre traz o câmbio **do dia, com data e hora**, pra mostrar
-ao cliente que a Movy **não trabalha com câmbio congelado**. Hoje `exchangeRate` é fixo
-(default 3.35) em `components/financial/FinancialCalculator.tsx` e `StudyPlanData`.
+Implementado: route handler `app/api/fx/route.ts` (open.er-api.com primária + frankfurter.app
+fallback, cache 1h, retorna `{ rate, asOf, source }`); a calculadora `FinancialCalculator.tsx`
+faz prefill do `exchangeRate` no mount, mostra "Cotação de DD/MM HH:MM (Perth)" + botão
+"atualizar", e o documento impresso traz "Câmbio AUD→BRL: X · cotado em DD/MM HH:MM · fonte …"
+(o respaldo). Continua editável (override manual). Granularidade diária (tier grátis).
+Histórico abaixo apenas como referência do que foi pedido:
 
 Passos:
 1. **Fonte de câmbio**: o Google não tem API oficial de câmbio gratuita. Usar uma pública
