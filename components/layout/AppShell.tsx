@@ -45,6 +45,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     { href: `/${locale}/home`, icon: 'home', label: 'Home' },
     { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
     { href: `/${locale}/financial`, icon: 'calc', label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
+    { href: `/${locale}/cambio`, icon: 'fx', label: locale === 'en' ? 'Exchange' : 'Câmbio' },
     { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informações' },
     { href: `/${locale}/departments`, icon: 'areas', label: locale === 'en' ? 'Departments' : 'Departamentos' },
   ]
@@ -227,6 +228,7 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
     settings: locale === 'en' ? 'Settings' : 'Configurações',
     wiki: locale === 'en' ? 'Knowledge' : 'Informações',
     financial: locale === 'en' ? 'Financial' : 'Capacidade Financeira',
+    cambio: locale === 'en' ? 'Exchange' : 'Câmbio',
     'study-plans': locale === 'en' ? 'Proposals' : 'Propostas',
     users: locale === 'pt' ? 'Usuários' : 'Users',
     'audit-log': 'Audit Log',
@@ -274,6 +276,7 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
     book: <><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" {...s} /><path d="M4 17a3 3 0 0 1 3-3h11" {...s} /></>,
     areas: <><path d="M4 5h7v7H4z" {...s} /><path d="M13 5h7v7h-7z" {...s} /><path d="M4 14h7v5H4z" {...s} /><path d="M13 14h7v5h-7z" {...s} /></>,
     calc: <><rect x="5" y="3" width="14" height="18" rx="2" {...s} /><path d="M8 7h8M8 11h8M8 15h8" {...s} /></>,
+    fx: <><path d="M4 19V5" {...s} /><path d="M4 15l5-5 4 4 7-7" {...s} /><path d="M16 7h4v4" {...s} /></>,
     settings: <><circle cx="12" cy="12" r="3" {...s} /><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" {...s} /></>,
   }
   return <svg width={16} height={16} viewBox="0 0 24 24">{icons[name] ?? null}</svg>
