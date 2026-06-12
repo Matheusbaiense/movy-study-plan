@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { StudyPlanEditor } from '@/components/study-plans/StudyPlanEditor'
+import { dbPresetToOption, type DbPreset } from '@/lib/study-plans/presets'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
 interface Props {
@@ -21,6 +22,23 @@ export default async function StudyPlanDetailPage({ params }: Props) {
 
   if (!plan) notFound()
 
+  const { data: presetRows } = await (supabase as any)
+    .from('course_presets')
+    .select('*')
+    .eq('is_active', true)
+    .order('type', { ascending: true })
+    .order('sort_order', { ascending: true })
+
+  const presets = ((presetRows ?? []) as DbPreset[]).map(dbPresetToOption)
+
   const row = plan as StudyPlanRow
-  return <StudyPlanEditor id={row.id} locale={locale} initialData={row.data as StudyPlanData} status={row.status} />
+  return (
+    <StudyPlanEditor
+      id={row.id}
+      locale={locale}
+      initialData={row.data as StudyPlanData}
+      status={row.status}
+      presets={presets}
+    />
+  )
 }

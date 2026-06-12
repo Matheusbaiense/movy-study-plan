@@ -17,6 +17,7 @@ export default async function SettingsLayout({ children, params }: Props) {
   const tabs = [
     { href: `/${locale}/settings`, label: locale === 'pt' ? 'Visão geral' : 'Overview' },
     { href: `/${locale}/settings/users`, label: locale === 'pt' ? 'Usuários' : 'Users' },
+    { href: `/${locale}/settings/presets`, label: 'Presets' },
     { href: `/${locale}/settings/audit-log`, label: 'Audit Log' },
   ]
 

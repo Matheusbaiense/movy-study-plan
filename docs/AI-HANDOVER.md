@@ -200,7 +200,16 @@ Passos:
    valor da época, **mostrando a data/hora** (cotação daquele dia, não congelada à toa).
 6. Timezone: usar `Australia/Perth` na exibição (o app já usa esse TZ).
 
-### Feature B — Gestor de Presets das escolas (PLANEJADO, depois da Feature A)
+### Feature B — Gestor de Presets das escolas  ✅ FEITO (2026-06-12)
+
+Implementado: migration `008_course_presets.sql` **aplicada** (tabela + RLS + seed com 12
+presets). `lib/study-plans/presets.ts` (tipo `DbPreset` + `dbPresetToOption`). Server actions
+`settings/presets/actions.ts` (create/update/delete, admin + service role + audit). UI
+`settings/presets/page.tsx` + `PresetsManager.tsx` (edição inline de preço/campos por tipo,
+add/remove) + aba "Presets" em `settings/layout.tsx`. O editor (`study-plans/[id]/page.tsx` →
+`StudyPlanEditor` prop `presets`) lê os presets do banco no dropdown "Aplicar preset" (fallback
+para `COURSE_PRESETS`). Também corrigido no banco vivo o teal `#057570`→`#3A1560` do
+`departments.links-recursos`. Plano original abaixo, apenas como referência:
 
 Admin edita preços/escolas em Configurações sem mexer em código. Hoje os presets são a const
 `COURSE_PRESETS` em `lib/study-plans/defaults.ts`. Passos (nesta ordem):

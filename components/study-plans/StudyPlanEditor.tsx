@@ -42,6 +42,7 @@ import {
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
 import type { ApplicantType, CourseType, ElicosModule, StudentLocation, StudyCourse, StudyPlanData, Timetable } from '@/lib/study-plans/types'
+import type { PresetOption } from '@/lib/study-plans/presets'
 import { color, ink, font } from '@/lib/ui/theme'
 
 interface Props {
@@ -49,6 +50,7 @@ interface Props {
   locale: string
   initialData: StudyPlanData
   status: string
+  presets?: PresetOption[]
 }
 
 const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Familia', 'Single Parent']
@@ -58,11 +60,13 @@ const timetableLabels: Record<Timetable, string> = {
   Noite: 'Noite',
 }
 
-export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
+export function StudyPlanEditor({ id, locale, initialData, status, presets }: Props) {
   const [plan, setPlan] = useState(initialData)
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle')
   const [isPending, startTransition] = useTransition()
   const schedule = useMemo(() => buildSchedule(plan), [plan])
+  // DB presets when available, else the bundled defaults.
+  const presetList: PresetOption[] = presets && presets.length > 0 ? presets : COURSE_PRESETS
 
   function patchPlan(patch: Partial<StudyPlanData>) {
     setPlan((current) => ({ ...current, ...patch }))
@@ -143,7 +147,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
   }
 
   function applyPreset(courseId: string, index: number) {
-    const preset = COURSE_PRESETS[index]
+    const preset = presetList[index]
     if (!preset) return
     const course = plan.courses.find((item) => item.id === courseId)
     const studyWeeksBeforeHoliday = course?.studyWeeksBeforeHoliday ?? DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY
@@ -276,7 +280,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   </select>
                   <select style={{ ...input, width: 260 }} onChange={(e) => applyPreset(course.id, Number(e.target.value))} value="">
                     <option value="">Aplicar preset...</option>
-                    {COURSE_PRESETS.map((preset, i) => (
+                    {presetList.map((preset, i) => (
                       <option key={`${preset.provider}-${preset.name}-${i}`} value={i}>{preset.provider} - {preset.name}</option>
                     ))}
                   </select>
