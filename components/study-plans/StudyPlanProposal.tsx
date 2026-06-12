@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { COURSE_TYPES } from '@/lib/study-plans/defaults'
+import { formatBrl } from '@/lib/financial/calculator'
 import {
   buildSchedule,
   courseDeposit,
@@ -53,6 +54,24 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
   const validity = new Date(issued.getTime() + 30 * 24 * 60 * 60 * 1000)
   const showHolidays = data.includeHolidayPlanning !== false
 
+  const [fx, setFx] = useState<{ rate: number; asOf: string | null; source: string | null; mid: number | null; feePct: number | null } | null>(null)
+  useEffect(() => {
+    let active = true
+    fetch('/api/fx', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((j) => {
+        if (active && typeof j.rate === 'number' && j.rate > 0) {
+          setFx({ rate: j.rate, asOf: j.asOf ?? null, source: j.source ?? null, mid: typeof j.mid === 'number' ? j.mid : null, feePct: typeof j.feePct === 'number' ? j.feePct : null })
+        }
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  const fxRate = fx?.rate ?? null
+  const fxStamp = fx?.asOf
+    ? new Date(fx.asOf).toLocaleString('pt-BR', { timeZone: 'Australia/Perth', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : null
+
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
       <style>{printStyles}</style>
@@ -99,7 +118,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
         <SectionTitle>Cursos</SectionTitle>
         <div style={{ display: 'grid', gap: 14 }}>
           {data.courses.map((course, index) => (
-            <CourseBlock key={course.id} course={course} index={index} />
+            <CourseBlock key={course.id} course={course} index={index} fxRate={fxRate} />
           ))}
         </div>
 
@@ -157,7 +176,12 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
         <section style={totalsPanel}>
           <div>
             <span style={totalsLabel}>Investimento total estimado</span>
-            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em' }}>{money(planGrandTotal(data))}</strong>
+            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block' }}>{money(planGrandTotal(data))}</strong>
+            {fxRate && (
+              <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
+                ≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span>
+              </div>
+            )}
           </div>
           <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
             <TotalLine label="Pagamento no fechamento" value={money(planUpfrontSchools(data) + planExtrasTotal(data))} />
@@ -167,8 +191,14 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
           </div>
         </section>
 
+        {fxRate && (
+          <p style={{ marginTop: 16, fontSize: 11, color: MUTED, lineHeight: 1.6 }}>
+            Câmbio AUD→BRL: {fxRate}{fx?.mid && fx?.feePct != null ? ` (mid ${fx.mid} + ${fx.feePct}% Wise)` : ''}{fxStamp ? ` · cotado em ${fxStamp} (Perth)` : ''}{fx?.source ? ` · fonte ${fx.source}` : ''}. Valores em BRL são referência e variam com o câmbio.
+          </p>
+        )}
+
         {data.notes && (
-          <p style={{ marginTop: 22, fontSize: 12, color: MUTED, lineHeight: 1.6, borderLeft: `3px solid ${ACCENT}`, paddingLeft: 12 }}>
+          <p style={{ marginTop: 16, fontSize: 12, color: MUTED, lineHeight: 1.6, borderLeft: `3px solid ${ACCENT}`, paddingLeft: 12 }}>
             {data.notes}
           </p>
         )}
@@ -252,7 +282,7 @@ function Dot({ color }: { color: string }) {
   return <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 3, background: color, verticalAlign: -1, marginRight: 2 }} />
 }
 
-function CourseBlock({ course, index }: { course: StudyCourse; index: number }) {
+function CourseBlock({ course, index, fxRate }: { course: StudyCourse; index: number; fxRate: number | null }) {
   const type = COURSE_TYPES[course.type]
   return (
     <div style={courseCard} className="proposal-block">
@@ -267,6 +297,7 @@ function CourseBlock({ course, index }: { course: StudyCourse; index: number }) 
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: 11, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total do curso</span>
           <div style={{ fontSize: 18, fontWeight: 800, color: INK }}>{money(courseTotal(course))}</div>
+          {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(courseTotal(course) * fxRate)}</div>}
         </div>
       </div>
 
