@@ -10,6 +10,29 @@ interface FxResult {
   asOf: string
 }
 
+// Wise mid-market rate — used when a read-only personal API token is configured
+// via the WISE_API_TOKEN env var. The token is NEVER hardcoded; absent token
+// simply falls through to the free sources below.
+async function fromWise(): Promise<FxResult | null> {
+  const token = process.env.WISE_API_TOKEN
+  if (!token) return null
+  try {
+    const r = await fetch('https://api.wise.com/v1/rates?source=AUD&target=BRL', {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 3600 },
+    })
+    if (!r.ok) return null
+    const j = await r.json()
+    const row = Array.isArray(j) ? j[0] : j
+    const rate = row?.rate
+    if (typeof rate !== 'number' || !Number.isFinite(rate)) return null
+    const asOf = row?.time ? new Date(row.time).toISOString() : new Date().toISOString()
+    return { rate, asOf }
+  } catch {
+    return null
+  }
+}
+
 async function fromErApi(): Promise<FxResult | null> {
   try {
     const r = await fetch('https://open.er-api.com/v6/latest/AUD', { next: { revalidate: 3600 } })
@@ -39,8 +62,12 @@ async function fromFrankfurter(): Promise<FxResult | null> {
 }
 
 export async function GET() {
-  let data = await fromErApi()
-  let source = 'open.er-api.com'
+  let data = await fromWise()
+  let source = 'Wise'
+  if (!data) {
+    data = await fromErApi()
+    source = 'open.er-api.com'
+  }
   if (!data) {
     data = await fromFrankfurter()
     source = 'frankfurter.app'

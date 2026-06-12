@@ -176,8 +176,9 @@ Space Mono, kicker laranja/dourado). Design = `docs/FRONTEND-REFACTOR.md` + o gu
 
 ### Feature A — Cotação de câmbio ao vivo AUD→BRL  ✅ FEITO (2026-06-12)
 
-Implementado: route handler `app/api/fx/route.ts` (open.er-api.com primária + frankfurter.app
-fallback, cache 1h, retorna `{ rate, asOf, source }`); a calculadora `FinancialCalculator.tsx`
+Implementado: route handler `app/api/fx/route.ts` — fonte primária **Wise** (taxa mid-market,
+`GET /v1/rates`, token read-only no env `WISE_API_TOKEN`), com fallback open.er-api.com →
+frankfurter.app. Cache 1h, retorna `{ rate, asOf, source }`. Sem o token, cai nas gratuitas. a calculadora `FinancialCalculator.tsx`
 faz prefill do `exchangeRate` no mount, mostra "Cotação de DD/MM HH:MM (Perth)" + botão
 "atualizar", e o documento impresso traz "Câmbio AUD→BRL: X · cotado em DD/MM HH:MM · fonte …"
 (o respaldo). Continua editável (override manual). Granularidade diária (tier grátis).
