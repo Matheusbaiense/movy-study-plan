@@ -41,6 +41,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
+  // Public JSON endpoint: live exchange rate. No i18n prefixing, no auth gate
+  // (returns only a generic AUD→BRL rate; the Wise token stays server-side).
+  if (pathname.startsWith('/api/fx')) {
+    return NextResponse.next({ request })
+  }
+
   // Run i18n routing first
   const i18nResponse = handleI18nRouting(request)
 
