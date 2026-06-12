@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
 import { CategorySection } from '@/components/departments/CategorySection'
+import { font } from '@/lib/ui/theme'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -62,7 +63,7 @@ export default async function DepartmentPage({ params }: Props) {
         <div className="movy-kicker" style={{ color: dept.color ?? '#4B1A77', marginBottom: 12 }}>
           {dept.icon} {deptName}
         </div>
-        <h1 style={{ margin: '0 0 10px', fontFamily: '"Bricolage Grotesque", Outfit, sans-serif', fontSize: 'clamp(28px, 3.6vw, 40px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.03em', lineHeight: 0.98 }}>
+        <h1 style={{ margin: '0 0 10px', fontFamily: font.display, fontSize: 'clamp(28px, 3.6vw, 40px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.03em', lineHeight: 0.98 }}>
           {deptName}
         </h1>
         <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.6, maxWidth: 560 }}>

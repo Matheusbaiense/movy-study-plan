@@ -52,6 +52,11 @@ interface Props {
 }
 
 const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Familia', 'Single Parent']
+const timetableLabels: Record<Timetable, string> = {
+  Manha: 'Manhã',
+  Tarde: 'Tarde',
+  Noite: 'Noite',
+}
 
 export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
   const [plan, setPlan] = useState(initialData)
@@ -292,7 +297,7 @@ export function StudyPlanEditor({ id, locale, initialData, status }: Props) {
                   </Field>
                   <Field label="Turno">
                     <select style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
-                      {(['Manha', 'Tarde', 'Noite'] as Timetable[]).map((t) => <option key={t} value={t}>{t}</option>)}
+                      {(['Manha', 'Tarde', 'Noite'] as Timetable[]).map((t) => <option key={t} value={t}>{timetableLabels[t]}</option>)}
                     </select>
                   </Field>
                   {course.type !== 'elicos' && (

@@ -1,4 +1,41 @@
 {
   "version": 1,
-  "bugs": []
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-06-11T23:44:32+08:00",
+      "error_message": "Documented brand bugs remained before Feature A: residual Bricolage font references, FYME teal #057570 in knowledge seed data, and unaccented Manha timetable label.",
+      "file": "app/[locale]/(protected)/wiki/page.tsx; app/[locale]/(protected)/departments/[slug]/page.tsx; components/study-plans/StudyPlanEditor.tsx; data/knowledge-sop-content.json; supabase/migrations/005_movy_knowledge_content.sql; supabase/migrations/006_cleanup_movy_knowledge.sql",
+      "root_cause": "Previous brand pass left a few residual literal values in lower-traffic pages and seed data; timetable stored value was being rendered directly.",
+      "fix": "Use font.display for residual headings, replace FYME teal with Movy purple in knowledge seeds, and add a timetable display label map while preserving the stored Manha value.",
+      "tags": ["brand", "frontend", "knowledge-seed", "study-plan"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T23:44:32+08:00"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-06-11T23:44:32+08:00",
+      "error_message": "PowerShell treated an unquoted path segment containing (protected) as a command while running git diff.",
+      "file": "shell command",
+      "root_cause": "Paths with parentheses were passed to PowerShell without quoting.",
+      "fix": "Reran the command with quoted paths and kept later Git path arguments quoted.",
+      "tags": ["powershell", "workflow"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T23:44:32+08:00"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-06-11T23:44:32+08:00",
+      "error_message": "git clone --local failed from the Google Drive workspace with 'failed to create link ... Improper link'.",
+      "file": "validation clone workflow",
+      "root_cause": "The local clone attempted to hardlink Git objects from the Google Drive-backed workspace.",
+      "fix": "Created the validation clone with git clone --no-local and copied the changed files into that clone for validation.",
+      "tags": ["git", "google-drive", "validation"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T23:44:32+08:00"
+    }
+  ]
 }

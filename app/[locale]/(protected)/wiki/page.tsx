@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
 import { WikiListItem } from '@/components/wiki/WikiListItem'
 import { DEPARTMENTS, DEPT_ACCENT, getDeptNameBySlug } from '@/lib/constants/departments'
+import { font } from '@/lib/ui/theme'
 import type { Tables } from '@/types/supabase'
 
 interface WikiPageProps {
@@ -75,7 +76,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
           <div className="movy-kicker">Movy Internal Hub</div>
-          <h1 style={{ margin: '8px 0 4px', fontFamily: '"Bricolage Grotesque", Outfit, sans-serif', fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: '#2A1153' }}>
+          <h1 style={{ margin: '8px 0 4px', fontFamily: font.display, fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: '#2A1153' }}>
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
           <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>

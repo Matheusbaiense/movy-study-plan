@@ -67,12 +67,10 @@ tokens not hex). Each item is independent and safe to do in isolation.
 - [ ] **`unauthorized/page.tsx` + `error.tsx` + `loading.tsx`** — brand the edge states
       (the home `loading.tsx` skeletons should mirror the new card shapes).
 
-## Known brand bug to fix
+## Known brand bug
 
-- `lib/constants/departments.ts`: the "Referencia" dept uses `accent: '#057570'` — that's
-  **FYME teal**, which `docs/BRAND.md` forbids. Replace with a Movy token (e.g.
-  `--movy-purple-mid #3A1560` or `--movy-gold`). `DEPT_ACCENT` is derived from this and is
-  also used in `wiki/page.tsx`, so changing it propagates correctly.
+- [x] FYME teal `#057570` removed from active knowledge seed data and legacy knowledge
+      migrations; Links & Recursos now uses Movy purple (`#3A1560`).
 
 ## Acceptance criteria (per page)
 
@@ -121,8 +119,9 @@ Push a feature branch first to get a **preview URL** for visual review before me
   detail**), Departments (list + detail + **CategorySection**), **unauthorized + error**.
 - **Still TODO (minor)**: `StudyPlanProposal.tsx` (PDF — swap to the sail lockup),
   `components/wiki/WikiForm.tsx` + `wiki/new` + `wiki/[slug]/edit` (content-authoring form),
-  `loading.tsx` skeletons (mirror the new card shapes), and a few residual accents
-  (e.g. "Manha" timetable option — needs a label map to avoid changing the stored value).
+  `loading.tsx` skeletons (mirror the new card shapes).
+- **Bug cleanup after this pass**: residual Bricolage references in Wiki/Department pages
+  removed; timetable UI now shows `Manhã` while preserving the stored value `Manha`.
 - **Validation**: type-check green after every file; preview runs locally with an auth
   bypass (clone-only `MOVY_PREVIEW=1`). Branch `feat/frontend-editorial`, not yet promoted.
 

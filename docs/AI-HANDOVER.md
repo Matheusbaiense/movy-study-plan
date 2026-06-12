@@ -216,6 +216,13 @@ Admin edita preços/escolas em Configurações sem mexer em código. Hoje os pre
    (por sort_order) e passar prop `presets` a `StudyPlanEditor`; o dropdown "Aplicar preset…"
    e `applyPreset` passam a usar a prop em vez de `COURSE_PRESETS` (manter a const como fallback).
 
+Estado desta sessao: bugs documentados de marca/label corrigidos na branch
+`fix/documented-brand-bugs` (Bricolage residual removido de Wiki/Departamentos, teal FYME
+`#057570` trocado por roxo Movy nos seeds/migrations de knowledge, label `Manha` exibida como
+`Manha` acentuado na UI sem mudar o valor persistido). Validado em clone temporario fora do Drive:
+`npm run type-check`, `node --test tests/study-financial.test.mjs`, `npm run build`.
+Proximo passo: confirmar a fonte externa de cambio e implementar Feature A.
+
 ## Log de Handover
 
 ### 2026-06-11 - Redesign de marca + planejamento de férias + promoção
@@ -231,7 +238,23 @@ Admin edita preços/escolas em Configurações sem mexer em código. Hoje os pre
 - PENDENTE (ordem): Feature A = cotação de câmbio ao vivo AUD→BRL (respaldo data/hora, não
   congelado); depois Feature B = gestor de presets (migration `008_course_presets.sql` escrita,
   não aplicada). Ver "Próximo agente — COMECE AQUI". Resíduos menores: WikiForm/new/edit,
-  StudyPlanProposal já com a vela, loading skeletons, acento "Manha" (turno).
+  StudyPlanProposal já com a vela, loading skeletons.
+
+### 2026-06-11 - Bugs documentados antes da Feature A
+
+- Branch nova: `fix/documented-brand-bugs`.
+- Corrigido residuo off-brand de fonte: `Bricolage Grotesque` removida de
+  `app/[locale]/(protected)/wiki/page.tsx` e
+  `app/[locale]/(protected)/departments/[slug]/page.tsx`; agora usam `font.display`.
+- Corrigido teal FYME `#057570` em `data/knowledge-sop-content.json` e nos seeds/migrations
+  `005_movy_knowledge_content.sql` / `006_cleanup_movy_knowledge.sql`, usando roxo Movy.
+- Corrigida label visual do turno no editor: valor armazenado continua `Manha`, mas a UI exibe
+  `Manha` acentuado.
+- Validacao em clone temporario fora do Drive
+  `C:\Users\baien\AppData\Local\Codex\movy-study-plan-verify-brand-bugs-20260611234008`:
+  `npm run type-check` passou, `node --test tests/study-financial.test.mjs` passou (4/4),
+  `npm run build` passou.
+- Pendente imediato: escolher a fonte de cambio externa (sem Google) para iniciar Feature A.
 
 ### 2026-06-11 - Limpeza forte e deploy
 
