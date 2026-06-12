@@ -38,6 +38,8 @@ export function FinancialCalculator() {
   const [customTravel, setCustomTravel] = useState(false)
   const [fxAsOf, setFxAsOf] = useState<string | null>(null)
   const [fxSource, setFxSource] = useState<string | null>(null)
+  const [fxMid, setFxMid] = useState<number | null>(null)
+  const [fxFeePct, setFxFeePct] = useState<number | null>(null)
   const [fxLoading, setFxLoading] = useState(false)
   const calculatedTravel = useMemo(() => defaultTravelCost(data), [data])
   const effectiveData = useMemo(
@@ -63,6 +65,8 @@ export function FinancialCalculator() {
         set('exchangeRate', j.rate)
         setFxAsOf(j.asOf ?? null)
         setFxSource(j.source ?? null)
+        setFxMid(typeof j.mid === 'number' ? j.mid : null)
+        setFxFeePct(typeof j.feePct === 'number' ? j.feePct : null)
       }
     } catch {
       // keep the manual rate on failure
@@ -134,7 +138,7 @@ export function FinancialCalculator() {
               <div style={{ display: 'grid', gap: 6 }}>
                 <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: MUTED, fontFamily: '"Space Mono", monospace' }}>
-                  <span>{fxLoading ? 'Buscando cotação…' : fxStamp ? `Cotação de ${fxStamp} (Perth)` : 'Cotação manual'}</span>
+                  <span>{fxLoading ? 'Buscando cotação…' : fxStamp ? `${fxSource ?? 'Cotação'} · ${fxStamp} (Perth)` : 'Cotação manual'}</span>
                   <button type="button" onClick={loadFx} disabled={fxLoading} style={{ border: 'none', background: 'transparent', color: ORANGE, fontWeight: 700, cursor: fxLoading ? 'wait' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 11, padding: 0 }}>
                     atualizar
                   </button>
@@ -212,7 +216,7 @@ export function FinancialCalculator() {
           </table>
 
           <p className="fc-note">
-            Câmbio AUD→BRL: {data.exchangeRate}{fxStamp ? ` · cotado em ${fxStamp} (Perth)` : ''}{fxSource ? ` · fonte ${fxSource}` : ''}. Valores estimados; o valor em reais varia com o câmbio.
+            Câmbio AUD→BRL: {data.exchangeRate}{fxMid && fxFeePct != null ? ` (mid ${fxMid} + ${fxFeePct}% Wise)` : ''}{fxStamp ? ` · cotado em ${fxStamp} (Perth)` : ''}{fxSource ? ` · fonte ${fxSource}` : ''}. Valores estimados; o valor em reais varia com o câmbio.
           </p>
         </article>
       </aside>
