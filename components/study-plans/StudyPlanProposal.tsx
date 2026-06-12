@@ -138,11 +138,13 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                       <span style={categoryTag}>{CATEGORY_LABEL[extra.category]}</span>
                     </td>
                     <td style={tdAmount}>{money(extra.amount)}</td>
+                    {fxRate && <td style={{ ...tdAmount, color: PURPLE, fontWeight: 700 }}>{formatBrl(extra.amount * fxRate)}</td>}
                   </tr>
                 ))}
                 <tr>
                   <td style={{ ...tdLabel, fontWeight: 800, color: INK }}>Subtotal adicionais</td>
                   <td style={{ ...tdAmount, fontWeight: 800, color: INK }}>{money(planExtrasTotal(data))}</td>
+                  {fxRate && <td style={{ ...tdAmount, fontWeight: 800, color: PURPLE }}>{formatBrl(planExtrasTotal(data) * fxRate)}</td>}
                 </tr>
               </tbody>
             </table>
@@ -157,7 +159,8 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                 <tr>
                   <th style={th}>Parcela</th>
                   <th style={{ ...th, textAlign: 'left' }}>Vencimento</th>
-                  <th style={{ ...th, textAlign: 'right' }}>Valor</th>
+                  <th style={{ ...th, textAlign: 'right' }}>Valor (AUD)</th>
+                  {fxRate && <th style={{ ...th, textAlign: 'right' }}>Valor (BRL)</th>}
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +169,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                     <td style={tdLabel}>{payment.item}</td>
                     <td style={{ ...tdLabel, color: MUTED }}>{payment.due || '—'}</td>
                     <td style={tdAmount}>{money(payment.amount)}</td>
+                    {fxRate && <td style={{ ...tdAmount, color: PURPLE }}>{formatBrl(payment.amount * fxRate)}</td>}
                   </tr>
                 ))}
               </tbody>
