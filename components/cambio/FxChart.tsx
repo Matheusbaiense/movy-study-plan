@@ -161,7 +161,7 @@ export function FxChart() {
               width="100%"
               height={H}
               preserveAspectRatio="none"
-              style={{ display: 'block', overflow: 'visible', touchAction: 'none', cursor: 'crosshair' }}
+              style={{ display: 'block', overflow: 'hidden', touchAction: 'none', cursor: 'crosshair' }}
               onPointerMove={(e) => onMove(e.clientX, e.currentTarget)}
               onPointerDown={(e) => onMove(e.clientX, e.currentTarget)}
               onPointerLeave={() => setHover(null)}
