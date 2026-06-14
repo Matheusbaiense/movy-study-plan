@@ -71,3 +71,25 @@
 - [2026-06-15] **SPLIT 0 done in two halves: code/types NOW, DB apply DEFERRED (blocked).** Wrote `migration 009` (organizations + org_id + `current_org_id()` + org-scoped RLS, seeded Movy org fixed UUID), aligned hand-maintained `types/supabase.ts` to the repo migrations (added study_plans/allowed_emails/course_presets/organizations + `study_plan_status` + org_id on profiles/audit_logs), quit ALL `as any` in the repo (narrow `as unknown as X` only at the `jsonb→StudyPlanData` and dynamic-`Record→Insert` seams), widened `logAuditWithClient` client param, and exposed `orgId` from `get-user.ts`. `type-check`+`build` green. **DB apply blocked:** canonical project is `xpthmguzcbmndyyexfbt` (per `.env.local`/types/code) but this session's Supabase MCP only reaches a different account whose sole ACTIVE project `movy-education` (`hvtywvtleoaeooffecrc`) has an INCOMPATIBLE minimal schema (no profiles/audit_logs/roles). Applying 009 there would fail. So 009 must be applied to `xpthmguzcbmndyyexfbt` via dashboard/owner (after confirming 001/008 applied), then ideally regen types. Did NOT mutate any DB.
 - [2026-06-15] **`types/supabase.ts` is hand-maintained, source-of-truth = repo migrations (not a live gen).** It claims "auto-generated" historically but diverged from every reachable live DB. Treat `supabase/migrations/*` as canonical; regenerate from `xpthmguzcbmndyyexfbt` only when that project is reachable, and diff against the hand-maintained version before overwriting.
 - [2026-06-15] **`movy-education` (`hvtywvtleoaeooffecrc`) is NOT the app's project** — it's a separate/experimental Supabase project with a minimal study_plans/allowed_emails schema. The app runs on `xpthmguzcbmndyyexfbt`. Don't apply Movy migrations to movy-education.
+
+## Decisão — Padrões de convergência Lago × woofed travados desde a v0 (2026-06-15)
+
+**Contexto:** cruzamento estrutural de Lago (billing/metering) e woofed-crm (CRM) com o domínio
+Movy (`docs/LAGO-WOOFED-CONVERGENCE.md`). Os três sistemas só convergem de verdade em: (1) dinheiro
+em unidade menor inteira + moeda; (2) cliente/tenant (`org_id` ↔ `accounts` ↔ `customers.external_id`);
+(3) uso de IA (`ai_usage {limit, tokens}`). woofed↔Movy = alta compat (Caminho B); Lago↔Movy = alta
+via API/eventos (nunca absorver schema); Lago↔woofed só se tocam pela Movy.
+
+**Decisão (regras v0, verificáveis em PR):**
+- R1 dinheiro `bigint` cents + `currency_code` por valor; nunca float persistido (P9).
+- R2 toda entidade de negócio: `org_id` + RLS + índice (P1).
+- R3 naming/semântica woofed; R4 unicidade por org (nunca global); R5 snapshot de preço/atributos.
+- R6 (NOVO) `metadata jsonb` em toda entidade de negócio.
+- R7 (NOVO) `external_id` nullable (único por org) nas entidades de borda.
+- R8 (NOVO) chave de idempotência determinística (estilo `transaction_id`) em ops que emitirão evento.
+- R9 `ai_usage {limit, tokens}` fixo + modelo `apps_ai_assistents`-shaped.
+- R10 três canais de evento separados: `audit_logs` ≠ `proposal_events` ≠ `events` do Lago (metering, v3).
+- R11 Customer/Invoice (Lago, agência) ≠ Contact/Proposta (Movy, aluno) — domínios distintos.
+
+**Não antecipar (v3+):** taxes, wallets, plans/charges, webhooks ricos, entitlements, pgvector/MCP.
+**Consequência:** SPLITs 0/1/2 ganham R6/R7/R8 (ver patches §6 de LAGO-WOOFED-CONVERGENCE.md).

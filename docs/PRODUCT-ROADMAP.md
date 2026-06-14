@@ -203,6 +203,27 @@ organizations
                  └─(referencia + snapshot)→ courses/price_versions, fx, computed
 ```
 
+### 3.7 Padrões de integração antecipados (convergência Lago × woofed) — NOVO
+
+Cruzamento estrutural completo em `docs/LAGO-WOOFED-CONVERGENCE.md`. Três eixos convergem nos
+três sistemas (Lago, woofed, Movy) e viram padrão **desde a v0** (custam barato agora, caro depois):
+
+1. **Dinheiro** em unidade menor inteira + `currency_code` por valor (P9 / SPLIT 1).
+2. **Tenant/cliente**: `org_id` ↔ `accounts` (woofed) ↔ `customers.external_id` (Lago) (SPLIT 0).
+3. **Uso de IA**: `ai_usage {limit, tokens}` como sinal medível (SPLIT 0/7).
+
+**Campos de integração reservados desde já (NOVO — não fechar a porta para CRM/billing futuros):**
+- **`metadata jsonb`** em toda entidade de negócio (≈ `additional_attributes` do woofed).
+- **`external_id` nullable** (único por org quando presente) nas entidades de borda
+  (`contacts`, `study_plans`, futuros `documents`) — espelha `customers.external_id` (Lago) e
+  `additional_attributes->>'chatwoot_id'` (woofed).
+- **Chave de idempotência determinística** (estilo `transaction_id` do Lago, derivável de
+  `id`+versão) nas operações que poderão emitir evento externo (uso de IA, mudança de proposta).
+
+**Armadilha de vocabulário:** "events" = coisas diferentes. Lago `events` = metering (v3);
+woofed `events` = timeline CRM; Movy `proposal_events` segue o woofed. `audit_logs` é auditoria
+de sistema, à parte. Nunca conflar os três.
+
 ---
 
 ## 4. Contratos centrais (interfaces estáveis)
@@ -285,6 +306,8 @@ não-split migradas sem regressão; restante folda nos splits 3/4/5.
 **Schema (migration 009):** `organizations` (+ seed Movy com **UUID determinístico/fixo**);
 `org_id` em `profiles`, `allowed_emails`, `audit_logs`, `study_plans`; `current_org_id()`;
 reescrever policies para incluir `org_id = current_org_id()`; default `org_id` = Movy.
+- **Campos de integração (antecipado, §3.7):** prever `metadata jsonb` e `external_id` nullable
+  ao introduzir entidades de negócio; reservar idempotência determinística para ops futuras.
 **Correções de robustez (do architecture-critic):**
 - **`current_org_id()` anti-recursão:** lê de `auth.jwt() → app_metadata.org_id` com fallback à
   query; `SECURITY DEFINER STABLE` + `search_path` fixo. Policy de `profiles` **não** pode chamar
@@ -304,6 +327,8 @@ type-check verde.
 ### SPLIT 1 — Engine de cálculo (fonte única + snapshot + dinheiro em centavos)
 **Objetivo:** P2 + P3 + P9. Consolidar cálculo, validar no servidor, definir `ComputedTotals`,
 **migrar dinheiro para centavos inteiros + moeda** (compatível woofed `*_in_cents`).
+`currency_code` acompanha **cada valor** persistido (não só a org) — fronteira Movy↔Lago é
+inteiro→inteiro (§3.7 / docs/LAGO-WOOFED-CONVERGENCE.md).
 **Arquivos:** `lib/study-plans/calculations.ts` (mantém puro; opera em centavos; adiciona
 `computeProposal`), novo `lib/calc/index.ts` (reexport/organização) e `lib/calc/money.ts`
 (helpers cents↔display, `Intl`), integrar `lib/financial/calculator.ts`, server action
@@ -326,6 +351,9 @@ referenciar `contact_id`. **Toda a evolução do modelo de proposta de uma vez.*
 `study_plans.contact_id` (+ `deal_id` reservado nullable); migrar `data.student/email/phone` →
 `contacts`; estender enum `study_plan_status`; `+computed`, `+currency_code`, `+expires_at`,
 `+accepted_at`, `+deleted_at`; `proposal_events`; policies (soft-delete, admin hard-delete).
+- **Antecipar (§3.7):** `contacts.external_id` (nullable, único por org) + `metadata jsonb` em
+  `contacts`/`study_plans`; `study_plans.computed` em cents+`currency_code` + chave idempotente
+  estável (p/ virar item faturável na v3 sem migração destrutiva). Sem criar invoice.
 **Arquivos:** `migrations/010_*.sql`, `lib/study-plans/types.ts` (status, options[], computed,
 contactRef), novo `lib/crm/contacts.ts` (tipos/queries), `study-plans/actions.ts` (duplicate,
 archive, softDelete, restore, hardDelete, changeStatus, upsertContact, emite `proposal_events`),
@@ -495,6 +523,10 @@ opcional: faz parte do split.
 CRM ativo / pipeline de vendas (será o **woofed-crm** — ver §3.6/§10.1); integrações com SEC,
 sistemas das escolas, ERPs; gateway de pagamento; assinatura eletrônica via terceiros
 (DocuSign/Adobe); e-mail marketing. Ficam para fase posterior, sobre esta fundação CRM-ready.
+
+**Futuro documentado (não acionável agora):** billing/metering usage-based via **Lago** —
+ver `docs/FUTURE-LAGO-V3.md` (avaliação) e `docs/LAGO-WOOFED-CONVERGENCE.md` (cruzamento
+estrutural Lago × woofed × Movy + padrões de engenharia travados desde a v0).
 
 ## 10. Decisões em aberto (precisam do dono do produto)
 
