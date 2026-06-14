@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createPreset, updatePreset, deletePreset, type PresetInput, type PresetResult } from './actions'
 import type { DbPreset } from '@/lib/study-plans/presets'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 const TYPE_LABEL: Record<string, string> = { elicos: 'ELICOS', vet: 'VET', he: 'Higher Education' }
 const TYPE_COLOR: Record<string, string> = { elicos: color.purple, vet: color.orange, he: color.gold }
@@ -96,11 +96,11 @@ function PresetRow({ preset, pending, onRun }: { preset: DbPreset; pending: bool
             payment_parts: p.payment_parts, payment_frequency: p.payment_frequency, deposit_weeks: p.deposit_weeks,
             has_material: p.has_material, timetable: p.timetable,
           }), 'Preset atualizado.')}
-          style={{ ...btn, background: dirty ? color.purpleDeep : '#fff', color: dirty ? '#fff' : ink(0.4), border: dirty ? 'none' : `1px solid ${color.line}`, cursor: pending || !dirty ? 'default' : 'pointer' }}
+          style={{ ...btn, background: dirty ? color.purpleDeep : 'var(--surface)', color: dirty ? '#fff' : ink(0.4), border: dirty ? 'none' : `1px solid ${color.line}`, cursor: pending || !dirty ? 'default' : 'pointer' }}
         >
           {dirty ? 'Salvar' : 'Salvo'}
         </button>
-        <button type="button" disabled={pending} onClick={() => { if (confirm(`Remover ${preset.provider} — ${preset.name}?`)) onRun(() => deletePreset(preset.id), 'Preset removido.') }} style={{ ...btn, background: '#fff', color: '#D23B2B', border: '1px solid rgba(210,59,43,0.3)' }}>
+        <button type="button" disabled={pending} onClick={() => { if (confirm(`Remover ${preset.provider} — ${preset.name}?`)) onRun(() => deletePreset(preset.id), 'Preset removido.') }} style={{ ...btn, background: 'var(--surface)', color: '#D23B2B', border: '1px solid rgba(210,59,43,0.3)' }}>
           Remover
         </button>
       </div>
@@ -116,7 +116,7 @@ function AddPreset({ type, pending, onRun }: { type: string; pending: boolean; o
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} style={{ ...btn, marginTop: 12, background: '#fff', color: color.purple, border: `1px dashed ${color.line}` }}>
+      <button type="button" onClick={() => setOpen(true)} style={{ ...btn, marginTop: 12, background: 'var(--surface)', color: color.purple, border: `1px dashed ${color.line}` }}>
         + Adicionar preset
       </button>
     )
@@ -142,7 +142,7 @@ function AddPreset({ type, pending, onRun }: { type: string; pending: boolean; o
       <Cell label="Curso"><input required style={input} value={name} onChange={(e) => setName(e.target.value)} /></Cell>
       <Cell label={isElicos ? 'Valor/semana' : 'Tuition total'}><Num value={price} onChange={setPrice} /></Cell>
       <button type="submit" disabled={pending} style={{ ...btn, background: color.purpleDeep, color: '#fff', border: 'none' }}>Criar</button>
-      <button type="button" onClick={() => setOpen(false)} style={{ ...btn, background: '#fff', color: ink(0.5), border: `1px solid ${color.line}` }}>Cancelar</button>
+      <button type="button" onClick={() => setOpen(false)} style={{ ...btn, background: 'var(--surface)', color: ink(0.5), border: `1px solid ${color.line}` }}>Cancelar</button>
     </form>
   )
 }
@@ -173,7 +173,7 @@ function Num({ value, onChange }: { value: number; onChange: (v: number) => void
 
 const input: React.CSSProperties = {
   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${color.line}`,
-  background: '#fff', fontSize: 13, color: color.purpleDeep, fontFamily: font.ui, outline: 'none',
+  background: 'var(--surface)', fontSize: 13, color: t.text, fontFamily: font.ui, outline: 'none',
 }
 const btn: React.CSSProperties = {
   padding: '8px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, fontFamily: font.ui, cursor: 'pointer',

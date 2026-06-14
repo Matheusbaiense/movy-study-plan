@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Tab {
   href: string
@@ -26,7 +26,7 @@ export function SettingsTabs({ tabs }: { tabs: Tab[] }) {
               fontSize: 13,
               fontWeight: active ? 800 : 600,
               fontFamily: font.display,
-              color: active ? color.purpleDeep : ink(0.55),
+              color: active ? t.text : ink(0.55),
               textDecoration: 'none',
               borderBottom: `2px solid ${active ? color.gold : 'transparent'}`,
               marginBottom: -1,

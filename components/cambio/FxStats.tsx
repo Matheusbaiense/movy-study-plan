@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Point { date: string; rate: number }
 
@@ -66,10 +66,10 @@ export function FxStats() {
 
           <div style={{ display: 'grid', gap: 12, fontSize: 13.5, color: ink(0.62), lineHeight: 1.6 }}>
             <p style={{ margin: 0 }}>
-              Nos <strong style={{ color: color.purpleDeep }}>últimos 30 dias</strong>, o AUD→BRL teve máxima de <strong style={{ color: color.purpleDeep }}>{fmt(s30.high)}</strong> e mínima de <strong style={{ color: color.purpleDeep }}>{fmt(s30.low)}</strong>, com média de {fmt(s30.avg)}. Variação de <strong style={{ color: s30.change >= 0 ? '#1F8A4C' : color.red }}>{s30.change.toFixed(2)}%</strong>.
+              Nos <strong style={{ color: t.text }}>últimos 30 dias</strong>, o AUD→BRL teve máxima de <strong style={{ color: t.text }}>{fmt(s30.high)}</strong> e mínima de <strong style={{ color: t.text }}>{fmt(s30.low)}</strong>, com média de {fmt(s30.avg)}. Variação de <strong style={{ color: s30.change >= 0 ? '#1F8A4C' : color.red }}>{s30.change.toFixed(2)}%</strong>.
             </p>
             <p style={{ margin: 0 }}>
-              Nos <strong style={{ color: color.purpleDeep }}>últimos 90 dias</strong>, máxima de <strong style={{ color: color.purpleDeep }}>{fmt(s90.high)}</strong> e mínima de <strong style={{ color: color.purpleDeep }}>{fmt(s90.low)}</strong>, média de {fmt(s90.avg)}. Variação de <strong style={{ color: s90.change >= 0 ? '#1F8A4C' : color.red }}>{s90.change.toFixed(2)}%</strong>.
+              Nos <strong style={{ color: t.text }}>últimos 90 dias</strong>, máxima de <strong style={{ color: t.text }}>{fmt(s90.high)}</strong> e mínima de <strong style={{ color: t.text }}>{fmt(s90.low)}</strong>, média de {fmt(s90.avg)}. Variação de <strong style={{ color: s90.change >= 0 ? '#1F8A4C' : color.red }}>{s90.change.toFixed(2)}%</strong>.
             </p>
           </div>
         </div>
@@ -82,8 +82,8 @@ function Row({ label, a, b, colorA, colorB }: { label: string; a: string; b: str
   return (
     <tr style={{ borderTop: `1px solid ${color.line}` }}>
       <td style={{ padding: '12px 0', color: ink(0.6), fontWeight: 600 }}>{label}</td>
-      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorA ?? color.purpleDeep }}>{a}</td>
-      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorB ?? color.purpleDeep }}>{b}</td>
+      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorA ?? t.text }}>{a}</td>
+      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorB ?? t.text }}>{b}</td>
     </tr>
   )
 }

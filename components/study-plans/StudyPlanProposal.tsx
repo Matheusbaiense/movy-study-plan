@@ -242,17 +242,22 @@ function HolidayPlanning({ data, schedule, visaDate }: { data: StudyPlanData; sc
       <div style={planningCard} className="proposal-block">
         {/* Sequential study/holiday bar */}
         <div style={{ display: 'flex', height: 26, borderRadius: 8, overflow: 'hidden', border: `1px solid ${HAIR}` }}>
-          {schedule.map((r) => (
+          {schedule.map((r, i) => (
             <div
               key={`${r.course.id}-${r.segment.id}`}
               title={`${r.segment.label} · ${r.weeks} sem`}
-              style={{ width: `${(r.weeks / totalWeeks) * 100}%`, minWidth: 2, background: r.segment.kind === 'study' ? PURPLE : GOLD }}
+              style={{
+                width: `${(r.weeks / totalWeeks) * 100}%`,
+                minWidth: 2,
+                background: r.segment.kind === 'study' ? `linear-gradient(90deg, #5B238E, #7A37B8)` : `linear-gradient(90deg, #D49200, #FBB615)`,
+                borderRight: i < schedule.length - 1 ? '1px solid #fff' : 'none'
+              }}
             />
           ))}
         </div>
         <div style={{ display: 'flex', gap: 18, marginTop: 10, fontSize: 12, color: MUTED }}>
-          <span><Dot color={PURPLE} /> Estudo · {planStudyWeeks(data)} sem</span>
-          <span><Dot color={GOLD} /> Férias · {planHolidayWeeks(data)} sem</span>
+          <span><Dot color="#5B238E" /> Estudo · {planStudyWeeks(data)} sem</span>
+          <span><Dot color="#FBB615" /> Férias · {planHolidayWeeks(data)} sem</span>
         </div>
 
         {/* Schedule list */}

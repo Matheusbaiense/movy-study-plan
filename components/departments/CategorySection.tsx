@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Item {
   id: string
@@ -53,7 +53,7 @@ export function CategorySection({ category, items, locale, deptColor, typeLabels
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', textDecoration: 'none', borderLeft: `3px solid ${deptColor}` }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: font.display, fontSize: 14.5, fontWeight: 700, letterSpacing: '-0.01em', color: color.purpleDeep }}>{titleFor(item)}</div>
+                <div style={{ fontFamily: font.display, fontSize: 14.5, fontWeight: 700, letterSpacing: '-0.01em', color: t.text }}>{titleFor(item)}</div>
                 <div style={{ fontFamily: font.mono, fontSize: 10.5, color: ink(0.45), marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   {typeLabels[item.content_type ?? ''] ?? item.content_type ?? '—'}
                   {item.read_minutes ? ` · ${item.read_minutes} min` : ''}

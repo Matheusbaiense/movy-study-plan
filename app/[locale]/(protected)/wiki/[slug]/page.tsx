@@ -102,7 +102,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
   return (
     <div>
       {/* Breadcrumbs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(28,18,51,0.55)', marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
         <Link href={`/${locale}/home`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
           {locale === 'pt' ? 'Início' : 'Home'}
         </Link>
@@ -111,7 +111,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
           {locale === 'en' ? 'Knowledge' : 'Informações'}
         </Link>
         <ChevronIcon />
-        <span style={{ color: '#2A1153', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>{title}</span>
+        <span style={{ color: 'var(--text)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>{title}</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'flex-start' }}>
@@ -148,11 +148,11 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
             </span>
           </div>
 
-          <h1 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(28px, 3.4vw, 40px)', fontWeight: 800, letterSpacing: '-0.035em', color: '#2A1153', lineHeight: 1.04 }}>
+          <h1 style={{ margin: '0 0 10px', fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 3.4vw, 40px)', fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--text)', lineHeight: 1.04 }}>
             {title}
           </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'rgba(28,18,51,0.6)', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>
             {updatedAt && (
               <span>{locale === 'pt' ? 'Atualizado em' : 'Updated'} {updatedAt}</span>
             )}
@@ -163,7 +163,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                   {content.tags.map((tag) => (
                     <span key={tag} style={{
                       fontSize: 11, padding: '2px 8px', borderRadius: 6,
-                      background: 'rgba(28,18,51,0.05)', color: 'rgba(28,18,51,0.7)', fontWeight: 500,
+                      background: 'rgba(var(--ink-rgb),0.06)', color: 'var(--text-muted)', fontWeight: 500,
                     }}>#{tag}</span>
                   ))}
                 </div>
@@ -183,15 +183,15 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
 
           {/* Edit/delete actions */}
           {canEdit && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(28,18,51,0.06)' }}>
+            <div style={{ display: 'flex', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
               <Link
                 href={`/${locale}/wiki/${slug}/edit`}
                 prefetch={false}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '8px 14px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-                  background: 'rgba(28,18,51,0.05)', color: '#2A1153', border: '1px solid transparent',
-                  textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
+                  background: 'rgba(var(--ink-rgb),0.06)', color: 'var(--text)', border: '1px solid transparent',
+                  textDecoration: 'none', fontFamily: 'var(--font-body)',
                 }}
               >
                 <EditIcon />
@@ -225,7 +225,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                         background: 'transparent', textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
                       }}
                     >
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#2A1153', marginBottom: 2 }}>{rTitle}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{rTitle}</div>
                     </Link>
                   )
                 })}
@@ -240,8 +240,8 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
               prefetch={false}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontSize: 13, fontWeight: 500, color: 'rgba(28,18,51,0.7)',
-                textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
+                fontSize: 13, fontWeight: 500, color: 'var(--text-muted)',
+                textDecoration: 'none', fontFamily: 'var(--font-body)',
               }}
             >
               <BackIcon />

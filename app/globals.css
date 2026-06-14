@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
 
 :root {
-  /* Movy Education brand palette (Brand Guide 2026) */
+  /* ── Brand accents — fixed in BOTH themes (the one constraint we keep) ── */
   --movy-purple: #4B1A77;
   --movy-purple-mid: #3A1560;
   --movy-purple-deep: #2A1153;
@@ -14,27 +15,81 @@
   --movy-gold-soft: #FFC51C;
   --movy-orange: #F36B1C;
   --movy-red: #D23B2B;
-  --movy-ink: #1C1233;
-  --movy-ink-soft: #5A4E72;
-  --movy-paper: #F8F7FB;
-  --movy-lilac: #EFE9F6;
-  --movy-lilac-2: #E6DCF3;
-  --movy-line: #E0D6EE;
-  /* compatibility aliases */
-  --movy-dark: #2A1153;
-  --movy-green: #4B1A77;
-  --movy-bg: #F8F7FB;
-  --movy-light: #F9F9F9;
+
+  /* ── Typography ── */
+  --font-display: 'Clash Display', 'Outfit', system-ui, sans-serif;
+  --font-body: 'Satoshi', 'Outfit', system-ui, sans-serif;
+  --font-mono: 'Satoshi', ui-monospace, system-ui, sans-serif;
+
+  /* ── Radii / motion ── */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 18px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===========================================================================
+   THEME TOKENS — semantic, theme-aware. Components read these (directly or via
+   lib/ui/theme.ts) so the whole app flips with one [data-theme] switch.
+   --ink-rgb powers the ink(a) helper (text/border tints at any opacity).
+============================================================================ */
+:root,
+[data-theme='light'] {
+  --bg: #FAF9FC;
+  --bg-grid: rgba(42, 17, 83, 0.045);
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #F4F2F9;
+  --border: #ECE7F4;
+  --border-strong: #DDD5EC;
+  --text: #1A1330;
+  --text-muted: #67617C;
+  --text-subtle: #9B94AD;
+  --ink-rgb: 26, 19, 48;
+  --accent: var(--movy-purple);
+  --accent-contrast: #FFFFFF;
+  --shadow-card: 0 1px 2px rgba(42, 17, 83, 0.04);
+  --shadow-lift: 0 18px 40px -24px rgba(42, 17, 83, 0.45);
+  /* Sidebar stays the deep-purple brand rail in both themes */
+  --rail: linear-gradient(180deg, #2A1153 0%, #1E0D44 64%, #190A38 100%);
+  --rail-border: rgba(255, 255, 255, 0.07);
+  --bar-bg: rgba(250, 249, 252, 0.78);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #120826;
+  --bg-grid: rgba(255, 255, 255, 0.035);
+  --surface: #1A0F3A;
+  --surface-raised: #20144A;
+  --surface-sunken: #150B30;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #F3F0FB;
+  --text-muted: #B3AAD0;
+  --text-subtle: #7E76A0;
+  --ink-rgb: 243, 240, 251;
+  --accent: var(--movy-gold);
+  --accent-contrast: #1A0F3A;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 24px 50px -28px rgba(0, 0, 0, 0.7);
+  --rail: linear-gradient(180deg, #1E0D44 0%, #190A38 60%, #120826 100%);
+  --rail-border: rgba(255, 255, 255, 0.08);
+  --bar-bg: rgba(18, 8, 38, 0.72);
+  color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  background-color: var(--bg);
+}
+
 body {
-  font-family: 'Manrope', system-ui, sans-serif;
-  background-color: #F8F7FB;
-  color: #1C1233;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
 /* ---------------------------------------------------------------------------
@@ -52,69 +107,69 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: radial-gradient(rgba(42, 17, 83, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
+  background-size: 26px 26px;
   background-position: -1px -1px;
-  mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.25));
-  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.25));
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
 }
 .movy-atmosphere > * {
   position: relative;
   z-index: 1;
 }
 
-/* Surface primitives — editorial: flat, hairline-ruled, structure over shadow. */
+/* Surface primitives — theme-aware, hairline-ruled, structure over shadow. */
 .movy-card {
-  background: #fff;
-  border: 1px solid #E0D6EE;
-  border-radius: 12px;
-  box-shadow: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
 }
 .movy-card--hover {
-  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .movy-card--hover:hover {
   transform: translateY(-2px);
-  border-color: #2A1153;
-  box-shadow: 0 10px 28px -18px rgba(42, 17, 83, 0.45);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lift);
 }
 
-/* Hairline rule between editorial sections */
+/* Hairline rule between sections */
 .movy-rule {
   height: 1px;
-  background: #E0D6EE;
+  background: var(--border);
   border: 0;
 }
 
-/* Kicker — Space Mono, wide tracking, sunset orange. The brand's signature
-   label voice (Brand Guide p.19: .42em, orange on light / gold on dark). */
+/* Kicker — refined uppercase label in the body font. Restrained tracking,
+   accent colour. (Replaces the old Space Mono signature.) */
 .movy-kicker {
-  font-family: 'Space Mono', ui-monospace, monospace;
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #F36B1C;
+  color: var(--movy-orange);
 }
-.movy-kicker--gold {
-  color: #FBB615;
-}
+.movy-kicker--gold { color: var(--movy-gold); }
+.movy-kicker--muted { color: var(--text-subtle); }
 
-/* Display — Outfit ExtraBold, geometric & confident, echoes the wordmark */
+/* Display — Clash Display, confident geometric headline face */
 .movy-display {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 0.98;
+  color: var(--text);
 }
 
-/* Lead paragraph — the brand's intro voice (21px, ink-soft, medium) */
+/* Lead paragraph — intro voice */
 .movy-lead {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 21px;
+  font-family: var(--font-body);
+  font-size: 19px;
   font-weight: 500;
   line-height: 1.55;
-  color: #5A4E72;
+  color: var(--text-muted);
 }
 
 /* Page-load orchestration: staggered rise. Wrap a section in .movy-stagger
@@ -196,27 +251,28 @@ button:focus-visible,
 .wiki-content h1,
 .wiki-content h2,
 .wiki-content h3 {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-display);
   font-weight: 600;
-  color: #2A1153;
+  color: var(--text);
   letter-spacing: -0.01em;
 }
 
 .wiki-content p {
-  color: rgba(28, 18, 51, 0.82);
+  color: var(--text-muted);
   line-height: 1.7;
 }
 
 .wiki-content code {
-  background: rgba(28, 18, 51, 0.05);
+  background: rgba(var(--ink-rgb), 0.06);
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 0.875em;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: ui-monospace, monospace;
+  color: var(--text);
 }
 
 .wiki-content a {
-  color: #4B1A77;
+  color: var(--accent);
 }
 
 /* Scrollbar */
@@ -228,22 +284,22 @@ button:focus-visible,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(28, 18, 51, 0.15);
+  background: rgba(var(--ink-rgb), 0.18);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(28, 18, 51, 0.3);
+  background: rgba(var(--ink-rgb), 0.32);
 }
 
 /* Prose styles for block-based wiki content */
-.movy-prose h2 { font-family: Outfit, sans-serif; font-size: 22px; font-weight: 700; color: #2A1153; margin: 28px 0 12px; letter-spacing: -0.015em; border-bottom: 2px solid rgba(28,18,51,0.06); padding-bottom: 8px; }
-.movy-prose h3 { font-family: Outfit, sans-serif; font-size: 18px; font-weight: 600; color: #2A1153; margin: 22px 0 8px; letter-spacing: -0.01em; }
-.movy-prose p { margin: 0 0 14px; color: rgba(28,18,51,0.82); font-size: 15px; line-height: 1.75; }
-.movy-prose ul, .movy-prose ol { margin: 0 0 14px; padding-left: 24px; color: rgba(28,18,51,0.82); }
+.movy-prose h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text); margin: 28px 0 12px; letter-spacing: -0.015em; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.movy-prose h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text); margin: 22px 0 8px; letter-spacing: -0.01em; }
+.movy-prose p { margin: 0 0 14px; color: var(--text-muted); font-size: 15px; line-height: 1.75; }
+.movy-prose ul, .movy-prose ol { margin: 0 0 14px; padding-left: 24px; color: var(--text-muted); }
 .movy-prose li { margin: 6px 0; font-size: 15px; line-height: 1.6; }
-.movy-prose code { background: rgba(28,18,51,0.05); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: ui-monospace, monospace; }
-.movy-prose a { color: #4B1A77; text-decoration: underline; }
-.movy-prose strong { font-weight: 600; color: #2A1153; }
+.movy-prose code { background: rgba(var(--ink-rgb),0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: ui-monospace, monospace; }
+.movy-prose a { color: var(--accent); text-decoration: underline; }
+.movy-prose strong { font-weight: 700; color: var(--text); }
 
 /* Login animation */
 @keyframes movy-spin {

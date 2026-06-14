@@ -4,7 +4,7 @@ export function TableBlock({ block }: { block: TableBlockType }) {
   return (
     <div style={{
       margin: '20px 0', overflowX: 'auto', borderRadius: 10,
-      border: '1px solid rgba(28,18,51,0.1)',
+      border: '1px solid var(--border)',
     }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
         <thead>
@@ -25,13 +25,13 @@ export function TableBlock({ block }: { block: TableBlockType }) {
         </thead>
         <tbody>
           {block.rows.map((row, i) => (
-            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'rgba(28,18,51,0.02)' }}>
+            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface)' : 'rgba(var(--ink-rgb),0.03)' }}>
               {row.map((cell, j) => (
                 <td
                   key={j}
                   style={{
-                    padding: '9px 14px', color: '#2A1153',
-                    borderBottom: '1px solid rgba(28,18,51,0.05)',
+                    padding: '9px 14px', color: 'var(--text)',
+                    borderBottom: '1px solid var(--border)',
                   }}
                 >
                   {cell}

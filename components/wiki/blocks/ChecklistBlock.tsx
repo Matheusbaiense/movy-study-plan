@@ -37,26 +37,26 @@ export function ChecklistBlock({ block, contentId, initialChecked = [] }: Props)
 
   return (
     <div style={{
-      margin: '20px 0', background: '#fff', borderRadius: 14,
-      border: '1px solid rgba(28,18,51,0.08)', overflow: 'hidden',
+      margin: '20px 0', background: 'var(--surface)', borderRadius: 14,
+      border: '1px solid var(--border)', overflow: 'hidden',
     }}>
       <div style={{
-        padding: '12px 16px', borderBottom: '1px solid rgba(28,18,51,0.06)',
+        padding: '12px 16px', borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#2A1153' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
           {block.title ?? 'Checklist'}
         </span>
         <span style={{
           fontSize: 12, fontWeight: 600,
-          color: done === total ? '#4B1A77' : 'rgba(28,18,51,0.4)',
+          color: done === total ? 'var(--movy-purple)' : 'var(--text-subtle)',
         }}>
           {done}/{total}
         </span>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'rgba(28,18,51,0.06)' }}>
+      <div style={{ height: 3, background: 'rgba(var(--ink-rgb),0.08)' }}>
         <div style={{
           height: '100%',
           width: `${total > 0 ? (done / total) * 100 : 0}%`,
@@ -82,7 +82,7 @@ export function ChecklistBlock({ block, contentId, initialChecked = [] }: Props)
             />
             <span style={{
               fontSize: 14, lineHeight: 1.4,
-              color: checked.has(item.id) ? 'rgba(28,18,51,0.4)' : '#2A1153',
+              color: checked.has(item.id) ? 'var(--text-subtle)' : 'var(--text)',
               textDecoration: checked.has(item.id) ? 'line-through' : 'none',
             }}>
               {item.label}

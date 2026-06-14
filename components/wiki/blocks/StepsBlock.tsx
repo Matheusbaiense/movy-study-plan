@@ -6,7 +6,7 @@ export function StepsBlock({ block }: { block: StepsBlockType }) {
   return (
     <div style={{ margin: '20px 0' }}>
       {block.title && (
-        <h4 style={{ fontSize: 14, fontWeight: 600, color: '#2A1153', marginBottom: 12 }}>
+        <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 12 }}>
           {block.title}
         </h4>
       )}
@@ -16,8 +16,8 @@ export function StepsBlock({ block }: { block: StepsBlockType }) {
             key={i}
             style={{
               display: 'flex', gap: 14, padding: '14px 16px',
-              background: '#fff', borderRadius: 12,
-              border: '1px solid rgba(28,18,51,0.07)',
+              background: 'var(--surface)', borderRadius: 12,
+              border: '1px solid var(--border)',
               transition: 'border-color 0.15s',
             }}
           >
@@ -31,14 +31,14 @@ export function StepsBlock({ block }: { block: StepsBlockType }) {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{
-                fontSize: 14, fontWeight: 600, color: '#2A1153',
+                fontSize: 14, fontWeight: 600, color: 'var(--text)',
                 marginBottom: step.body ? 4 : 0,
               }}>
                 {step.title}
               </div>
               {step.body && (
                 <div
-                  style={{ fontSize: 13, color: 'rgba(28,18,51,0.6)', lineHeight: 1.5 }}
+                  style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}
                   dangerouslySetInnerHTML={{ __html: step.body }}
                 />
               )}

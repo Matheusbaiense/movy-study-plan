@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Point { date: string; rate: number }
 interface History { points: Point[]; source: string }
@@ -123,7 +123,7 @@ export function FxChart() {
         <div>
           <span className="movy-kicker">1 AUD em Real {active ? '· no dia' : ''}</span>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 8 }}>
-            <span style={{ fontFamily: font.display, fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep, lineHeight: 1 }}>
+            <span style={{ fontFamily: font.display, fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 600, letterSpacing: '-0.03em', color: t.text, lineHeight: 1 }}>
               R$ {headRate ? fmtRate(headRate) : '—'}
             </span>
             {!active && current?.feePct != null && current.mid != null && (
@@ -153,8 +153,8 @@ export function FxChart() {
                 onClick={() => setDays(r.days)}
                 style={{
                   padding: '6px 13px', borderRadius: 999, fontSize: 12, fontWeight: 700, fontFamily: font.ui, cursor: 'pointer',
-                  border: `1px solid ${days === r.days ? color.purpleDeep : color.line}`,
-                  background: days === r.days ? color.purpleDeep : '#fff',
+                  border: `1px solid ${days === r.days ? color.purpleDeep : t.border}`,
+                  background: days === r.days ? color.purpleDeep : t.surface,
                   color: days === r.days ? '#fff' : ink(0.6),
                 }}
               >
@@ -186,8 +186,8 @@ export function FxChart() {
                     <stop offset="1" stopColor={color.purple} stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                {geo.ticks.map((t) => (
-                  <line key={t} x1={0} y1={geo.y(t)} x2={w} y2={geo.y(t)} stroke={ink(0.08)} strokeWidth="1" />
+                {geo.ticks.map((tick) => (
+                  <line key={tick} x1={0} y1={geo.y(tick)} x2={w} y2={geo.y(tick)} stroke={ink(0.08)} strokeWidth="1" />
                 ))}
                 <polygon points={geo.area} fill="url(#fxArea)" />
                 <polyline points={geo.line} fill="none" stroke={color.purple} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
@@ -200,9 +200,9 @@ export function FxChart() {
                 )}
               </svg>
 
-              {geo.ticks.map((t) => (
-                <span key={t} style={{ position: 'absolute', right: 0, top: geo.y(t), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, color: ink(0.5), background: '#fff', padding: '1px 4px', borderRadius: 3, pointerEvents: 'none' }}>
-                  {fmtRate(t)}
+              {geo.ticks.map((tick) => (
+                <span key={tick} style={{ position: 'absolute', right: 0, top: geo.y(tick), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, color: ink(0.55), background: t.surface, padding: '1px 4px', borderRadius: 3, pointerEvents: 'none' }}>
+                  {fmtRate(tick)}
                 </span>
               ))}
 

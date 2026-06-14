@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 const AMOUNTS = [1, 5, 10, 20, 50, 100, 250, 500, 1000, 2000, 5000, 10000]
 const money = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -56,7 +56,7 @@ function Table({ head, rows }: { head: [string, string]; rows: string[][] }) {
         {rows.map((r, i) => (
           <tr key={i} style={{ borderTop: `1px solid ${ink(0.06)}` }}>
             <td style={{ padding: '9px 0', color: ink(0.7), fontFamily: font.ui }}>{r[0]}</td>
-            <td style={{ padding: '9px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 700, color: color.purpleDeep }}>{r[1]}</td>
+            <td style={{ padding: '9px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 700, color: t.text }}>{r[1]}</td>
           </tr>
         ))}
       </tbody>

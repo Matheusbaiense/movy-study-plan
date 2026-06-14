@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
@@ -43,7 +43,7 @@ import {
 } from '@/lib/study-plans/calculations'
 import type { ApplicantType, CourseType, ElicosModule, StudentLocation, StudyCourse, StudyPlanData, Timetable } from '@/lib/study-plans/types'
 import type { PresetOption } from '@/lib/study-plans/presets'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Props {
   id: string
@@ -201,7 +201,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
           <div>
             <span className="movy-kicker">Proposta</span>
-            <h1 style={{ margin: '8px 0 0', fontFamily: font.display, fontSize: 'clamp(26px, 3.2vw, 38px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: color.purpleDeep }}>
+            <h1 style={{ margin: '8px 0 0', fontFamily: font.display, fontSize: 'clamp(26px, 3.2vw, 38px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: t.text }}>
               {plan.student || 'Cotação sem estudante'}
             </h1>
             <p style={{ margin: '10px 0 0', fontFamily: font.mono, fontSize: 12, color: ink(0.5), letterSpacing: '0.02em' }}>
@@ -268,7 +268,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
         >
           <div style={{ display: 'grid', gap: 14 }}>
             {plan.courses.map((course, courseIndex) => (
-              <div key={course.id} style={{ border: '1px solid rgba(28,18,51,0.09)', borderRadius: 14, padding: 16 }}>
+              <div key={course.id} style={{ border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                   <span style={{ ...pill, background: `${COURSE_TYPES[course.type].color}18`, color: COURSE_TYPES[course.type].color }}>
                     #{courseIndex + 1} {COURSE_TYPES[course.type].label}
@@ -293,57 +293,71 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
                   </button>
                 </div>
 
-                <div style={grid2}>
-                  <Field label="Escola / provedor"><input style={input} value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
-                  <Field label="Curso"><input style={input} value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
-                  <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
-                    <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
-                  </Field>
-                  <Field label="Turno">
-                    <select style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
-                      {(['Manha', 'Tarde', 'Noite'] as Timetable[]).map((t) => <option key={t} value={t}>{timetableLabels[t]}</option>)}
-                    </select>
-                  </Field>
-                  {course.type !== 'elicos' && (
-                    <Field label="Tuition total"><NumberInput value={course.tuition} onChange={(value) => updateCourse(course.id, { tuition: value })} /></Field>
-                  )}
-                  <Field label="Matrícula"><NumberInput value={course.enrolmentFee} onChange={(value) => updateCourse(course.id, { enrolmentFee: value })} /></Field>
-                  {course.type !== 'he' && (
-                    <Field label={course.type === 'vet' ? 'Material (opcional)' : 'Material'}>
-                      <NumberInput value={course.materialFee} onChange={(value) => updateCourse(course.id, { materialFee: value })} />
+                <div style={{ display: 'grid', gap: 16 }}>
+                  {/* Bloco 1: Dados Básicos */}
+                  <div style={grid2}>
+                    <Field label="Escola / provedor"><input style={input} value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
+                    <Field label="Curso"><input style={input} value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
+                    <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
+                      <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
                     </Field>
-                  )}
-                  <Field label="Bolsa / desconto"><NumberInput value={course.scholarship} onChange={(value) => updateCourse(course.id, { scholarship: value })} /></Field>
-                </div>
-
-                {course.type !== 'elicos' && (
-                  <div className="course-type-panel">
-                    <Field label="Duração do curso (semanas)">
-                      <NumberInput
-                        value={course.segments.find((segment) => segment.kind === 'study')?.weeks ?? courseStudyWeeks(course)}
-                        onChange={(value) => updateStandardCourseDuration(course, { studyWeeks: value })}
-                      />
+                    <Field label="Turno">
+                      <select style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
+                        {(['Manha', 'Tarde', 'Noite'] as Timetable[]).map((t) => <option key={t} value={t}>{timetableLabels[t]}</option>)}
+                      </select>
                     </Field>
-                    <Field label="Férias no CoE (semanas)">
-                      <NumberInput
-                        value={course.segments.find((segment) => segment.kind === 'holiday')?.weeks ?? 0}
-                        onChange={(value) => updateStandardCourseDuration(course, { holidayWeeks: value })}
-                      />
-                    </Field>
-                    {course.type === 'vet' && (
-                      <Field label="Material cobrado pela escola">
-                        <select
-                          style={input}
-                          value={course.hasMaterial ? 'yes' : 'no'}
-                          onChange={(e) => updateCourse(course.id, { hasMaterial: e.target.value === 'yes' })}
-                        >
-                          <option value="no">Não</option>
-                          <option value="yes">Sim</option>
-                        </select>
-                      </Field>
-                    )}
                   </div>
-                )}
+
+                  {/* Bloco 2: Financeiro */}
+                  <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface-sunken)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Taxas & Custos</div>
+                    <div style={grid2}>
+                      <Field label="Matrícula (Enrolment)"><NumberInput value={course.enrolmentFee} onChange={(value) => updateCourse(course.id, { enrolmentFee: value })} /></Field>
+                      {course.type !== 'elicos' && (
+                        <Field label="Tuition total"><NumberInput value={course.tuition} onChange={(value) => updateCourse(course.id, { tuition: value })} /></Field>
+                      )}
+                      {course.type !== 'he' && (
+                        <Field label={course.type === 'vet' ? 'Material (Extra/Opcional)' : 'Material'}>
+                          <NumberInput value={course.materialFee} onChange={(value) => updateCourse(course.id, { materialFee: value })} />
+                        </Field>
+                      )}
+                      <Field label="Bolsa / desconto"><NumberInput value={course.scholarship} onChange={(value) => updateCourse(course.id, { scholarship: value })} /></Field>
+                    </div>
+                  </div>
+
+                  {/* Bloco 3: Estrutura (VET/HE) */}
+                  {course.type !== 'elicos' && (
+                    <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface-sunken)' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Estrutura do Curso</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                        <Field label="Duração do curso (semanas)">
+                          <NumberInput
+                            value={course.segments.find((segment) => segment.kind === 'study')?.weeks ?? courseStudyWeeks(course)}
+                            onChange={(value) => updateStandardCourseDuration(course, { studyWeeks: value })}
+                          />
+                        </Field>
+                        <Field label="Férias no CoE (semanas)">
+                          <NumberInput
+                            value={course.segments.find((segment) => segment.kind === 'holiday')?.weeks ?? 0}
+                            onChange={(value) => updateStandardCourseDuration(course, { holidayWeeks: value })}
+                          />
+                        </Field>
+                        {course.type === 'vet' && (
+                          <Field label="Cobrar material da escola?">
+                            <select
+                              style={input}
+                              value={course.hasMaterial ? 'yes' : 'no'}
+                              onChange={(e) => updateCourse(course.id, { hasMaterial: e.target.value === 'yes' })}
+                            >
+                              <option value="no">Não</option>
+                              <option value="yes">Sim, no Tuition</option>
+                            </select>
+                          </Field>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {courseIndex > 0 && (
                   <div style={{ marginTop: 12 }}>
@@ -439,8 +453,8 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
             {plan.courses.map((course) => {
               const blocked = !courseCanInstallment(course, plan.studentLocation)
               return (
-                <div key={course.id} style={{ border: '1px solid rgba(28,18,51,0.08)', borderRadius: 12, padding: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: '#2A1153', marginBottom: 10 }}>
+                <div key={course.id} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>
                     {course.provider || COURSE_TYPES[course.type].label} | {COURSE_TYPES[course.type].label}
                   </div>
                   {blocked ? (
@@ -492,9 +506,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
         <SummaryCard title="Cronograma">
           <div style={{ display: 'grid', gap: 9 }}>
             {schedule.slice(0, 8).map((row) => (
-              <div key={`${row.course.id}-${row.segment.id}`} style={{ display: 'grid', gap: 2, borderBottom: '1px solid rgba(28,18,51,0.06)', paddingBottom: 8 }}>
+              <div key={`${row.course.id}-${row.segment.id}`} style={{ display: 'grid', gap: 2, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
                 <strong style={{ fontSize: 12 }}>{row.segment.label}</strong>
-                <span style={{ color: 'rgba(28,18,51,0.56)', fontSize: 11 }}>{formatDate(row.start)} - {formatDate(row.end)} | {row.weeks} sem</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>{formatDate(row.start)} - {formatDate(row.end)} | {row.weeks} sem</span>
               </div>
             ))}
           </div>
@@ -530,7 +544,7 @@ function SummaryCard({ title, children }: { title: string; children: React.React
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: 'grid', gap: 6 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(28,18,51,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
       {children}
     </label>
   )
@@ -544,7 +558,7 @@ function MiniStat({ label, value, strong = false }: { label: string; value: stri
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline' }}>
       <span style={{ color: ink(0.52), fontSize: 12 }}>{label}</span>
-      <strong style={{ fontFamily: font.display, color: strong ? color.purple : color.purpleDeep, fontSize: strong ? 16 : 13, letterSpacing: strong ? '-0.01em' : 0 }}>{value}</strong>
+      <strong style={{ fontFamily: font.display, color: strong ? color.purple : t.text, fontSize: strong ? 16 : 13, letterSpacing: strong ? '-0.01em' : 0 }}>{value}</strong>
     </div>
   )
 }
@@ -566,7 +580,7 @@ function ModuleEditor({
     onChange(modules.map((m) => m.id === moduleId ? { ...m, ...patch } : m))
   }
   return (
-    <div style={{ marginTop: 12, border: '1px dashed rgba(28,18,51,0.16)', borderRadius: 12, padding: 12 }}>
+    <div style={{ marginTop: 12, border: '1px dashed var(--border-strong)', borderRadius: 12, padding: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <span className="movy-kicker" style={{ fontSize: 11 }}>
           Módulos de inglês · {studyWeeksBeforeHoliday} estudo + {holidayWeeks} férias
@@ -575,7 +589,7 @@ function ModuleEditor({
       </div>
       {modules.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px auto', gap: 8, marginBottom: 6 }}>
-          {MODULE_HEADER.map((h) => <span key={h} style={{ fontSize: 10, fontWeight: 700, color: 'rgba(28,18,51,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>)}
+          {MODULE_HEADER.map((h) => <span key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>)}
           <span />
         </div>
       )}
@@ -590,9 +604,9 @@ function ModuleEditor({
             <button type="button" style={dangerButton} onClick={() => onChange(modules.filter((x) => x.id !== m.id))}>x</button>
           </div>
         ))}
-        {modules.length === 0 && <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Adicione ao menos um módulo (ex.: General English).</span>}
+        {modules.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Adicione ao menos um módulo (ex.: General English).</span>}
       </div>
-      <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>Tuition do ELICOS = soma de semanas por valor semanal dos módulos.</div>
+      <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>Tuition do ELICOS = soma de semanas por valor semanal dos módulos.</div>
     </div>
   )
 }
@@ -602,7 +616,7 @@ const TIMELINE_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago',
 function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string }) {
   const rows = useMemo(() => buildSchedule(plan).filter((r) => r.start && r.end), [plan])
   if (rows.length === 0) {
-    return <span style={{ fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>Defina a data de inicio do primeiro curso para ver a linha do tempo.</span>
+    return <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Defina a data de inicio do primeiro curso para ver a linha do tempo.</span>
   }
   const rangeStart = rows[0].start
   const lastEnd = rows[rows.length - 1].end
@@ -653,7 +667,7 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
                     style={{ left: `${left}%`, width: `${width}%` }}
                     title={`${row.segment.label} | ${row.weeks} sem | ${formatDate(row.start)} - ${formatDate(row.end)}`}
                   />
-                  {row.end === coe && <Marker left={Math.min(99.4, pct(coe))} color="#2A1153" label="CoE" />}
+                  {row.end === coe && <Marker left={Math.min(99.4, pct(coe))} color="var(--text)" label="CoE" />}
                   {visaDate && row === rows[rows.length - 1] && <Marker left={Math.min(99.4, pct(visaDate))} color="#FBB615" label="Visto" />}
                 </div>
               </div>
@@ -662,10 +676,10 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'rgba(28,18,51,0.55)', flexWrap: 'wrap' }}>
-        <span><Dot color="#4B1A77" /> Estudo</span>
+      <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-muted)', flexWrap: 'wrap' }}>
+        <span><Dot color="#6C35A4" /> Estudo</span>
         <span><Dot color="#FBB615" /> Férias</span>
-        <span><Dot color="#2A1153" /> Fim do curso</span>
+        <span><Dot color="var(--text)" /> Fim do curso</span>
         <span><Dot color="#FBB615" border /> Visto</span>
       </div>
     </div>
@@ -675,23 +689,23 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
 function Marker({ left, color, label }: { left: number; color: string; label: string }) {
   return (
     <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${left}%`, width: 0, borderLeft: `2px dashed ${color}` }}>
-      <span style={{ position: 'absolute', top: -1, left: 4, fontSize: 9.5, fontWeight: 800, background: '#fff', padding: '1px 4px', borderRadius: 4, border: '1px solid rgba(28,18,51,0.10)', whiteSpace: 'nowrap' }}>{label}</span>
+      <span style={{ position: 'absolute', top: -1, left: 4, fontSize: 9.5, fontWeight: 800, background: 'var(--surface)', padding: '1px 4px', borderRadius: 4, border: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{label}</span>
     </div>
   )
 }
 
 function Dot({ color, border = false }: { color: string; border?: boolean }) {
-  return <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: color, border: border ? '1px solid #2A1153' : 'none', verticalAlign: -1, marginRight: 6 }} />
+  return <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: color, border: border ? '1px solid var(--text)' : 'none', verticalAlign: -1, marginRight: 6 }} />
 }
 
-const HAIR = '#E0D6EE'
+const HAIR = 'var(--border)'
 const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }
-const input = { width: '100%', border: `1px solid ${HAIR}`, borderRadius: 9, padding: '10px 11px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: '#2A1153', background: '#fff', outline: 'none' }
+const input = { width: '100%', border: `1px solid ${HAIR}`, borderRadius: 9, padding: '10px 11px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: 'var(--text)', background: 'var(--surface)', outline: 'none' }
 const primaryButton = { border: 0, borderRadius: 10, padding: '11px 18px', background: '#F36B1C', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
-const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
-const ghostButton = { border: `1px solid ${HAIR}`, borderRadius: 9, padding: '8px 12px', background: '#fff', color: '#2A1153', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
+const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
+const ghostButton = { border: `1px solid ${HAIR}`, borderRadius: 9, padding: '8px 12px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
 const dangerButton = { ...ghostButton, color: '#D23B2B' }
-const pill = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800, fontFamily: 'Space Mono, monospace', letterSpacing: '0.04em' }
+const pill = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800, fontFamily: 'var(--font-body)', letterSpacing: '0.04em' }
 const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#D23B2B', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
 
 const editorStyles = `
@@ -729,9 +743,9 @@ const editorStyles = `
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
   padding: 12px;
-  border: 1px solid rgba(28,18,51,0.08);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #FBFAFE;
+  background: var(--surface-sunken);
 }
 .timeline-shell {
   display: grid;
@@ -742,9 +756,9 @@ const editorStyles = `
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
   padding: 10px;
-  border: 1px solid rgba(28,18,51,0.08);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #FBFAFE;
+  background: var(--surface-sunken);
 }
 .timeline-scroll {
   overflow-x: auto;
@@ -763,7 +777,7 @@ const editorStyles = `
   position: absolute;
   top: 2px;
   transform: translateX(-1px);
-  color: rgba(28,18,51,0.52);
+  color: var(--text-muted);
   font-family: Space Mono, ui-monospace, monospace;
   font-size: 10px;
   white-space: nowrap;
@@ -774,7 +788,7 @@ const editorStyles = `
   gap: 10px;
   align-items: center;
   padding: 7px 0;
-  border-bottom: 1px solid rgba(28,18,51,0.06);
+  border-bottom: 1px solid var(--border);
 }
 .timeline-row-label {
   display: grid;
@@ -782,37 +796,32 @@ const editorStyles = `
   min-width: 0;
 }
 .timeline-row-label strong {
-  color: #2A1153;
+  color: var(--text);
   font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .timeline-row-label span {
-  color: rgba(28,18,51,0.55);
+  color: var(--text-muted);
   font-size: 10.5px;
 }
 .timeline-track {
   position: relative;
   height: 28px;
-  border: 1px solid rgba(28,18,51,0.10);
+  border: 1px solid var(--border);
   border-radius: 9px;
-  background: #FBFAFE;
+  background: var(--surface-sunken);
   overflow: visible;
 }
 .timeline-bar {
   position: absolute;
-  top: 5px;
-  height: 18px;
-  border-radius: 6px;
-  min-width: 3px;
+  top: 0;
+  bottom: 0;
+  border-radius: 8px;
 }
-.timeline-bar.study {
-  background: #4B1A77;
-}
-.timeline-bar.holiday {
-  background: #FBB615;
-}
+.timeline-bar.study { background: linear-gradient(90deg, #5B238E, #7A37B8); }
+.timeline-bar.holiday { background: linear-gradient(90deg, #D49200, #FBB615); opacity: 0.95; }
 @media (max-width: 1060px) {
   .sp-editor-layout {
     grid-template-columns: 1fr;

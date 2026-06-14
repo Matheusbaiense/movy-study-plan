@@ -22,7 +22,7 @@ export function BlockRenderer({ blocks, contentId, initialChecked = {} }: Props)
             return (
               <div
                 key={i}
-                style={{ fontSize: 14, lineHeight: 1.7, color: '#2A1153' }}
+                style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text)' }}
                 dangerouslySetInnerHTML={{ __html: block.content }}
               />
             )
@@ -47,8 +47,8 @@ export function BlockRenderer({ blocks, contentId, initialChecked = {} }: Props)
             return (
               <section key={i} style={{ margin: '28px 0' }}>
                 <h3 style={{
-                  fontSize: 16, fontWeight: 600, color: '#2A1153',
-                  paddingBottom: 8, borderBottom: '1px solid rgba(28,18,51,0.1)',
+                  fontSize: 16, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-display)',
+                  paddingBottom: 8, borderBottom: '1px solid var(--border)',
                   marginBottom: 16,
                 }}>
                   {block.title}

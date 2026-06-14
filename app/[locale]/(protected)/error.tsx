@@ -25,10 +25,10 @@ export default function ProtectedError({
           </svg>
         </div>
         <div className="movy-kicker" style={{ marginBottom: 10 }}>Erro</div>
-        <h2 style={{ margin: '0 0 10px', fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 800, letterSpacing: '-0.035em', color: '#2A1153' }}>
+        <h2 style={{ margin: '0 0 10px', fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--text)' }}>
           Algo deu errado
         </h2>
-        <p style={{ margin: '0 0 22px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.55 }}>
+        <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.55 }}>
           {error.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.'}
         </p>
         <button

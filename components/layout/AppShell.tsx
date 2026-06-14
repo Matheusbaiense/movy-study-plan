@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { isAdminOrAbove } from '@/lib/permissions/can'
 import { DEPARTMENTS, getDeptName } from '@/lib/constants/departments'
 import { MovyMark } from '@/components/brand/MovyMark'
-import { roleColor as ROLE_COLOR } from '@/lib/ui/theme'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { roleColor as ROLE_COLOR, t, ink, font } from '@/lib/ui/theme'
 import type { Profile } from '@/lib/auth/get-user'
 
 interface AppShellProps {
@@ -60,8 +61,8 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 28, padding: '0 6px' }}>
         <MovyMark size={34} />
         <div style={{ lineHeight: 1 }}>
-          <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '-0.01em', color: '#fff' }}>MOVY</div>
-          <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 9, letterSpacing: '0.32em', color: '#FBB615', marginTop: 4 }}>INTERNAL HUB</div>
+          <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 21, letterSpacing: '-0.01em', color: '#fff' }}>MOVY</div>
+          <div style={{ fontFamily: font.ui, fontWeight: 600, fontSize: 9, letterSpacing: '0.26em', color: '#FBB615', marginTop: 5 }}>INTERNAL HUB</div>
         </div>
       </div>
 
@@ -92,10 +93,10 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
         <Avatar initials={initials} color={roleColor} size={34} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontFamily: font.ui, fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {profile.full_name ?? profile.email}
           </div>
-          <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 10, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: font.ui, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
             {profile.role.replace('_', ' ')}
           </div>
         </div>
@@ -106,12 +107,12 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     </div>
   )
 
-  const sidebarBg = 'linear-gradient(180deg, #2A1153 0%, #1E0D44 64%, #190A38 100%)'
+  const sidebarBg = 'var(--rail)'
 
   return (
-    <div className="movy-atmosphere" style={{ display: 'flex', minHeight: '100vh', background: '#F8F7FB' }}>
+    <div className="movy-atmosphere" style={{ display: 'flex', minHeight: '100dvh', background: t.bg }}>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex" style={{ width: 264, flexShrink: 0, background: sidebarBg, flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+      <aside className="hidden lg:flex" style={{ width: 264, flexShrink: 0, background: sidebarBg, flexDirection: 'column', position: 'sticky', top: 0, height: '100dvh', borderRight: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
         <SidebarContent />
       </aside>
 
@@ -119,35 +120,38 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       {mobileOpen && (
         <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(28,18,51,0.5)' }} onClick={() => setMobileOpen(false)} />
       )}
-      <aside className="lg:hidden" style={{ position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 30, width: 264, background: sidebarBg, borderRight: '1px solid rgba(255,255,255,0.06)', transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 220ms cubic-bezier(0.16,1,0.3,1)', height: '100vh', overflow: 'hidden' }}>
+      <aside className="lg:hidden" style={{ position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 30, width: 264, background: sidebarBg, borderRight: '1px solid rgba(255,255,255,0.06)', transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 220ms cubic-bezier(0.16,1,0.3,1)', height: '100dvh', overflow: 'hidden' }}>
         <SidebarContent />
       </aside>
 
       {/* Main */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, height: '100dvh' }}>
         {/* Mobile topbar */}
-        <header className="flex lg:hidden" style={{ alignItems: 'center', gap: 12, height: 56, borderBottom: '1px solid rgba(28,18,51,0.08)', background: 'rgba(248,247,251,0.8)', backdropFilter: 'blur(12px)', padding: '0 16px', position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(28,18,51,0.7)', display: 'flex' }}>
+        <header className="flex lg:hidden" style={{ alignItems: 'center', gap: 12, height: 56, borderBottom: `1px solid ${t.border}`, background: 'var(--bar-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '0 16px', flexShrink: 0, zIndex: 10 }}>
+          <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: t.textMuted, display: 'flex' }}>
             <HamburgerIcon />
           </button>
           <MovyMark size={26} />
-          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, color: '#2A1153', letterSpacing: '-0.01em' }}>MOVY</span>
+          <span style={{ fontFamily: font.display, fontSize: 16, fontWeight: 600, color: t.text, letterSpacing: '-0.01em' }}>MOVY</span>
+          <div style={{ flex: 1 }} />
+          <ThemeToggle compact />
         </header>
 
         {/* Desktop topbar */}
-        <header className="hidden lg:flex" style={{ alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '14px 32px', borderBottom: '1px solid rgba(28,18,51,0.06)', background: 'rgba(248,247,251,0.72)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 15 }}>
+        <header className="hidden lg:flex" style={{ alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '14px 32px', borderBottom: `1px solid ${t.border}`, background: 'var(--bar-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', flexShrink: 0, zIndex: 15 }}>
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
-          <div style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+            <ThemeToggle />
             <button onClick={() => setMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={menuOpen} aria-label={locale === 'en' ? 'Account menu' : 'Menu da conta'} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, borderRadius: 999 }}>
               <Avatar initials={initials} color={roleColor} size={34} />
             </button>
             {menuOpen && (
               <>
                 <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setMenuOpen(false)} />
-                <div role="menu" style={{ position: 'absolute', right: 0, top: 'calc(100% + 10px)', zIndex: 50, width: 230, background: '#fff', border: '1px solid #E0D6EE', borderRadius: 12, boxShadow: '0 16px 40px -16px rgba(42,17,83,0.4)', overflow: 'hidden' }}>
-                  <div style={{ padding: '14px 16px', borderBottom: '1px solid #EFE9F6' }}>
-                    <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 14, color: '#2A1153', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name ?? profile.email}</div>
-                    <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 10, letterSpacing: '0.06em', color: roleColor, textTransform: 'uppercase', marginTop: 3 }}>{profile.role.replace('_', ' ')}</div>
+                <div role="menu" style={{ position: 'absolute', right: 0, top: 'calc(100% + 10px)', zIndex: 50, width: 230, background: t.surfaceRaised, border: `1px solid ${t.border}`, borderRadius: 14, boxShadow: 'var(--shadow-lift)', overflow: 'hidden' }}>
+                  <div style={{ padding: '14px 16px', borderBottom: `1px solid ${t.border}` }}>
+                    <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 14, color: t.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name ?? profile.email}</div>
+                    <div style={{ fontFamily: font.body, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', color: roleColor, textTransform: 'uppercase', marginTop: 3 }}>{profile.role.replace('_', ' ')}</div>
                   </div>
                   {adminNav.length > 0 && (
                     <MenuLink href={`/${locale}/settings`} onClick={() => setMenuOpen(false)}>
@@ -163,9 +167,11 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
           </div>
         </header>
 
-        <main style={{ flex: 1, padding: '36px 36px 64px', maxWidth: 1240, margin: '0 auto', width: '100%' }}>
-          {children}
-        </main>
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <main style={{ padding: '36px 36px 64px', maxWidth: 1240, margin: '0 auto', width: '100%' }}>
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   )
@@ -181,7 +187,7 @@ function Avatar({ initials, color, size }: { initials: string; color: string; si
 
 function MenuLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <Link href={href} prefetch={false} onClick={onClick} role="menuitem" style={{ display: 'block', padding: '11px 16px', textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600, color: '#2A1153' }}>
+    <Link href={href} prefetch={false} onClick={onClick} role="menuitem" style={{ display: 'block', padding: '11px 16px', textDecoration: 'none', fontFamily: font.ui, fontSize: 13, fontWeight: 600, color: t.text }}>
       {children}
     </Link>
   )
@@ -190,7 +196,7 @@ function MenuLink({ href, onClick, children }: { href: string; onClick: () => vo
 function NavGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', padding: '0 10px', marginBottom: 8 }}>{label}</div>
+      <div style={{ fontFamily: font.ui, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)', padding: '0 10px', marginBottom: 8 }}>{label}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>{children}</div>
     </div>
   )
@@ -207,7 +213,7 @@ function NavItem({ href, icon, label, active, onClick }: { href: string; icon: s
         background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
         borderRadius: 9,
         color: active ? '#fff' : 'rgba(255,255,255,0.7)',
-        fontFamily: 'Outfit, sans-serif', fontSize: 13.5, fontWeight: active ? 700 : 500,
+        fontFamily: font.ui, fontSize: 13.5, fontWeight: active ? 700 : 500,
         textDecoration: 'none', transition: 'background .15s ease',
       }}
     >
@@ -256,9 +262,9 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
       {items.map((item, i) => (
         <span key={item.href} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {i > 0 && (
-            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="rgba(28,18,51,0.4)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={ink(0.4)} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
           )}
-          <Link href={item.href} prefetch={false} style={{ color: i === items.length - 1 ? '#2A1153' : 'rgba(28,18,51,0.55)', fontWeight: i === items.length - 1 ? 700 : 500, textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+          <Link href={item.href} prefetch={false} style={{ color: i === items.length - 1 ? t.text : t.textMuted, fontWeight: i === items.length - 1 ? 700 : 500, textDecoration: 'none', fontFamily: font.ui }}>
             {item.label}
           </Link>
         </span>

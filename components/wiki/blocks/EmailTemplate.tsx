@@ -15,23 +15,23 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
   const Row = ({ label, value }: { label: string; value: string }) => (
     <div style={{
       display: 'flex', gap: 8, padding: '6px 14px',
-      borderBottom: '1px solid rgba(28,18,51,0.06)',
+      borderBottom: '1px solid var(--border)',
     }}>
       <span style={{
-        fontSize: 11, fontWeight: 700, color: 'rgba(28,18,51,0.4)',
+        fontSize: 11, fontWeight: 700, color: 'var(--text-subtle)',
         width: 60, flexShrink: 0, paddingTop: 2,
       }}>
         {label}
       </span>
-      <span style={{ fontSize: 13, color: '#2A1153' }}>{value}</span>
+      <span style={{ fontSize: 13, color: 'var(--text)' }}>{value}</span>
     </div>
   )
 
   return (
     <div style={{
       margin: '20px 0', borderRadius: 12,
-      border: '1px solid rgba(28,18,51,0.1)', overflow: 'hidden',
-      fontFamily: 'Outfit, sans-serif',
+      border: '1px solid var(--border)', overflow: 'hidden',
+      fontFamily: 'var(--font-body)',
     }}>
       <div style={{
         background: '#2A1153', padding: '8px 14px',
@@ -60,8 +60,8 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
       <Row label="ASSUNTO" value={block.subject} />
       <div style={{
         padding: '14px', whiteSpace: 'pre-wrap',
-        fontSize: 13, color: '#2A1153', lineHeight: 1.7,
-        background: '#F8F7FB',
+        fontSize: 13, color: 'var(--text)', lineHeight: 1.7,
+        background: 'var(--surface-sunken)',
       }}>
         {block.body}
       </div>

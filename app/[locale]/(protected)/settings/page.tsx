@@ -1,6 +1,6 @@
 import { getUser } from '@/lib/auth/get-user'
 import { createClient } from '@/lib/supabase/server'
-import { color, ink, font, roleColor } from '@/lib/ui/theme'
+import { color, ink, font, roleColor, t } from '@/lib/ui/theme'
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -35,7 +35,7 @@ export default async function SettingsPage({ params }: Props) {
             {(profile.full_name ?? profile.email).slice(0, 1).toUpperCase()}
           </div>
           <div>
-            <div style={{ fontFamily: font.display, fontSize: 15, fontWeight: 800, color: color.purpleDeep }}>
+            <div style={{ fontFamily: font.display, fontSize: 15, fontWeight: 800, color: t.text }}>
               {profile.full_name ?? profile.email}
             </div>
             <div style={{ fontSize: 13, color: ink(0.5) }}>
@@ -62,7 +62,7 @@ export default async function SettingsPage({ params }: Props) {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, color: color.purpleDeep, letterSpacing: '-0.02em' }}>
+      <div style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, color: t.text, letterSpacing: '-0.02em' }}>
         {value}
       </div>
       <div style={{ fontSize: 12, color: ink(0.5) }}>{label}</div>

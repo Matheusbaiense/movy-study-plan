@@ -10,6 +10,7 @@
  */
 
 export const color = {
+  /* Fixed brand accents (identical in both themes) */
   purple: '#4B1A77',
   purpleMid: '#3A1560',
   purpleDeep: '#2A1153',
@@ -18,29 +19,46 @@ export const color = {
   goldSoft: '#FFC51C',
   orange: '#F36B1C',
   red: '#D23B2B',
-  ink: '#1C1233',
-  inkSoft: '#5A4E72',
-  paper: '#F8F7FB',
-  lilac: '#EFE9F6',
-  lilac2: '#E6DCF3',
-  line: '#E0D6EE',
-  white: '#FFFFFF',
+
+  /* Semantic surfaces/text — theme-aware via CSS variables. Prefer `t.*`. */
+  ink: 'var(--text)',
+  inkSoft: 'var(--text-muted)',
+  paper: 'var(--bg)',
+  lilac: 'var(--surface-sunken)',
+  lilac2: 'var(--surface-sunken)',
+  line: 'var(--border)',
+  white: 'var(--surface)',
 } as const
 
-/** Ink tints — the workhorse text/border opacities used across the UI. */
-export const ink = (a: number) => `rgba(28,18,51,${a})`
-/** Purple tints — for accent fills and rings. */
+/** Semantic theme tokens. These flip automatically with [data-theme]. */
+export const t = {
+  bg: 'var(--bg)',
+  surface: 'var(--surface)',
+  surfaceRaised: 'var(--surface-raised)',
+  surfaceSunken: 'var(--surface-sunken)',
+  border: 'var(--border)',
+  borderStrong: 'var(--border-strong)',
+  text: 'var(--text)',
+  textMuted: 'var(--text-muted)',
+  textSubtle: 'var(--text-subtle)',
+  accent: 'var(--accent)',
+  accentContrast: 'var(--accent-contrast)',
+} as const
+
+/** Ink tints — workhorse text/border opacities. Theme-aware (flips light/dark). */
+export const ink = (a: number) => `rgba(var(--ink-rgb),${a})`
+/** Purple tints — for accent fills and rings (brand, stable across themes). */
 export const purpleA = (a: number) => `rgba(75,26,119,${a})`
 
 export const font = {
-  /** Display + headlines — Outfit, geometric & confident, echoes the wordmark (Brand Guide p.19) */
-  display: 'Outfit, system-ui, sans-serif',
-  /** UI: buttons, nav, labels, table cells */
-  ui: 'Outfit, system-ui, sans-serif',
-  /** Reading / body copy — Manrope */
-  body: 'Manrope, system-ui, sans-serif',
-  /** Kickers, meta, hex codes, technical labels — Space Mono */
-  mono: '"Space Mono", ui-monospace, monospace',
+  /** Display + headlines — Clash Display */
+  display: 'var(--font-display)',
+  /** UI: buttons, nav, labels, table cells — Satoshi */
+  ui: 'var(--font-body)',
+  /** Reading / body copy — Satoshi */
+  body: 'var(--font-body)',
+  /** Meta / numeric — Satoshi (no longer monospaced) */
+  mono: 'var(--font-mono)',
 } as const
 
 export const radius = {

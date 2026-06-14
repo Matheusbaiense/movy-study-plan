@@ -18,7 +18,7 @@ export function InfoBox({ block }: { block: InfoBoxBlock }) {
         {block.title ?? v.label}
       </div>
       <div
-        style={{ fontSize: 13, color: '#2A1153', lineHeight: 1.6 }}
+        style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6 }}
         dangerouslySetInnerHTML={{ __html: block.content }}
       />
     </div>

@@ -144,7 +144,7 @@ export function FinancialCalculator() {
             <Field label="Cotação AUD para BRL">
               <div style={{ display: 'grid', gap: 6 }}>
                 <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: fxError ? RED : MUTED, fontFamily: '"Space Mono", monospace' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: fxError ? RED : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                   <span>{fxLoading ? 'Buscando cotação…' : fxError ? 'Não foi possível obter a cotação ao vivo — usando valor manual.' : fxStamp ? `${fxSource ?? 'Cotação'} · ${fxStamp} (Perth)` : 'Cotação manual'}</span>
                   <button type="button" onClick={loadFx} disabled={fxLoading} style={{ border: 'none', background: 'transparent', color: ORANGE, fontWeight: 700, cursor: fxLoading ? 'wait' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 11, padding: 0 }}>
                     {fxError ? 'tentar de novo' : 'atualizar'}
@@ -267,7 +267,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function NumberInput({ value, onChange, step = '1', disabled = false }: { value: number; onChange: (value: number) => void; step?: string; disabled?: boolean }) {
   return (
     <input
-      style={{ ...input, textAlign: 'right', background: disabled ? '#F4F2F8' : '#fff' }}
+      style={{ ...input, textAlign: 'right', background: disabled ? 'var(--surface-sunken)' : 'var(--surface)' }}
       type="number"
       step={step}
       disabled={disabled}
@@ -291,12 +291,13 @@ function Mini({ label, value }: { label: string; value: string }) {
 
 const input: React.CSSProperties = {
   width: '100%',
-  border: `1px solid ${HAIR}`,
+  border: '1px solid var(--border)',
   borderRadius: 9,
   padding: '10px 11px',
-  fontFamily: 'Outfit, sans-serif',
+  fontFamily: 'var(--font-body)',
   fontSize: 13,
-  color: INK,
+  color: 'var(--text)',
+  background: 'var(--surface)',
   outline: 'none',
 }
 
@@ -312,14 +313,14 @@ const primaryButton: React.CSSProperties = {
 }
 
 const secondaryButton: React.CSSProperties = {
-  border: `1px solid ${HAIR}`,
+  border: '1px solid var(--border)',
   borderRadius: 9,
   padding: '9px 12px',
-  background: '#fff',
-  color: INK,
+  background: 'var(--surface)',
+  color: 'var(--text)',
   fontWeight: 700,
   cursor: 'pointer',
-  fontFamily: 'Outfit, sans-serif',
+  fontFamily: 'var(--font-body)',
   whiteSpace: 'nowrap',
 }
 
@@ -336,19 +337,19 @@ const styles = `
 .fc-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); gap: 22px; align-items: start; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
 .fc-form { display: grid; gap: 16px; min-width: 0; }
 .fc-head { margin-bottom: 4px; }
-.fc-title { margin: 8px 0 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 42px); letter-spacing: -0.035em; line-height: 0.96; color: ${INK}; }
-.fc-subtitle { margin: 10px 0 0; color: ${MUTED}; font-size: 14px; line-height: 1.5; max-width: 52ch; }
-.fc-section { background: #fff; border: 1px solid ${HAIR}; border-radius: 12px; padding: 18px 20px; }
-.fc-section h2 { margin: 0 0 16px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: ${ORANGE}; }
+.fc-title { margin: 8px 0 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 3.6vw, 42px); letter-spacing: -0.025em; line-height: 0.96; color: var(--text); }
+.fc-subtitle { margin: 10px 0 0; color: var(--text-muted); font-size: 14px; line-height: 1.5; max-width: 52ch; }
+.fc-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.fc-section h2 { margin: 0 0 16px; font-family: var(--font-body); font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: ${ORANGE}; }
 .fc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
 .fc-field { display: grid; gap: 6px; min-width: 0; }
-.fc-field > span { font-size: 11px; font-weight: 700; color: ${MUTED}; text-transform: uppercase; letter-spacing: 0.05em; }
+.fc-field > span { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .fc-inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-.fc-help { margin: 12px 0 0; font-size: 11.5px; color: ${MUTED}; line-height: 1.5; }
+.fc-help { margin: 12px 0 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
 .fc-constants { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.fc-constants div { display: grid; gap: 3px; padding: 11px 12px; border-radius: 10px; background: #F8F7FB; border: 1px solid ${HAIR}; }
-.fc-constants span { color: ${MUTED}; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.fc-constants strong { color: ${INK}; font-family: 'Outfit', sans-serif; font-size: 15px; }
+.fc-constants div { display: grid; gap: 3px; padding: 11px 12px; border-radius: 10px; background: var(--surface-sunken); border: 1px solid var(--border); }
+.fc-constants span { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.fc-constants strong { color: var(--text); font-family: var(--font-display); font-size: 15px; }
 .fc-result { position: sticky; top: 20px; display: grid; gap: 14px; min-width: 0; }
 .fc-actions { display: flex; justify-content: flex-end; }
 .fc-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; color: ${INK}; }

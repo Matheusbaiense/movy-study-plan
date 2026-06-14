@@ -1,7 +1,7 @@
 import { getUser } from '@/lib/auth/get-user'
 import { isAdminOrAbove } from '@/lib/permissions/can'
 import { redirect } from 'next/navigation'
-import { color, font } from '@/lib/ui/theme'
+import { font, t } from '@/lib/ui/theme'
 import { SettingsTabs } from './SettingsTabs'
 
 interface Props {
@@ -26,7 +26,7 @@ export default async function SettingsLayout({ children, params }: Props) {
       <div className="movy-kicker">
         {locale === 'pt' ? 'Administração' : 'Administration'}
       </div>
-      <h1 style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, letterSpacing: '-0.035em', color: color.purpleDeep, margin: '8px 0 18px' }}>
+      <h1 style={{ fontFamily: font.display, fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: t.text, margin: '8px 0 18px' }}>
         {locale === 'pt' ? 'Configurações' : 'Settings'}
       </h1>
       <SettingsTabs tabs={tabs} />

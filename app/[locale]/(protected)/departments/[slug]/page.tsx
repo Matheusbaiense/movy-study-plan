@@ -63,16 +63,16 @@ export default async function DepartmentPage({ params }: Props) {
         <div className="movy-kicker" style={{ color: dept.color ?? '#4B1A77', marginBottom: 12 }}>
           {dept.icon} {deptName}
         </div>
-        <h1 style={{ margin: '0 0 10px', fontFamily: font.display, fontSize: 'clamp(28px, 3.6vw, 40px)', fontWeight: 800, color: '#2A1153', letterSpacing: '-0.03em', lineHeight: 0.98 }}>
+        <h1 style={{ margin: '0 0 10px', fontFamily: font.display, fontSize: 'clamp(28px, 3.6vw, 40px)', fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.025em', lineHeight: 0.98 }}>
           {deptName}
         </h1>
-        <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(28,18,51,0.6)', lineHeight: 1.6, maxWidth: 560 }}>
+        <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 560 }}>
           {deptDesc}
         </p>
         <div style={{ display: 'flex', gap: 20 }}>
           <div>
             <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: dept.color ?? '#2A1153' }}>{totalContent}</div>
-            <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, color: 'rgba(28,18,51,0.5)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
+            <div style={{ fontFamily: font.mono, fontSize: 11, color: 'var(--text-subtle)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
           </div>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default async function DepartmentPage({ params }: Props) {
         {/* Content by category */}
         <div>
           {Object.keys(grouped).length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 48, color: 'rgba(28,18,51,0.4)', fontSize: 14 }}>
+            <div style={{ textAlign: 'center', padding: 48, color: 'var(--text-subtle)', fontSize: 14 }}>
               {locale === 'pt' ? 'Nenhum conteúdo publicado ainda.' : 'No published content yet.'}
             </div>
           ) : (
@@ -117,8 +117,8 @@ export default async function DepartmentPage({ params }: Props) {
 
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid rgba(28,18,51,0.07)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
+          <div style={{ background: 'var(--surface)', borderRadius: 14, padding: '16px 18px', border: '1px solid var(--border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-subtle)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
             <Link href={`/${locale}/wiki?dept=${slug}`} prefetch={false} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>

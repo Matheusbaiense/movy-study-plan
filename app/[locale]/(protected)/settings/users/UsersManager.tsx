@@ -11,7 +11,7 @@ import {
   removeAllowedEmail,
   type ActionResult,
 } from './actions'
-import { color, ink, font, roleColor } from '@/lib/ui/theme'
+import { color, ink, font, roleColor, t } from '@/lib/ui/theme'
 
 type Role = 'reader' | 'editor' | 'admin' | 'super_admin'
 
@@ -122,8 +122,8 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                       fontWeight: 700,
                       letterSpacing: '0.05em',
                       textTransform: 'uppercase',
-                      color: 'rgba(28,18,51,0.45)',
-                      borderBottom: '1px solid rgba(28,18,51,0.08)',
+                      color: 'var(--text-subtle)',
+                      borderBottom: '1px solid var(--border)',
                     }}
                   >
                     {h}
@@ -136,11 +136,11 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                 const self = u.id === actorId
                 const lockedTarget = u.role === 'super_admin' && !isSuper
                 return (
-                  <tr key={u.id} style={{ borderBottom: '1px solid rgba(28,18,51,0.05)' }}>
-                    <td style={{ padding: '10px 12px', color: '#2A1153', fontWeight: 500 }}>
+                  <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '10px 12px', color: 'var(--text)', fontWeight: 500 }}>
                       {u.full_name ?? '—'} {self && <Tag>você</Tag>}
                     </td>
-                    <td style={{ padding: '10px 12px', color: 'rgba(28,18,51,0.6)' }}>{u.email}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>{u.email}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <select
                         value={u.role}
@@ -151,8 +151,8 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                         style={{
                           padding: '5px 8px',
                           borderRadius: 8,
-                          border: '1px solid rgba(28,18,51,0.15)',
-                          background: '#fff',
+                          border: '1px solid var(--border)',
+                          background: 'var(--surface)',
                           color: ROLE_COLORS[u.role],
                           fontWeight: 700,
                           fontSize: 12,
@@ -219,7 +219,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
         <AddAllowedForm canAssign={canAssign} pending={pending} onSubmit={run} />
         <div style={{ display: 'grid', gap: 6, marginTop: 14 }}>
           {allowed.length === 0 ? (
-            <div style={{ fontSize: 13, color: 'rgba(28,18,51,0.45)' }}>Nenhum email autorizado ainda.</div>
+            <div style={{ fontSize: 13, color: 'var(--text-subtle)' }}>Nenhum email autorizado ainda.</div>
           ) : (
             allowed.map((a) => (
               <div
@@ -231,12 +231,12 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                   gap: 10,
                   padding: '8px 12px',
                   borderRadius: 10,
-                  background: 'rgba(28,18,51,0.02)',
-                  border: '1px solid rgba(28,18,51,0.06)',
+                  background: 'rgba(var(--ink-rgb),0.03)',
+                  border: '1px solid var(--border)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 13, color: '#2A1153', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {a.email}
                   </span>
                   <span
@@ -384,7 +384,7 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
   return (
     <section className="movy-card" style={{ padding: '18px 20px' }}>
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontFamily: font.display, fontSize: 15, fontWeight: 800, color: color.purpleDeep, letterSpacing: '-0.01em' }}>{title}</div>
+        <div style={{ fontFamily: font.display, fontSize: 15, fontWeight: 800, color: t.text, letterSpacing: '-0.01em' }}>{title}</div>
         {subtitle && <div style={{ fontSize: 12, color: ink(0.5), marginTop: 3, lineHeight: 1.5 }}>{subtitle}</div>}
       </div>
       {children}
@@ -395,7 +395,7 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: 'grid', gap: 5 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(28,18,51,0.5)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-subtle)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
         {label}
       </span>
       {children}
@@ -434,9 +434,9 @@ function SmallBtn({
         fontWeight: 600,
         fontFamily: 'Outfit, system-ui, sans-serif',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        border: `1px solid ${danger ? 'rgba(210,59,43,0.3)' : 'rgba(28,18,51,0.15)'}`,
-        background: danger ? 'rgba(210,59,43,0.06)' : '#fff',
-        color: danger ? '#D23B2B' : '#2A1153',
+        border: `1px solid ${danger ? 'rgba(210,59,43,0.3)' : 'var(--border)'}`,
+        background: danger ? 'rgba(210,59,43,0.06)' : 'var(--surface)',
+        color: danger ? '#D23B2B' : 'var(--text)',
         opacity: disabled ? 0.5 : 1,
       }}
     >
@@ -449,9 +449,9 @@ const inputStyle: React.CSSProperties = {
   padding: '9px 11px',
   borderRadius: 10,
   border: `1px solid ${ink(0.15)}`,
-  background: '#fff',
+  background: 'var(--surface)',
   fontSize: 13,
-  color: color.purpleDeep,
+  color: t.text,
   fontFamily: font.display,
   outline: 'none',
 }
