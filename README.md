@@ -20,6 +20,12 @@ npm run dev
 
 O banco Supabase já contém as tabelas principais do hub, `audit_logs` e `study_plans`.
 
+### Desenvolvendo na nuvem (recomendado)
+
+O repo vem pronto pra **GitHub Codespaces** (`.devcontainer/`). Veja o passo a passo —
+criar o Codespace, configurar env vars e rodar — em [`docs/CODESPACE.md`](docs/CODESPACE.md).
+Evita o peso no PC local e os problemas de `node_modules` no Google Drive.
+
 ## Study Plans
 
 O módulo de cotações cobre os padrões principais encontrados nos study plans:
