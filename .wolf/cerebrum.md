@@ -9,6 +9,10 @@
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
 - Prefer fixing documented bugs before starting planned features, even when the feature work is already scoped.
+- High bar for visual quality; wants a genuinely professional UI. For a redesign, the ONLY brand constraints are the brand colors and the logo — typography, layout, components are all open to redesign.
+- When committing, keep documented bug/error fixes as separate commits from feature/redesign work.
+- Each working session MUST be documented in OpenWolf (.wolf/) and docs/AI-HANDOVER.md — a prior agent (Antigravity) skipped this and the user wants it always done.
+- Dislikes vanity metrics in an internal tool (e.g., removed Home KPI counters for active users / document / proposal counts — this is not a sales system).
 
 ## Key Learnings
 
@@ -17,6 +21,13 @@
 
 - Validation must run in a temporary clone outside Google Drive when npm/node_modules are involved; Google Drive can corrupt or stall dependency installs.
 - Timetable value `Manha` is a persisted/internal value; display it as `Manhã` via a label map instead of changing stored data.
+- **Theming system (2026-06-14):** App supports light + dark via `[data-theme='light'|'dark']` on `<html>`. Theme is applied pre-paint by an inline script in `app/layout.tsx` (reads `localStorage['movy-theme']`, falls back to OS `prefers-color-scheme`). `components/ui/ThemeToggle.tsx` toggles + persists it. Brand accent flips: purple is the accent in light, gold in dark.
+- **Tokens, not hardcoded colors:** Read semantic tokens from `lib/ui/theme.ts` (`t.text`, `t.surface`, `t.border`, etc.) which map 1:1 to CSS vars in `app/globals.css`. Use `ink(a)` for text/border tints and `purpleA(a)` for brand accents. Do NOT hardcode hex or use `color.purpleDeep` as text — it breaks dark mode.
+- **Fonts (2026-06-14):** Now Clash Display (display) + Satoshi (body/UI/mono) via Fontshare `@import`, with Outfit as fallback. `font.mono` is Satoshi (no longer monospaced). This intentionally supersedes the old Brand-Guide stack (Outfit/Manrope/Space Mono) per the user's "only color + logo are fixed" instruction.
+- **Active workspace is `C:\dev\movy-study-plan`** (synced with GitHub). The old Google Drive copy is stale — do NOT use it. Codespaces is the cloud dev option; GitHub `Matheusbaiense/movy-study-plan` is the source of truth.
+- The printed/PDF document surfaces (financial calculator document, study-plan proposal) must stay WHITE in both themes (they represent paper) — only theme the surrounding form/UI.
+- Test user for logged-in QA: `testemovy@movy.com.br` / `teste123!` (role admin). Login is by email, not username.
+- PowerShell is the shell: chain commands with `;` (not `&&`) and quote paths containing `(` `)` like `(protected)`.
 
 ## Do-Not-Repeat
 
@@ -24,9 +35,17 @@
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
 - [2026-06-11] Do not use `git clone --local` from the Google Drive workspace for validation; hardlink creation can fail. Use `git clone --no-local` or a normal copy outside Drive.
+- [2026-06-14] Do not use `color.purpleDeep` (or hardcoded hex) for TEXT — it renders dark-on-dark and is invisible in dark mode. Use `t.text` / theme tokens.
+- [2026-06-14] In PowerShell, `&&` is not a valid statement separator — use `;`. Quote paths with parentheses (e.g. `"app/[locale]/(protected)/..."`).
+- [2026-06-14] Creating a Supabase auth user via raw SQL leaves token columns NULL, which makes GoTrue return 500 "Database error querying schema" on login. Fix: set those token columns to `''` (empty string), not NULL. Prefer the Admin API over raw SQL inserts.
+- [2026-06-14] Every session MUST be logged to `.wolf/` (memory, cerebrum, buglog) and `docs/AI-HANDOVER.md`. The Antigravity agent did the redesign but skipped all logging; it had to be reconstructed afterwards.
 
 ## Decision Log
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
 
 - [2026-06-11] Kept the `Manha` persisted value unchanged and added a UI label map so existing proposal data remains compatible while the visible Portuguese accent is correct.
+- [2026-06-14] Added a full light/dark theme system (default light = "Refined SaaS", dark = "Command-Center"), driven by semantic CSS-variable tokens so the whole app flips with one `[data-theme]` switch. Chosen over per-component dark styling because the app renders mostly with inline styles reading from `lib/ui/theme.ts`.
+- [2026-06-14] Replaced the Brand-Guide typography (Outfit/Manrope/Space Mono) with Clash Display + Satoshi for a more "premium" feel. User explicitly authorized changing everything except brand color + logo. NOTE: this conflicts with the older AI-HANDOVER "COMECE AQUI" font rule — the new instruction wins, but flag for the team.
+- [2026-06-14] Removed Home KPI counters: an internal tooling hub should not show sales-dashboard vanity metrics, and it also removed non-essential DB count() calls.
+- [2026-06-14] Kept the deliberate Space-Mono-style kicker / wide tracking decision intact where it is documented as brand intent; do not "fix" it as a defect.

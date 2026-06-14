@@ -243,7 +243,46 @@ Estado desta sessao: bugs documentados de marca/label corrigidos na branch
 `npm run type-check`, `node --test tests/study-financial.test.mjs`, `npm run build`.
 Proximo passo: confirmar a fonte externa de cambio e implementar Feature A.
 
+## ⚠️ ATUALIZAÇÃO 2026-06-14 — Sistema de tema claro/escuro (LEIA antes do "COMECE AQUI")
+
+O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regras do "COMECE AQUI" abaixo:
+
+- **Tema:** `[data-theme='light'|'dark']` no `<html>`, aplicado pré-paint por script inline em `app/layout.tsx`
+  (lê `localStorage['movy-theme']`, fallback para preferência do SO). Toggle: `components/ui/ThemeToggle.tsx`.
+  Acento da marca vira: **roxo no claro, dourado no escuro**.
+- **Tokens, não hex:** ler `lib/ui/theme.ts` (`t.text`, `t.surface`, `t.border`, helper `ink(a)`, `purpleA(a)`),
+  que mapeiam para CSS vars em `app/globals.css`. **NUNCA** usar `color.purpleDeep`/hex como TEXTO (some no escuro).
+- **Fontes mudaram:** agora **Clash Display (display) + Satoshi (corpo/UI/mono)** via Fontshare, Outfit como fallback.
+  Isso **substitui** a regra antiga de Outfit/Manrope/Space Mono — o usuário autorizou mudar tudo exceto cor + logo.
+  (`font.mono` deixou de ser monoespaçado.) A regra de fonte do "COMECE AQUI" está obsoleta; mantida só como histórico.
+- **Documentos impressos (PDF):** o documento da calculadora financeira e a proposta de study plan ficam **brancos
+  nos dois temas** de propósito (representam papel). Tematizar só o formulário ao redor.
+- **Constraint que continua valendo:** cor de marca + logo "vela" (`components/brand/MovyMark.tsx`).
+
 ## Log de Handover
+
+### 2026-06-14 - Redesign claro/escuro + separação de campos + fixes (sessão Antigravity, documentada retroativamente)
+
+> O agente Antigravity (Gemini IDE) executou este trabalho mas NÃO registrou em OpenWolf/handover.
+> Reconstruído a partir do walkthrough + working tree em 2026-06-15. Detalhes finos em `.wolf/memory.md` e `.wolf/buglog.json` (bug-004..009).
+
+- **Design system claro/escuro:** tokens semânticos em CSS vars (`app/globals.css`), `lib/ui/theme.ts` reescrito para
+  tokens theme-aware (`t.*`, `ink()`, `purpleA()`), script anti-flash em `app/layout.tsx`, `ThemeToggle.tsx`.
+  Novas fontes Clash Display + Satoshi. ~29 arquivos migrados de hex/`color.purpleDeep` para tokens.
+- **Home:** removida a faixa de KPIs (contadores) — ruído para ferramenta interna; também tirou chamadas `count()`.
+- **Bug "corte branco" / sobreposição do topbar:** `100vh`→`100dvh`, `html/body` com `var(--bg)`, `<main>` rola
+  internamente (`overflow-y:auto`). Resolvido nos dois temas. (bug-004)
+- **Editor:** campos separados por tipo de curso (ELICOS / VET / Higher Education); painel de material só onde faz sentido.
+- **Timeline:** gradientes roxo→dourado para tela e contraste de impressão no PDF.
+- **Legado:** label de navegação "Campanhas"→"Planos de Estudo" (`messages/pt.json`); menções legadas removidas do manifest.
+- **Fixes de erro documentados (a commitar SEPARADO do redesign):** manifest 404 `/pt/manifest.json` (`middleware.ts`);
+  `Draft`→`Rascunho` (`study-plans/page.tsx`, `pt.json`); `lang="pt-BR"` (`app/layout.tsx`); contraste de legendas WCAG
+  (`FxConverter.tsx`, `WikiListItem.tsx`); espaçamento de excerpt da Wiki (`wiki/page.tsx`). (bug-006, 008, 009)
+- **Usuário de teste (criado pelo Claude em outra janela):** `testemovy@movy.com.br` / `teste123!` (role admin).
+  Login é por **email**. Tive que corrigir colunas de token NULL no GoTrue (erro 500). (bug-007)
+- **QA:** `npm run type-check` limpo em 2026-06-15 com todas as mudanças no working tree.
+- **Pendências apontadas:** limpar propostas de teste no banco (lixo); validar deploy na Vercel; revogar token read-only
+  da Wise (`6f40…`) que apareceu em chat anterior.
 
 ### 2026-06-11 - Redesign de marca + planejamento de férias + promoção
 - Redesign completo alinhado ao Brand Guide 2026 (marca "vela", Outfit, kicker laranja/dourado)
