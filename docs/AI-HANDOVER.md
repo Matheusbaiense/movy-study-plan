@@ -243,6 +243,23 @@ Estado desta sessao: bugs documentados de marca/label corrigidos na branch
 `npm run type-check`, `node --test tests/study-financial.test.mjs`, `npm run build`.
 Proximo passo: confirmar a fonte externa de cambio e implementar Feature A.
 
+## 🧭 DIREÇÃO DO PRODUTO 2026-06-15 — Movy vira app de agência (LEIA PRIMEIRO)
+
+O produto deixou de ser "hub interno" e passa a ser um **gerador de propostas para agências
+de intercâmbio** (futuramente white-label / SaaS). **Plano mestre e roadmap por splits:**
+`docs/PRODUCT-ROADMAP.md` — leia ANTES de planejar/codar Portfólio, Propostas ou Cálculo.
+
+- **3 pilares (prioridade):** (1) montagem ultrarrápida de propostas, (2) gestão de portfólio
+  com IA, (3) cálculos automáticos e explicáveis. **CRM e integrações externas estão FORA de escopo.**
+- **Tenancy-ready:** adicionar `org_id`/`organizations` (org "Movy" semeada) no schema/RLS já
+  na fundação, para virar multi-agência depois sem reescrever RLS. Nada pode assumir 1 só agência.
+- **Trabalho por SPLITS** (unidades por área de código, não por feature) — ver roadmap §5/§7.
+  Ordem: 0→1→2→3→4→6→5→7→8→9. Um split por vez, completo, type-check/teste verdes, commit próprio.
+- **Cálculo:** `lib/study-plans/calculations.ts` é fonte única (cliente p/ preview + servidor p/
+  validar) e a proposta guarda snapshot do cálculo + câmbio (não recalcula vivo).
+- **Portfólio normalizado** (institutions→campuses→courses→price_versions+promotions) **aposenta**
+  `course_presets`. **Import por IA nunca salva direto** (OCR→LLM→validação→revisão humana).
+
 ## ⚠️ ATUALIZAÇÃO 2026-06-14 — Sistema de tema claro/escuro (LEIA antes do "COMECE AQUI")
 
 O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regras do "COMECE AQUI" abaixo:

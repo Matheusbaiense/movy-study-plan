@@ -180,6 +180,7 @@
 - `AI-HANDOVER.md` — AI Handover - Movy Study Plan (~4158 tok)
 - `BRAND.md` — Marca Movy — referência de implementação (~532 tok)
 - `FRONTEND-REFACTOR.md` — Frontend Refactor — "Editorial Movement" (~2160 tok)
+- `PRODUCT-ROADMAP.md` — Master architecture & roadmap: product repositioning (agency proposal builder), tenancy-ready principle, domain model, SPLITS by code area, execution order. READ before planning Portfolio/Proposals/Calc. (~3600 tok)
 - `STUDY-PLANS.md` — Cotações & Study Plans (~1713 tok)
 
 ## i18n/
