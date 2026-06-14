@@ -156,7 +156,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                           color: ROLE_COLORS[u.role],
                           fontWeight: 700,
                           fontSize: 12,
-                          fontFamily: 'Outfit, system-ui, sans-serif',
+                          fontFamily: 'var(--font-body)',
                           cursor: self || lockedTarget ? 'not-allowed' : 'pointer',
                         }}
                       >
@@ -432,7 +432,7 @@ function SmallBtn({
         borderRadius: 8,
         fontSize: 12,
         fontWeight: 600,
-        fontFamily: 'Outfit, system-ui, sans-serif',
+        fontFamily: 'var(--font-body)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         border: `1px solid ${danger ? 'rgba(210,59,43,0.3)' : 'var(--border)'}`,
         background: danger ? 'rgba(210,59,43,0.06)' : 'var(--surface)',

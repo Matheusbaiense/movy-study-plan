@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { Plus, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
@@ -71,7 +72,7 @@ export default async function DepartmentPage({ params }: Props) {
         </p>
         <div style={{ display: 'flex', gap: 20 }}>
           <div>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: dept.color ?? '#2A1153' }}>{totalContent}</div>
+            <div style={{ fontFamily: font.display, fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: dept.color ?? '#2A1153' }}>{totalContent}</div>
             <div style={{ fontFamily: font.mono, fontSize: 11, color: 'var(--text-subtle)' }}>{locale === 'pt' ? 'documentos' : 'documents'}</div>
           </div>
         </div>
@@ -109,7 +110,8 @@ export default async function DepartmentPage({ params }: Props) {
                   textDecoration: 'none',
                 }}
               >
-                + {locale === 'pt' ? 'Novo documento' : 'New document'}
+                <Plus size={15} strokeWidth={2.4} aria-hidden />
+                {locale === 'pt' ? 'Novo documento' : 'New document'}
               </Link>
             </div>
           )}
@@ -121,8 +123,9 @@ export default async function DepartmentPage({ params }: Props) {
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-subtle)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
               {locale === 'pt' ? 'Ações' : 'Actions'}
             </div>
-            <Link href={`/${locale}/wiki?dept=${slug}`} prefetch={false} style={{ display: 'block', fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
-              {'->'} {locale === 'pt' ? 'Ver nas informacoes' : 'View knowledge'}
+            <Link href={`/${locale}/wiki?dept=${slug}`} prefetch={false} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: dept.color ?? '#4B1A77', textDecoration: 'none', marginBottom: 8, fontWeight: 500 }}>
+              <ArrowRight size={14} strokeWidth={2.2} aria-hidden />
+              {locale === 'pt' ? 'Ver nas informacoes' : 'View knowledge'}
             </Link>
           </div>
         </div>

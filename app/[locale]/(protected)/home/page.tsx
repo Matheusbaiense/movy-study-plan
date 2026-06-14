@@ -1,7 +1,7 @@
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { getUser } from '@/lib/auth/get-user'
-import { createClient } from '@/lib/supabase/server'
-import { color, ink, font, t } from '@/lib/ui/theme'
+import { color, font, t } from '@/lib/ui/theme'
 import { createStudyPlan } from '../study-plans/actions'
 
 interface Props {
@@ -15,21 +15,6 @@ function greeting(isEn: boolean) {
   if (hour < 12) return isEn ? 'Good morning' : 'Bom dia'
   if (hour < 18) return isEn ? 'Good afternoon' : 'Boa tarde'
   return isEn ? 'Good evening' : 'Boa noite'
-}
-
-async function counts() {
-  const supabase = await createClient()
-  const [plans, docs, users] = await Promise.all([
-    // study_plans is missing from the generated types (other code casts too)
-    (supabase as any).from('study_plans').select('id', { count: 'exact', head: true }),
-    supabase.from('contents').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('is_active', true),
-  ])
-  return {
-    plans: plans.count ?? null,
-    docs: docs.count ?? null,
-    users: users.count ?? null,
-  }
 }
 
 export default async function HomePage({ params }: Props) {
@@ -81,7 +66,7 @@ export default async function HomePage({ params }: Props) {
             <div style={{ marginTop: 'auto', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
               <form action={createStudyPlan.bind(null, locale)}>
                 <button className="movy-btn-primary" style={solidBtn(color.orange)}>
-                  {isEn ? 'New proposal' : 'Nova proposta'}<span aria-hidden style={{ fontSize: 16 }}>→</span>
+                  {isEn ? 'New proposal' : 'Nova proposta'}<ArrowRight size={16} strokeWidth={2.5} aria-hidden />
                 </button>
               </form>
               <Link href={`/${locale}/study-plans`} prefetch={false} style={ghostBtn}>{isEn ? 'View all' : 'Ver todas'}</Link>
@@ -103,7 +88,7 @@ export default async function HomePage({ params }: Props) {
             {isEn ? 'Visa proof-of-funds — living costs, travel, course and dependants, in AUD and BRL.' : 'Comprovação para o visto — custo de vida, passagem, curso e dependentes, em AUD e BRL.'}
           </p>
           <span style={{ marginTop: 'auto', display: 'inline-flex', alignItems: 'center', gap: 8, color: t.text, fontFamily: font.ui, fontWeight: 700, fontSize: 14 }}>
-            {isEn ? 'Open calculator' : 'Abrir calculadora'}<span aria-hidden style={{ fontSize: 16, color: color.orange }}>→</span>
+            {isEn ? 'Open calculator' : 'Abrir calculadora'}<ArrowRight size={16} strokeWidth={2.5} aria-hidden style={{ color: color.orange }} />
           </span>
         </Link>
       </section>

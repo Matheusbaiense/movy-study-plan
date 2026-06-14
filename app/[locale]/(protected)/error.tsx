@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { AlertTriangle, RotateCcw } from 'lucide-react'
 
 export default function ProtectedError({
   error,
@@ -20,21 +21,17 @@ export default function ProtectedError({
           width: 54, height: 54, borderRadius: 16, background: 'rgba(243,107,28,0.1)', border: '1px solid rgba(243,107,28,0.2)',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
         }}>
-          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#F36B1C" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-          </svg>
+          <AlertTriangle size={22} strokeWidth={1.6} color="#F36B1C" aria-hidden />
         </div>
         <div className="movy-kicker" style={{ marginBottom: 10 }}>Erro</div>
-        <h2 style={{ margin: '0 0 10px', fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--text)' }}>
+        <h2 className="typography-title-700" style={{ margin: '0 0 10px' }}>
           Algo deu errado
         </h2>
-        <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.55 }}>
+        <p className="color-fg-soft" style={{ margin: '0 0 22px', fontSize: 14, lineHeight: 1.55 }}>
           {error.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.'}
         </p>
-        <button
-          onClick={reset}
-          style={{ padding: '11px 20px', borderRadius: 10, background: '#F36B1C', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
-        >
+        <button onClick={reset} className="button-fill-primary-md" style={{ margin: '0 auto' }}>
+          <RotateCcw size={16} strokeWidth={2.4} aria-hidden />
           Tentar novamente
         </button>
       </div>

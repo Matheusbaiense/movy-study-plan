@@ -1,8 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import {
+  Home,
+  ClipboardList,
+  Calculator,
+  ArrowLeftRight,
+  BookText,
+  LayoutGrid,
+  Settings,
+  Menu,
+  LogOut,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
+  type LucideIcon,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { isAdminOrAbove } from '@/lib/permissions/can'
 import { DEPARTMENTS, getDeptName } from '@/lib/constants/departments'
@@ -17,11 +32,43 @@ interface AppShellProps {
   children: React.ReactNode
 }
 
+interface NavEntry {
+  href: string
+  icon: LucideIcon
+  label: string
+}
+
+const SIDEBAR_STORAGE_KEY = 'movy-sidebar-collapsed'
+const W_EXPANDED = 208
+const W_COLLAPSED = 76
+
 export function AppShell({ profile, locale, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Hydrate collapse preference after mount (avoids SSR mismatch).
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1')
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? '1' : '0')
+      } catch {
+        /* ignore */
+      }
+      return next
+    })
+  }
 
   function isActive(href: string) {
     return pathname.startsWith(href)
@@ -42,107 +89,125 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
   const roleColor = ROLE_COLOR[profile.role] ?? '#2A1153'
 
-  const mainNav = [
-    { href: `/${locale}/home`, icon: 'home', label: 'Home' },
-    { href: `/${locale}/study-plans`, icon: 'quote', label: locale === 'en' ? 'Proposals' : 'Propostas' },
-    { href: `/${locale}/financial`, icon: 'calc', label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
-    { href: `/${locale}/cambio`, icon: 'fx', label: locale === 'en' ? 'Exchange' : 'Câmbio' },
-    { href: `/${locale}/wiki`, icon: 'book', label: locale === 'en' ? 'Knowledge' : 'Informações' },
-    { href: `/${locale}/departments`, icon: 'areas', label: locale === 'en' ? 'Departments' : 'Departamentos' },
+  const mainNav: NavEntry[] = [
+    { href: `/${locale}/home`, icon: Home, label: 'Home' },
+    { href: `/${locale}/study-plans`, icon: ClipboardList, label: locale === 'en' ? 'Proposals' : 'Propostas' },
+    { href: `/${locale}/financial`, icon: Calculator, label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
+    { href: `/${locale}/cambio`, icon: ArrowLeftRight, label: locale === 'en' ? 'Exchange' : 'Câmbio' },
+    { href: `/${locale}/wiki`, icon: BookText, label: locale === 'en' ? 'Knowledge' : 'Informações' },
+    { href: `/${locale}/departments`, icon: LayoutGrid, label: locale === 'en' ? 'Departments' : 'Departamentos' },
   ]
 
-  const adminNav = isAdminOrAbove(profile.role)
-    ? [{ href: `/${locale}/settings`, icon: 'settings', label: locale === 'pt' ? 'Configurações' : 'Settings' }]
-    : []
+  const settingsEntry: NavEntry | null = isAdminOrAbove(profile.role)
+    ? { href: `/${locale}/settings`, icon: Settings, label: locale === 'pt' ? 'Configurações' : 'Settings' }
+    : null
 
-  const SidebarContent = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflowY: 'auto', padding: '24px 18px', boxSizing: 'border-box' }}>
-      {/* Logo lockup */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 28, padding: '0 6px' }}>
-        <MovyMark size={34} />
-        <div style={{ lineHeight: 1 }}>
-          <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 21, letterSpacing: '-0.01em', color: '#fff' }}>MOVY</div>
-          <div style={{ fontFamily: font.ui, fontWeight: 600, fontSize: 9, letterSpacing: '0.26em', color: '#FBB615', marginTop: 5 }}>INTERNAL HUB</div>
+  // `forceExpanded` is used by the mobile drawer, which always shows labels.
+  const SidebarContent = ({ forceExpanded = false }: { forceExpanded?: boolean }) => {
+    const isCollapsed = collapsed && !forceExpanded
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, padding: 16, boxSizing: 'border-box' }}>
+        {/* Logo + collapse toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', gap: 8, marginBottom: 24, minHeight: 40 }}>
+          {!isCollapsed && (
+            <Link href={`/${locale}/home`} prefetch={false} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <MovyMark size={30} />
+              <span style={{ lineHeight: 1 }}>
+                <span style={{ display: 'block', fontFamily: font.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em', color: t.text }}>MOVY</span>
+                <span style={{ display: 'block', fontFamily: font.ui, fontWeight: 700, fontSize: 8.5, letterSpacing: '0.24em', color: 'var(--movy-gold)', marginTop: 4 }}>INTERNAL HUB</span>
+              </span>
+            </Link>
+          )}
+          <button
+            onClick={forceExpanded ? () => setMobileOpen(false) : toggleCollapsed}
+            className="button-blank-secondary-icon"
+            aria-label={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
+            title={isCollapsed ? 'Expandir' : 'Recolher'}
+          >
+            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
         </div>
-      </div>
 
-      <NavGroup label="Portal">
-        {mainNav.map((item) => (
-          <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isActive(item.href)} onClick={() => setMobileOpen(false)} />
-        ))}
-      </NavGroup>
-
-      {adminNav.length > 0 && (
-        <NavGroup label="Admin">
-          {adminNav.map((item) => (
-            <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isActive(item.href)} onClick={() => setMobileOpen(false)} />
+        {/* Nav */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+          {mainNav.map((item) => (
+            <NavItem key={item.href} item={item} active={isActive(item.href)} collapsed={isCollapsed} onClick={() => setMobileOpen(false)} />
           ))}
-        </NavGroup>
-      )}
+        </nav>
 
-      <div style={{ flex: 1 }} />
-
-      {/* Oversized ghost sail — brand watermark */}
-      <div style={{ position: 'relative', height: 70, marginBottom: 6, overflow: 'hidden' }}>
-        <svg viewBox="0 0 120 120" width={150} height={150} style={{ position: 'absolute', left: -14, bottom: -52, color: '#fff', opacity: 0.07 }}>
-          <use href="#movySymMono" />
-        </svg>
+        {/* Footer: settings */}
+        {settingsEntry && (
+          <>
+            <div style={{ height: 1, background: t.border, margin: '12px 0' }} />
+            <NavItem item={settingsEntry} active={isActive(settingsEntry.href)} collapsed={isCollapsed} onClick={() => setMobileOpen(false)} />
+          </>
+        )}
       </div>
-
-      {/* User card */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
-        <Avatar initials={initials} color={roleColor} size={34} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: font.ui, fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {profile.full_name ?? profile.email}
-          </div>
-          <div style={{ fontFamily: font.ui, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
-            {profile.role.replace('_', ' ')}
-          </div>
-        </div>
-        <button onClick={handleSignOut} title={locale === 'en' ? 'Sign out' : 'Sair'} aria-label={locale === 'en' ? 'Sign out' : 'Sair'} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', padding: 4 }}>
-          <LogoutIcon />
-        </button>
-      </div>
-    </div>
-  )
-
-  const sidebarBg = 'var(--rail)'
+    )
+  }
 
   return (
     <div className="movy-atmosphere" style={{ display: 'flex', minHeight: '100dvh', background: t.bg }}>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex" style={{ width: 264, flexShrink: 0, background: sidebarBg, flexDirection: 'column', position: 'sticky', top: 0, height: '100dvh', borderRight: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+      <aside
+        className="hidden lg:flex color-bg-surface-default"
+        style={{
+          width: collapsed ? W_COLLAPSED : W_EXPANDED,
+          flexShrink: 0,
+          flexDirection: 'column',
+          position: 'sticky',
+          top: 0,
+          height: '100dvh',
+          borderRight: `1px solid ${t.border}`,
+          overflow: 'hidden',
+          transition: 'width 280ms var(--ease)',
+        }}
+      >
         <SidebarContent />
       </aside>
 
       {/* Mobile overlay + drawer */}
       {mobileOpen && (
-        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(28,18,51,0.5)' }} onClick={() => setMobileOpen(false)} />
+        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(20,11,48,0.5)' }} onClick={() => setMobileOpen(false)} />
       )}
-      <aside className="lg:hidden" style={{ position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 30, width: 264, background: sidebarBg, borderRight: '1px solid rgba(255,255,255,0.06)', transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 220ms cubic-bezier(0.16,1,0.3,1)', height: '100dvh', overflow: 'hidden' }}>
-        <SidebarContent />
+      <aside
+        className="lg:hidden color-bg-surface-default"
+        style={{
+          position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 30, width: W_EXPANDED,
+          borderRight: `1px solid ${t.border}`,
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 220ms var(--ease)', height: '100dvh', overflow: 'hidden',
+        }}
+      >
+        <SidebarContent forceExpanded />
       </aside>
 
-      {/* Main */}
+      {/* Main column */}
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, height: '100dvh' }}>
         {/* Mobile topbar */}
-        <header className="flex lg:hidden" style={{ alignItems: 'center', gap: 12, height: 56, borderBottom: `1px solid ${t.border}`, background: 'var(--bar-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '0 16px', flexShrink: 0, zIndex: 10 }}>
-          <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: t.textMuted, display: 'flex' }}>
-            <HamburgerIcon />
-          </button>
-          <MovyMark size={26} />
-          <span style={{ fontFamily: font.display, fontSize: 16, fontWeight: 600, color: t.text, letterSpacing: '-0.01em' }}>MOVY</span>
-          <div style={{ flex: 1 }} />
+        <header className="flex lg:hidden navbar-container" style={{ height: 56, padding: '0 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu" className="button-blank-secondary-icon">
+              <Menu size={22} />
+            </button>
+            <MovyMark size={24} />
+            <span style={{ fontFamily: font.display, fontSize: 16, fontWeight: 600, color: t.text, letterSpacing: '-0.01em' }}>MOVY</span>
+          </div>
           <ThemeToggle compact />
         </header>
 
         {/* Desktop topbar */}
-        <header className="hidden lg:flex" style={{ alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '14px 32px', borderBottom: `1px solid ${t.border}`, background: 'var(--bar-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', flexShrink: 0, zIndex: 15 }}>
+        <header className="hidden lg:flex navbar-container">
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
             <ThemeToggle />
-            <button onClick={() => setMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={menuOpen} aria-label={locale === 'en' ? 'Account menu' : 'Menu da conta'} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, borderRadius: 999 }}>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              aria-label={locale === 'en' ? 'Account menu' : 'Menu da conta'}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, borderRadius: 999 }}
+            >
               <Avatar initials={initials} color={roleColor} size={34} />
             </button>
             {menuOpen && (
@@ -153,12 +218,13 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
                     <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 14, color: t.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name ?? profile.email}</div>
                     <div style={{ fontFamily: font.body, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', color: roleColor, textTransform: 'uppercase', marginTop: 3 }}>{profile.role.replace('_', ' ')}</div>
                   </div>
-                  {adminNav.length > 0 && (
-                    <MenuLink href={`/${locale}/settings`} onClick={() => setMenuOpen(false)}>
-                      {locale === 'en' ? 'Settings' : 'Configurações'}
+                  {settingsEntry && (
+                    <MenuLink href={settingsEntry.href} onClick={() => setMenuOpen(false)}>
+                      {settingsEntry.label}
                     </MenuLink>
                   )}
-                  <button role="menuitem" onClick={handleSignOut} style={{ width: '100%', textAlign: 'left', padding: '11px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600, color: '#D23B2B' }}>
+                  <button role="menuitem" onClick={handleSignOut} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', padding: '11px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: font.ui, fontSize: 13, fontWeight: 600, color: '#D23B2B' }}>
+                    <LogOut size={15} />
                     {locale === 'en' ? 'Sign out' : 'Sair'}
                   </button>
                 </div>
@@ -179,7 +245,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
 function Avatar({ initials, color, size }: { initials: string; color: string; size: number }) {
   return (
-    <span style={{ width: size, height: size, borderRadius: 999, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.38, fontWeight: 700, color: '#fff', fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}>
+    <span style={{ width: size, height: size, borderRadius: 999, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.38, fontWeight: 700, color: '#fff', fontFamily: font.ui, flexShrink: 0 }}>
       {initials}
     </span>
   )
@@ -193,33 +259,20 @@ function MenuLink({ href, onClick, children }: { href: string; onClick: () => vo
   )
 }
 
-function NavGroup({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontFamily: font.ui, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)', padding: '0 10px', marginBottom: 8 }}>{label}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>{children}</div>
-    </div>
-  )
-}
-
-function NavItem({ href, icon, label, active, onClick }: { href: string; icon: string; label: string; active: boolean; onClick: () => void }) {
+function NavItem({ item, active, collapsed, onClick }: { item: NavEntry; active: boolean; collapsed: boolean; onClick: () => void }) {
+  const Icon = item.icon
   return (
     <Link
-      href={href}
+      href={item.href}
       prefetch={false}
       onClick={onClick}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 11, padding: '9px 11px',
-        background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
-        borderRadius: 9,
-        color: active ? '#fff' : 'rgba(255,255,255,0.7)',
-        fontFamily: font.ui, fontSize: 13.5, fontWeight: active ? 700 : 500,
-        textDecoration: 'none', transition: 'background .15s ease',
-      }}
+      title={collapsed ? item.label : undefined}
+      aria-label={item.label}
+      className={active ? 'button-menu-default-selected-md' : 'button-menu-default-md'}
+      style={collapsed ? { justifyContent: 'center', padding: 0, width: 44, height: 44 } : undefined}
     >
-      <NavIcon name={icon} active={active} />
-      <span style={{ flex: 1 }}>{label}</span>
-      {active && <span style={{ width: 4, height: 16, borderRadius: 2, background: '#FBB615', flexShrink: 0 }} />}
+      <Icon size={20} strokeWidth={1.6} style={{ flexShrink: 0 }} />
+      {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
     </Link>
   )
 }
@@ -261,46 +314,12 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
       {items.map((item, i) => (
         <span key={item.href} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {i > 0 && (
-            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={ink(0.4)} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-          )}
+          {i > 0 && <ChevronRight size={13} style={{ color: ink(0.4) }} />}
           <Link href={item.href} prefetch={false} style={{ color: i === items.length - 1 ? t.text : t.textMuted, fontWeight: i === items.length - 1 ? 700 : 500, textDecoration: 'none', fontFamily: font.ui }}>
             {item.label}
           </Link>
         </span>
       ))}
     </div>
-  )
-}
-
-function NavIcon({ name, active }: { name: string; active: boolean }) {
-  const color = active ? '#FBB615' : 'rgba(255,255,255,0.55)'
-  const s = { stroke: color, strokeWidth: 1.6, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
-  const icons: Record<string, React.ReactNode> = {
-    home: <><path d="M3 11l9-8 9 8" {...s} /><path d="M5 10v10h14V10" {...s} /></>,
-    quote: <><path d="M5 5h14v14H5z" {...s} /><path d="M8 9h8M8 13h5M15 16l1.5 1.5L20 14" {...s} /></>,
-    book: <><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" {...s} /><path d="M4 17a3 3 0 0 1 3-3h11" {...s} /></>,
-    areas: <><path d="M4 5h7v7H4z" {...s} /><path d="M13 5h7v7h-7z" {...s} /><path d="M4 14h7v5H4z" {...s} /><path d="M13 14h7v5h-7z" {...s} /></>,
-    calc: <><rect x="5" y="3" width="14" height="18" rx="2" {...s} /><path d="M8 7h8M8 11h8M8 15h8" {...s} /></>,
-    fx: <><path d="M4 19V5" {...s} /><path d="M4 15l5-5 4 4 7-7" {...s} /><path d="M16 7h4v4" {...s} /></>,
-    settings: <><circle cx="12" cy="12" r="3" {...s} /><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" {...s} /></>,
-  }
-  return <svg width={16} height={16} viewBox="0 0 24 24">{icons[name] ?? null}</svg>
-}
-
-function LogoutIcon() {
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" />
-      <path d="M10 17l-5-5 5-5M5 12h11" />
-    </svg>
-  )
-}
-
-function HamburgerIcon() {
-  return (
-    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-      <path d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
   )
 }

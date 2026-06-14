@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Check, Copy } from 'lucide-react'
 import type { EmailBlock } from '@/types/blocks'
 
 export function EmailTemplate({ block }: { block: EmailBlock }) {
@@ -46,12 +47,15 @@ export function EmailTemplate({ block }: { block: EmailBlock }) {
         <button
           onClick={copyBody}
           style={{
-            fontSize: 11, color: copied ? '#4B1A77' : '#F36B1C',
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 11, color: copied ? '#FBB615' : '#F36B1C',
             background: 'none', border: 'none', cursor: 'pointer',
-            fontWeight: 600, fontFamily: 'Outfit, sans-serif',
+            fontWeight: 600, fontFamily: 'var(--font-body)',
           }}
         >
-          {copied ? '✓ Copiado!' : 'Copiar corpo'}
+          {copied
+            ? <><Check size={13} strokeWidth={2.5} aria-hidden /> Copiado!</>
+            : <><Copy size={13} strokeWidth={2} aria-hidden /> Copiar corpo</>}
         </button>
       </div>
       {block.from && <Row label="DE" value={block.from} />}

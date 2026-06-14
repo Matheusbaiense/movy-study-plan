@@ -284,6 +284,55 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT UI (cont.): migração de telas não-split para o DS + auditoria
+> Continuação da fundação. Princípio de engenharia: **migrar só onde há valor real**, sem churn
+> cosmético. Auditei o repo (grep de cores/fontes hardcoded e `<svg>` à mão) para achar exatamente
+> as telas que **divergiam** do DS/tokens — o resto já era token-based (mesma linguagem do novo shell).
+
+- **Migradas (Lucide + classes DS + tokens, dark-safe):**
+  - `home/page.tsx`: removido código morto (`counts()` com `as any`), setas de texto → `ArrowRight`.
+  - `wiki/page.tsx`: ícones à mão → `Search`/`Plus`, botões crus → `button-fill-primary-md`,
+    `#2A1153`/`rgba(28,18,51,…)` → tokens (`--border`, `color-fg-*`), input de busca tokenizado.
+  - `wiki/[slug]/page.tsx`: `Chevron/Edit/Back` à mão → `ChevronRight`/`Pencil`/`ArrowLeft`,
+    fontes `Outfit` literais → `var(--font-body)`.
+  - `components/wiki/blocks/EmailTemplate.tsx`: emoji `✓` → `Check`/`Copy` (Lucide), `Outfit`→token,
+    cor do "copiado" → dourado (visível no header roxo em dark).
+  - `departments/[slug]/page.tsx`: prefixos `+`/`->` → `Plus`/`ArrowRight`, `Outfit`→`font.display`.
+  - `settings/users/UsersManager.tsx`: fontes `Outfit`→`var(--font-body)` (resto já tematizado).
+  - `error.tsx`: SVG à mão → `AlertTriangle`/`RotateCcw`, botão → `button-fill-primary-md`, tokens.
+  - `home/loading.tsx`, `wiki/loading.tsx`, `departments/[slug]/loading.tsx`: skeletons quebravam no
+    dark (`rgba(28,18,51,…)` some, `#fff` fixo) → `rgba(var(--ink-rgb),…)` + `var(--surface)`.
+- **NÃO migradas (decisão consciente, sem retrabalho):**
+  - **Câmbio** (`cambio/page.tsx`, `FxConverter/FxStats/FxRatesTable/FxChart`): já 100% token-based
+    e theme-aware — reescrever em classes DS seria no-op visual com risco de regressão.
+  - **`FinancialCalculator.tsx`**: é o **documento financeiro imprimível** (estilos `.fc-*` em papel
+    branco, Outfit/Space Mono) — intencionalmente "papel" nos dois temas, igual ao PDF da proposta
+    (decisão P já documentada). Manter.
+  - Telas **donas de split** (lista/editor/proposta) e `as any` ligados a `study_plans`: ficam para os
+    splits 3/4/5 e o **SPLIT 0** (regen de tipos resolve os `as any`), evitando refazer.
+- **QA:** `npm run type-check` ✅ e `npm run build` ✅ (só warning pré-existente de `useMemo` em `FxChart`).
+- **Próximo:** replanejar splits (woofed/DS) + integrar no roadmap → push → executar SPLIT 0.
+
+### 2026-06-15 - SPLIT UI: remodelar interface para woofed (pele Movy) — fundação
+> Decisão do dono: mover a interface inteira para a linguagem visual do **woofed-crm**, mantendo a
+> marca Movy (roxo `#4B1A77` + dourado `#FBB615` + Clash Display/Satoshi). **Sem VPS** — woofed é
+> blueprint (Caminho B), replicado do clone `C:/dev/woofed-crm`. Detalhes em `.wolf/cerebrum.md` e
+> `docs/PRODUCT-ROADMAP.md` §5 (SPLIT UI).
+
+- **Camada de DS (woofed-shaped, pele Movy):** portada a camada `@layer components` do woofed para
+  `app/globals.css`, remapeada às nossas CSS vars light/dark via tokens `--ds-*`. Classes disponíveis:
+  `color-fg-*`, `color-bg-surface-*`, `color-bg-fill-*`, `color-border-*`, `typography-*`,
+  `button-menu-default-md(-selected)`, `button-fill-primary-md`, `button-outline-secondary-md`,
+  `button-blank-secondary-icon`, `navbar-container`, `woo-input`, `ds-label`.
+- **AppShell reescrito (`components/layout/AppShell.tsx`):** sidebar **colapsável** (208↔76px,
+  persistida em `localStorage`), ícones **Lucide** (`lucide-react`), item ativo via
+  `button-menu-default-selected-md`, settings fixo no rodapé, topbar por página (`navbar-container`)
+  com breadcrumb + tema + menu de conta, drawer mobile. Sidebar agora é **superfície clara bordada**
+  (anatomia woofed); em dark vira a superfície roxa do tema.
+- **QA:** `npm run type-check` ✅ e `npm run build` ✅ em 2026-06-15.
+- **Próximo:** migrar telas para as classes do DS dentro dos splits 3 (lista), 4 (editor), 5 (proposta/PDF),
+  + passes incrementais em home/wiki/departments/settings/câmbio/financeiro. SPLIT 0 (schema) segue pendente.
+
 ### 2026-06-14 - Redesign claro/escuro + separação de campos + fixes (sessão Antigravity, documentada retroativamente)
 
 > O agente Antigravity (Gemini IDE) executou este trabalho mas NÃO registrou em OpenWolf/handover.

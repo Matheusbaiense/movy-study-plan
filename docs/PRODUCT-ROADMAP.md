@@ -211,6 +211,38 @@ Para evitar retrabalho, estes contratos são definidos cedo e os splits dependem
 > Cada split deixa sua área **na forma final**. Ordem em §7. Cada split = 1 branch + 1 commit
 > (ou poucos), com type-check + `node --test` verdes e, quando toca dinheiro/datas/RLS, build.
 
+### SPLIT UI — Shell & Design System (woofed-shaped, pele Movy)
+**Objetivo:** migrar a interface inteira para a linguagem visual do **woofed-crm** (P10),
+mantendo a **marca Movy** (roxo `#4B1A77` + dourado `#FBB615` + Clash Display/Satoshi).
+É **frontend-puro e independente do SPLIT 0** — pode rodar antes/em paralelo. Decisão de marca:
+"interface do woofed, cara da Movy". Sem VPS: o woofed é blueprint (Caminho B); replicamos
+lendo o código-fonte do clone `C:/dev/woofed-crm`.
+
+**Camada de DS (feito nesta sessão):** porte da camada `@layer components` do woofed para
+`app/globals.css`, remapeada às nossas CSS vars light/dark via tokens `--ds-*`. Classes
+semânticas disponíveis para todas as telas: `color-fg-*`, `color-bg-surface-*`,
+`color-bg-fill-*`, `color-border-*`, `typography-*`, `button-menu-default-md(-selected)`,
+`button-fill-primary-md`, `button-outline-secondary-md`, `button-blank-secondary-icon`,
+`navbar-container`, `woo-input`, `ds-label`.
+
+**Shell (feito nesta sessão):** `components/layout/AppShell.tsx` reescrito woofed-shaped —
+sidebar **colapsável** (208↔76px, persistida em `localStorage`), ícones **Lucide**
+(`lucide-react`, já instalado), item ativo via `button-menu-default-selected-md`, settings
+fixado no rodapé, topbar por página (`navbar-container`) com breadcrumb + tema + menu de conta,
+drawer mobile. Sidebar agora é **superfície clara bordada** (anatomia woofed) em vez do rail
+roxo; em dark vira a superfície roxa do tema.
+
+**Arquivos:** `app/globals.css` (tokens `--ds-*` + `@layer components`),
+`components/layout/AppShell.tsx`. Sem mudança de schema, sem `as any`.
+
+**Pendente (migração tela a tela):** cada tela adota as classes do DS e troca SVGs à mão por
+Lucide — **dentro do respectivo split de UI** (3 lista, 4 editor, 5 proposta/PDF), além de
+home/wiki/departments/settings/câmbio/financeiro como passes incrementais.
+
+**Aceite:** shell colapsável funcional em light/dark/mobile; type-check + build verdes
+(feito); telas migram progressivamente sem regressão.
+**Depende de:** —
+
 ### SPLIT 0 — Fundação de dados & tenancy-ready
 **Objetivo:** schema base multi-org-ready + quitar `as any`. Tudo depende disto.
 **Schema (migration 009):** `organizations` (+ seed Movy); `org_id` em `profiles`,

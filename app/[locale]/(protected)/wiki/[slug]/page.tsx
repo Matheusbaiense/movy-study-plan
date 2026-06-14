@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { ChevronRight, Pencil, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
@@ -103,14 +104,14 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
     <div>
       {/* Breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-        <Link href={`/${locale}/home`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+        <Link href={`/${locale}/home`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
           {locale === 'pt' ? 'Início' : 'Home'}
         </Link>
-        <ChevronIcon />
-        <Link href={`/${locale}/wiki`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+        <ChevronRight size={12} strokeWidth={1.8} aria-hidden />
+        <Link href={`/${locale}/wiki`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
           {locale === 'en' ? 'Knowledge' : 'Informações'}
         </Link>
-        <ChevronIcon />
+        <ChevronRight size={12} strokeWidth={1.8} aria-hidden />
         <span style={{ color: 'var(--text)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>{title}</span>
       </div>
 
@@ -194,7 +195,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                   textDecoration: 'none', fontFamily: 'var(--font-body)',
                 }}
               >
-                <EditIcon />
+                <Pencil size={14} strokeWidth={1.8} aria-hidden />
                 {locale === 'pt' ? 'Editar' : 'Edit'}
               </Link>
               {canDelete && (
@@ -222,7 +223,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                       prefetch={false}
                       style={{
                         display: 'block', padding: '8px 10px', borderRadius: 8,
-                        background: 'transparent', textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
+                        background: 'transparent', textDecoration: 'none', fontFamily: 'var(--font-body)',
                       }}
                     >
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{rTitle}</div>
@@ -244,7 +245,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
                 textDecoration: 'none', fontFamily: 'var(--font-body)',
               }}
             >
-              <BackIcon />
+              <ArrowLeft size={14} strokeWidth={1.8} aria-hidden />
               {locale === 'pt' ? 'Voltar às informações' : locale === 'es' ? 'Volver a informaciones' : 'Back to knowledge'}
             </Link>
           </div>
@@ -252,14 +253,4 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
       </div>
     </div>
   )
-}
-
-function ChevronIcon() {
-  return <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-}
-function EditIcon() {
-  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-}
-function BackIcon() {
-  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
 }

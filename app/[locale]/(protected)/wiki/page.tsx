@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Plus, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
@@ -85,22 +86,13 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
           <h1 style={{ margin: '8px 0 4px', fontFamily: font.display, fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 0.98, color: 'var(--text)' }}>
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
-          <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.62)' }}>
+          <p className="color-fg-soft" style={{ margin: 0, fontFamily: font.mono, fontSize: 12 }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}
           </p>
         </div>
         {canWrite && (
-          <Link
-            href={`/${locale}/wiki/new`}
-            prefetch={false}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '10px 16px', borderRadius: 12, fontWeight: 600, fontSize: 14,
-              background: '#2A1153', color: '#fff', border: '1px solid #2A1153',
-              textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
-            }}
-          >
-            <PlusIcon />
+          <Link href={`/${locale}/wiki/new`} prefetch={false} className="button-fill-primary-md">
+            <Plus size={16} strokeWidth={2.4} aria-hidden />
             {locale === 'pt' ? 'Novo conteudo' : locale === 'es' ? 'Nuevo contenido' : 'New content'}
           </Link>
         )}
@@ -110,7 +102,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       <div className="movy-card" style={{ padding: 14, marginBottom: 18 }}>
         <form method="GET">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px' }}>
-            <SearchIcon />
+            <Search size={18} strokeWidth={1.8} aria-hidden className="color-fg-soft" />
             <input
               name="search"
               defaultValue={search}
@@ -122,12 +114,12 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             />
           </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(28,18,51,0.06)', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)', flexWrap: 'wrap', alignItems: 'center' }}>
             <select
               name="dept"
               defaultValue={dept ?? ''}
               style={{
-                padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
+                padding: '7px 12px', borderRadius: 10, border: '1px solid var(--border)',
                 background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
                 cursor: 'pointer',
               }}
@@ -145,7 +137,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
                 name="status"
                 defaultValue={status ?? ''}
                 style={{
-                  padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
+                  padding: '7px 12px', borderRadius: 10, border: '1px solid var(--border)',
                   background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
                   cursor: 'pointer',
                 }}
@@ -157,14 +149,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               </select>
             )}
 
-            <button
-              type="submit"
-              style={{
-                padding: '7px 14px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
-                background: '#2A1153', color: '#fff', fontSize: 13, fontWeight: 600,
-                fontFamily: 'Outfit, system-ui, sans-serif', cursor: 'pointer',
-              }}
-            >
+            <button type="submit" className="button-fill-primary-md" style={{ height: 34, padding: '0 14px', fontSize: 13 }}>
               {locale === 'pt' ? 'Filtrar' : locale === 'es' ? 'Filtrar' : 'Filter'}
             </button>
           </div>
@@ -178,7 +163,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             padding: 60, textAlign: 'center', color: 'var(--text-subtle)',
             background: 'var(--surface)', borderRadius: 18, border: '1px solid var(--border)',
           }}>
-            <SearchIcon large />
+            <Search size={28} strokeWidth={1.6} aria-hidden className="color-fg-extra-soft" style={{ display: 'inline-block' }} />
             <div style={{ marginTop: 10, fontSize: 14 }}>
               {locale === 'pt' ? 'Nenhum resultado.' : locale === 'es' ? 'Sin resultados.' : 'No matches.'}
             </div>
@@ -186,7 +171,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               <Link
                 href={`/${locale}/wiki/new`}
                 prefetch={false}
-                style={{ marginTop: 12, display: 'inline-block', fontSize: 13, color: '#4B1A77', textDecoration: 'underline' }}
+                className="color-fg-highlight"
+                style={{ marginTop: 12, display: 'inline-block', fontSize: 13, textDecoration: 'underline' }}
               >
                 {locale === 'pt' ? 'Criar o primeiro artigo' : 'Create the first article'}
               </Link>
@@ -222,14 +208,4 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       </div>
     </div>
   )
-}
-
-function PlusIcon() {
-  return <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-}
-
-function SearchIcon({ large }: { large?: boolean }) {
-  const size = large ? 28 : 18
-  const color = large ? 'rgba(28,18,51,0.3)' : 'rgba(28,18,51,0.5)'
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
 }

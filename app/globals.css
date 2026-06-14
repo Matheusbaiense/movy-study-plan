@@ -53,6 +53,15 @@
   --rail-border: rgba(255, 255, 255, 0.07);
   --bar-bg: rgba(250, 249, 252, 0.78);
   color-scheme: light;
+
+  /* ── woofed-shaped design-system tokens, Movy-skinned (light) ── */
+  --ds-fill-soft: var(--surface-sunken);
+  --ds-fill-default: #EFEBF7;
+  --ds-fill-hard: rgba(75, 26, 119, 0.08);
+  --ds-fill-highlight: var(--movy-purple);
+  --ds-fill-highlight-hover: var(--movy-purple-mid);
+  --ds-border-harder: rgba(75, 26, 119, 0.22);
+  --ds-fg-highlight: var(--movy-purple);
 }
 
 [data-theme='dark'] {
@@ -75,6 +84,15 @@
   --rail-border: rgba(255, 255, 255, 0.08);
   --bar-bg: rgba(18, 8, 38, 0.72);
   color-scheme: dark;
+
+  /* ── woofed-shaped design-system tokens, Movy-skinned (dark) ── */
+  --ds-fill-soft: var(--surface-sunken);
+  --ds-fill-default: rgba(255, 255, 255, 0.06);
+  --ds-fill-hard: rgba(255, 255, 255, 0.1);
+  --ds-fill-highlight: var(--movy-gold);
+  --ds-fill-highlight-hover: var(--movy-gold-soft);
+  --ds-border-harder: rgba(255, 255, 255, 0.18);
+  --ds-fg-highlight: var(--movy-gold);
 }
 
 * {
@@ -241,6 +259,117 @@ button:focus-visible,
   .movy-index-row,
   .movy-index-arrow,
   .movy-btn-primary { transition: none; }
+}
+
+/* ===========================================================================
+   WOOFED-SHAPED DESIGN SYSTEM (Movy-skinned)
+   Semantic classes ported from woofed-crm's Tailwind layer, remapped onto
+   Movy brand + our light/dark CSS variables. Components consume these instead
+   of inline styles so the whole product converges on one design language and
+   stays merge-ready with the future CRM. See docs/PRODUCT-ROADMAP.md (SPLIT UI).
+============================================================================ */
+@layer components {
+  /* — Foreground (text/icon) — */
+  .color-fg-hard { color: var(--text); }
+  .color-fg-default { color: var(--text); }
+  .color-fg-soft { color: var(--text-muted); }
+  .color-fg-extra-soft { color: var(--text-subtle); }
+  .color-fg-highlight { color: var(--ds-fg-highlight); }
+  .color-fg-inverse { color: var(--accent-contrast); }
+  .color-fg-feedback-success { color: #259C50; }
+  .color-fg-feedback-danger { color: var(--movy-red); }
+
+  /* — Surfaces & fills — */
+  .color-bg-surface-default { background-color: var(--surface); }
+  .color-bg-surface-sunken { background-color: var(--surface-sunken); }
+  .color-bg-fill-soft { background-color: var(--ds-fill-soft); }
+  .color-bg-fill-default { background-color: var(--ds-fill-default); }
+  .color-bg-fill-hard { background-color: var(--ds-fill-hard); }
+  .color-bg-fill-highlight { background-color: var(--ds-fill-highlight); }
+
+  /* — Borders — */
+  .color-border-default { border-color: var(--border); }
+  .color-border-strong { border-color: var(--border-strong); }
+  .color-border-harder { border-color: var(--ds-border-harder); }
+
+  /* — Typography scale (Movy fonts) — */
+  .typography-title-700 { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; line-height: 2rem; letter-spacing: -0.02em; }
+  .typography-sub-title-900 { font-family: var(--font-display); font-weight: 600; font-size: 1rem; line-height: 1.5rem; letter-spacing: -0.01em; }
+  .typography-body-1000 { font-family: var(--font-body); font-weight: 500; font-size: 1rem; line-height: 1.5rem; }
+  .typography-body-900 { font-family: var(--font-body); font-weight: 600; font-size: 0.875rem; line-height: 1.25rem; }
+  .typography-body-800 { font-family: var(--font-body); font-weight: 600; font-size: 0.75rem; line-height: 1rem; }
+  .typography-label-900 { font-family: var(--font-body); font-weight: 400; font-size: 0.875rem; line-height: 1.25rem; }
+  .typography-micro-s { font-family: var(--font-body); font-weight: 700; font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; }
+
+  /* — Menu items (sidebar nav) — */
+  .button-menu-default-md {
+    display: inline-flex; align-items: center; justify-content: flex-start;
+    gap: 12px; padding: 0 12px; height: 44px; border: 1px solid transparent;
+    border-radius: 10px; color: var(--text-muted);
+    font-family: var(--font-body); font-weight: 600; font-size: 0.875rem;
+    text-decoration: none; transition: background-color 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease);
+  }
+  .button-menu-default-md:hover { background-color: var(--ds-fill-hard); color: var(--text); }
+  .button-menu-default-selected-md {
+    display: inline-flex; align-items: center; justify-content: flex-start;
+    gap: 12px; padding: 0 12px; height: 44px; border-radius: 10px;
+    background-color: var(--ds-fill-hard); border: 1px solid var(--ds-border-harder);
+    color: var(--ds-fg-highlight);
+    font-family: var(--font-body); font-weight: 700; font-size: 0.875rem; text-decoration: none;
+  }
+
+  /* — Buttons — */
+  .button-fill-primary-md {
+    display: inline-flex; gap: 8px; align-items: center; justify-content: center;
+    height: 40px; padding: 0 16px; border-radius: var(--r-sm); border: 0; cursor: pointer;
+    background-color: var(--ds-fill-highlight); color: var(--accent-contrast);
+    font-family: var(--font-body); font-weight: 700; font-size: 0.875rem;
+    transition: filter 0.14s ease, transform 0.14s ease;
+  }
+  .button-fill-primary-md:hover { filter: brightness(1.06); }
+  .button-fill-primary-md:active { transform: translateY(1px); }
+  .button-outline-secondary-md {
+    display: inline-flex; gap: 8px; align-items: center; justify-content: center;
+    height: 40px; padding: 0 16px; border-radius: var(--r-sm); cursor: pointer;
+    background-color: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    font-family: var(--font-body); font-weight: 600; font-size: 0.875rem;
+    transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+  }
+  .button-outline-secondary-md:hover { background-color: var(--ds-fill-hard); color: var(--text); border-color: var(--border-strong); }
+  .button-blank-secondary-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: var(--r-sm); border: 0; cursor: pointer;
+    background-color: transparent; color: var(--text-muted);
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+  .button-blank-secondary-icon:hover { background-color: var(--ds-fill-hard); color: var(--text); }
+
+  /* — Top navbar (per-page header) — */
+  .navbar-container {
+    display: flex; align-items: center; justify-content: space-between; width: 100%;
+    height: 64px; padding: 0 32px; background: var(--bar-bg);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  @media (min-width: 640px) { .navbar-container { height: 72px; } }
+
+  /* — Form input — */
+  .woo-input {
+    width: 100%; height: 40px; padding: 0 14px; border-radius: var(--r-sm);
+    background-color: var(--surface); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--font-body); font-size: 0.875rem; outline: none;
+    transition: border-color 0.14s ease, box-shadow 0.14s ease;
+  }
+  .woo-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(75, 26, 119, 0.12); }
+  .woo-input::placeholder { color: var(--text-subtle); }
+
+  /* — Label chips — */
+  .ds-label {
+    display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px;
+    border-radius: 999px; font-family: var(--font-body); font-weight: 700;
+    font-size: 0.6875rem; letter-spacing: 0.02em;
+    background-color: var(--ds-fill-hard); color: var(--ds-fg-highlight);
+  }
 }
 
 /* Prose styles for wiki content */
