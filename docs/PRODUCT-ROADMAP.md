@@ -328,7 +328,12 @@ reescrever policies para incluir `org_id = current_org_id()`; default `org_id` =
 type-check verde.
 **Depende de:** —
 
-### SPLIT 1 — Engine de cálculo (fonte única + snapshot + dinheiro em centavos)
+### SPLIT 1 — Engine de cálculo (fonte única + snapshot + dinheiro em centavos) ✅ CONCLUÍDO (2026-06-15)
+> Feito: `lib/calc/{money,types,index}.ts`; `calculations.ts` com núcleo `*Cents` + `computeProposal`
+> + `COMPUTED_VERSION=1` (floats viraram delegadores `centsToNumber`, UI intacta); ponte
+> `computeFinancialCapacityCents`; server grava snapshot em `data.computed` (jsonb, sem coluna/migration,
+> versionado) recomputando no servidor; legado float lido na borda via `toCents`. `tsconfig` ganhou
+> `allowImportingTsExtensions`. type-check/test(10)/build verdes. Sem migration (backfill em massa → SPLIT 2).
 **Objetivo:** P2 + P3 + P9. Consolidar cálculo, validar no servidor, definir `ComputedTotals`,
 **migrar dinheiro para centavos inteiros + moeda** (compatível woofed `*_in_cents`).
 `currency_code` acompanha **cada valor** persistido (não só a org) — fronteira Movy↔Lago é

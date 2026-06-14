@@ -1,6 +1,8 @@
 // Financial Capability Demonstration for the Australian student visa.
 // Formula and constants are mirrored from the attached reference workbook.
 
+import { toCents, DEFAULT_CURRENCY, type CurrencyCode } from '../calc/money.ts'
+
 export type StudentLocation = 'onshore' | 'offshore'
 
 // Annual amounts (AUD) used by the current workbook.
@@ -37,6 +39,22 @@ export interface FinancialResult {
   travelBrl: number
   remainingCourseBrl: number
   dependentSchoolBrl: number
+}
+
+// Integer-cents view of the financial capacity result (P9). `currencyCode` travels with
+// the AUD-denominated values; the BRL-denominated values are the exchanged amounts.
+export interface FinancialResultCents {
+  currencyCode: CurrencyCode
+  costOfLivingCents: number
+  travelCostCents: number
+  remainingCourseFeeCents: number
+  dependentSchoolFeeCents: number
+  totalAudCents: number
+  totalBrlCents: number
+  costOfLivingBrlCents: number
+  travelBrlCents: number
+  remainingCourseBrlCents: number
+  dependentSchoolBrlCents: number
 }
 
 function num(value: unknown): number {
@@ -87,6 +105,28 @@ export function computeFinancialCapacity(input: FinancialInput): FinancialResult
     travelBrl: round2(travelCost * rate),
     remainingCourseBrl: round2(remainingCourseFee * rate),
     dependentSchoolBrl: round2(dependentSchoolFee * rate),
+  }
+}
+
+// Engine bridge: same float math, returned as integer cents at the border so the
+// financial capacity can join the integer-cents snapshot. `toCents` guards FP drift.
+export function computeFinancialCapacityCents(
+  input: FinancialInput,
+  currencyCode: CurrencyCode = DEFAULT_CURRENCY,
+): FinancialResultCents {
+  const r = computeFinancialCapacity(input)
+  return {
+    currencyCode,
+    costOfLivingCents: toCents(r.costOfLiving),
+    travelCostCents: toCents(r.travelCost),
+    remainingCourseFeeCents: toCents(r.remainingCourseFee),
+    dependentSchoolFeeCents: toCents(r.dependentSchoolFee),
+    totalAudCents: toCents(r.totalAud),
+    totalBrlCents: toCents(r.totalBrl),
+    costOfLivingBrlCents: toCents(r.costOfLivingBrl),
+    travelBrlCents: toCents(r.travelBrl),
+    remainingCourseBrlCents: toCents(r.remainingCourseBrl),
+    dependentSchoolBrlCents: toCents(r.dependentSchoolBrl),
   }
 }
 

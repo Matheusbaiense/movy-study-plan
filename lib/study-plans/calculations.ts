@@ -1,4 +1,6 @@
 import type { CourseSegment, StudentLocation, StudyCourse, StudyPlanData } from './types'
+import { centsToNumber, toCents, DEFAULT_CURRENCY, type CurrencyCode } from '../calc/money.ts'
+import type { ComputedPerCourse, ComputedTotals } from '../calc/types'
 
 export function money(value: number) {
   return `AUD ${number(value).toLocaleString('pt-BR', {
@@ -34,16 +36,21 @@ export function elicosModuleWeeks(course: StudyCourse) {
   return (course.modules ?? []).reduce((total, m) => total + weeks(m.weeks), 0)
 }
 
-export function elicosModuleTuition(course: StudyCourse) {
-  return (course.modules ?? []).reduce((total, m) => total + weeks(m.weeks) * number(m.ratePerWeek), 0)
+// ── Money core: single source of truth, INTEGER CENTS (P9) ──────────────────
+// These `*Cents` functions are the pure, integer-cents engine. They coerce legacy
+// float dollars stored in `study_plans.data` to cents at the border via `toCents`.
+// The float-returning functions below are thin delegators kept for the (untouched) UI.
+
+export function elicosModuleTuitionCents(course: StudyCourse): number {
+  return (course.modules ?? []).reduce((total, m) => total + weeks(m.weeks) * toCents(m.ratePerWeek), 0)
 }
 
-export function elicosTuitionForWeeks(course: StudyCourse, requestedWeeks: number) {
+export function elicosTuitionCentsForWeeks(course: StudyCourse, requestedWeeks: number): number {
   const limit = Math.max(0, weeks(requestedWeeks))
   if (limit === 0) return 0
 
   if (!course.modules || course.modules.length === 0) {
-    return Math.min(courseStudyWeeks(course), limit) * number(course.ratePerWeek)
+    return Math.min(courseStudyWeeks(course), limit) * toCents(course.ratePerWeek)
   }
 
   let remaining = limit
@@ -52,42 +59,72 @@ export function elicosTuitionForWeeks(course: StudyCourse, requestedWeeks: numbe
     if (remaining <= 0) break
     const moduleWeeks = weeks(elicosModule.weeks)
     const paidWeeks = Math.min(moduleWeeks, remaining)
-    total += paidWeeks * number(elicosModule.ratePerWeek)
+    total += paidWeeks * toCents(elicosModule.ratePerWeek)
     remaining -= paidWeeks
   }
   return total
 }
 
-export function courseTuition(course: StudyCourse) {
+export function courseTuitionCents(course: StudyCourse): number {
   if (course.type === 'elicos') {
     // Per-module rates take precedence; fall back to the single ratePerWeek.
-    if (course.modules && course.modules.length > 0) return elicosModuleTuition(course)
-    return courseStudyWeeks(course) * number(course.ratePerWeek)
+    if (course.modules && course.modules.length > 0) return elicosModuleTuitionCents(course)
+    return courseStudyWeeks(course) * toCents(course.ratePerWeek)
   }
-  return number(course.tuition)
+  return toCents(course.tuition)
+}
+
+export function courseMaterialCents(course: StudyCourse): number {
+  if (course.type === 'he') return 0
+  if (course.type === 'vet' && !course.hasMaterial) return 0
+  return toCents(course.materialFee)
+}
+
+export function courseTotalCents(course: StudyCourse): number {
+  return toCents(course.enrolmentFee) + courseTuitionCents(course) + courseMaterialCents(course) - toCents(course.scholarship)
+}
+
+export function courseDepositCents(course: StudyCourse): number {
+  if (course.type === 'elicos') {
+    const depositWeeks = Math.min(courseStudyWeeks(course), weeks(course.depositWeeks))
+    return toCents(course.enrolmentFee) + courseMaterialCents(course) + elicosTuitionCentsForWeeks(course, depositWeeks)
+  }
+
+  return toCents(course.enrolmentFee) + courseMaterialCents(course)
+}
+
+export function coursePaymentBalanceCents(course: StudyCourse): number {
+  return Math.max(0, courseTotalCents(course) - courseDepositCents(course))
+}
+
+// ── Float delegators (border → dollars for the legacy UI; do not add logic here) ──
+
+export function elicosModuleTuition(course: StudyCourse) {
+  return centsToNumber(elicosModuleTuitionCents(course))
+}
+
+export function elicosTuitionForWeeks(course: StudyCourse, requestedWeeks: number) {
+  return centsToNumber(elicosTuitionCentsForWeeks(course, requestedWeeks))
+}
+
+export function courseTuition(course: StudyCourse) {
+  return centsToNumber(courseTuitionCents(course))
 }
 
 export function courseMaterial(course: StudyCourse) {
-  if (course.type === 'he') return 0
-  if (course.type === 'vet' && !course.hasMaterial) return 0
-  return number(course.materialFee)
+  return centsToNumber(courseMaterialCents(course))
 }
 
 export function courseTotal(course: StudyCourse) {
-  return number(course.enrolmentFee) + courseTuition(course) + courseMaterial(course) - number(course.scholarship)
+  return centsToNumber(courseTotalCents(course))
 }
 
 export function courseDeposit(course: StudyCourse) {
-  if (course.type === 'elicos') {
-    const depositWeeks = Math.min(courseStudyWeeks(course), weeks(course.depositWeeks))
-    return number(course.enrolmentFee) + courseMaterial(course) + elicosTuitionForWeeks(course, depositWeeks)
-  }
-
-  return number(course.enrolmentFee) + courseMaterial(course)
+  return centsToNumber(courseDepositCents(course))
 }
 
 export function coursePaymentBalance(course: StudyCourse) {
-  return Math.max(0, courseTotal(course) - courseDeposit(course))
+  return centsToNumber(coursePaymentBalanceCents(course))
 }
 
 // Offshore students cannot pay ELICOS in installments unless the course is
@@ -103,20 +140,36 @@ export function courseCanInstallment(course: StudyCourse, location: StudentLocat
 
 // Amount paid upfront ("no fechamento") for a course: the normal deposit, or
 // the full course total when installments are not allowed.
+export function courseUpfrontCents(course: StudyCourse, location: StudentLocation | undefined): number {
+  return courseCanInstallment(course, location) ? courseDepositCents(course) : courseTotalCents(course)
+}
+
+export function courseInstallmentBalanceCents(course: StudyCourse, location: StudentLocation | undefined): number {
+  return courseCanInstallment(course, location) ? coursePaymentBalanceCents(course) : 0
+}
+
 export function courseUpfront(course: StudyCourse, location: StudentLocation | undefined) {
-  return courseCanInstallment(course, location) ? courseDeposit(course) : courseTotal(course)
+  return centsToNumber(courseUpfrontCents(course, location))
 }
 
 export function courseInstallmentBalance(course: StudyCourse, location: StudentLocation | undefined) {
-  return courseCanInstallment(course, location) ? coursePaymentBalance(course) : 0
+  return centsToNumber(courseInstallmentBalanceCents(course, location))
+}
+
+export function planUpfrontSchoolsCents(plan: StudyPlanData): number {
+  return plan.courses.reduce((total, course) => total + courseUpfrontCents(course, plan.studentLocation), 0)
+}
+
+export function planInstallmentBalanceCents(plan: StudyPlanData): number {
+  return plan.courses.reduce((total, course) => total + courseInstallmentBalanceCents(course, plan.studentLocation), 0)
 }
 
 export function planUpfrontSchools(plan: StudyPlanData) {
-  return plan.courses.reduce((total, course) => total + courseUpfront(course, plan.studentLocation), 0)
+  return centsToNumber(planUpfrontSchoolsCents(plan))
 }
 
 export function planInstallmentBalance(plan: StudyPlanData) {
-  return plan.courses.reduce((total, course) => total + courseInstallmentBalance(course, plan.studentLocation), 0)
+  return centsToNumber(planInstallmentBalanceCents(plan))
 }
 
 export function planStudyWeeks(plan: StudyPlanData) {
@@ -131,24 +184,83 @@ export function planVisaWeeks(plan: StudyPlanData) {
   return plan.courses.reduce((total, course) => total + courseWeeks(course), 0)
 }
 
+export function planCoursesTotalCents(plan: StudyPlanData): number {
+  return plan.courses.reduce((total, course) => total + courseTotalCents(course), 0)
+}
+
+export function planExtrasTotalCents(plan: StudyPlanData): number {
+  return plan.extraCosts.reduce((total, extra) => total + toCents(extra.amount), 0)
+}
+
+export function planGrandTotalCents(plan: StudyPlanData): number {
+  return planCoursesTotalCents(plan) + planExtrasTotalCents(plan)
+}
+
+export function planCourseDepositsCents(plan: StudyPlanData): number {
+  return plan.courses.reduce((total, course) => total + courseDepositCents(course), 0)
+}
+
+export function planPaymentBalanceCents(plan: StudyPlanData): number {
+  return plan.courses.reduce((total, course) => total + coursePaymentBalanceCents(course), 0)
+}
+
 export function planCoursesTotal(plan: StudyPlanData) {
-  return plan.courses.reduce((total, course) => total + courseTotal(course), 0)
+  return centsToNumber(planCoursesTotalCents(plan))
 }
 
 export function planExtrasTotal(plan: StudyPlanData) {
-  return plan.extraCosts.reduce((total, extra) => total + number(extra.amount), 0)
+  return centsToNumber(planExtrasTotalCents(plan))
 }
 
 export function planGrandTotal(plan: StudyPlanData) {
-  return planCoursesTotal(plan) + planExtrasTotal(plan)
+  return centsToNumber(planGrandTotalCents(plan))
 }
 
 export function planCourseDeposits(plan: StudyPlanData) {
-  return plan.courses.reduce((total, course) => total + courseDeposit(course), 0)
+  return centsToNumber(planCourseDepositsCents(plan))
 }
 
 export function planPaymentBalance(plan: StudyPlanData) {
-  return plan.courses.reduce((total, course) => total + coursePaymentBalance(course), 0)
+  return centsToNumber(planPaymentBalanceCents(plan))
+}
+
+// ── Single source of truth: computeProposal → ComputedTotals (integer cents) ──
+// Pure (no I/O). The server action recomputes this at save time and persists the
+// snapshot under `study_plans.data.computed` (versioned) — P2 snapshot, not recalculation.
+
+export const COMPUTED_VERSION = 1
+
+export function computeProposal(plan: StudyPlanData, currencyCode: CurrencyCode = DEFAULT_CURRENCY): ComputedTotals {
+  const perCourse: ComputedPerCourse[] = plan.courses.map((course) => ({
+    courseId: course.id,
+    enrolmentCents: toCents(course.enrolmentFee),
+    tuitionCents: courseTuitionCents(course),
+    materialCents: courseMaterialCents(course),
+    scholarshipCents: toCents(course.scholarship),
+    totalCents: courseTotalCents(course),
+    depositCents: courseDepositCents(course),
+    paymentBalanceCents: coursePaymentBalanceCents(course),
+    upfrontCents: courseUpfrontCents(course, plan.studentLocation),
+    installmentBalanceCents: courseInstallmentBalanceCents(course, plan.studentLocation),
+    canInstallment: courseCanInstallment(course, plan.studentLocation),
+    studyWeeks: courseStudyWeeks(course),
+  }))
+
+  return {
+    version: COMPUTED_VERSION,
+    currencyCode,
+    coursesTotalCents: planCoursesTotalCents(plan),
+    extrasTotalCents: planExtrasTotalCents(plan),
+    grandTotalCents: planGrandTotalCents(plan),
+    upfrontSchoolsCents: planUpfrontSchoolsCents(plan),
+    installmentBalanceCents: planInstallmentBalanceCents(plan),
+    courseDepositsCents: planCourseDepositsCents(plan),
+    paymentBalanceCents: planPaymentBalanceCents(plan),
+    studyWeeks: planStudyWeeks(plan),
+    holidayWeeks: planHolidayWeeks(plan),
+    visaWeeks: planVisaWeeks(plan),
+    perCourse,
+  }
 }
 
 export function addDays(isoDate: string, days: number) {

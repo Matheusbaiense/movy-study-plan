@@ -1,3 +1,5 @@
+import type { ComputedTotals } from '../calc/types'
+
 export type CourseType = 'elicos' | 'vet' | 'he'
 export type SegmentKind = 'study' | 'holiday'
 export type ApplicantType = 'Individual' | 'Casal' | 'Familia' | 'Single Parent'
@@ -71,6 +73,12 @@ export interface StudyPlanData {
   studentLocation?: StudentLocation
   /** Show the holiday/timeline planning in the generated proposal. Default true. */
   includeHolidayPlanning?: boolean
+  /**
+   * Server-recomputed integer-cents snapshot, persisted on every save (SPLIT 1).
+   * Read this stored result downstream instead of recalculating (P2). Optional because
+   * legacy rows saved before SPLIT 1 won't have it until their next save.
+   */
+  computed?: ComputedTotals
 }
 
 export interface StudyPlanRow {

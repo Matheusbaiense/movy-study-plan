@@ -6,8 +6,16 @@ import { createClient } from '@/lib/supabase/server'
 import { logAuditWithClient } from '@/lib/api/audit'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
+import { computeProposal } from '@/lib/study-plans/calculations'
 import type { StudyPlanData } from '@/lib/study-plans/types'
 import type { Json, Enums } from '@/types/supabase'
+
+// Recompute the integer-cents snapshot on the server and persist it under
+// `data.computed` (SPLIT 1). No schema migration: the snapshot lives inside the
+// existing jsonb column. Legacy float inputs are coerced to cents at the engine border.
+function withComputed(data: StudyPlanData): StudyPlanData {
+  return { ...data, computed: computeProposal(data) }
+}
 
 async function getActor() {
   const supabase = await createClient()
@@ -32,7 +40,7 @@ async function getActor() {
 
 export async function createStudyPlan(locale = 'pt') {
   const { supabase, user, profile } = await getActor()
-  const data = createBlankStudyPlan()
+  const data = withComputed(createBlankStudyPlan())
 
   const { data: plan, error } = await supabase
     .from('study_plans')
@@ -67,6 +75,9 @@ export async function createStudyPlan(locale = 'pt') {
 export async function updateStudyPlan(id: string, data: StudyPlanData, status = 'draft') {
   const { supabase, user, profile } = await getActor()
   const title = data.student ? `Cotação - ${data.student}` : 'Cotação sem estudante'
+  // Server-side recompute: ignore any client-sent `computed` and persist the
+  // authoritative snapshot derived from the submitted plan inputs.
+  const persisted = withComputed(data)
 
   const { error } = await supabase
     .from('study_plans')
@@ -75,7 +86,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
       student_name: data.student,
       applicant_type: data.applicantType,
       status: status as Enums<'study_plan_status'>,
-      data: data as unknown as Json,
+      data: persisted as unknown as Json,
       updated_by: user.id,
       updated_at: new Date().toISOString(),
     })

@@ -108,6 +108,18 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-06-15T04:50:00+08:00",
+      "error_message": "node --test failed: ERR_MODULE_NOT_FOUND 'lib/calc/money' imported from lib/financial/calculator.ts (and calculations.ts).",
+      "file": "tsconfig.json; lib/financial/calculator.ts; lib/study-plans/calculations.ts",
+      "root_cause": "Node 24's native type-stripping for `node --test` requires an explicit `.ts` extension on relative VALUE imports; it does not do bundler-style extensionless resolution. Pre-existing relative imports in these files were all `import type` (erased at runtime), so SPLIT 1 was the first time a real value import (`lib/calc/money`) ran under the test loader and failed.",
+      "fix": "Added `allowImportingTsExtensions: true` to tsconfig (safe under the existing `noEmit: true`) and used the explicit `'../calc/money.ts'` specifier in the two runtime value imports the test traverses. Other imports stay extensionless (bundler resolution); webpack/Next resolves the physical .ts file. type-check + node --test + build all green afterward.",
+      "tags": ["node", "esm", "typescript", "tests", "tooling"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T04:50:00+08:00"
     }
   ]
 }

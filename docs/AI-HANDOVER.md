@@ -284,6 +284,50 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 1 CONCLUÍDO: engine de cálculo (fonte única + snapshot + dinheiro em centavos)
+
+> P2 (snapshot, não recálculo) + P3 + P9 (dinheiro em centavos inteiros + `currency_code`).
+> NENHUMA migration de banco neste split — o snapshot vive dentro do jsonb existente.
+
+- **Novo módulo `lib/calc/` (folha, sem imports de domínio):**
+  - `money.ts` — primitivos de dinheiro em **centavos inteiros**: `toCents` (coerção de
+    legado float na borda, com guarda de drift IEEE-754 e half-away-from-zero), `asCents`,
+    `centsToNumber`, `splitCents` (última parcela absorve o resto), `formatMoney`/`formatMoneyValue`
+    (`Intl`, a moeda viaja COM o valor), `parseMoneyToCents` (pt-BR + en-US), `money()`,
+    tipos `Money`/`CurrencyCode`, `DEFAULT_CURRENCY='AUD'`.
+  - `types.ts` — `ComputedTotals` e `ComputedPerCourse` (todos os campos monetários em centavos +
+    `currencyCode` + `version`). Fica em `lib/calc` para evitar ciclo com `study-plans/types.ts`.
+  - `index.ts` — barrel (`export *` de money/types + `computeProposal`/`COMPUTED_VERSION`).
+- **`lib/study-plans/calculations.ts` (fonte única, agora em centavos):** núcleo `*Cents` puro
+  (`courseTotalCents`, `courseDepositCents`, `coursePaymentBalanceCents`, `courseUpfrontCents`,
+  `planGrandTotalCents`, etc.) + `computeProposal(plan, currencyCode='AUD'): ComputedTotals` +
+  `COMPUTED_VERSION = 1`. As funções float existentes (`courseTotal`, `planGrandTotal`, …) viraram
+  **delegadores finos** `centsToNumber(...)` — a UI **não foi tocada** (mesma API, mesmos floats).
+- **`lib/financial/calculator.ts`:** mantém a matemática float intacta; adiciona a ponte
+  `computeFinancialCapacityCents(input, currencyCode='AUD'): FinancialResultCents` (converte o
+  resultado para centavos na borda) para juntar a capacidade financeira ao snapshot inteiro.
+- **Legado float (dono explícito = engine na borda):** floats já gravados em `study_plans.data`
+  **não** recebem migration. O engine lê via `toCents` na borda e só **persiste centavos a partir
+  do próximo salvar**. Normalização em massa fica para SPLIT 2/migration 010.
+- **Server revalida + grava snapshot** em `app/[locale]/(protected)/study-plans/actions.ts`:
+  helper `withComputed(data)` recomputa no servidor e grava sob **`data.computed`** (dentro do jsonb
+  existente, **sem coluna nova**, versionado) tanto no create quanto no update. O `computed` enviado
+  pelo cliente é ignorado (recompute autoritativo no servidor). Campo `computed?: ComputedTotals`
+  adicionado em `StudyPlanData` (tipado, sem `any`).
+- **Config:** `tsconfig.json` ganhou `allowImportingTsExtensions: true` (seguro: `noEmit` já era
+  true). Necessário porque o runner `node --test` (type-stripping nativo do Node 24) exige extensão
+  `.ts` em imports relativos de **valor** — os imports relativos pré-existentes nesses arquivos eram
+  todos `import type` (apagados pelo Node). Só `calculator.ts` e `calculations.ts` usam `'../calc/money.ts'`.
+- **Testes** (`tests/study-financial.test.mjs`): +6 casos — `toCents`/drift FP, round-trip
+  `centsToNumber`/`parseMoneyToCents` (pt-BR/en-US), `splitCents`, `formatMoney`, `computeProposal`
+  (snapshot versionado + arredondamento de centavos em extras `0.1+0.2=30`), e a ponte cents
+  financeira. Casos offshore/visto/ELICOS existentes seguem verdes (10/10).
+- **DoD:** `npm run type-check` ✅ · `node --test tests/study-financial.test.mjs` ✅ (10/10) ·
+  `npm run build` ✅ (warning pré-existente em `FxChart.tsx`, não relacionado).
+- **API pública estabilizada:** `ComputedTotals`, `ComputedPerCourse`, `computeProposal`,
+  `COMPUTED_VERSION`; helpers `toCents`/`asCents`/`centsToNumber`/`splitCents`/`formatMoney`/
+  `parseMoneyToCents`/`money`; ponte `computeFinancialCapacityCents`.
+
 ### 2026-06-15 - DocuSeal avaliado para o aceite da proposta (integrado ao roadmap + OpenWolf)
 
 - **DocuSeal avaliado** (`docs/FUTURE-DOCUSEAL.md`) como alternativa open-source ao DocuSign para o

@@ -3,6 +3,21 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+## Session: 2026-06-15 (SPLIT 1 — calc engine + money in integer cents + computed snapshot)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 04:xx | Explored current float calc shapes + jsonb `data` structure to ground the cents migration | lib/study-plans/calculations.ts, types.ts, lib/financial/calculator.ts, study-plans/actions.ts, defaults.ts, tests/study-financial.test.mjs | full grounding | ~4k |
+| 04:xx | Created leaf money module: integer-cents helpers (`toCents` legacy-float border coercion + FP guard, `centsToNumber`, `splitCents`, `formatMoney`/`parseMoneyToCents` via Intl, `Money` type) | lib/calc/money.ts (new) | written | ~1.5k |
+| 04:xx | Defined computed snapshot types + barrel | lib/calc/types.ts (new, `ComputedTotals`/`ComputedPerCourse`), lib/calc/index.ts (new) | written | ~1k |
+| 04:xx | Refactored calc to a pure integer-cents core (`*Cents`) + `computeProposal`/`COMPUTED_VERSION=1`; kept float fns as `centsToNumber` delegators (UI untouched) | lib/study-plans/calculations.ts | single source in cents | ~3k |
+| 04:xx | Added cents bridge to financial calculator (float math intact) | lib/financial/calculator.ts (`computeFinancialCapacityCents`) | engine-aligned | ~1k |
+| 04:xx | Server recompute + persist snapshot under `data.computed` (jsonb, no migration, versioned); typed `StudyPlanData.computed?` | study-plans/actions.ts, lib/study-plans/types.ts | snapshot persisted | ~1k |
+| 04:xx | Fixed `node --test` ERR_MODULE_NOT_FOUND (value relative import needs `.ts` under Node strip-types); enabled `allowImportingTsExtensions` | tsconfig.json, calculator.ts, calculations.ts | tests resolve | ~1k |
+| 04:xx | Extended tests: cents rounding/drift, parse round-trip, splitCents, computeProposal snapshot, financial cents bridge | tests/study-financial.test.mjs | 10/10 green | ~1.5k |
+| 04:xx | DoD gates | — | type-check ✅ · node --test 10/10 ✅ · build ✅ | ~0.5k |
+| 04:xx | Documented split | docs/AI-HANDOVER.md, docs/PRODUCT-ROADMAP.md (§5 SPLIT 1 ✅), .wolf/{cerebrum,memory,buglog,anatomy}.md | logged | ~1k |
+
 ## Session: 2026-06-15 (OpenWolf — product repositioning master plan)
 
 | Time | Action | File(s) | Outcome | ~Tokens |

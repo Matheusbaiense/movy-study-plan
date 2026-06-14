@@ -199,6 +199,12 @@
 
 - `audit.ts` — Exports logAudit, logAuditWithClient (~361 tok)
 
+## lib/calc/
+
+- `money.ts` — Money primitives in integer cents (SPLIT 1): toCents (legacy-float border coercion), asCents, centsToNumber, splitCents, formatMoney/parseMoneyToCents (Intl), Money/CurrencyCode types (~620 tok)
+- `types.ts` — Computed snapshot types: ComputedTotals, ComputedPerCourse (integer cents + currencyCode + version) (~250 tok)
+- `index.ts` — Calc engine barrel: reexports money + types + computeProposal/COMPUTED_VERSION (~80 tok)
+
 ## lib/auth/
 
 - `get-user.ts` — Exports Profile, getUser (~205 tok)
