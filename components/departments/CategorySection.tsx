@@ -11,7 +11,7 @@ interface Item {
   title_en: string | null
   title_es: string | null
   summary: string | null
-  content_type: string
+  content_type: string | null
   category: string | null
   read_minutes: number | null
   updated_at: string | null

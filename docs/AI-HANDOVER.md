@@ -284,6 +284,42 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 0 CONCLUÍDO: migration 009 APLICADA no banco canônico + tipos regenerados
+
+> Desbloqueado. O usuário reautorizou o Supabase MCP na org correta ("Movy education",
+> `yihffwtnjahnakvsakod`) e a migration **009 foi aplicada no projeto canônico
+> `xpthmguzcbmndyyexfbt`**. O "BLOQUEIO" da entrada anterior está resolvido.
+
+- **Aplicado em produção (via Supabase MCP `apply_migration`, projeto `xpthmguzcbmndyyexfbt`):**
+  - `organizations_tenancy` — `organizations` criada + org **Movy** semeada (UUID fixo
+    `11111111-1111-4111-8111-111111111111`); `current_org_id()` SECURITY DEFINER; RLS por org em
+    `profiles/audit_logs/study_plans/course_presets`; `handle_new_user()` carimba `org_id`.
+  - **Descoberta:** o banco vivo tem MAIS tabelas que as migrations 001/008 do repo descreviam
+    (`departments`, `contents`, `campaigns`, `checklist_progress`, `allowed_domains`). Estendi a 009
+    para adicionar a **coluna `org_id` + índice** nelas também (backfill Movy → default → NOT NULL).
+    **10 tabelas** agora carregam `org_id`. O **RLS org-scoped dessas tabelas extras foi DEFERIDO**
+    aos splits donos (wiki=contents, departments, etc.) — não reescrevi policies não-auditadas.
+  - `organizations_rls_and_grants` — corrige advisor ERROR (`organizations` estava SEM RLS):
+    habilita RLS + policies (membros leem a própria org; admins atualizam). Tranca `EXECUTE` de
+    `current_org_id()` (revoke de `public`/`anon`, grant só a `authenticated`) ao padrão dos outros
+    helpers RLS.
+  - O arquivo `supabase/migrations/009_organizations_tenancy.sql` no repo contém TUDO acima
+    (idempotente) — é a fonte única para reaplicar em ambiente limpo.
+
+- **`types/supabase.ts` REGENERADO** a partir do projeto real (MCP `generate_typescript_types`,
+  não mais hand-maintained). Agora inclui as 10 tabelas reais + `organizations` + FKs `*_org_id_fkey`
+  + enums (`app_role`, `content_status`, `study_plan_status`) + funções. Cabeçalho marca a origem.
+  - Fix de consumo: `components/departments/CategorySection.tsx` — `content_type` agora `string | null`
+    (os tipos gerados expuseram que a coluna é nullable de verdade; o componente já tratava null).
+
+- **Advisors de segurança (pós-DDL):** zero ERRORs. Restam só WARNs aceitáveis: os 3 helpers RLS
+  (`current_org_id`/`current_user_role`/`is_active_user`) executáveis por `authenticated` (necessário
+  p/ RLS funcionar, padrão do projeto) e "leaked password protection" do Auth (config pré-existente,
+  decisão do usuário).
+
+- **QA:** `npm run type-check` ✅ e `npm run build` ✅ (26 rotas compilam). Migration aplicada e
+  verificada (org=1, `study_plans` com `org_id` null = 0, `current_org_id` existe).
+
 ### 2026-06-15 - SPLIT 0 (parcial): tipos/tenancy no código + migration 009 escrita; APLICAÇÃO BLOQUEADA
 
 > Executei a parte segura e local do SPLIT 0 (fundação de dados & tenancy-ready). A escrita da

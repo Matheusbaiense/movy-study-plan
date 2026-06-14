@@ -1,10 +1,6 @@
-// types/supabase.ts — Schema types for Supabase project xpthmguzcbmndyyexfbt.
-// HAND-MAINTAINED (not freshly generated). Aligned to the repo migrations under
-// supabase/migrations/* as the source of truth (001 core, 008 presets, 009 tenancy).
-// When the canonical project is reachable, regenerate with:
-//   npx supabase gen types typescript --project-id xpthmguzcbmndyyexfbt > types/supabase.ts
-// NOTE: org_id / organizations / current_org_id below reflect migration 009, which is
-// DRAFTED in-repo but must still be applied to the live project (see docs/AI-HANDOVER.md).
+// Supabase schema types — GENERATED from project xpthmguzcbmndyyexfbt (org "Movy education")
+// via the Supabase MCP on 2026-06-15, after applying migration 009 (organizations / tenancy).
+// To refresh: regenerate from the live project (do not hand-edit).
 
 export type Json =
   | string
@@ -15,6 +11,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -26,20 +24,72 @@ export type Database = {
           domain: string
           id: string
           is_active: boolean
+          org_id: string
         }
         Insert: {
           created_at?: string | null
           domain: string
           id?: string
           is_active?: boolean
+          org_id?: string
         }
         Update: {
           created_at?: string | null
           domain?: string
           id?: string
           is_active?: boolean
+          org_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "allowed_domains_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      allowed_emails: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          is_active: boolean
+          note: string | null
+          org_id: string
+          preset_role: Database["public"]["Enums"]["app_role"]
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          org_id?: string
+          preset_role?: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          org_id?: string
+          preset_role?: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowed_emails_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -83,6 +133,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "audit_logs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       campaigns: {
@@ -93,6 +150,7 @@ export type Database = {
           description: string | null
           html_content: string | null
           id: string
+          org_id: string
           status: Database["public"]["Enums"]["content_status"]
           tags: string[] | null
           title: string
@@ -106,6 +164,7 @@ export type Database = {
           description?: string | null
           html_content?: string | null
           id?: string
+          org_id?: string
           status?: Database["public"]["Enums"]["content_status"]
           tags?: string[] | null
           title: string
@@ -119,6 +178,7 @@ export type Database = {
           description?: string | null
           html_content?: string | null
           id?: string
+          org_id?: string
           status?: Database["public"]["Enums"]["content_status"]
           tags?: string[] | null
           title?: string
@@ -140,43 +200,53 @@ export type Database = {
             referencedRelation: "departments"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "campaigns_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       checklist_progress: {
         Row: {
-          id: string
-          user_id: string
+          checked_items: string[] | null
           content_id: string
-          checked_items: string[]
+          id: string
+          org_id: string
           updated_at: string | null
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
+          checked_items?: string[] | null
           content_id: string
-          checked_items?: string[]
+          id?: string
+          org_id?: string
           updated_at?: string | null
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
+          checked_items?: string[] | null
           content_id?: string
-          checked_items?: string[]
+          id?: string
+          org_id?: string
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "checklist_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "checklist_progress_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_progress_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -188,12 +258,13 @@ export type Database = {
           body_es: string | null
           body_pt: string | null
           category: string | null
-          content_type: string
+          content_type: string | null
           created_at: string | null
           created_by: string | null
           department_id: string | null
           id: string
           is_featured: boolean | null
+          org_id: string
           read_minutes: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
@@ -205,7 +276,7 @@ export type Database = {
           updated_at: string | null
           updated_by: string | null
           version: string | null
-          visibility: string
+          visibility: string | null
         }
         Insert: {
           blocks?: Json | null
@@ -213,12 +284,13 @@ export type Database = {
           body_es?: string | null
           body_pt?: string | null
           category?: string | null
-          content_type?: string
+          content_type?: string | null
           created_at?: string | null
           created_by?: string | null
           department_id?: string | null
           id?: string
           is_featured?: boolean | null
+          org_id?: string
           read_minutes?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
@@ -230,7 +302,7 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           version?: string | null
-          visibility?: string
+          visibility?: string | null
         }
         Update: {
           blocks?: Json | null
@@ -238,12 +310,13 @@ export type Database = {
           body_es?: string | null
           body_pt?: string | null
           category?: string | null
-          content_type?: string
+          content_type?: string | null
           created_at?: string | null
           created_by?: string | null
           department_id?: string | null
           id?: string
           is_featured?: boolean | null
+          org_id?: string
           read_minutes?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
@@ -255,7 +328,7 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           version?: string | null
-          visibility?: string
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -273,6 +346,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "contents_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contents_updated_by_fkey"
             columns: ["updated_by"]
             isOneToOne: false
@@ -280,114 +360,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      departments: {
-        Row: {
-          color: string | null
-          created_at: string | null
-          description_en: string | null
-          description_es: string | null
-          description_pt: string | null
-          icon: string | null
-          id: string
-          is_active: boolean
-          name_en: string
-          name_es: string
-          name_pt: string
-          slug: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string | null
-          description_en?: string | null
-          description_es?: string | null
-          description_pt?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean
-          name_en: string
-          name_es: string
-          name_pt: string
-          slug: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string | null
-          description_en?: string | null
-          description_es?: string | null
-          description_pt?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean
-          name_en?: string
-          name_es?: string
-          name_pt?: string
-          slug?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          department: string | null
-          email: string
-          full_name: string | null
-          id: string
-          is_active: boolean
-          org_id: string
-          preferred_locale: string | null
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          is_active?: boolean
-          org_id?: string
-          preferred_locale?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          is_active?: boolean
-          org_id?: string
-          preferred_locale?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      allowed_emails: {
-        Row: {
-          created_at: string
-          email: string
-          org_id: string
-          role: Database["public"]["Enums"]["app_role"]
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          org_id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          org_id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-        }
-        Relationships: []
       }
       course_presets: {
         Row: {
@@ -453,7 +425,71 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "course_presets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description_en: string | null
+          description_es: string | null
+          description_pt: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name_en: string
+          name_es: string
+          name_pt: string
+          org_id: string
+          slug: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_es?: string | null
+          description_pt?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_es: string
+          name_pt: string
+          org_id?: string
+          slug: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_es?: string | null
+          description_pt?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_es?: string
+          name_pt?: string
+          org_id?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -487,6 +523,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          department: string | null
+          email: string
+          full_name: string | null
+          id: string
+          is_active: boolean
+          org_id: string
+          preferred_locale: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          is_active?: boolean
+          org_id?: string
+          preferred_locale?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          org_id?: string
+          preferred_locale?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       study_plans: {
         Row: {
@@ -537,17 +623,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "study_plans_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "study_plans_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_plans_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -557,11 +643,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_org_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
-      current_org_id: { Args: never; Returns: string }
       is_active_user: { Args: never; Returns: boolean }
     }
     Enums: {
@@ -576,26 +662,128 @@ export type Database = {
 }
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  T extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-> = (DefaultSchema["Tables"] & DefaultSchema["Views"])[T] extends { Row: infer R } ? R : never
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
-export type TablesInsert<T extends keyof DefaultSchema["Tables"]> =
-  DefaultSchema["Tables"][T] extends { Insert: infer I } ? I : never
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
-export type TablesUpdate<T extends keyof DefaultSchema["Tables"]> =
-  DefaultSchema["Tables"][T] extends { Update: infer U } ? U : never
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
 
-export type Enums<T extends keyof DefaultSchema["Enums"]> = DefaultSchema["Enums"][T]
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["reader", "editor", "admin", "super_admin"] as const,
-      content_status: ["draft", "published", "archived"] as const,
-      study_plan_status: ["draft", "sent", "accepted", "archived"] as const,
+      app_role: ["reader", "editor", "admin", "super_admin"],
+      content_status: ["draft", "published", "archived"],
+      study_plan_status: ["draft", "sent", "accepted", "archived"],
     },
   },
 } as const

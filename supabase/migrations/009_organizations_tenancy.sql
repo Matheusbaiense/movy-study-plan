@@ -83,9 +83,15 @@ do $$
 declare
   movy constant uuid := '11111111-1111-4111-8111-111111111111';
   t text;
-  tables text[] := array['profiles', 'allowed_emails', 'audit_logs', 'study_plans'];
+  -- Tabelas core descritas pelas migrations 001/008 do repo (RLS reescrita na §5).
+  core_tables text[] := array['profiles', 'allowed_emails', 'audit_logs', 'study_plans'];
+  -- Tabelas de negócio adicionais presentes no banco vivo (wiki/departments/campaigns/etc.).
+  -- Recebem a COLUNA org_id + índice agora (fundação tenancy). O org-scoping de RLS dessas
+  -- tabelas é DEFERIDO aos splits donos de cada uma — não reescrevemos policies que não
+  -- auditamos aqui. Guardadas por to_regclass para serem seguras em qualquer ambiente.
+  optional_tables text[] := array['course_presets', 'departments', 'contents', 'campaigns', 'checklist_progress', 'allowed_domains'];
 begin
-  foreach t in array tables loop
+  foreach t in array core_tables loop
     execute format('alter table public.%I add column if not exists org_id uuid references public.organizations(id)', t);
     execute format('update public.%I set org_id = %L where org_id is null', t, movy);
     execute format('alter table public.%I alter column org_id set default %L', t, movy);
@@ -93,14 +99,15 @@ begin
     execute format('create index if not exists %I on public.%I(org_id)', t || '_org_id_idx', t);
   end loop;
 
-  -- course_presets pode ainda não existir (008 talvez não aplicada). Guardado.
-  if to_regclass('public.course_presets') is not null then
-    alter table public.course_presets add column if not exists org_id uuid references public.organizations(id);
-    update public.course_presets set org_id = movy where org_id is null;
-    alter table public.course_presets alter column org_id set default movy;
-    alter table public.course_presets alter column org_id set not null;
-    create index if not exists course_presets_org_id_idx on public.course_presets(org_id);
-  end if;
+  foreach t in array optional_tables loop
+    if to_regclass('public.' || t) is not null then
+      execute format('alter table public.%I add column if not exists org_id uuid references public.organizations(id)', t);
+      execute format('update public.%I set org_id = %L where org_id is null', t, movy);
+      execute format('alter table public.%I alter column org_id set default %L', t, movy);
+      execute format('alter table public.%I alter column org_id set not null', t);
+      execute format('create index if not exists %I on public.%I(org_id)', t || '_org_id_idx', t);
+    end if;
+  end loop;
 end $$;
 
 -- Índice composto para a lista de propostas (RLS por org + ordenação por data).
@@ -216,3 +223,29 @@ begin
       );
   end if;
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- 6) RLS da própria tabela organizations (estava exposta sem RLS — advisor ERROR).
+--    Membros leem a própria org; admins atualizam. Criar/excluir só via service-role.
+-- ---------------------------------------------------------------------------
+alter table public.organizations enable row level security;
+
+drop policy if exists "members read own org" on public.organizations;
+create policy "members read own org" on public.organizations
+  for select using (id = public.current_org_id());
+
+drop policy if exists "admins update own org" on public.organizations;
+create policy "admins update own org" on public.organizations
+  for update using (
+    id = public.current_org_id() and public.current_user_role() in ('admin', 'super_admin')
+  )
+  with check (
+    id = public.current_org_id() and public.current_user_role() in ('admin', 'super_admin')
+  );
+
+-- ---------------------------------------------------------------------------
+-- 7) Trancar EXECUTE de current_org_id() ao mesmo padrão dos outros helpers RLS
+--    (advisor WARN: SECURITY DEFINER não deve ser chamável por anon via RPC).
+-- ---------------------------------------------------------------------------
+revoke execute on function public.current_org_id() from public, anon;
+grant execute on function public.current_org_id() to authenticated;
