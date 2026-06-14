@@ -30,6 +30,10 @@ function toNumber(value: unknown): number {
  * stored in `study_plans.data` jsonb) into integer cents. Rounds half away from zero and
  * guards binary floating-point drift (e.g. 0.1 + 0.2, 10.005). Use this whenever reading
  * a money value that may still be a legacy float — never persist the float onward.
+ *
+ * NOTE: assumes 2-decimal (minor-unit = 1/100) currencies; the 1e-6 bias is calibrated for
+ * that cents scale to absorb IEEE-754 drift. Zero-decimal/3-decimal currencies (e.g. JPY,
+ * BHD) would need a per-currency exponent — out of scope until per-currency minor units land.
  */
 export function toCents(value: unknown): number {
   const scaled = toNumber(value) * 100

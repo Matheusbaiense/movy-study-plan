@@ -41,10 +41,13 @@ export interface FinancialResult {
   dependentSchoolBrl: number
 }
 
-// Integer-cents view of the financial capacity result (P9). `currencyCode` travels with
-// the AUD-denominated values; the BRL-denominated values are the exchanged amounts.
+// Integer-cents view of the financial capacity result (P9). Currency travels WITH each
+// value: the `*Cents` (AUD-denominated) group carries `baseCurrencyCode`, while the
+// exchanged `*BrlCents` group carries `exchangedCurrencyCode`. Never format a `*Brl*`
+// amount with `baseCurrencyCode` (or vice-versa) — they are different currencies.
 export interface FinancialResultCents {
-  currencyCode: CurrencyCode
+  baseCurrencyCode: CurrencyCode
+  exchangedCurrencyCode: CurrencyCode
   costOfLivingCents: number
   travelCostCents: number
   remainingCourseFeeCents: number
@@ -112,11 +115,13 @@ export function computeFinancialCapacity(input: FinancialInput): FinancialResult
 // financial capacity can join the integer-cents snapshot. `toCents` guards FP drift.
 export function computeFinancialCapacityCents(
   input: FinancialInput,
-  currencyCode: CurrencyCode = DEFAULT_CURRENCY,
+  baseCurrencyCode: CurrencyCode = DEFAULT_CURRENCY,
+  exchangedCurrencyCode: CurrencyCode = 'BRL',
 ): FinancialResultCents {
   const r = computeFinancialCapacity(input)
   return {
-    currencyCode,
+    baseCurrencyCode,
+    exchangedCurrencyCode,
     costOfLivingCents: toCents(r.costOfLiving),
     travelCostCents: toCents(r.travelCost),
     remainingCourseFeeCents: toCents(r.remainingCourseFee),

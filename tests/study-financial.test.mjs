@@ -219,7 +219,8 @@ test('computeFinancialCapacityCents bridges the float result to integer cents', 
     remainingCourseFee: 0,
   }
   const cents = financial.computeFinancialCapacityCents(input)
-  assert.equal(cents.currencyCode, 'AUD')
-  assert.equal(cents.totalAudCents, 5166100) // 51661.00
-  assert.equal(cents.totalBrlCents, 13535182) // 135351.82
+  assert.equal(cents.baseCurrencyCode, 'AUD')
+  assert.equal(cents.exchangedCurrencyCode, 'BRL')
+  assert.equal(cents.totalAudCents, 5166100) // 51661.00 AUD
+  assert.equal(cents.totalBrlCents, 13535182) // 135351.82 BRL
 })

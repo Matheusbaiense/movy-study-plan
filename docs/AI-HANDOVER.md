@@ -304,8 +304,10 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
   `COMPUTED_VERSION = 1`. As funções float existentes (`courseTotal`, `planGrandTotal`, …) viraram
   **delegadores finos** `centsToNumber(...)` — a UI **não foi tocada** (mesma API, mesmos floats).
 - **`lib/financial/calculator.ts`:** mantém a matemática float intacta; adiciona a ponte
-  `computeFinancialCapacityCents(input, currencyCode='AUD'): FinancialResultCents` (converte o
-  resultado para centavos na borda) para juntar a capacidade financeira ao snapshot inteiro.
+  `computeFinancialCapacityCents(input, baseCurrencyCode='AUD', exchangedCurrencyCode='BRL'): FinancialResultCents`
+  (converte o resultado para centavos na borda) para juntar a capacidade financeira ao snapshot inteiro.
+  Pós-review: o resultado carrega moeda **por grupo de valor** (`baseCurrencyCode` nos `*Cents` AUD,
+  `exchangedCurrencyCode` nos `*BrlCents`) — nunca formatar BRL com o código AUD.
 - **Legado float (dono explícito = engine na borda):** floats já gravados em `study_plans.data`
   **não** recebem migration. O engine lê via `toCents` na borda e só **persiste centavos a partir
   do próximo salvar**. Normalização em massa fica para SPLIT 2/migration 010.
