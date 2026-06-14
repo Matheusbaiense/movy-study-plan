@@ -93,3 +93,27 @@ via API/eventos (nunca absorver schema); Lago↔woofed só se tocam pela Movy.
 
 **Não antecipar (v3+):** taxes, wallets, plans/charges, webhooks ricos, entitlements, pgvector/MCP.
 **Consequência:** SPLITs 0/1/2 ganham R6/R7/R8 (ver patches §6 de LAGO-WOOFED-CONVERGENCE.md).
+
+## Decisão — Assinatura/aceite: MVP in-house (SPLIT 5) antes de DocuSeal (v2) (2026-06-15)
+
+**Contexto:** avaliação do DocuSeal (alternativa open-source ao DocuSign) para o "aceite" da
+proposta já escopado no SPLIT 5 (`docs/FUTURE-DOCUSEAL.md`). Diferente do Lago (v3), encosta num
+fluxo acionável já.
+
+**Decisão:**
+- **MVP-aceite in-house no SPLIT 5 (v1):** assinatura eletrônica **simples** — nome + `accepted_at`
+  + IP + user-agent (+ termos) em `proposal_events` (`kind=signed`) + `audit_logs`; seta
+  `study_plans.accepted_at`/`status`. **Sem dependência externa.** Default do produto.
+- **Seam `SignatureProvider`** (provider in-house default), para plugar assinatura externa depois sem
+  reabrir a rota pública (espelha o contrato `CourseSource`).
+- **DocuSeal = v2 (opcional, condicionado)**, **antes** da v3/Lago, só quando houver documento formal
+  (contrato/termo, múltiplas partes, trilha assinada). Integração **por API + webhooks + embedded**,
+  chaveada por `org_id` + `study_plan_id` (`external_id`/`metadata jsonb`/idempotência do §3.7);
+  **nunca absorver o schema**; **não** delegar o PDF de apresentação ao DocuSeal.
+
+**Riscos registrados:** AGPLv3 + Section 7(b) Additional Terms (rodar como serviço isolado / Cloud;
+validar jurídico); **validade jurídica com cautela** — ESIGN/UETA/eIDAS são do fornecedor, no Brasil
+a régua é MP 2.200-2/ICP-Brasil (assinatura simples vale mas tem peso probatório menor); white-label/
+lembretes/SMS são Pro.
+
+**Posicionamento:** MVP-aceite (v1/SPLIT 5) · DocuSeal (v2) · Lago (v3).

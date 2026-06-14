@@ -284,6 +284,20 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - DocuSeal avaliado para o aceite da proposta (integrado ao roadmap + OpenWolf)
+
+- **DocuSeal avaliado** (`docs/FUTURE-DOCUSEAL.md`) como alternativa open-source ao DocuSign para o
+  fluxo de proposta/aceite (encosta no SPLIT 5, diferente do Lago que é v3).
+- **Recomendação:** **MVP-aceite in-house no SPLIT 5 (v1)** — assinatura eletrônica simples (nome +
+  `accepted_at` + IP + user-agent + termos) em `proposal_events`/`audit_logs`, **sem dependência**;
+  desenhado como seam `SignatureProvider`. **DocuSeal = opção de serviço externo para v2** (antes da
+  v3/Lago), só quando houver documento formal — via **API/webhooks/embedded**, chaveado por
+  `org_id`+`study_plan_id` (`external_id`/`metadata`/idempotência §3.7), **NUNCA absorção de schema**.
+- **Riscos registrados:** AGPLv3 + Section 7(b); validade jurídica com cautela (BR = MP 2.200-2/ICP-Brasil).
+- **Patches aplicados:** `PRODUCT-ROADMAP.md` (SPLIT 5 seam de aceite, §8 cross-link, §3.7 reuso),
+  `.wolf/anatomy.md` (registro do doc), `.wolf/cerebrum.md` (decisão). Posicionamento:
+  MVP-aceite (v1/SPLIT 5) · DocuSeal (v2) · Lago (v3).
+
 ### 2026-06-15 - SPLIT 0 CONCLUÍDO: migration 009 APLICADA no banco canônico + tipos regenerados
 
 > Desbloqueado. O usuário reautorizou o Supabase MCP na org correta ("Movy education",

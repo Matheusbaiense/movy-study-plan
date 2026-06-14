@@ -180,6 +180,7 @@
 - `AI-HANDOVER.md` — AI Handover - Movy Study Plan (~4158 tok)
 - `BRAND.md` — Marca Movy — referência de implementação (~532 tok)
 - `FRONTEND-REFACTOR.md` — Frontend Refactor — "Editorial Movement" (~2160 tok)
+- `FUTURE-DOCUSEAL.md` — avaliação do DocuSeal (assinatura eletrônica open-source, alternativa ao DocuSign) para o fluxo de proposta/aceite: MVP-aceite in-house (SPLIT 5) vs. DocuSeal (v2), modelo de integração (API/webhooks/embedded, chaveado por `org_id`+`study_plan_id`), riscos (AGPLv3+Section 7(b), validade jurídica). Irmão de `docs/FUTURE-LAGO-V3.md`.
 - `FUTURE-LAGO-V3.md` — Avaliação do Lago (billing/metering usage-based) como futuro v3: casos de uso, fronteira Movy↔Lago, pré-requisitos. Irmão de `docs/LAGO-WOOFED-CONVERGENCE.md`.
 - `LAGO-WOOFED-CONVERGENCE.md` — cruzamento estrutural Lago × woofed-crm × Movy: matriz de convergência, compatibilidade, o que antecipar antes da v3 (mapeado a SPLITS) e padrões de engenharia obrigatórios desde a v0 (R1–R11). Irmão de `docs/FUTURE-LAGO-V3.md`.
 - `PRODUCT-ROADMAP.md` — Master architecture & roadmap: product repositioning (agency proposal builder), tenancy-ready principle, domain model, SPLITS by code area, execution order. READ before planning Portfolio/Proposals/Calc. (~3600 tok)

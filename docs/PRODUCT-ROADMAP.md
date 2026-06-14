@@ -224,6 +224,10 @@ três sistemas (Lago, woofed, Movy) e viram padrão **desde a v0** (custam barat
 woofed `events` = timeline CRM; Movy `proposal_events` segue o woofed. `audit_logs` é auditoria
 de sistema, à parte. Nunca conflar os três.
 
+**Reuso (assinatura):** os mesmos `external_id`/`metadata jsonb`/idempotência chaveiam uma submission
+de assinatura externa (DocuSeal) por `org_id` + `study_plan_id`, sem absorver o schema do provedor —
+ver `docs/FUTURE-DOCUSEAL.md`.
+
 ---
 
 ## 4. Contratos centrais (interfaces estáveis)
@@ -392,6 +396,14 @@ geração de PDF server-side (nova).
 **Recursos:** barra superior fixa (voltar/editar/duplicar/PDF/imprimir/compartilhar/link/arquivar);
 navegação lateral por seção; modos (interno/cliente/impressão/mobile/PDF); capa + branding +
 seções ricas; múltiplas opções/comparador; link público + aceite; validade/expiração visível.
+- **Aceite/e-signature (seam):** o "aceite" é uma **assinatura eletrônica simples in-house** —
+  registra **nome + `accepted_at` + IP + user-agent** (+ checkbox de termos/versão) em
+  `proposal_events` (`kind=signed`) + `audit_logs`, e seta `study_plans.accepted_at`/`status`.
+  **Sem dependência externa.** Desenhar como `SignatureProvider` (provider in-house default) para
+  que uma assinatura **mais forte via terceiros** possa plugar depois **sem reabrir a rota pública**.
+  Opção futura documentada (v2, antes da v3/Lago): **DocuSeal** (open-source, self-host) por
+  API + webhooks + embedded, chaveado por `org_id` + `study_plan_id` (`external_id`/`metadata`/
+  idempotência do §3.7). Ver `docs/FUTURE-DOCUSEAL.md`. Não delegar o PDF de apresentação ao DocuSeal.
 **Aceite:** PDF/print fiéis (papel branco nos 2 temas, P já documentado); link público abre sem login.
 **Depende de:** SPLIT 2, 4.
 
@@ -527,6 +539,13 @@ sistemas das escolas, ERPs; gateway de pagamento; assinatura eletrônica via ter
 **Futuro documentado (não acionável agora):** billing/metering usage-based via **Lago** —
 ver `docs/FUTURE-LAGO-V3.md` (avaliação) e `docs/LAGO-WOOFED-CONVERGENCE.md` (cruzamento
 estrutural Lago × woofed × Movy + padrões de engenharia travados desde a v0).
+
+**Assinatura eletrônica — esclarecimento:** o **aceite** da proposta (assinatura eletrônica
+**simples** in-house) está **dentro** de escopo no **SPLIT 5** (não depende de terceiros). O que fica
+para o futuro é a **assinatura forte via serviço externo**. A opção open-source/self-host avaliada é o
+**DocuSeal** (https://github.com/docusealco/docuseal) — ver `docs/FUTURE-DOCUSEAL.md` (avaliação,
+MVP-aceite vs. DocuSeal, modelo de integração, riscos AGPL/validade jurídica). Posicionamento:
+**MVP-aceite = v1/SPLIT 5** · **DocuSeal = v2 (opcional, condicionado)** · **Lago = v3**.
 
 ## 10. Decisões em aberto (precisam do dono do produto)
 
