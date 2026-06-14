@@ -284,6 +284,32 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - Replanejamento dos splits (validado por architecture-critic) + roadmap atualizado
+> O planejamento original foi feito antes da decisão woofed; revalidei o plano contra a integração
+> woofed/DS e o estado atual (fundação de UI pronta). Usei `architecture-critic` (adversarial) em vez
+> de regerar do zero — a arquitetura já estava ~90% woofed-aligned (commit anterior). Veredito do
+> crítico: **pode executar SPLIT 0**, com correções pontuais (todas integradas).
+
+- **Correções integradas no `docs/PRODUCT-ROADMAP.md`:**
+  - §3.1: `current_org_id()` **anti-recursão** (ler `auth.jwt()→app_metadata.org_id` + fallback;
+    `SECURITY DEFINER STABLE` + `search_path` fixo); `ai_usage = {limit, tokens}`; dinheiro `bigint`;
+    `slug`/`status` de `organizations` adiados (só `org_id` p/ tenancy-ready).
+  - §3.4: `contacts` com unicidade **por org** (`unique(org_id, lower(email))`/`(org_id, phone)`) —
+    NÃO o índice global do woofed (vazaria contatos entre orgs). `proposal_events` alinhado ao
+    `events` do woofed (`kind`/`scheduled_at`/`done_at`/`from_me`/`status`/`title`). Dois sistemas de
+    evento justificados (audit_logs=sistema, proposal_events=timeline de negócio).
+  - §4: novo contrato **`CourseSource`** (seam editor↔portfólio) — SPLIT 4 coda contra a interface
+    com provider manual; SPLIT 6 só pluga o provider de portfólio, **sem reabrir** `StudyPlanEditor.tsx`.
+  - SPLIT 0: ordem do `org_id NOT NULL` (nullable→backfill→default→NOT NULL), seed Movy com **UUID
+    fixo**, **índices** em `org_id`, policy de `study_plans` **extensível** (SPLIT 2 estende, não troca).
+  - SPLIT 1: **dono do backfill de dinheiro** — engine lê legado float na borda; persiste centavos a partir do próximo salvar.
+  - SPLIT 7: **MCP e pgvector/embeddings FORA de escopo** (fase CRM) — corte de over-engineering.
+  - SPLIT UI marcado **✅ FEITO**; exclusões conscientes (Câmbio, FinancialCalculator) documentadas.
+  - Nit: glossário renumerado para §11 (ordem monotônica).
+- **Decisões registradas** em `.wolf/cerebrum.md` (Decision Log).
+- **Ordem de entrega mantida:** 0 → 1 → 2 → 3 → 4 → 6 → 5 → 7 → 8 → 9 (o `CourseSource` resolve o risco do 4↔6).
+- **Próximo:** executar **SPLIT 0** (migration 009 + regen de tipos + quitar `as any`).
+
 ### 2026-06-15 - SPLIT UI (cont.): migração de telas não-split para o DS + auditoria
 > Continuação da fundação. Princípio de engenharia: **migrar só onde há valor real**, sem churn
 > cosmético. Auditei o repo (grep de cores/fontes hardcoded e `<svg>` à mão) para achar exatamente

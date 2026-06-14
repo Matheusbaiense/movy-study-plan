@@ -87,14 +87,21 @@ Notação: `tabela (colunas-chave)`. Toda tabela de negócio tem `org_id`, `crea
 
 ### 3.1 Tenancy & acesso (existe parcialmente)
 ```
-organizations (id, name, slug, status, currency_code, settings jsonb,     [NOVO]
-               ai_usage jsonb, branding jsonb, created_at)   -- espelha woofed `accounts`
+organizations (id, name, currency_code, settings jsonb,                    [NOVO]
+               ai_usage jsonb {limit, tokens}, branding jsonb, created_at) -- espelha woofed `accounts`
+               -- slug/status: ADIAR (só servem p/ roteamento SaaS; org_id já basta p/ tenancy-ready)
 profiles (id, email, full_name, role, is_active, org_id→organizations)    [+org_id]
 allowed_emails (email, role, org_id)                                       [+org_id]
 audit_logs (id, org_id, actor_id, action, entity_type, entity_id, meta)   [+org_id]
 ```
-Helper RLS: `current_org_id()` → `profiles.org_id` do `auth.uid()`. Toda policy passa a
-incluir `org_id = current_org_id()`. Org "Movy" semeada; `org_id` default = Movy.
+- **`ai_usage` (shape fixado):** `{ limit: number, tokens: number }` (espelha woofed `accounts.ai_usage`).
+- **Dinheiro:** `bigint` em `*_in_cents` + `currency_code` explícito (woofed usa `integer`; usamos
+  `bigint` por segurança de overflow — documentado).
+- **Helper RLS `current_org_id()` (anti-recursão — crítico):** ler de `auth.jwt() → app_metadata.org_id`
+  (gravado no login), com **fallback** à query `profiles`. `SECURITY DEFINER STABLE` + `search_path`
+  fixo. **NÃO** fazer a policy de `profiles` chamar uma função que consulta `profiles` (recursão
+  infinita de RLS). Toda policy de negócio inclui `org_id = current_org_id()`. Org "Movy" semeada
+  com **UUID determinístico/fixo**; `org_id` default = Movy.
 
 ### 3.2 Portfólio (NOVO — substitui `course_presets`)
 ```
@@ -129,16 +136,24 @@ Storage: Supabase Storage bucket `school-docs` (privado, RLS por org).
 ```
 contacts (id, org_id, full_name, email, phone, custom_attributes jsonb,
           additional_attributes jsonb, deleted_at)            [NOVO — seam CRM woofed-shaped]
+          -- unicidade POR ORG: unique(org_id, lower(email)) e unique(org_id, phone).
+          -- NÃO copiar o índice GLOBAL do woofed (artefato single-account: vazaria contatos entre orgs).
 study_plans (id, org_id, contact_id→contacts [NOVO], deal_id [reservado p/ CRM, nullable],
              title, applicant_type, status[enum estendido],
              data jsonb, computed jsonb [snapshot de totais em centavos],
              fx jsonb [câmbio travado], currency_code, expires_at, accepted_at,
              created_by, updated_by, deleted_at)
-proposal_events (id, org_id, study_plan_id, actor_id, type, metadata, created_at)  [NOVO timeline]
+proposal_events (id, org_id, study_plan_id, actor_id,                     [NOVO timeline]
+             kind [woofed-shaped: note|status_change|email|task|...],
+             title, scheduled_at, done_at, from_me bool, status, metadata jsonb, created_at)
 ```
 - `student_name` deixa de viver só no jsonb: vira `contacts` referenciado por `contact_id`
-  (compatível com woofed `contacts`: email/phone únicos, `custom_attributes`). Isto é o **seam**
-  que permite a fusão com o CRM sem reescrever a proposta.
+  (compatível com woofed `contacts`: `custom_attributes`, mas **unicidade por org**, não global).
+  Isto é o **seam** que permite a fusão com o CRM sem reescrever a proposta.
+- `proposal_events` adota o shape do woofed `events` (`kind`/`scheduled_at`/`done_at`/`from_me`/
+  `status`/`title`) — assim a timeline da proposta vira tarefa/evento de CRM sem remigração.
+- **Dois sistemas de evento (justificado):** `audit_logs` = auditoria de sistema (quem mudou o quê,
+  imutável); `proposal_events` = timeline de negócio/CRM visível ao usuário. Propósitos distintos.
 
 ### 3.6 Seam de CRM (compatibilidade woofed-crm) — leitura obrigatória do P10
 
@@ -201,6 +216,11 @@ Para evitar retrabalho, estes contratos são definidos cedo e os splits dependem
   chamada no cliente (preview) e via server action (autoridade).
 - **`PortfolioCourseRef`** (o que a proposta guarda ao escolher um curso do portfólio):
   `{ courseId, priceVersionId, snapshot: {...campos de preço...}, takenAt }`.
+- **`CourseSource`** (seam editor↔portfólio — define-se no SPLIT 4, implementa-se no SPLIT 6):
+  `interface CourseSource { search(q): Promise<CourseOption[]>; resolve(courseId): Promise<PortfolioCourseRef> }`.
+  O **editor (SPLIT 4) coda contra esta interface** com um provider manual (entrada à mão); o
+  **SPLIT 6 só pluga o provider de portfólio** — assim o portfólio **não reabre** `StudyPlanEditor.tsx`
+  (preserva a regra "arquivo quente reescrito 1x").
 - **`ExtractionResult`** (saída da IA antes da conferência):
   `{ institution, campus, courses[]: { fields, confidencePerField }, modelUsed, tokens, cost }`.
 
@@ -211,7 +231,13 @@ Para evitar retrabalho, estes contratos são definidos cedo e os splits dependem
 > Cada split deixa sua área **na forma final**. Ordem em §7. Cada split = 1 branch + 1 commit
 > (ou poucos), com type-check + `node --test` verdes e, quando toca dinheiro/datas/RLS, build.
 
-### SPLIT UI — Shell & Design System (woofed-shaped, pele Movy)
+> **Revisão arquitetural (architecture-critic, 2026-06-15):** plano validado como ~90% pronto;
+> veredito "pode executar SPLIT 0". Correções integradas: unicidade de `contacts` por org (não
+> global), `proposal_events` alinhado ao `events` woofed, `current_org_id()` anti-recursão, ordem
+> do `org_id NOT NULL`/seed UUID fixo/índices no SPLIT 0, contrato `CourseSource` (editor↔portfólio),
+> dono do backfill de dinheiro no SPLIT 1, e MCP/pgvector cortados do SPLIT 7 (fase CRM).
+
+### SPLIT UI — Shell & Design System (woofed-shaped, pele Movy)  ✅ FEITO (2026-06-15)
 **Objetivo:** migrar a interface inteira para a linguagem visual do **woofed-crm** (P10),
 mantendo a **marca Movy** (roxo `#4B1A77` + dourado `#FBB615` + Clash Display/Satoshi).
 É **frontend-puro e independente do SPLIT 0** — pode rodar antes/em paralelo. Decisão de marca:
@@ -235,19 +261,40 @@ roxo; em dark vira a superfície roxa do tema.
 **Arquivos:** `app/globals.css` (tokens `--ds-*` + `@layer components`),
 `components/layout/AppShell.tsx`. Sem mudança de schema, sem `as any`.
 
-**Pendente (migração tela a tela):** cada tela adota as classes do DS e troca SVGs à mão por
-Lucide — **dentro do respectivo split de UI** (3 lista, 4 editor, 5 proposta/PDF), além de
-home/wiki/departments/settings/câmbio/financeiro como passes incrementais.
+**Telas não-split migradas (feito 2026-06-15):** `home`, `wiki` (lista/artigo/blocos),
+`departments/[slug]`, `settings/users`, `error`, e skeletons de loading
+(home/wiki/departments) — Lucide + classes DS + tokens dark-safe (`rgba(var(--ink-rgb),…)`,
+`var(--surface)`, `var(--font-body)`). Removido código morto + `as any` em `home`.
 
-**Aceite:** shell colapsável funcional em light/dark/mobile; type-check + build verdes
-(feito); telas migram progressivamente sem regressão.
+**Exclusões conscientes (sem retrabalho):**
+- **Câmbio** (`cambio/page.tsx`, `FxConverter/FxStats/FxRatesTable/FxChart`): já 100% token-based
+  e theme-aware — reescrever em classes DS seria no-op visual com risco de regressão.
+- **`FinancialCalculator.tsx`**: é o **documento financeiro imprimível** (`.fc-*` em papel branco,
+  Outfit/Space Mono) — intencionalmente papel nos 2 temas, igual ao PDF da proposta (P documentado).
+
+**Pendente (folda nos splits):** telas **donas de split** adotam o DS dentro do próprio split —
+3 (lista `study-plans/page.tsx`), 4 (editor `StudyPlanEditor.tsx`), 5 (proposta/PDF). Os `as any`
+restantes (ligados a `study_plans`) são quitados no **SPLIT 0** (regen de tipos).
+
+**Aceite:** ✅ shell colapsável em light/dark/mobile; ✅ type-check + build verdes; ✅ telas
+não-split migradas sem regressão; restante folda nos splits 3/4/5.
 **Depende de:** —
 
 ### SPLIT 0 — Fundação de dados & tenancy-ready
 **Objetivo:** schema base multi-org-ready + quitar `as any`. Tudo depende disto.
-**Schema (migration 009):** `organizations` (+ seed Movy); `org_id` em `profiles`,
-`allowed_emails`, `audit_logs`, `study_plans`; `current_org_id()`; reescrever policies para
-incluir `org_id = current_org_id()`; default `org_id` = Movy.
+**Schema (migration 009):** `organizations` (+ seed Movy com **UUID determinístico/fixo**);
+`org_id` em `profiles`, `allowed_emails`, `audit_logs`, `study_plans`; `current_org_id()`;
+reescrever policies para incluir `org_id = current_org_id()`; default `org_id` = Movy.
+**Correções de robustez (do architecture-critic):**
+- **`current_org_id()` anti-recursão:** lê de `auth.jwt() → app_metadata.org_id` com fallback à
+  query; `SECURITY DEFINER STABLE` + `search_path` fixo. Policy de `profiles` **não** pode chamar
+  função que consulta `profiles` (recursão infinita de RLS).
+- **Ordem do `org_id NOT NULL`:** add **nullable** → **backfill** para UUID-Movy → **set default** →
+  **set NOT NULL** (nunca NOT NULL direto numa tabela com linhas).
+- **Índices:** `org_id` em todas as tabelas + compostos com colunas filtradas (RLS injeta
+  `org_id=current_org_id()` em toda query; sem índice degrada).
+- **Policy extensível:** deixar a policy de `study_plans` num formato que o SPLIT 2 (soft-delete/
+  hard-delete) **estende**, não substitui inteiro.
 **Arquivos:** `supabase/migrations/009_*.sql`, `types/supabase.ts` (regenerar),
 `types/database.ts`, `lib/auth/get-user.ts` (expor `orgId`), `lib/supabase/*` (sem mudança de API).
 **Aceite:** login + telas atuais funcionam idênticos; RLS por org ativo; nenhum `as any` novo;
@@ -263,8 +310,12 @@ type-check verde.
 `app/[locale]/(protected)/study-plans/actions.ts` (revalida + grava `computed`),
 `tests/study-financial.test.mjs` (estende casos + casos de arredondamento em centavos).
 **Não** mexe em UI ainda; a UI converte na borda.
+**Backfill de dinheiro (dono explícito):** floats já gravados em `study_plans.data` (jsonb) **não**
+recebem migration aqui — o engine **lê legado float na borda** (helper de coerção) e só persiste
+centavos a partir do próximo salvar. (Se for preciso normalizar em massa, fica no SPLIT 2/migration 010.)
 **Aceite:** `computeProposal` cobre todos os totais em centavos; server grava `computed` ao
-salvar; sem float em dinheiro; testes verdes incluindo offshore/visto/arredondamento.
+salvar; sem float em dinheiro novo; legado lido sem quebrar; testes verdes incluindo
+offshore/visto/arredondamento.
 **Depende de:** SPLIT 0.
 
 ### SPLIT 2 — Domínio da proposta (study_plans) + seam de contatos (CRM-ready)
@@ -336,10 +387,13 @@ histórico), busca/filtros, duplicar, arquivar, indicador de completude/vigênci
 **Recursos:** upload (PDF/Excel/imagem); OCR → LLM → validação determinística; tela de conferência
 com % de confiança; comparação com preço atual (variação %); publicar/atualizar/criar vigência/
 revisar depois; fila com estados, tokens, custo, modelo; escolha modelo rápido/preciso.
-**Compatibilidade woofed:** reusar padrões do woofed — contagem de tokens/custo em
-`organizations.ai_usage` (espelha `accounts.ai_usage`), embeddings em pgvector (espelha
-`embedding_documments`), config de modelo (api_key/model como `apps_ai_assistents`). Avaliar
-expor/consumir via MCP (woofed já tem servidor MCP + OAuth) para que a IA atue no portfólio.
+**Compatibilidade woofed (só o necessário):** reusar contagem de tokens/custo em
+`organizations.ai_usage` (espelha `accounts.ai_usage`) e config de modelo (api_key/model como
+`apps_ai_assistents`).
+**FORA DE ESCOPO deste split (adiar p/ fase CRM, §8/futuro):** **MCP** (expor/consumir via servidor
+MCP) e **pgvector/embeddings** — o pipeline OCR→LLM→validação determinística **não precisa de
+embeddings** (embedding é do assistente/chat do CRM, fora de escopo agora). Cortado para não
+sobre-engenheirar uma agência single-tenant.
 **Aceite:** PDF de price list vira cursos revisáveis; nada salvo sem aprovação; auditoria + versão.
 **Depende de:** SPLIT 6 (precisa do destino: courses/price_versions).
 
@@ -463,7 +517,7 @@ nomes/semântica do woofed (§3.6) para migração/convergência trivial.
 
 ---
 
-## 9. Glossário rápido
+## 11. Glossário rápido
 - **Split** = unidade de trabalho por área de código, executada inteira de uma vez.
 - **Snapshot** = cópia congelada de preço/cálculo gravada na proposta (respaldo histórico).
 - **Tenancy-ready** = schema/RLS já preparados para múltiplas agências, mas rodando só pra Movy.
