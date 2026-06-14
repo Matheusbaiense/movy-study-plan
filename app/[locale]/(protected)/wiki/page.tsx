@@ -60,7 +60,13 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
   function contentExcerpt(c: Content) {
     const body = locale === 'en' ? (c.body_en ?? c.body_pt) : locale === 'es' ? (c.body_es ?? c.body_pt) : c.body_pt
     if (!body) return ''
-    return body.replace(/<[^>]+>/g, '').slice(0, 120)
+    // Replace tags with a space (not '') so adjacent blocks don't run together,
+    // then collapse the resulting whitespace before truncating.
+    return body
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 120)
   }
 
   function deptDisplayName(c: Content) {
@@ -76,10 +82,10 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
         <div>
           <div className="movy-kicker">Movy Internal Hub</div>
-          <h1 style={{ margin: '8px 0 4px', fontFamily: font.display, fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: '#2A1153' }}>
+          <h1 style={{ margin: '8px 0 4px', fontFamily: font.display, fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 0.98, color: 'var(--text)' }}>
             {locale === 'en' ? 'Knowledge Base' : 'Informações'}
           </h1>
-          <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.5)' }}>
+          <p style={{ margin: 0, fontFamily: '"Space Mono", monospace', fontSize: 12, color: 'rgba(28,18,51,0.62)' }}>
             {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}
           </p>
         </div>
@@ -111,7 +117,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               placeholder={locale === 'pt' ? 'Pesquisar informacoes...' : locale === 'es' ? 'Buscar informacion...' : 'Search knowledge...'}
               style={{
                 flex: 1, border: 'none', outline: 'none', fontSize: 15,
-                color: '#2A1153', background: 'transparent', fontFamily: 'Outfit, system-ui, sans-serif',
+                color: 'var(--text)', background: 'transparent', fontFamily: 'var(--font-body)',
               }}
             />
           </div>
@@ -122,7 +128,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               defaultValue={dept ?? ''}
               style={{
                 padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
-                background: '#fff', fontSize: 13, color: '#2A1153', fontFamily: 'Outfit, system-ui, sans-serif',
+                background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
                 cursor: 'pointer',
               }}
             >
@@ -140,7 +146,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
                 defaultValue={status ?? ''}
                 style={{
                   padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(28,18,51,0.1)',
-                  background: '#fff', fontSize: 13, color: '#2A1153', fontFamily: 'Outfit, system-ui, sans-serif',
+                  background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
                   cursor: 'pointer',
                 }}
               >
@@ -169,8 +175,8 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.length === 0 ? (
           <div style={{
-            padding: 60, textAlign: 'center', color: 'rgba(28,18,51,0.5)',
-            background: '#fff', borderRadius: 18, border: '1px solid rgba(28,18,51,0.06)',
+            padding: 60, textAlign: 'center', color: 'var(--text-subtle)',
+            background: 'var(--surface)', borderRadius: 18, border: '1px solid var(--border)',
           }}>
             <SearchIcon large />
             <div style={{ marginTop: 10, fontSize: 14 }}>

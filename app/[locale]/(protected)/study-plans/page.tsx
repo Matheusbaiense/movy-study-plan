@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/get-user'
 import { createStudyPlan } from './actions'
 import { NewQuoteButton } from '@/components/study-plans/NewQuoteButton'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
-import { color, ink, font, purpleA } from '@/lib/ui/theme'
+import { color, ink, font, purpleA, t } from '@/lib/ui/theme'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
 interface Props {
@@ -30,7 +30,7 @@ export default async function StudyPlansPage({ params }: Props) {
           <div className="movy-kicker">
             {locale === 'en' ? 'Proposals' : 'Propostas'}
           </div>
-          <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: color.purpleDeep }}>
+          <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: t.text }}>
             Cotações &amp; Study Plans
           </h1>
           <p style={{ margin: 0, color: ink(0.62), fontSize: 14 }}>
@@ -60,7 +60,7 @@ export default async function StudyPlansPage({ params }: Props) {
                   <svg viewBox="0 0 120 120" width={52} height={52} aria-hidden style={{ color: color.purple, opacity: 0.16, margin: '0 auto' }}>
                     <use href="#movySymMono" />
                   </svg>
-                  <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 800, color: color.purpleDeep, marginTop: 14, letterSpacing: '-0.015em' }}>
+                  <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 800, color: t.text, marginTop: 14, letterSpacing: '-0.015em' }}>
                     Nenhuma cotação ainda
                   </div>
                   <div style={{ color: ink(0.5), fontSize: 13.5, marginTop: 4 }}>
@@ -74,7 +74,7 @@ export default async function StudyPlansPage({ params }: Props) {
                 return (
                   <tr key={plan.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
                     <td style={{ padding: '14px 16px' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ fontFamily: font.display, color: color.purpleDeep, fontWeight: 800, textDecoration: 'none' }}>
+                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ fontFamily: font.display, color: t.text, fontWeight: 800, textDecoration: 'none' }}>
                         {plan.student_name || data.student || 'Sem estudante'}
                       </Link>
                       <div style={{ marginTop: 3, color: ink(0.48), fontSize: 12 }}>{plan.title}</div>
@@ -82,10 +82,10 @@ export default async function StudyPlansPage({ params }: Props) {
                     <td style={{ padding: '14px 16px', color: ink(0.68) }}>{plan.applicant_type}</td>
                     <td style={{ padding: '14px 16px' }}>
                       <span style={{ borderRadius: 999, padding: '3px 10px', background: purpleA(0.1), color: color.purple, fontWeight: 700, fontSize: 11, textTransform: 'capitalize' }}>
-                        {plan.status}
+                        {plan.status === 'draft' && locale === 'pt' ? 'Rascunho' : plan.status}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px', fontFamily: font.display, fontWeight: 800, color: color.purpleDeep }}>{money(planGrandTotal(data))}</td>
+                    <td style={{ padding: '14px 16px', fontFamily: font.display, fontWeight: 800, color: t.text }}>{money(planGrandTotal(data))}</td>
                     <td style={{ padding: '14px 16px', fontFamily: font.mono, fontSize: 11, color: ink(0.55) }}>
                       {plan.updated_at ? new Date(plan.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
                     </td>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { STATUS_STYLES, getStatusLabel } from '@/lib/constants/content'
-import { color, ink, font } from '@/lib/ui/theme'
+import { ink, font, t } from '@/lib/ui/theme'
 
 interface WikiListItemProps {
   href: string
@@ -65,7 +65,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
           </span>
         </div>
 
-        <h3 style={{ margin: '0 0 4px', fontFamily: font.display, fontSize: 16, fontWeight: 800, letterSpacing: '-0.01em', color: color.purpleDeep }}>
+        <h3 style={{ margin: '0 0 4px', fontFamily: font.display, fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: t.text }}>
           {title}
         </h3>
         {excerpt && (
@@ -74,7 +74,7 @@ export function WikiListItem({ href, accent, deptName, status, title, excerpt, u
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 8, fontFamily: font.mono, fontSize: 11, color: ink(0.45) }}>
+        <div style={{ display: 'flex', gap: 12, marginTop: 8, fontFamily: font.mono, fontSize: 11, color: ink(0.6) }}>
           <span>{updatedDate}</span>
           {tags && tags.length > 0 && (
             <>

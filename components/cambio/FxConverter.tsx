@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { color, ink, font } from '@/lib/ui/theme'
+import { color, ink, font, t } from '@/lib/ui/theme'
 
 const round2 = (n: number) => Math.round(n * 100) / 100
 
@@ -47,7 +47,7 @@ export function FxConverter() {
     <div className="movy-card" style={{ padding: '22px 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
         <span className="movy-kicker">Conversor</span>
-        {rate && <span style={{ fontFamily: font.mono, fontSize: 11, color: ink(0.45) }}>1 AUD = R$ {rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 })}</span>}
+        {rate && <span style={{ fontFamily: font.mono, fontSize: 11, color: ink(0.62) }}>1 AUD = R$ {rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 })}</span>}
       </div>
 
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'end' }}>
@@ -55,7 +55,7 @@ export function FxConverter() {
         <Money label="Equivale a (BRL)" code="R$" value={brl} onChange={onBrl} accent={color.orange} />
       </div>
 
-      <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 10.5, color: ink(0.42), lineHeight: 1.5 }}>
+      <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 10.5, color: ink(0.62), lineHeight: 1.5 }}>
         {rate
           ? <>Convertido pela taxa{source ? ` ${source}` : ''}{stamp ? ` · ${stamp} (Perth)` : ''}. É a mesma taxa usada nas propostas e na calculadora.</>
           : failed
@@ -70,7 +70,7 @@ function Money({ label, code, value, onChange, accent }: { label: string; code: 
   return (
     <label style={{ display: 'grid', gap: 6 }}>
       <span style={{ fontSize: 11, fontWeight: 700, color: ink(0.5), textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1px solid ${ink(0.14)}`, borderRadius: 12, padding: '4px 14px', background: '#fff' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1px solid ${ink(0.14)}`, borderRadius: 12, padding: '4px 14px', background: t.surfaceSunken }}>
         <span style={{ fontFamily: font.display, fontWeight: 800, fontSize: 18, color: accent }}>{code}</span>
         <input
           type="number"
@@ -80,7 +80,7 @@ function Money({ label, code, value, onChange, accent }: { label: string; code: 
             const n = Number.parseFloat(e.target.value)
             onChange(Number.isFinite(n) ? n : 0)
           }}
-          style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.display, fontWeight: 800, fontSize: 'clamp(22px, 3.2vw, 30px)', letterSpacing: '-0.02em', color: color.purpleDeep, padding: '10px 0' }}
+          style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.display, fontWeight: 800, fontSize: 'clamp(22px, 3.2vw, 30px)', letterSpacing: '-0.02em', color: t.text, padding: '10px 0' }}
         />
       </div>
     </label>

@@ -14,9 +14,16 @@ export const viewport: Viewport = {
   themeColor: '#2A1153',
 }
 
+// Set the theme before first paint to avoid a flash. Reads the saved choice,
+// falls back to the OS preference.
+const themeInit = `(function(){try{var t=localStorage.getItem('movy-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body>
         <BrandDefs />
         {children}
