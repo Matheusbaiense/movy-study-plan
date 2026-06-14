@@ -16,6 +16,7 @@ const PURPLE = '#4B1A77'
 const GOLD = '#FBB615'
 const ORANGE = '#F36B1C'
 const MUTED = '#5A4E72'
+const RED = '#C2410C'
 const HAIR = '#E0D6EE'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
@@ -41,6 +42,7 @@ export function FinancialCalculator() {
   const [fxMid, setFxMid] = useState<number | null>(null)
   const [fxFeePct, setFxFeePct] = useState<number | null>(null)
   const [fxLoading, setFxLoading] = useState(false)
+  const [fxError, setFxError] = useState(false)
   const calculatedTravel = useMemo(() => defaultTravelCost(data), [data])
   const effectiveData = useMemo(
     () => (customTravel ? data : { ...data, travelCost: calculatedTravel }),
@@ -58,18 +60,23 @@ export function FinancialCalculator() {
 
   async function loadFx() {
     setFxLoading(true)
+    setFxError(false)
     try {
       const res = await fetch('/api/fx', { cache: 'no-store' })
       const j = await res.json()
-      if (typeof j.rate === 'number' && Number.isFinite(j.rate)) {
+      if (typeof j.rate === 'number' && Number.isFinite(j.rate) && j.rate > 0) {
         set('exchangeRate', j.rate)
         setFxAsOf(j.asOf ?? null)
         setFxSource(j.source ?? null)
         setFxMid(typeof j.mid === 'number' ? j.mid : null)
         setFxFeePct(typeof j.feePct === 'number' ? j.feePct : null)
+      } else {
+        // Provider chain returned no usable rate ("indisponível") — keep the
+        // manual value but tell the user the live quote could not be loaded.
+        setFxError(true)
       }
     } catch {
-      // keep the manual rate on failure
+      setFxError(true)
     } finally {
       setFxLoading(false)
     }
@@ -137,10 +144,10 @@ export function FinancialCalculator() {
             <Field label="Cotação AUD para BRL">
               <div style={{ display: 'grid', gap: 6 }}>
                 <NumberInput value={data.exchangeRate} step="0.01" onChange={(value) => setNumber('exchangeRate', value)} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: MUTED, fontFamily: '"Space Mono", monospace' }}>
-                  <span>{fxLoading ? 'Buscando cotação…' : fxStamp ? `${fxSource ?? 'Cotação'} · ${fxStamp} (Perth)` : 'Cotação manual'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: fxError ? RED : MUTED, fontFamily: '"Space Mono", monospace' }}>
+                  <span>{fxLoading ? 'Buscando cotação…' : fxError ? 'Não foi possível obter a cotação ao vivo — usando valor manual.' : fxStamp ? `${fxSource ?? 'Cotação'} · ${fxStamp} (Perth)` : 'Cotação manual'}</span>
                   <button type="button" onClick={loadFx} disabled={fxLoading} style={{ border: 'none', background: 'transparent', color: ORANGE, fontWeight: 700, cursor: fxLoading ? 'wait' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 11, padding: 0 }}>
-                    atualizar
+                    {fxError ? 'tentar de novo' : 'atualizar'}
                   </button>
                 </div>
               </div>

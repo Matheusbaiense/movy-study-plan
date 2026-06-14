@@ -11,6 +11,7 @@ export function FxConverter() {
   const [asOf, setAsOf] = useState<string | null>(null)
   const [aud, setAud] = useState(1000)
   const [brl, setBrl] = useState(0)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch('/api/fx', { cache: 'no-store' })
@@ -21,9 +22,11 @@ export function FxConverter() {
           setSource(j.source ?? null)
           setAsOf(j.asOf ?? null)
           setBrl(round2(aud * j.rate))
+        } else {
+          setFailed(true)
         }
       })
-      .catch(() => {})
+      .catch(() => setFailed(true))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -55,7 +58,9 @@ export function FxConverter() {
       <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 10.5, color: ink(0.42), lineHeight: 1.5 }}>
         {rate
           ? <>Convertido pela taxa{source ? ` ${source}` : ''}{stamp ? ` · ${stamp} (Perth)` : ''}. É a mesma taxa usada nas propostas e na calculadora.</>
-          : 'Carregando cotação…'}
+          : failed
+            ? <span style={{ color: color.red }}>Não foi possível obter a cotação agora. Tente novamente em instantes.</span>
+            : 'Carregando cotação…'}
       </div>
     </div>
   )

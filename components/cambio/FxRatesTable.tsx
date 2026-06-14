@@ -10,12 +10,16 @@ const intFmt = (n: number) => n.toLocaleString('pt-BR')
 export function FxRatesTable() {
   const [rate, setRate] = useState<number | null>(null)
   const [source, setSource] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch('/api/fx', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((j) => { if (typeof j.rate === 'number' && j.rate > 0) { setRate(j.rate); setSource(j.source ?? null) } })
-      .catch(() => {})
+      .then((j) => {
+        if (typeof j.rate === 'number' && j.rate > 0) { setRate(j.rate); setSource(j.source ?? null) }
+        else { setFailed(true) }
+      })
+      .catch(() => setFailed(true))
   }, [])
 
   return (
@@ -26,7 +30,9 @@ export function FxRatesTable() {
       </div>
 
       {!rate ? (
-        <div style={{ padding: '24px 0', color: ink(0.4), fontSize: 13 }}>Carregando cotação…</div>
+        <div style={{ padding: '24px 0', color: failed ? color.red : ink(0.4), fontSize: 13 }}>
+          {failed ? 'Não foi possível obter a cotação agora. Tente novamente em instantes.' : 'Carregando cotação…'}
+        </div>
       ) : (
         <div className="grid-cols-1 lg:grid-cols-2" style={{ display: 'grid', gap: 24 }}>
           <Table head={['AUD', 'BRL']} rows={AMOUNTS.map((a) => [`A$ ${intFmt(a)}`, `R$ ${money(a * rate)}`])} />
