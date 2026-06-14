@@ -106,7 +106,7 @@ export async function createUser(input: {
 
   // Register on the allowlist first so the auth trigger activates the profile
   // with the correct role on creation.
-  await (svc as any).from('allowed_emails').upsert({ email, role }, { onConflict: 'email' })
+  await svc.from('allowed_emails').upsert({ email, role }, { onConflict: 'email' })
 
   const { data: created, error } = await svc.auth.admin.createUser({
     email,
@@ -163,7 +163,7 @@ export async function updateUserRole(userId: string, newRole: string): Promise<A
   if (error) return { ok: false, error: error.message }
 
   // Keep the allowlist role in sync (for Google re-logins).
-  await (svc as any).from('allowed_emails').update({ role }).eq('email', target.email)
+  await svc.from('allowed_emails').update({ role }).eq('email', target.email)
 
   await logAudit({
     actorId: actor.id,
@@ -228,7 +228,7 @@ export async function removeUser(userId: string): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message }
 
   if (target?.email) {
-    await (svc as any).from('allowed_emails').delete().eq('email', target.email)
+    await svc.from('allowed_emails').delete().eq('email', target.email)
   }
 
   await logAudit({
@@ -259,7 +259,7 @@ export async function addAllowedEmail(rawEmail: string, rawRole: string): Promis
   if (!svc) return { ok: false, error: SERVICE_MISSING }
   await assertCanManageTarget(svc, actor, email)
 
-  const { error } = await (svc as any)
+  const { error } = await svc
     .from('allowed_emails')
     .upsert({ email, role }, { onConflict: 'email' })
   if (error) return { ok: false, error: error.message }
@@ -288,7 +288,7 @@ export async function removeAllowedEmail(rawEmail: string): Promise<ActionResult
   if (!svc) return { ok: false, error: SERVICE_MISSING }
   await assertCanManageTarget(svc, actor, email)
 
-  const { error } = await (svc as any).from('allowed_emails').delete().eq('email', email)
+  const { error } = await svc.from('allowed_emails').delete().eq('email', email)
   if (error) return { ok: false, error: error.message }
 
   // Revoke access for the matching profile, if any.

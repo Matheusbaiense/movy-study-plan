@@ -7,6 +7,7 @@ import { logAuditWithClient } from '@/lib/api/audit'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import type { StudyPlanData } from '@/lib/study-plans/types'
+import type { Json, Enums } from '@/types/supabase'
 
 async function getActor() {
   const supabase = await createClient()
@@ -33,14 +34,14 @@ export async function createStudyPlan(locale = 'pt') {
   const { supabase, user, profile } = await getActor()
   const data = createBlankStudyPlan()
 
-  const { data: plan, error } = await (supabase as any)
+  const { data: plan, error } = await supabase
     .from('study_plans')
     .insert({
       title: 'Nova cotação',
       student_name: data.student,
       applicant_type: data.applicantType,
       status: 'draft',
-      data,
+      data: data as unknown as Json,
       created_by: user.id,
       updated_by: user.id,
     })
@@ -50,7 +51,7 @@ export async function createStudyPlan(locale = 'pt') {
   if (error) throw new Error(error.message)
   if (!plan) throw new Error('Failed to create study plan')
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.create',
@@ -67,14 +68,14 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
   const { supabase, user, profile } = await getActor()
   const title = data.student ? `Cotação - ${data.student}` : 'Cotação sem estudante'
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('study_plans')
     .update({
       title,
       student_name: data.student,
       applicant_type: data.applicantType,
-      status,
-      data,
+      status: status as Enums<'study_plan_status'>,
+      data: data as unknown as Json,
       updated_by: user.id,
       updated_at: new Date().toISOString(),
     })
@@ -82,7 +83,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
 
   if (error) throw new Error(error.message)
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.update',
@@ -113,10 +114,10 @@ export async function deleteStudyPlan(id: string, locale = 'pt') {
     throw new Error('Insufficient permissions')
   }
 
-  const { error } = await (supabase as any).from('study_plans').delete().eq('id', id)
+  const { error } = await supabase.from('study_plans').delete().eq('id', id)
   if (error) throw new Error(error.message)
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'study_plan.delete',

@@ -16,12 +16,12 @@ export default async function StudyPlansPage({ params }: Props) {
   await getUser(locale)
   const supabase = await createClient()
 
-  const { data: plans } = await (supabase as any)
+  const { data: plans } = await supabase
     .from('study_plans')
     .select('id, title, student_name, applicant_type, status, data, updated_at, created_at, created_by, updated_by')
     .order('updated_at', { ascending: false })
 
-  const rows = (plans ?? []) as StudyPlanRow[]
+  const rows = (plans ?? []) as unknown as StudyPlanRow[]
 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>

@@ -14,7 +14,7 @@ export default async function StudyPlanDetailPage({ params }: Props) {
   await getUser(locale)
   const supabase = await createClient()
 
-  const { data: plan } = await (supabase as any)
+  const { data: plan } = await supabase
     .from('study_plans')
     .select('*')
     .eq('id', id)
@@ -22,16 +22,16 @@ export default async function StudyPlanDetailPage({ params }: Props) {
 
   if (!plan) notFound()
 
-  const { data: presetRows } = await (supabase as any)
+  const { data: presetRows } = await supabase
     .from('course_presets')
     .select('*')
     .eq('is_active', true)
     .order('type', { ascending: true })
     .order('sort_order', { ascending: true })
 
-  const presets = ((presetRows ?? []) as DbPreset[]).map(dbPresetToOption)
+  const presets = ((presetRows ?? []) as unknown as DbPreset[]).map(dbPresetToOption)
 
-  const row = plan as StudyPlanRow
+  const row = plan as unknown as StudyPlanRow
   return (
     <StudyPlanEditor
       id={row.id}

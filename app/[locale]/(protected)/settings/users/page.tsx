@@ -31,7 +31,7 @@ export default async function UsersPage({ params }: Props) {
   let serviceConfigured = true
   try {
     const svc = createServiceClient()
-    const { data } = await (svc as any)
+    const { data } = await svc
       .from('allowed_emails')
       .select('email, role')
       .order('email', { ascending: true })

@@ -5,7 +5,9 @@ import type { Tables } from '@/types/supabase'
 
 export type Profile = Tables<'profiles'>
 
-export const getUser = cache(async function getUser(locale = 'pt'): Promise<{ profile: Profile }> {
+export const getUser = cache(async function getUser(
+  locale = 'pt',
+): Promise<{ profile: Profile; orgId: string | null }> {
   const supabase = await createClient()
 
   const {
@@ -26,5 +28,8 @@ export const getUser = cache(async function getUser(locale = 'pt'): Promise<{ pr
     redirect('/unauthorized')
   }
 
-  return { profile }
+  // org_id arrives once migration 009 (tenancy) is applied; stay defensive until then.
+  const orgId = (profile as { org_id?: string | null }).org_id ?? null
+
+  return { profile, orgId }
 })

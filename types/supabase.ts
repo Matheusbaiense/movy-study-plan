@@ -1,5 +1,10 @@
-// types/supabase.ts — Auto-generated from Supabase project xpthmguzcbmndyyexfbt
-// Regenerate with: npx supabase gen types typescript --project-id xpthmguzcbmndyyexfbt > types/supabase.ts
+// types/supabase.ts — Schema types for Supabase project xpthmguzcbmndyyexfbt.
+// HAND-MAINTAINED (not freshly generated). Aligned to the repo migrations under
+// supabase/migrations/* as the source of truth (001 core, 008 presets, 009 tenancy).
+// When the canonical project is reachable, regenerate with:
+//   npx supabase gen types typescript --project-id xpthmguzcbmndyyexfbt > types/supabase.ts
+// NOTE: org_id / organizations / current_org_id below reflect migration 009, which is
+// DRAFTED in-repo but must still be applied to the live project (see docs/AI-HANDOVER.md).
 
 export type Json =
   | string
@@ -46,6 +51,7 @@ export type Database = {
           entity_type: string | null
           id: string
           metadata: Json | null
+          org_id: string
         }
         Insert: {
           action: string
@@ -56,6 +62,7 @@ export type Database = {
           entity_type?: string | null
           id?: string
           metadata?: Json | null
+          org_id?: string
         }
         Update: {
           action?: string
@@ -66,6 +73,7 @@ export type Database = {
           entity_type?: string | null
           id?: string
           metadata?: Json | null
+          org_id?: string
         }
         Relationships: [
           {
@@ -327,6 +335,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_active: boolean
+          org_id: string
           preferred_locale: string | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string | null
@@ -339,6 +348,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_active?: boolean
+          org_id?: string
           preferred_locale?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
@@ -351,11 +361,196 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean
+          org_id?: string
           preferred_locale?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
         }
         Relationships: []
+      }
+      allowed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          org_id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      course_presets: {
+        Row: {
+          created_at: string
+          deposit_weeks: number
+          enrolment_fee: number
+          has_material: boolean
+          id: string
+          is_active: boolean
+          material_fee: number
+          name: string
+          org_id: string
+          payment_frequency: string
+          payment_parts: number
+          provider: string
+          rate_per_week: number
+          scholarship: number
+          sort_order: number
+          timetable: string
+          tuition: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deposit_weeks?: number
+          enrolment_fee?: number
+          has_material?: boolean
+          id?: string
+          is_active?: boolean
+          material_fee?: number
+          name: string
+          org_id?: string
+          payment_frequency?: string
+          payment_parts?: number
+          provider: string
+          rate_per_week?: number
+          scholarship?: number
+          sort_order?: number
+          timetable?: string
+          tuition?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deposit_weeks?: number
+          enrolment_fee?: number
+          has_material?: boolean
+          id?: string
+          is_active?: boolean
+          material_fee?: number
+          name?: string
+          org_id?: string
+          payment_frequency?: string
+          payment_parts?: number
+          provider?: string
+          rate_per_week?: number
+          scholarship?: number
+          sort_order?: number
+          timetable?: string
+          tuition?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      organizations: {
+        Row: {
+          ai_usage: Json
+          branding: Json
+          created_at: string
+          currency_code: string
+          id: string
+          name: string
+          settings: Json
+          updated_at: string
+        }
+        Insert: {
+          ai_usage?: Json
+          branding?: Json
+          created_at?: string
+          currency_code?: string
+          id?: string
+          name: string
+          settings?: Json
+          updated_at?: string
+        }
+        Update: {
+          ai_usage?: Json
+          branding?: Json
+          created_at?: string
+          currency_code?: string
+          id?: string
+          name?: string
+          settings?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      study_plans: {
+        Row: {
+          applicant_type: string
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          org_id: string
+          status: Database["public"]["Enums"]["study_plan_status"]
+          student_name: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          applicant_type?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          org_id?: string
+          status?: Database["public"]["Enums"]["study_plan_status"]
+          student_name?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          applicant_type?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          org_id?: string
+          status?: Database["public"]["Enums"]["study_plan_status"]
+          student_name?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_plans_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_plans_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_plans_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -366,11 +561,13 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      current_org_id: { Args: never; Returns: string }
       is_active_user: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "reader" | "editor" | "admin" | "super_admin"
       content_status: "draft" | "published" | "archived"
+      study_plan_status: "draft" | "sent" | "accepted" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -398,6 +595,7 @@ export const Constants = {
     Enums: {
       app_role: ["reader", "editor", "admin", "super_admin"] as const,
       content_status: ["draft", "published", "archived"] as const,
+      study_plan_status: ["draft", "sent", "accepted", "archived"] as const,
     },
   },
 } as const

@@ -88,7 +88,7 @@ export async function createContent(locale: string, formData: FormData) {
   if (error) throw new Error(error.message)
   if (!content) throw new Error('Failed to create content')
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'content.create',
@@ -159,7 +159,7 @@ export async function updateContent(id: string, formData: FormData) {
   if (error) throw new Error(error.message)
   if (!updatedContent) throw new Error('Failed to update content')
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'content.update',
@@ -190,7 +190,7 @@ export async function deleteContent(id: string, locale = 'pt') {
   const { error } = await supabase.from('contents').delete().eq('id', id)
   if (error) throw new Error(error.message)
 
-  await logAuditWithClient(supabase as any, {
+  await logAuditWithClient(supabase, {
     actorId: user.id,
     actorEmail: profile.email,
     action: 'content.delete',

@@ -284,6 +284,53 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 0 (parcial): tipos/tenancy no código + migration 009 escrita; APLICAÇÃO BLOQUEADA
+
+> Executei a parte segura e local do SPLIT 0 (fundação de dados & tenancy-ready). A escrita da
+> migration está pronta e o código já está alinhado aos tipos, mas a **aplicação no banco está
+> bloqueada** por um achado importante — leia o bloco "BLOQUEIO" abaixo antes de continuar.
+
+- **Feito (local, verificado — `type-check` e `build` verdes, zero `as any` no repo):**
+  - `supabase/migrations/009_organizations_tenancy.sql` — cria `organizations` (espelha woofed
+    `accounts`, com `ai_usage {limit,tokens}`, `currency_code`, `settings`, `branding`), semeia a org
+    **Movy com UUID fixo** `11111111-1111-4111-8111-111111111111`, adiciona `org_id` em
+    `profiles/allowed_emails/audit_logs/study_plans` (+`course_presets` se existir) na ordem segura
+    (nullable → backfill → default → NOT NULL), cria `current_org_id()` **SECURITY DEFINER**
+    (JWT `app_metadata.org_id` com fallback a `profiles`, anti-recursão), reescreve as policies RLS
+    com escopo `org_id = current_org_id()` e atualiza `handle_new_user()` para carimbar `org_id`.
+    Idempotente. **Assume migrations 001/008 já aplicadas** (schema rico).
+  - `types/supabase.ts` — alinhado às migrations (fonte da verdade). Adicionados: `organizations`,
+    `study_plans`, `allowed_emails`, `course_presets`, enum `study_plan_status`, função
+    `current_org_id`, e coluna `org_id` em `profiles`/`audit_logs`. (Arquivo é **hand-maintained**, não
+    gerado — ver cabeçalho.)
+  - **Quitado TODO o `as any` do repo** (era débito por tipos faltando): `study-plans/actions.ts`,
+    `study-plans/page.tsx`, `study-plans/[id]/page.tsx`, `.../proposal/page.tsx`,
+    `settings/users/{actions,page}.tsx`, `settings/presets/{actions,page}.tsx`, `wiki/actions.ts`.
+    Onde havia costura `jsonb → StudyPlanData` ou `Record<string,unknown> → Insert`, usei cast
+    estreito `as unknown as X` (honesto e localizado), não `as any`.
+  - `lib/api/audit.ts` — `logAuditWithClient` aceita `SupabaseClient<any,any,any>` (remove o `as any`
+    dos callsites).
+  - `lib/auth/get-user.ts` — agora expõe `orgId` (defensivo: `profile.org_id ?? null`, funciona mesmo
+    antes da 009 ser aplicada).
+
+- **🔴 BLOQUEIO (precisa de decisão/ação humana antes de aplicar a 009):**
+  - O app aponta para o projeto canônico **`xpthmguzcbmndyyexfbt`** (`.env.local`, header dos tipos,
+    código). É o schema "rico" (profiles/audit_logs/roles) que as migrations 001/008 descrevem.
+  - **O Supabase MCP desta sessão NÃO tem acesso a `xpthmguzcbmndyyexfbt`** — ele só lista projetos de
+    outra conta/org. Portanto **não foi possível aplicar a migration 009 nem regenerar tipos via MCP.**
+  - O único projeto ACTIVE acessível pelo MCP é **`movy-education` (`hvtywvtleoaeooffecrc`)**, que tem
+    um schema **mínimo e incompatível** (só `study_plans` com `data`+colunas geradas `student`/`school`
+    e `allowed_emails` com `email`+`added_at`; **sem** `profiles`/`audit_logs`/`course_presets`/roles).
+    Aplicar a 009 nele **falharia**. Trate `movy-education` como experimento separado, não-canônico.
+  - **Ação necessária:** aplicar `009_organizations_tenancy.sql` em `xpthmguzcbmndyyexfbt` via o SQL
+    editor do dashboard (ou um MCP/login conectado àquela conta), confirmando antes que **001 e 008 já
+    foram aplicadas lá**. Depois, idealmente regenerar `types/supabase.ts` a partir do projeto real
+    (`npx supabase gen types ... --project-id xpthmguzcbmndyyexfbt`) e conferir contra a versão
+    hand-maintained atual. **Não apliquei nada em produção** (sem acesso + é ação destrutiva-sensível).
+
+- **QA:** `npm run type-check` ✅ e `npm run build` ✅ (único warning é o pré-existente de `useMemo` em
+  `FxChart.tsx`, sem relação). Nenhuma mudança aplicada em banco.
+
 ### 2026-06-15 - Replanejamento dos splits (validado por architecture-critic) + roadmap atualizado
 > O planejamento original foi feito antes da decisão woofed; revalidei o plano contra a integração
 > woofed/DS e o estado atual (fundação de UI pronta). Usei `architecture-critic` (adversarial) em vez

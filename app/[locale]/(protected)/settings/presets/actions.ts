@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { logAudit } from '@/lib/api/audit'
 import { isAdminOrAbove } from '@/lib/permissions/can'
+import type { TablesInsert, TablesUpdate } from '@/types/supabase'
 
 export interface PresetResult {
   ok: boolean
@@ -88,7 +89,9 @@ export async function createPreset(input: PresetInput): Promise<PresetResult> {
   const svc = serviceClient()
   if (!svc) return { ok: false, error: SERVICE_MISSING }
 
-  const { error } = await (svc as any).from('course_presets').insert(row)
+  const { error } = await svc
+    .from('course_presets')
+    .insert(row as unknown as TablesInsert<'course_presets'>)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.create', entityType: 'course_presets', metadata: { provider: String(row.provider ?? ''), name: String(row.name ?? '') } })
@@ -105,7 +108,10 @@ export async function updatePreset(id: string, patch: Partial<PresetInput>): Pro
   const svc = serviceClient()
   if (!svc) return { ok: false, error: SERVICE_MISSING }
 
-  const { error } = await (svc as any).from('course_presets').update(row).eq('id', id)
+  const { error } = await svc
+    .from('course_presets')
+    .update(row as unknown as TablesUpdate<'course_presets'>)
+    .eq('id', id)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.update', entityType: 'course_presets', entityId: id, metadata: row as Record<string, string | number | boolean> })
@@ -118,7 +124,7 @@ export async function deletePreset(id: string): Promise<PresetResult> {
   const svc = serviceClient()
   if (!svc) return { ok: false, error: SERVICE_MISSING }
 
-  const { error } = await (svc as any).from('course_presets').delete().eq('id', id)
+  const { error } = await svc.from('course_presets').delete().eq('id', id)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.delete', entityType: 'course_presets', entityId: id })

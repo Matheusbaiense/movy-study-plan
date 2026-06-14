@@ -15,12 +15,12 @@ export default async function PresetsPage({ params }: Props) {
   let serviceConfigured = true
   try {
     const svc = createServiceClient()
-    const { data } = await (svc as any)
+    const { data } = await svc
       .from('course_presets')
       .select('*')
       .order('type', { ascending: true })
       .order('sort_order', { ascending: true })
-    presets = (data ?? []) as DbPreset[]
+    presets = (data ?? []) as unknown as DbPreset[]
   } catch {
     serviceConfigured = false
   }

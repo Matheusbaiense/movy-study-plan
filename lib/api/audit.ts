@@ -28,7 +28,8 @@ export async function logAudit(params: AuditParams): Promise<void> {
 }
 
 export async function logAuditWithClient(
-  supabase: SupabaseClient,
+  // Accepts a typed or untyped Supabase client (server, service, or test double).
+  supabase: SupabaseClient<any, any, any>,
   params: AuditParams
 ): Promise<void> {
   try {

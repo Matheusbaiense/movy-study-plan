@@ -13,7 +13,7 @@ export default async function StudyPlanProposalPage({ params }: Props) {
   await getUser(locale)
   const supabase = await createClient()
 
-  const { data: plan } = await (supabase as any)
+  const { data: plan } = await supabase
     .from('study_plans')
     .select('*')
     .eq('id', id)
@@ -21,7 +21,7 @@ export default async function StudyPlanProposalPage({ params }: Props) {
 
   if (!plan) notFound()
 
-  const row = plan as StudyPlanRow
+  const row = plan as unknown as StudyPlanRow
   const reference = `MV-${row.id.slice(0, 8).toUpperCase()}`
 
   return (
