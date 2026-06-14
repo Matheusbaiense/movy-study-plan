@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { color, ink, font } from '@/lib/ui/theme'
 
 interface Point { date: string; rate: number }
@@ -13,7 +13,6 @@ const RANGES = [
   { days: 365, label: '12 meses' },
 ]
 
-const W = 760
 const H = 240
 
 function fmtDay(iso: string) {
@@ -46,6 +45,22 @@ export function FxChart() {
   const [loading, setLoading] = useState(true)
   const [hover, setHover] = useState<number | null>(null)
 
+  // Measure the real pixel width so the SVG renders 1:1 (no non-uniform scaling,
+  // which was causing a raster hang / white screen).
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [w, setW] = useState(700)
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver((entries) => {
+      const cw = entries[0]?.contentRect.width
+      if (cw && cw > 0) setW(Math.round(cw))
+    })
+    ro.observe(el)
+    if (el.clientWidth > 0) setW(Math.round(el.clientWidth))
+    return () => ro.disconnect()
+  }, [])
+
   useEffect(() => {
     fetch('/api/fx', { cache: 'no-store' }).then((r) => r.json()).then(setCurrent).catch(() => {})
   }, [])
@@ -66,20 +81,20 @@ export function FxChart() {
   const n = pts.length
 
   const geo = useMemo(() => {
-    if (n < 2) return null
+    if (n < 2 || w < 2) return null
     const rates = pts.map((p) => p.rate)
     const min = Math.min(...rates)
     const max = Math.max(...rates)
     const pad = (max - min) * 0.16 || 0.05
     const lo = min - pad
     const hi = max + pad
-    const x = (i: number) => (i / (n - 1)) * W
+    const x = (i: number) => (i / (n - 1)) * w
     const y = (r: number) => H - ((r - lo) / (hi - lo)) * H
     const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.rate).toFixed(1)}`).join(' ')
-    const area = `0,${H} ${line} ${W},${H}`
+    const area = `0,${H} ${line} ${w},${H}`
     const ticks = niceTicks(lo, hi).filter((t) => y(t) >= 4 && y(t) <= H - 4)
     return { x, y, line, area, ticks }
-  }, [pts, n])
+  }, [pts, n, w])
 
   const first = pts[0]?.rate ?? 0
   const last = pts[n - 1]?.rate ?? 0
@@ -87,7 +102,6 @@ export function FxChart() {
   const up = changePct >= 0
   const active = hover != null ? pts[hover] : null
 
-  // Header shows the hovered day's rate when hovering; otherwise the current live rate.
   const headRate = active ? active.rate : current?.rate ?? last
   const headHint = active
     ? fmtFull(active.date)
@@ -95,10 +109,10 @@ export function FxChart() {
       ? `agora · ${new Date(current.asOf).toLocaleString('pt-BR', { timeZone: 'Australia/Perth', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} (Perth)`
       : 'agora'
 
-  function onMove(clientX: number, currentTarget: SVGSVGElement) {
-    const rect = currentTarget.getBoundingClientRect()
-    const vx = ((clientX - rect.left) / rect.width) * W
-    const idx = Math.max(0, Math.min(n - 1, Math.round((vx / W) * (n - 1))))
+  function onMove(clientX: number, el: SVGSVGElement) {
+    const rect = el.getBoundingClientRect()
+    if (rect.width <= 0) return
+    const idx = Math.max(0, Math.min(n - 1, Math.round(((clientX - rect.left) / rect.width) * (n - 1))))
     setHover(idx)
   }
 
@@ -150,66 +164,63 @@ export function FxChart() {
           </div>
         </div>
 
-        {loading ? (
-          <div style={{ height: H, display: 'grid', placeItems: 'center', color: ink(0.4), fontSize: 13 }}>Carregando cotação…</div>
-        ) : !geo ? (
-          <div style={{ height: H, display: 'grid', placeItems: 'center', color: ink(0.4), fontSize: 13 }}>Sem dados de cotação para este período.</div>
-        ) : (
-          <div style={{ position: 'relative' }}>
-            <svg
-              viewBox={`0 0 ${W} ${H}`}
-              width="100%"
-              height={H}
-              preserveAspectRatio="none"
-              style={{ display: 'block', overflow: 'hidden', touchAction: 'none', cursor: 'crosshair' }}
-              onPointerMove={(e) => onMove(e.clientX, e.currentTarget)}
-              onPointerDown={(e) => onMove(e.clientX, e.currentTarget)}
-              onPointerLeave={() => setHover(null)}
-            >
-              <defs>
-                <linearGradient id="fxArea" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor={color.purple} stopOpacity="0.16" />
-                  <stop offset="1" stopColor={color.purple} stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {/* gridlines */}
-              {geo.ticks.map((t) => (
-                <line key={t} x1={0} y1={geo.y(t)} x2={W} y2={geo.y(t)} stroke={ink(0.08)} strokeWidth="1" vectorEffect="non-scaling-stroke" />
-              ))}
-              <polygon points={geo.area} fill="url(#fxArea)" />
-              <polyline points={geo.line} fill="none" stroke={color.purple} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <circle cx={geo.x(n - 1)} cy={geo.y(last)} r="3.5" fill={color.gold} stroke="#fff" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-              {active && hover != null && (
-                <>
-                  <line x1={geo.x(hover)} y1={0} x2={geo.x(hover)} y2={H} stroke={color.purple} strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-                  <circle cx={geo.x(hover)} cy={geo.y(active.rate)} r="4.5" fill={color.purpleDeep} stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                </>
-              )}
-            </svg>
-
-            {/* y-axis labels (right gutter) */}
-            {geo.ticks.map((t) => (
-              <span key={t} style={{ position: 'absolute', right: 0, top: geo.y(t), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, color: ink(0.5), background: '#fff', padding: '1px 4px', borderRadius: 3 }}>
-                {fmtRate(t)}
-              </span>
-            ))}
-
-            {/* hover tooltip */}
-            {active && hover != null && (
-              <div style={{ position: 'absolute', top: -4, left: `${(geo.x(hover) / W) * 100}%`, transform: `translateX(${hover > n / 2 ? '-105%' : '8px'})`, pointerEvents: 'none', background: color.purpleDeep, color: '#fff', borderRadius: 8, padding: '6px 10px', fontFamily: font.mono, fontSize: 11, whiteSpace: 'nowrap', boxShadow: '0 8px 20px -8px rgba(42,17,83,0.5)', zIndex: 2 }}>
-                <div style={{ color: color.gold, fontWeight: 700 }}>R$ {fmtRate(active.rate)}</div>
-                <div style={{ opacity: 0.75 }}>{fmtFull(active.date)}</div>
-              </div>
-            )}
-
-            {/* x labels */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontFamily: font.mono, fontSize: 10.5, color: ink(0.42) }}>
-              <span>{fmtDay(pts[0]?.date ?? '')}</span>
-              <span>{fmtDay(pts[Math.floor(n / 2)]?.date ?? '')}</span>
-              <span>{fmtDay(pts[n - 1]?.date ?? '')}</span>
+        <div ref={wrapRef} style={{ position: 'relative' }}>
+          {loading || !geo ? (
+            <div style={{ height: H, display: 'grid', placeItems: 'center', color: ink(0.4), fontSize: 13 }}>
+              {loading ? 'Carregando cotação…' : 'Sem dados de cotação para este período.'}
             </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <svg
+                viewBox={`0 0 ${w} ${H}`}
+                width="100%"
+                height={H}
+                style={{ display: 'block', touchAction: 'none', cursor: 'crosshair' }}
+                onPointerMove={(e) => onMove(e.clientX, e.currentTarget)}
+                onPointerDown={(e) => onMove(e.clientX, e.currentTarget)}
+                onPointerLeave={() => setHover(null)}
+              >
+                <defs>
+                  <linearGradient id="fxArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={color.purple} stopOpacity="0.16" />
+                    <stop offset="1" stopColor={color.purple} stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {geo.ticks.map((t) => (
+                  <line key={t} x1={0} y1={geo.y(t)} x2={w} y2={geo.y(t)} stroke={ink(0.08)} strokeWidth="1" />
+                ))}
+                <polygon points={geo.area} fill="url(#fxArea)" />
+                <polyline points={geo.line} fill="none" stroke={color.purple} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <circle cx={geo.x(n - 1)} cy={geo.y(last)} r="3.5" fill={color.gold} stroke="#fff" strokeWidth="1.5" />
+                {active && hover != null && (
+                  <>
+                    <line x1={geo.x(hover)} y1={0} x2={geo.x(hover)} y2={H} stroke={color.purple} strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                    <circle cx={geo.x(hover)} cy={geo.y(active.rate)} r="4.5" fill={color.purpleDeep} stroke="#fff" strokeWidth="2" />
+                  </>
+                )}
+              </svg>
+
+              {geo.ticks.map((t) => (
+                <span key={t} style={{ position: 'absolute', right: 0, top: geo.y(t), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, color: ink(0.5), background: '#fff', padding: '1px 4px', borderRadius: 3, pointerEvents: 'none' }}>
+                  {fmtRate(t)}
+                </span>
+              ))}
+
+              {active && hover != null && (
+                <div style={{ position: 'absolute', top: -4, left: `${(geo.x(hover) / w) * 100}%`, transform: `translateX(${hover > n / 2 ? '-105%' : '8px'})`, pointerEvents: 'none', background: color.purpleDeep, color: '#fff', borderRadius: 8, padding: '6px 10px', fontFamily: font.mono, fontSize: 11, whiteSpace: 'nowrap', boxShadow: '0 8px 20px -8px rgba(42,17,83,0.5)', zIndex: 2 }}>
+                  <div style={{ color: color.gold, fontWeight: 700 }}>R$ {fmtRate(active.rate)}</div>
+                  <div style={{ opacity: 0.75 }}>{fmtFull(active.date)}</div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontFamily: font.mono, fontSize: 10.5, color: ink(0.42) }}>
+                <span>{fmtDay(pts[0]?.date ?? '')}</span>
+                <span>{fmtDay(pts[Math.floor(n / 2)]?.date ?? '')}</span>
+                <span>{fmtDay(pts[n - 1]?.date ?? '')}</span>
+              </div>
+            </>
+          )}
+        </div>
 
         <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 10.5, color: ink(0.4), lineHeight: 1.5 }}>
           Série mid-market{hist?.source ? ` · fonte ${hist.source}` : ''}. Passe o mouse (ou toque) no gráfico para ver a cotação de cada dia. A taxa usada nas propostas/calculadora inclui a taxa da Wise.
