@@ -259,6 +259,12 @@ de intercâmbio** (futuramente white-label / SaaS). **Plano mestre e roadmap por
   validar) e a proposta guarda snapshot do cálculo + câmbio (não recalcula vivo).
 - **Portfólio normalizado** (institutions→campuses→courses→price_versions+promotions) **aposenta**
   `course_presets`. **Import por IA nunca salva direto** (OCR→LLM→validação→revisão humana).
+- **CRM-ready / woofed-crm:** o CRM futuro será o **woofed-crm** (Rails+Postgres; clone de estudo
+  em `C:/dev/woofed-crm`). A arquitetura é escrita woofed-shaped para fundir-se num produto só:
+  `organizations`≈`accounts`, `contacts`/`deals`/`pipelines`/`stages`/`products`/`deal_products`/
+  `events`. **Dinheiro em centavos inteiros + currency_code** (P9, igual woofed `*_in_cents`).
+  Estratégia de integração (A mono-DB / B absorver no Supabase / C serviço+MCP) está em aberto —
+  ver roadmap §10.1 (recomendação: B-compatível agora, C viável depois, evitar A).
 
 ## ⚠️ ATUALIZAÇÃO 2026-06-14 — Sistema de tema claro/escuro (LEIA antes do "COMECE AQUI")
 

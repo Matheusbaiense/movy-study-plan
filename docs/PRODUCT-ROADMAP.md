@@ -66,6 +66,17 @@ para poucos minutos, sem erro de cobrança.
   `deleted_at`, lixeira, restauração; exclusão definitiva só admin.
 - **P8 — Auditoria e histórico de primeira classe.** Toda mudança relevante gera evento
   (reusar `audit_logs` + timeline por proposta).
+- **P9 — Dinheiro em centavos (inteiro) + moeda explícita.** Todo valor monetário é `bigint`
+  em unidades menores (centavos) com `currency_code` associado — NUNCA `float`/`numeric` solto.
+  Alinha com o woofed-crm (`*_in_cents` + gem money) e elimina erro de arredondamento. O engine
+  de cálculo opera em centavos; a UI formata com `Intl`. (Migração dos campos atuais em §Split 1.)
+- **P10 — CRM-ready por design (compatível com woofed-crm).** O modelo é escrito para
+  **juntar-se ao woofed-crm e virar um único produto** depois. Convenções e nomes de domínio
+  seguem o woofed: `contacts` (estudante/lead), `deals` (oportunidade), `products`/`deal_products`
+  (catálogo + linhas snapshot), `pipelines`/`stages`, `events` (timeline/tarefas),
+  `custom_attribute_definitions`. A Movy guarda o **seam**: proposta referencia `contact_id`
+  (e, futuramente, `deal_id`), nunca só texto em jsonb. CRM em si fica fora de escopo agora,
+  mas nada pode impedir a fusão depois. Ver §3.6.
 
 ---
 
@@ -76,7 +87,8 @@ Notação: `tabela (colunas-chave)`. Toda tabela de negócio tem `org_id`, `crea
 
 ### 3.1 Tenancy & acesso (existe parcialmente)
 ```
-organizations (id, name, slug, status, branding jsonb, created_at)        [NOVO]
+organizations (id, name, slug, status, currency_code, settings jsonb,     [NOVO]
+               ai_usage jsonb, branding jsonb, created_at)   -- espelha woofed `accounts`
 profiles (id, email, full_name, role, is_active, org_id→organizations)    [+org_id]
 allowed_emails (email, role, org_id)                                       [+org_id]
 audit_logs (id, org_id, actor_id, action, entity_type, entity_id, meta)   [+org_id]
@@ -115,12 +127,50 @@ Storage: Supabase Storage bucket `school-docs` (privado, RLS por org).
 
 ### 3.4 Propostas (evolui `study_plans`)
 ```
-study_plans (id, org_id, title, student_name, applicant_type,
-             status[enum estendido], data jsonb, computed jsonb [NOVO snapshot de totais],
-             fx jsonb [câmbio travado], expires_at, accepted_at,
-             created_by, updated_by, deleted_at [NOVO])
+contacts (id, org_id, full_name, email, phone, custom_attributes jsonb,
+          additional_attributes jsonb, deleted_at)            [NOVO — seam CRM woofed-shaped]
+study_plans (id, org_id, contact_id→contacts [NOVO], deal_id [reservado p/ CRM, nullable],
+             title, applicant_type, status[enum estendido],
+             data jsonb, computed jsonb [snapshot de totais em centavos],
+             fx jsonb [câmbio travado], currency_code, expires_at, accepted_at,
+             created_by, updated_by, deleted_at)
 proposal_events (id, org_id, study_plan_id, actor_id, type, metadata, created_at)  [NOVO timeline]
 ```
+- `student_name` deixa de viver só no jsonb: vira `contacts` referenciado por `contact_id`
+  (compatível com woofed `contacts`: email/phone únicos, `custom_attributes`). Isto é o **seam**
+  que permite a fusão com o CRM sem reescrever a proposta.
+
+### 3.6 Seam de CRM (compatibilidade woofed-crm) — leitura obrigatória do P10
+
+**O que é o woofed-crm:** CRM open-source em **Rails 7.1 + Postgres (pgvector) + Devise**,
+GoodJob, Vite/Stimulus/Turbo/Inertia, Tailwind, motor-admin, gem `money` (`*_in_cents`),
+**servidor MCP + OAuth (Doorkeeper)** para clientes de IA, integrações Chatwoot e Evolution API
+(WhatsApp), assistente de IA + embeddings. **Hoje é single-account por instalação** (uma linha
+`accounts`; não é multi-tenant nativo — virar SaaS exige adicionar escopo de account lá também).
+
+**Mapa de domínio Movy ↔ woofed (alvo de compatibilidade):**
+
+| Conceito | Movy (alvo) | woofed-crm | Nota |
+|---|---|---|---|
+| Tenant | `organizations` | `accounts` | mesmo conceito (currency_code, settings, ai_usage) |
+| Usuário | `profiles` (Supabase Auth) | `users` (Devise) | **auth diverge** — ponto de decisão |
+| Estudante/lead | `contacts` | `contacts` | email/phone únicos, custom_attributes |
+| Oportunidade | `deals` (futuro) | `deals` | status open/won/lost, pipeline/stage, kanban |
+| Funil | `pipelines`/`stages` (futuro) | `pipelines`/`stages` | position (drag-drop) |
+| Catálogo | `courses`/`course_price_versions` | `products` | Movy é mais rico (ELICOS/VET/HE) |
+| Linha snapshot | `study_plans.data.options[].courses[]` (snapshot) | `deal_products` | **mesmo padrão snapshot** — valida P3 |
+| Timeline/tarefas | `proposal_events` | `events` | kind/scheduled_at/done_at/from_me/status |
+| Campos custom | `custom_attribute_definitions` (futuro) | idem | jsonb + definição |
+| IA/tokens | `organizations.ai_usage` + pgvector | `ai_usage`/`embedding_documments` | reusar padrão no Split 7 |
+
+**Decisão de estratégia de integração (DECIDIDO — Caminho B, ver §10.1):** absorver o modelo
+woofed no stack Supabase da Movy (1 stack, multi-tenant white-label), woofed como blueprint de
+schema/UX. A fundação já fica CRM-ready: `contacts` extraído, dinheiro em centavos,
+`organizations`≈`accounts`, nomes woofed-shaped, padrões de IA/token/pgvector alinhados.
+
+**Blueprint AllyHub (futuro):** análise do concorrente Ally/AllyHub será feita como **usuário de
+teste da plataforma** (pesquisa de UX), **não** a partir do código. Insumo para Splits 4/5/6
+(UX de proposta, comparador, portfólio). Não acionável agora.
 - **Múltiplas opções** na mesma proposta: `data.options[]` (recomendado/econômica/premium)
   dentro do `jsonb` — o editor já manipula arrays de `courses`.
 - **Status estendido (enum aditivo, seguro):** `draft, ready_review, approved_internal,
@@ -172,26 +222,33 @@ incluir `org_id = current_org_id()`; default `org_id` = Movy.
 type-check verde.
 **Depende de:** —
 
-### SPLIT 1 — Engine de cálculo (fonte única + snapshot)
-**Objetivo:** P2 + P3. Consolidar cálculo, validar no servidor, definir `ComputedTotals`.
-**Arquivos:** `lib/study-plans/calculations.ts` (mantém puro; adiciona `computeProposal`),
-novo `lib/calc/index.ts` (reexport/organização), integrar `lib/financial/calculator.ts`,
-server action `app/[locale]/(protected)/study-plans/actions.ts` (revalida + grava `computed`),
-`tests/study-financial.test.mjs` (estende casos). **Não** mexe em UI ainda.
-**Aceite:** `computeProposal` cobre todos os totais; server grava `computed` ao salvar; testes
-verdes incluindo regras offshore/visto.
+### SPLIT 1 — Engine de cálculo (fonte única + snapshot + dinheiro em centavos)
+**Objetivo:** P2 + P3 + P9. Consolidar cálculo, validar no servidor, definir `ComputedTotals`,
+**migrar dinheiro para centavos inteiros + moeda** (compatível woofed `*_in_cents`).
+**Arquivos:** `lib/study-plans/calculations.ts` (mantém puro; opera em centavos; adiciona
+`computeProposal`), novo `lib/calc/index.ts` (reexport/organização) e `lib/calc/money.ts`
+(helpers cents↔display, `Intl`), integrar `lib/financial/calculator.ts`, server action
+`app/[locale]/(protected)/study-plans/actions.ts` (revalida + grava `computed`),
+`tests/study-financial.test.mjs` (estende casos + casos de arredondamento em centavos).
+**Não** mexe em UI ainda; a UI converte na borda.
+**Aceite:** `computeProposal` cobre todos os totais em centavos; server grava `computed` ao
+salvar; sem float em dinheiro; testes verdes incluindo offshore/visto/arredondamento.
 **Depende de:** SPLIT 0.
 
-### SPLIT 2 — Domínio da proposta (study_plans)
-**Objetivo:** P5/P7/P8 no dado: status estendido, soft-delete, expiração, snapshot, multi-opção,
-duplicar, timeline. **Toda a evolução do modelo de proposta de uma vez.**
-**Schema (migration 010):** estender enum `study_plan_status`; `+computed`, `+expires_at`,
+### SPLIT 2 — Domínio da proposta (study_plans) + seam de contatos (CRM-ready)
+**Objetivo:** P5/P7/P8/P10 no dado: status estendido, soft-delete, expiração, snapshot,
+multi-opção, duplicar, timeline, **e extrair `contacts`** (woofed-shaped) para a proposta
+referenciar `contact_id`. **Toda a evolução do modelo de proposta de uma vez.**
+**Schema (migration 010):** `contacts` (woofed-compatível: email/phone únicos, custom_attributes);
+`study_plans.contact_id` (+ `deal_id` reservado nullable); migrar `data.student/email/phone` →
+`contacts`; estender enum `study_plan_status`; `+computed`, `+currency_code`, `+expires_at`,
 `+accepted_at`, `+deleted_at`; `proposal_events`; policies (soft-delete, admin hard-delete).
-**Arquivos:** `migrations/010_*.sql`, `lib/study-plans/types.ts` (status, options[], computed),
-`study-plans/actions.ts` (duplicate, archive, softDelete, restore, hardDelete, changeStatus,
-emite `proposal_events`), `types/supabase.ts`.
-**Aceite:** duplicar/arquivar/lixeira/restaurar/expirar funcionam via actions; eventos gravados;
-type-check + build verdes (mexe em dinheiro/status).
+**Arquivos:** `migrations/010_*.sql`, `lib/study-plans/types.ts` (status, options[], computed,
+contactRef), novo `lib/crm/contacts.ts` (tipos/queries), `study-plans/actions.ts` (duplicate,
+archive, softDelete, restore, hardDelete, changeStatus, upsertContact, emite `proposal_events`),
+`types/supabase.ts`.
+**Aceite:** proposta referencia contato; duplicar/arquivar/lixeira/restaurar/expirar via actions;
+eventos gravados; nenhum dado de estudante perdido na migração; type-check + build verdes.
 **Depende de:** SPLIT 0, 1.
 
 ### SPLIT 3 — Lista de propostas (UI)
@@ -247,6 +304,10 @@ histórico), busca/filtros, duplicar, arquivar, indicador de completude/vigênci
 **Recursos:** upload (PDF/Excel/imagem); OCR → LLM → validação determinística; tela de conferência
 com % de confiança; comparação com preço atual (variação %); publicar/atualizar/criar vigência/
 revisar depois; fila com estados, tokens, custo, modelo; escolha modelo rápido/preciso.
+**Compatibilidade woofed:** reusar padrões do woofed — contagem de tokens/custo em
+`organizations.ai_usage` (espelha `accounts.ai_usage`), embeddings em pgvector (espelha
+`embedding_documments`), config de modelo (api_key/model como `apps_ai_assistents`). Avaliar
+expor/consumir via MCP (woofed já tem servidor MCP + OAuth) para que a IA atue no portfólio.
 **Aceite:** PDF de price list vira cursos revisáveis; nada salvo sem aprovação; auditoria + versão.
 **Depende de:** SPLIT 6 (precisa do destino: courses/price_versions).
 
@@ -345,9 +406,28 @@ opcional: faz parte do split.
 - [ ] Sem segredos; logs locais do OpenWolf (`token-ledger.json`, `hooks/_session.json`) não vão no commit.
 
 ## 8. Itens explicitamente fora de escopo (por enquanto)
-CRM / pipeline de vendas; integrações com SEC, sistemas das escolas, ERPs; gateway de
-pagamento; assinatura eletrônica via terceiros (DocuSign/Adobe); e-mail marketing.
-Ficam para uma fase posterior, sobre esta fundação.
+CRM ativo / pipeline de vendas (será o **woofed-crm** — ver §3.6/§10.1); integrações com SEC,
+sistemas das escolas, ERPs; gateway de pagamento; assinatura eletrônica via terceiros
+(DocuSign/Adobe); e-mail marketing. Ficam para fase posterior, sobre esta fundação CRM-ready.
+
+## 10. Decisões em aberto (precisam do dono do produto)
+
+### 10.1 Estratégia de integração com woofed-crm (KEY)
+Três caminhos para "virar um produto só". A fundação (§Split 0–2) deixa todos viáveis; mas
+precisamos escolher o alvo para não otimizar contra o caminho errado.
+
+| Caminho | Como | Prós | Contras |
+|---|---|---|---|
+| **A. Mono-Postgres** | woofed (Rails) + Movy (Next/Supabase) no MESMO Postgres; woofed dono do CRM, Movy dono de portfólio/proposta; ligados por `contact_id`/`deal_id` | Sem sync; uma verdade | Conflito de convenção (bigint×uuid, Devise×Supabase Auth, **Rails não usa RLS**); 2 sistemas de migration; acoplamento operacional; risco de segurança p/ SaaS |
+| **B. Absorver no stack Supabase** | Reimplementar o domínio CRM do woofed **nativo** na Movy (mesmos nomes/semântica/UX) | 1 stack limpo (uuid/RLS/TS); white-label/multi-tenant de verdade; controle total; "usar a estrutura" = reusar schema+UX | Reimplementar o que o woofed já faz (chat, kanban, WhatsApp); diverge do upstream |
+| **C. Dois serviços + API/MCP** | Rodar woofed como serviço de CRM; Movy = portfólio/proposta; integrar via REST/webhooks/MCP do woofed | Aproveita o woofed pronto; baixo acoplamento de schema; cada app idiomático | Duplicação/sync de contatos; sistema distribuído; woofed ainda não é multi-tenant; 2 deploys |
+
+**DECISÃO (2026-06-15, dono do produto): Caminho B — absorver o modelo woofed no stack Supabase.**
+Espelhar schema/nomes/UX/dinheiro do woofed nativamente na Movy (1 stack: uuid/RLS/TS estrito,
+multi-tenant white-label de verdade), mantendo **C viável** como fallback. **A está descartado**
+(choque Devise×Supabase Auth + Rails-sem-RLS, perigoso para SaaS). O woofed é a **blueprint de
+schema e UX** do CRM, não necessariamente o código a rodar. Reimplementações idiomáticas honram
+nomes/semântica do woofed (§3.6) para migração/convergência trivial.
 
 ---
 
