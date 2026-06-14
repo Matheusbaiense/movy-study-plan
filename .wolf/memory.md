@@ -3,6 +3,21 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+## Session: 2026-06-15 (SPLIT 2 — proposal domain + CRM contacts seam, migration 010)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 05:xx | Grounded on SPLIT 2 scope + integration rules (R1/R6/R7/R8/R11) + 009 RLS conventions; inspected live `study_plans`/`data` shape via MCP | docs/PRODUCT-ROADMAP.md, LAGO-WOOFED-CONVERGENCE.md, migration 009, lib/calc/*, study-plans/* | full grounding | ~5k |
+| 05:xx | Wrote migration 010: `contacts` (org-scoped, woofed-shape, R6 metadata + R7 external_id, unique-per-org partial idx, RLS), `study_plans` cols (contact_id/deal_id/currency_code/expires_at/accepted_at/deleted_at/metadata/external_id + R8 generated `idempotency_key`), enum extend (+6), `proposal_events` (timeline+RLS), soft-delete-aware SELECT policy | supabase/migrations/010_proposal_domain_contacts.sql (new) | written | ~5k |
+| 05:xx | Applied 010 via Supabase MCP (DDL pass + idempotent non-destructive backfill pass): `data.student/email/phone`→`contacts` dedup→`study_plans.contact_id`; jsonb kept as working copy (editor relink = SPLIT 4) | MCP apply_migration on `xpthmguzcbmndyyexfbt` | 2 plans migrated, 0 loss | ~3k |
+| 05:xx | Advisors check: no new ERRORs; only pre-existing WARNs (009 RLS security-definer helpers + auth leaked-password config). RLS on both new tables | MCP get_advisors | clean | ~1k |
+| 05:xx | Regenerated types from live DB (not hand-edited) | types/supabase.ts (MCP generate_typescript_types) | contacts/proposal_events/new cols/enum present | ~2k |
+| 05:xx | Domain layer: contacts lib (org-scoped queries + dedup upsert), extended study-plan types (StudyPlanStatus enum, options[], contactRef, new row cols) | lib/crm/contacts.ts (new), lib/study-plans/types.ts | written | ~3k |
+| 05:xx | Server actions: duplicate/changeStatus/archive/softDelete/restore/hardDelete/upsertContact — each emits proposal_events + audit; getActor carries org_id; withComputed snapshot intact; list filters deleted_at IS NULL | study-plans/actions.ts, study-plans/page.tsx | written | ~3k |
+| 05:xx | Tests: normalizeEmail/Phone + enum-extended assertion | tests/crm-contacts.test.mjs (new) | 3 new cases | ~1k |
+| 05:xx | DoD gates | — | type-check ✅ · node --test 13/13 ✅ · build ✅ · migration applied · types regen | ~0.5k |
+| 05:xx | Documented split | docs/AI-HANDOVER.md, docs/PRODUCT-ROADMAP.md (SPLIT 2 ✅), .wolf/{cerebrum,memory,anatomy}.md | logged | ~1k |
+
 ## Session: 2026-06-15 (SPLIT 1 — calc engine + money in integer cents + computed snapshot)
 
 | Time | Action | File(s) | Outcome | ~Tokens |

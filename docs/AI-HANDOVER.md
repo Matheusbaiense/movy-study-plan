@@ -284,6 +284,70 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 2 CONCLUÍDO: domínio da proposta + seam de contatos CRM-ready (migration 010 APLICADA)
+
+> P1 (org_id+RLS) · P7 (soft-delete) · P8 (auditoria) · P10 (CRM-ready, woofed-shape) ·
+> R6 (metadata jsonb) · R7 (external_id) · R8 (idempotency_key determinístico).
+> Migration 010 **aplicada** no projeto canônico `xpthmguzcbmndyyexfbt` via Supabase MCP; tipos regenerados.
+
+- **Migration `supabase/migrations/010_proposal_domain_contacts.sql` (aplicada em 2 passos no MCP:
+  estrutura + backfill de dados):**
+  - **`contacts`** (woofed-compatível): `org_id` NOT NULL default Movy + FK, `full_name`, `email`,
+    `phone`, `custom_attributes jsonb`, **`metadata jsonb` (R6)**, **`external_id` (R7, nulo)**,
+    `created_by/updated_by`, `deleted_at`, timestamps. Unicidade **por org** via índices parciais:
+    `(org_id, lower(email))`, `(org_id, phone)`, `(org_id, external_id)` (ignoram vazios/nulos).
+    Trigger `set_updated_at`. RLS no padrão 009 (`current_org_id()`/`is_active_user()`/
+    `current_user_role()`): leitura ativa na org (deletados só p/ editores+), insert/update editor+,
+    delete admin-only.
+  - **`study_plans`** ganhou `contact_id` (FK→contacts, ON DELETE SET NULL), `deal_id` (reservado,
+    sem FK), `currency_code` (default 'AUD'), `expires_at`, `accepted_at`, `deleted_at`,
+    **`metadata jsonb` (R6)**, **`external_id` (R7)** e **`idempotency_key` (R8)** — coluna **GERADA**
+    `'study_plan:'||id` (determinística/estável; âncora p/ virar item faturável no v3 sem migração
+    destrutiva). Índices: `contact_id`, parcial `(org_id, updated_at) WHERE deleted_at IS NULL`,
+    único parcial `(org_id, external_id)`.
+  - **Enum `study_plan_status` estendido** (aditivo, idempotente): + `ready_review`,
+    `approved_internal`, `viewed`, `negotiating`, `rejected`, `expired` (total 10).
+  - **`proposal_events`** (timeline append-only, woofed-shape): `org_id`+FK, `study_plan_id`
+    (ON DELETE CASCADE), `contact_id`, `actor_id`, `kind`, `title`, `scheduled_at`, `done_at`,
+    `from_me`, `metadata jsonb`. RLS: leitura ativa na org, insert editor+ (sem update/delete = imutável).
+  - **Policy `study_plans` SELECT estendida** (não substituída em massa): não-deletados visíveis a
+    todos os membros ativos; deletados (lixeira) só a editores+ (que restauram). Hard-delete continua
+    admin-only via policy do 009.
+  - **Data migration NÃO destrutiva:** bloco `DO` idempotente (só processa `contact_id IS NULL`)
+    extrai `data.student/email/phone` → cria/dedup `contacts` (por email, depois telefone) → seta
+    `study_plans.contact_id`. **O jsonb permanece como cópia de trabalho** (o editor ainda lê
+    `data.student/email/phone`; o religamento ao contato é SPLIT 4). 2 planos existentes migrados,
+    0 perda: ambos com `contact_id` apontando p/ contato com o nome correto.
+- **Advisors (security) pós-DDL:** sem **ERRORs** novos. Só WARNs **pré-existentes**: 3×
+  `authenticated_security_definer_function_executable` (helpers RLS do 009 — intencional) +
+  `auth_leaked_password_protection` (config de Auth). RLS habilitada nas 2 tabelas novas.
+- **Tipos:** `types/supabase.ts` **regenerado** do banco (não editado à mão) — inclui `contacts`,
+  `proposal_events`, novas colunas de `study_plans` e enum estendido.
+- **Código (seam de domínio, SEM tocar UI de lista/editor — isso é SPLIT 3/4):**
+  - `lib/crm/contacts.ts` (novo): tipos (`Contact`/`ContactInsert`) + queries org-scoped
+    (`normalizeEmail/Phone`, `getContactById`, `findContactByEmail/Phone`, `listContacts`,
+    `upsertContact` com dedup por id→email→telefone). Lógica fora dos wrappers (regra de organização).
+  - `lib/study-plans/types.ts`: `status` agora usa `StudyPlanStatus = Enums<'study_plan_status'>`
+    (em lockstep com o banco), `StudyPlanData` ganhou `options?: ProposalOption[]` (multi-opção) e
+    `contactRef?: ContactRef`; `StudyPlanRow` ganhou as colunas novas (opcionais).
+  - `app/[locale]/(protected)/study-plans/actions.ts`: novas server actions
+    **`duplicateStudyPlan`, `changeStudyPlanStatus`, `archiveStudyPlan`, `softDeleteStudyPlan`,
+    `restoreStudyPlan`, `hardDeleteStudyPlan`, `upsertContact`** — cada uma emite `proposal_events`
+    (helper `emitProposalEvent`, best-effort como a auditoria) + grava `audit_logs`. `getActor` passou
+    a trazer `org_id`. `withComputed` (snapshot autoritativo do SPLIT 1) **intacto**; `createStudyPlan`/
+    `updateStudyPlan` agora também emitem evento (`created`) e validam status contra o enum vivo.
+  - `study-plans/page.tsx`: lista filtra `deleted_at IS NULL` (mantém a lista correta com soft-delete).
+- **Eventos emitidos por ação:** `created` (create), `duplicated` (duplicate), `status_change`
+  (changeStatus/archive, `metadata.to`), `deleted`/`restored` (soft-delete/restore),
+  `contact_linked` (upsertContact com `studyPlanId`). Hard-delete não gera evento (cascateia) — fica
+  registrado em `audit_logs` (`study_plan.hard_delete`).
+- **DoD:** `npm run type-check` ✅ · `node --test tests/study-financial.test.mjs tests/crm-contacts.test.mjs`
+  ✅ (13/13: 10 herdados + 3 novos de contatos/enum) · `npm run build` ✅ (warning pré-existente em
+  `FxChart.tsx`) · migration aplicada sem advisor ERRORs novos · tipos regenerados.
+- **Próximo (SPLIT 3):** UI de lista/lixeira (usar `softDelete`/`restore`/`hardDelete`/`duplicate`/
+  `changeStatus`) e, no SPLIT 4, religar o editor a `contacts` (parar de depender de
+  `data.student/email/phone`, então deprecar esses campos do jsonb).
+
 ### 2026-06-15 - SPLIT 1 CONCLUÍDO: engine de cálculo (fonte única + snapshot + dinheiro em centavos)
 
 > P2 (snapshot, não recálculo) + P3 + P9 (dinheiro em centavos inteiros + `currency_code`).

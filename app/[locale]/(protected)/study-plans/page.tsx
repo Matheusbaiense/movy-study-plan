@@ -19,6 +19,7 @@ export default async function StudyPlansPage({ params }: Props) {
   const { data: plans } = await supabase
     .from('study_plans')
     .select('id, title, student_name, applicant_type, status, data, updated_at, created_at, created_by, updated_by')
+    .is('deleted_at', null)
     .order('updated_at', { ascending: false })
 
   const rows = (plans ?? []) as unknown as StudyPlanRow[]

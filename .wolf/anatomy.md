@@ -83,8 +83,8 @@
 
 ## app/[locale]/(protected)/study-plans/
 
-- `actions.ts` — Exports createStudyPlan, updateStudyPlan, deleteStudyPlan (~1036 tok)
-- `page.tsx` — StudyPlansPage — renders form, table (~1593 tok)
+- `actions.ts` — Exports createStudyPlan, updateStudyPlan, deleteStudyPlan, duplicateStudyPlan, changeStudyPlanStatus, archiveStudyPlan, softDeleteStudyPlan, restoreStudyPlan, hardDeleteStudyPlan, upsertContact (SPLIT 2: each emits proposal_events) (~1600 tok)
+- `page.tsx` — StudyPlansPage — renders form, table (filters deleted_at IS NULL) (~1593 tok)
 
 ## app/[locale]/(protected)/study-plans/[id]/
 
@@ -214,6 +214,10 @@
 - `content.ts` — Exports STATUS_STYLES, getStatusLabel (~203 tok)
 - `departments.ts` — Exports DEPARTMENTS, DepartmentSlug, DEPT_COLORS, DEPT_ACCENT + 3 more (~1271 tok)
 
+## lib/crm/
+
+- `contacts.ts` — CRM contacts seam (SPLIT 2): org-scoped Contact types + queries (getContactById, findContactByEmail/Phone, listContacts, dedup upsertContact, normalizeEmail/Phone) (~900 tok)
+
 ## lib/financial/
 
 - `calculator.ts` — Financial Capability Demonstration for the Australian student visa. (~986 tok)
@@ -266,10 +270,12 @@
 - `006_cleanup_movy_knowledge.sql` — Movy Internal Hub - curated knowledge content import. (~44270 tok)
 - `007_sanitize_movy_knowledge_content_v2.sql` — Remove sensitive/legacy text from already-imported knowledge content. (~316 tok)
 - `008_course_presets.sql` — Feature 2: Course Presets Manager. (~1160 tok)
+- `010_proposal_domain_contacts.sql` — SPLIT 2: contacts table (org-scoped, woofed-shape, R6/R7, RLS), study_plans proposal cols + R8 generated idempotency_key, study_plan_status enum extend, proposal_events timeline + RLS, soft-delete-aware SELECT policy, non-destructive student-data backfill (~1600 tok)
 
 ## tests/
 
 - `study-financial.test.mjs` — Declares financial (~882 tok)
+- `crm-contacts.test.mjs` — SPLIT 2: normalizeEmail/Phone + study_plan_status enum-extended assertion (~300 tok)
 
 ## types/
 

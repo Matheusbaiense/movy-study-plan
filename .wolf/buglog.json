@@ -120,6 +120,18 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T04:50:00+08:00"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-06-15T05:15:00+08:00",
+      "error_message": "node --test tests/ failed with Error: Cannot find module 'C:\\dev\\movy-study-plan\\tests' (MODULE_NOT_FOUND) when given a directory path.",
+      "file": "test run command (DoD gate)",
+      "root_cause": "On this Node/Windows setup `node --test <dir>` did not auto-discover the directory's test files and instead tried to resolve the directory itself as a module entrypoint.",
+      "fix": "Pass explicit test file paths instead of a directory: `node --test tests/study-financial.test.mjs tests/crm-contacts.test.mjs`. Keep listing each new test file in the DoD command.",
+      "tags": ["node", "tests", "tooling", "windows"],
+      "related_bugs": ["bug-010"],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T05:15:00+08:00"
     }
   ]
 }

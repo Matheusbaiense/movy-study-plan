@@ -1,7 +1,3 @@
-// Supabase schema types — GENERATED from project xpthmguzcbmndyyexfbt (org "Movy education")
-// via the Supabase MCP on 2026-06-15, after applying migration 009 (organizations / tenancy).
-// To refresh: regenerate from the live project (do not hand-edit).
-
 export type Json =
   | string
   | number
@@ -247,6 +243,76 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          custom_attributes: Json
+          deleted_at: string | null
+          email: string | null
+          external_id: string | null
+          full_name: string
+          id: string
+          metadata: Json
+          org_id: string
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          custom_attributes?: Json
+          deleted_at?: string | null
+          email?: string | null
+          external_id?: string | null
+          full_name?: string
+          id?: string
+          metadata?: Json
+          org_id?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          custom_attributes?: Json
+          deleted_at?: string | null
+          email?: string | null
+          external_id?: string | null
+          full_name?: string
+          id?: string
+          metadata?: Json
+          org_id?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -574,13 +640,96 @@ export type Database = {
           },
         ]
       }
+      proposal_events: {
+        Row: {
+          actor_id: string | null
+          contact_id: string | null
+          created_at: string
+          done_at: string | null
+          from_me: boolean
+          id: string
+          kind: string
+          metadata: Json
+          org_id: string
+          scheduled_at: string | null
+          study_plan_id: string
+          title: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          done_at?: string | null
+          from_me?: boolean
+          id?: string
+          kind: string
+          metadata?: Json
+          org_id?: string
+          scheduled_at?: string | null
+          study_plan_id: string
+          title?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          done_at?: string | null
+          from_me?: boolean
+          id?: string
+          kind?: string
+          metadata?: Json
+          org_id?: string
+          scheduled_at?: string | null
+          study_plan_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_events_study_plan_id_fkey"
+            columns: ["study_plan_id"]
+            isOneToOne: false
+            referencedRelation: "study_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_plans: {
         Row: {
+          accepted_at: string | null
           applicant_type: string
+          contact_id: string | null
           created_at: string
           created_by: string | null
+          currency_code: string
           data: Json
+          deal_id: string | null
+          deleted_at: string | null
+          expires_at: string | null
+          external_id: string | null
           id: string
+          idempotency_key: string | null
+          metadata: Json
           org_id: string
           status: Database["public"]["Enums"]["study_plan_status"]
           student_name: string
@@ -589,11 +738,20 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          accepted_at?: string | null
           applicant_type?: string
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          currency_code?: string
           data?: Json
+          deal_id?: string | null
+          deleted_at?: string | null
+          expires_at?: string | null
+          external_id?: string | null
           id?: string
+          idempotency_key?: string | null
+          metadata?: Json
           org_id?: string
           status?: Database["public"]["Enums"]["study_plan_status"]
           student_name?: string
@@ -602,11 +760,20 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          accepted_at?: string | null
           applicant_type?: string
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          currency_code?: string
           data?: Json
+          deal_id?: string | null
+          deleted_at?: string | null
+          expires_at?: string | null
+          external_id?: string | null
           id?: string
+          idempotency_key?: string | null
+          metadata?: Json
           org_id?: string
           status?: Database["public"]["Enums"]["study_plan_status"]
           student_name?: string
@@ -615,6 +782,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "study_plans_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "study_plans_created_by_fkey"
             columns: ["created_by"]
@@ -653,7 +827,17 @@ export type Database = {
     Enums: {
       app_role: "reader" | "editor" | "admin" | "super_admin"
       content_status: "draft" | "published" | "archived"
-      study_plan_status: "draft" | "sent" | "accepted" | "archived"
+      study_plan_status:
+        | "draft"
+        | "sent"
+        | "accepted"
+        | "archived"
+        | "ready_review"
+        | "approved_internal"
+        | "viewed"
+        | "negotiating"
+        | "rejected"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -783,7 +967,18 @@ export const Constants = {
     Enums: {
       app_role: ["reader", "editor", "admin", "super_admin"],
       content_status: ["draft", "published", "archived"],
-      study_plan_status: ["draft", "sent", "accepted", "archived"],
+      study_plan_status: [
+        "draft",
+        "sent",
+        "accepted",
+        "archived",
+        "ready_review",
+        "approved_internal",
+        "viewed",
+        "negotiating",
+        "rejected",
+        "expired",
+      ],
     },
   },
 } as const

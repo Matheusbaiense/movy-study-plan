@@ -1,4 +1,13 @@
 import type { ComputedTotals } from '../calc/types'
+import type { Enums } from '../../types/supabase'
+
+/**
+ * Proposal lifecycle status (SPLIT 2). Sourced from the live DB enum
+ * `study_plan_status` so the union stays in lockstep with migrations:
+ *   draft → ready_review → approved_internal → sent → viewed → negotiating
+ *        → accepted | rejected | expired | archived
+ */
+export type StudyPlanStatus = Enums<'study_plan_status'>
 
 export type CourseType = 'elicos' | 'vet' | 'he'
 export type SegmentKind = 'study' | 'holiday'
@@ -59,6 +68,34 @@ export interface PaymentItem {
   amount: number
 }
 
+/**
+ * Lightweight, server-resolved reference to the linked CRM contact (SPLIT 2).
+ * The proposal's working copy of student/email/phone still lives in
+ * `StudyPlanData` until SPLIT 4 rewires the editor; this ref exposes the
+ * canonical `contacts` row id so downstream code can follow the seam.
+ */
+export interface ContactRef {
+  id: string | null
+  fullName: string
+  email: string | null
+  phone: string | null
+}
+
+/**
+ * A single comparable option inside a multi-option proposal (SPLIT 2).
+ * Each option carries its own course mix and its own integer-cents snapshot
+ * so the proposal can present "Option A vs Option B" without recomputing.
+ */
+export interface ProposalOption {
+  id: string
+  label: string
+  courses: StudyCourse[]
+  extraCosts?: ExtraCost[]
+  recommended?: boolean
+  /** Server-recomputed integer-cents snapshot for this option (P2/P3). */
+  computed?: ComputedTotals
+}
+
 export interface StudyPlanData {
   student: string
   applicantType: ApplicantType
@@ -79,6 +116,13 @@ export interface StudyPlanData {
    * legacy rows saved before SPLIT 1 won't have it until their next save.
    */
   computed?: ComputedTotals
+  /**
+   * Multi-option proposals (SPLIT 2). When present, the proposal renders these
+   * comparable options; the top-level `courses` remains the primary/default mix.
+   */
+  options?: ProposalOption[]
+  /** Server-resolved reference to the linked CRM contact (SPLIT 2). */
+  contactRef?: ContactRef
 }
 
 export interface StudyPlanRow {
@@ -86,8 +130,19 @@ export interface StudyPlanRow {
   title: string
   student_name: string
   applicant_type: ApplicantType
-  status: 'draft' | 'sent' | 'accepted' | 'archived'
+  status: StudyPlanStatus
   data: StudyPlanData
+  // Proposal-domain columns (SPLIT 2 / migration 010). Optional so legacy
+  // call-sites that select a subset keep type-checking.
+  contact_id?: string | null
+  deal_id?: string | null
+  currency_code?: string
+  expires_at?: string | null
+  accepted_at?: string | null
+  deleted_at?: string | null
+  external_id?: string | null
+  idempotency_key?: string | null
+  org_id?: string
   created_at: string | null
   updated_at: string | null
   created_by: string | null

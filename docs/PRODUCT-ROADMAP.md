@@ -352,7 +352,19 @@ salvar; sem float em dinheiro novo; legado lido sem quebrar; testes verdes inclu
 offshore/visto/arredondamento.
 **Depende de:** SPLIT 0.
 
-### SPLIT 2 — Domínio da proposta (study_plans) + seam de contatos (CRM-ready)
+### SPLIT 2 — Domínio da proposta (study_plans) + seam de contatos (CRM-ready) ✅ CONCLUÍDO (2026-06-15)
+
+> **ENTREGUE.** Migration `010_proposal_domain_contacts.sql` **aplicada** no banco canônico
+> `xpthmguzcbmndyyexfbt` via Supabase MCP (DDL + backfill não-destrutivo), tipos regenerados,
+> sem advisor ERRORs novos. `contacts` (org-scoped, woofed-shape, R6/R7, unicidade por org, RLS),
+> `study_plans` + colunas de proposta + R8 `idempotency_key` GERADO, enum estendido (10 status),
+> `proposal_events` (timeline+RLS), policy SELECT soft-delete-aware. Backfill idempotente moveu
+> `data.student/email/phone`→`contacts` e setou `contact_id` (jsonb mantido como cópia de trabalho;
+> religar o editor = SPLIT 4); 2 planos, 0 perda. Domínio: `lib/crm/contacts.ts`,
+> `lib/study-plans/types.ts` (StudyPlanStatus/options[]/contactRef), e 7 server actions
+> (duplicate/changeStatus/archive/softDelete/restore/hardDelete/upsertContact) emitindo
+> `proposal_events`+`audit_logs`; `withComputed` (SPLIT 1) intacto. type-check/test(13)/build verdes.
+
 **Objetivo:** P5/P7/P8/P10 no dado: status estendido, soft-delete, expiração, snapshot,
 multi-opção, duplicar, timeline, **e extrair `contacts`** (woofed-shaped) para a proposta
 referenciar `contact_id`. **Toda a evolução do modelo de proposta de uma vez.**
