@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useTransition, useCallback, useRef } from 'react'
+import { useState, useTransition, useCallback, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { countryOptions } from '@/lib/constants/countries'
 import { buildContactAttributes } from '@/lib/crm/contacts'
 import { createProposalForContact, searchContactsAction, upsertContact, type ContactPick } from './actions'
@@ -13,12 +14,16 @@ const COUNTRIES = countryOptions()
 
 export default function NewProposalModal({ locale }: NewProposalModalProps) {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [mode, setMode] = useState<'search' | 'new'>('search')
   const [results, setResults] = useState<ContactPick[]>([])
   const [moreFields, setMoreFields] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Portal target only exists on the client; gate the portal on mount.
+  useEffect(() => setMounted(true), [])
 
   const reset = useCallback(() => {
     setMode('search')
@@ -88,17 +93,17 @@ export default function NewProposalModal({ locale }: NewProposalModalProps) {
         + Criar proposta
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Criar proposta"
           onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(20,11,48,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ width: 'min(480px, 100%)', background: 'var(--surface, #fff)', borderRadius: 14, padding: 20, border: '0.5px solid rgba(0,0,0,0.12)' }}
+            style={{ width: 'min(480px, 100%)', background: 'var(--surface)', color: 'var(--text)', borderRadius: 14, padding: 20, border: '1px solid var(--border)', boxShadow: 'var(--shadow-lift, 0 24px 70px rgba(20,11,48,0.4))' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <strong style={{ fontSize: 16 }}>Para quem é essa proposta?</strong>
@@ -125,13 +130,13 @@ export default function NewProposalModal({ locale }: NewProposalModalProps) {
                   {results.map((c) => (
                     <button key={c.id} type="button" disabled={pending} onClick={() => pickContact(c.id)} style={rowStyle}>
                       <span style={{ fontWeight: 500 }}>{c.fullName}</span>
-                      <span style={{ fontSize: 12, color: '#666' }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         {[c.email, c.nationality].filter(Boolean).join(' · ') || 'sem contato'}
                       </span>
                     </button>
                   ))}
                   {!pending && results.length === 0 && (
-                    <p style={{ fontSize: 13, color: '#666', padding: '8px 4px' }}>Digite para buscar um lead.</p>
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)', padding: '8px 4px' }}>Digite para buscar um lead.</p>
                   )}
                 </div>
               </div>
@@ -187,16 +192,17 @@ export default function NewProposalModal({ locale }: NewProposalModalProps) {
               </form>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
 }
 
 const primaryBtnStyle: React.CSSProperties = { border: 0, borderRadius: 10, padding: '11px 16px', background: '#2A1153', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 14, fontFamily: 'Outfit, sans-serif' }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid rgba(0,0,0,0.2)', marginBottom: 10, fontSize: 14 }
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, color: '#555', marginBottom: 4 }
-const rowStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, width: '100%', textAlign: 'left', padding: '8px 10px', border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 8, background: 'none', cursor: 'pointer', marginBottom: 6 }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 11px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', marginBottom: 10, fontSize: 14, fontFamily: 'Outfit, sans-serif', outline: 'none' }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, color: 'var(--text-muted)', marginBottom: 4 }
+const rowStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, width: '100%', textAlign: 'left', padding: '9px 11px', border: '1px solid var(--border)', borderRadius: 9, background: 'var(--surface)', color: 'var(--text)', cursor: 'pointer', marginBottom: 6 }
 function tabStyle(active: boolean): React.CSSProperties {
-  return { flex: 1, padding: '8px 10px', borderRadius: 8, border: active ? '1.5px solid #4B1A77' : '0.5px solid rgba(0,0,0,0.2)', background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: active ? 500 : 400 }
+  return { flex: 1, padding: '9px 11px', borderRadius: 9, border: active ? '1.5px solid var(--movy-purple, #4B1A77)' : '1px solid var(--border)', background: active ? 'color-mix(in srgb, var(--movy-purple, #4B1A77) 8%, var(--surface))' : 'var(--surface)', color: 'var(--text)', cursor: 'pointer', fontSize: 13, fontWeight: active ? 600 : 400, fontFamily: 'Outfit, sans-serif' }
 }

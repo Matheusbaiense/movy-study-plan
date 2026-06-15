@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -46,8 +46,29 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Close the account menu on outside click / Escape. A fixed backdrop can't be
+  // used here: the navbar's backdrop-filter traps fixed descendants to its own box.
+  useEffect(() => {
+    if (!menuOpen) return
+    function onPointerDown(event: PointerEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen])
 
   // Hydrate collapse preference after mount (avoids SSR mismatch).
   useEffect(() => {
@@ -199,7 +220,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         {/* Desktop topbar */}
         <header className="hidden lg:flex navbar-container">
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+          <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
             <ThemeToggle />
             <button
               onClick={() => setMenuOpen((v) => !v)}
@@ -211,8 +232,6 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
               <Avatar initials={initials} color={roleColor} size={34} />
             </button>
             {menuOpen && (
-              <>
-                <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setMenuOpen(false)} />
                 <div role="menu" style={{ position: 'absolute', right: 0, top: 'calc(100% + 10px)', zIndex: 50, width: 230, background: t.surfaceRaised, border: `1px solid ${t.border}`, borderRadius: 14, boxShadow: 'var(--shadow-lift)', overflow: 'hidden' }}>
                   <div style={{ padding: '14px 16px', borderBottom: `1px solid ${t.border}` }}>
                     <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 14, color: t.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name ?? profile.email}</div>
@@ -228,7 +247,6 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
                     {locale === 'en' ? 'Sign out' : 'Sair'}
                   </button>
                 </div>
-              </>
             )}
           </div>
         </header>

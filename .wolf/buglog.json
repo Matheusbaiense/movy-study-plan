@@ -281,6 +281,30 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
+    },
+    {
+      "id": "bug-newproposalmodal-overlay",
+      "timestamp": "2026-06-15T00:00:00.000Z",
+      "error_message": "Modal 'Criar proposta' (lead existente / novo lead) aparece mal posicionado, sem escurecer a tela toda, e o menu do avatar fica por cima",
+      "file": "app/[locale]/(protected)/study-plans/NewProposalModal.tsx",
+      "root_cause": "Overlay position:fixed renderizado dentro dos stacking contexts aninhados do app (.movy-atmosphere > * { z-index:1 }), entao nao cobria a viewport nem ficava acima do menu da navbar",
+      "fix": "Renderizar o overlay via createPortal(document.body) com z-index 1000 (gate em mounted p/ SSR) + cores em tokens (var(--surface)/var(--border)/var(--text)) p/ dark mode",
+      "tags": ["modal", "portal", "zindex", "stacking-context", "dark-mode", "visual"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T00:00:00.000Z"
+    },
+    {
+      "id": "bug-account-menu-no-close",
+      "timestamp": "2026-06-15T00:00:00.000Z",
+      "error_message": "Menu do avatar (conta) nao fecha ao clicar fora",
+      "file": "components/layout/AppShell.tsx",
+      "root_cause": "O backdrop de fechar era position:fixed dentro de .navbar-container, que tem backdrop-filter:blur — isso vira containing block p/ fixed, confinando o backdrop a caixa da navbar (clique fora nao era capturado)",
+      "fix": "Trocar o backdrop fixed por listener de pointerdown fora do menu + Escape (useRef no container, useEffect quando menuOpen)",
+      "tags": ["appshell", "menu", "backdrop-filter", "containing-block", "fixed"],
+      "related_bugs": ["bug-newproposalmodal-overlay"],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T00:00:00.000Z"
     }
   ]
 }
