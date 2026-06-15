@@ -150,3 +150,4 @@
 | 11:01 | Handover atualizado: 6A com banco aplicado, COMECE AQUI = lib/portfolio + CourseSource (Ãºltimo sub-passo 6A, sÃ³ TS) | docs/AI-HANDOVER.md | concluÃ­do | ~3k |
 | 11:20 | SPLIT 6A final: lib/portfolio/* (types+queries+pricing-rules+markets+course-source+index) + provider CourseSource | lib/portfolio/*, tests/portfolio.test.mjs | type-check+test(26)+build green | ~9k |
 
+| 12:04 | Regra documentada: WOOFED-SHAPED FIRST (campo nao-nativo -> custom_attributes; conferir db/schema.rb antes de criar coluna) | .wolf/cerebrum.md, docs/AI-HANDOVER.md, spec | regra gravada | ~1k |

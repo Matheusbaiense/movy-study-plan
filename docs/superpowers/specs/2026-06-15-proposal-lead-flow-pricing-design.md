@@ -6,6 +6,10 @@
   (campos de lead em `custom_attributes`, no padrão woofed).
 - **Regra-mãe (P0):** white-label first — toda escolha assume Movy → multi-agência. `org_id` + RLS por
   org, unicidade por org, dinheiro em `*_in_cents`, nada hardcodado de marca.
+- **Regra-mãe nº2 (woofed-shaped first):** como Movy e woofed serão unificados, toda entidade/campo com
+  equivalente no woofed nasce no padrão dele (naming woofed-shaped; campo não-nativo → `custom_attributes`,
+  não coluna; sync 1:1 sem remapear). Conferir `db/schema.rb` do woofed antes de criar coluna nova.
+  Esta spec é a primeira aplicação explícita: campos de lead em `custom_attributes`.
 
 ## 1. Objetivo
 

@@ -15,6 +15,16 @@
   Movy brand/data. Already-locked consequences: `org_id` + per-org RLS on every business entity;
   uniqueness **per org**, never global; per-org branding/config; woofed-shaped naming; no hardcoded
   secret/brand. This supersedes convenience — when in doubt, choose the multi-tenant-safe path.
+- **WOOFED-SHAPED FIRST (regra documentada — consequência do P0/Caminho B).** Owner directive
+  (2026-06-15): como Movy e woofed **serão unificados**, TODA modelagem de dado/entidade que tem
+  equivalente no woofed deve **nascer no padrão do woofed** — para não dar problema na fusão. Consequências
+  travadas: (1) naming de tabela/coluna woofed-shaped; (2) campo de negócio que **não é coluna nativa do
+  woofed vai em `custom_attributes` (jsonb)**, NUNCA coluna dedicada (ex.: lead nationality/lead_source/
+  preferred_language); (3) `metadata`/`additional_attributes` só p/ dado de integração/sistema; (4) dinheiro
+  `*_in_cents`; (5) unicidade **por org** (não global como o woofed single-account). **Desempate:** a opção
+  que **sincroniza 1:1 com o woofed sem remapear/migrar** vence. **Antes de criar coluna nova** numa
+  entidade com equivalente woofed (contacts, deals, products, events…), **conferir `db/schema.rb` do woofed**
+  (`C:/dev/woofed-crm`) e seguir o shape. Reforça R3/R4 da convergência.
 - Prefer fixing documented bugs before starting planned features, even when the feature work is already scoped.
 - High bar for visual quality; wants a genuinely professional UI. For a redesign, the ONLY brand constraints are the brand colors and the logo — typography, layout, components are all open to redesign.
 - When committing, keep documented bug/error fixes as separate commits from feature/redesign work.

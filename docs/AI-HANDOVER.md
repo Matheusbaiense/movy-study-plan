@@ -11,6 +11,13 @@ Este documento e o ponto de passagem entre Codex, Claude e qualquer outro agente
   hardcodar a marca/dados da Movy. Consequências já travadas (não são opcionais): `org_id` + RLS por org
   em toda entidade de negócio; unicidade **por org**, nunca global; branding/config por org; naming
   woofed-shaped; sem segredo/marca hardcoded. Ver `docs/PRODUCT-ROADMAP.md` §2 (P0/P1/P10).
+- **WOOFED-SHAPED FIRST (regra-mãe nº2, consequência do white-label/Caminho B).** Como Movy e woofed
+  **serão unificados**, toda entidade/campo com equivalente no woofed deve **nascer no padrão do woofed**
+  para não quebrar na fusão: naming woofed-shaped; campo de negócio que NÃO é coluna nativa do woofed vai
+  em **`custom_attributes` (jsonb)**, nunca coluna dedicada; `metadata`/`additional_attributes` só p/
+  integração/sistema; dinheiro `*_in_cents`; unicidade **por org**. Desempate: a opção que sincroniza 1:1
+  com o woofed sem remapear vence. **Antes de criar coluna nova**, conferir `db/schema.rb` do woofed
+  (`C:/dev/woofed-crm`). Ver `.wolf/cerebrum.md` (User Preferences) e convergência R3/R4.
 - O projeto agora e Movy Education. Nao reintroduzir nomes, rotas, textos ou processos da Fyme como marca ativa.
 - Conteudo antigo so pode ficar quando for conhecimento/processo realmente reutilizavel e ja neutralizado para Movy.
 - Nao adicionar pessoas reais em seed, UI, testes ou exemplos. Evitar nomes como Julia, Marcos, Mariana, Matheus, Beatriz/Beatrice.
