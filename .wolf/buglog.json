@@ -312,8 +312,8 @@
       "error_message": "Conteudo da pagina (titulos, botao + Criar proposta) aparece POR CIMA do dropdown do avatar",
       "file": "components/layout/AppShell.tsx",
       "root_cause": "O .navbar-container tem backdrop-filter (cria stacking context proprio) e e estatico sem z-index; como vem antes do conteudo no DOM, o conteudo da pagina e pintado acima do menu (z-index:50 do menu so vale DENTRO do contexto da navbar)",
-      "fix": "Header desktop recebe position:relative; zIndex:40 inline (eleva o stacking context da navbar acima do conteudo). So no desktop p/ nao cobrir o drawer mobile (z-30)",
-      "tags": ["appshell", "menu", "stacking-context", "zindex", "backdrop-filter", "visual"],
+      "fix": "z-index:40 na navbar NAO bastou (botoes de header de pagina como '+ Criar proposta'/'+ Novo conteudo'/'Salvar PDF' ainda vazavam). Fix real: portalar o dropdown via createPortal(document.body) com position:fixed ancorado ao rect do botao do avatar (getBoundingClientRect), z-index 1000, fechando em outside-click/Escape/scroll/resize. Revertido o z-index da navbar.",
+      "tags": ["appshell", "menu", "stacking-context", "portal", "zindex", "backdrop-filter", "visual"],
       "related_bugs": ["bug-account-menu-no-close", "bug-newproposalmodal-overlay"],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -46,27 +47,46 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuPanelRef = useRef<HTMLDivElement>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
-  // Close the account menu on outside click / Escape. A fixed backdrop can't be
-  // used here: the navbar's backdrop-filter traps fixed descendants to its own box.
+  useEffect(() => setMounted(true), [])
+
+  // The account menu is portaled to <body> so page content (in its own stacking
+  // context) can't paint over it. Anchor it to the avatar button's rect.
+  function openMenu() {
+    const rect = triggerRef.current?.getBoundingClientRect()
+    if (rect) setMenuPos({ top: rect.bottom + 10, right: Math.max(8, window.innerWidth - rect.right) })
+    setMenuOpen(true)
+  }
+
+  // Close on outside click / Escape / scroll / resize (a fixed menu would otherwise
+  // detach from the avatar on scroll).
   useEffect(() => {
     if (!menuOpen) return
     function onPointerDown(event: PointerEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false)
-      }
+      const target = event.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (menuPanelRef.current?.contains(target)) return
+      setMenuOpen(false)
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') setMenuOpen(false)
     }
+    function close() { setMenuOpen(false) }
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
+    window.addEventListener('resize', close)
+    window.addEventListener('scroll', close, true)
     return () => {
       document.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('resize', close)
+      window.removeEventListener('scroll', close, true)
     }
   }, [menuOpen])
 
@@ -218,14 +238,13 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         </header>
 
         {/* Desktop topbar */}
-        {/* z-index lifts the navbar's stacking context (created by its backdrop-filter)
-            above the page content, so the account dropdown isn't painted under it. */}
-        <header className="hidden lg:flex navbar-container" style={{ position: 'relative', zIndex: 40 }}>
+        <header className="hidden lg:flex navbar-container">
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
-          <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
             <ThemeToggle />
             <button
-              onClick={() => setMenuOpen((v) => !v)}
+              ref={triggerRef}
+              onClick={() => (menuOpen ? setMenuOpen(false) : openMenu())}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               aria-label={locale === 'en' ? 'Account menu' : 'Menu da conta'}
@@ -233,8 +252,8 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
             >
               <Avatar initials={initials} color={roleColor} size={34} />
             </button>
-            {menuOpen && (
-                <div role="menu" style={{ position: 'absolute', right: 0, top: 'calc(100% + 10px)', zIndex: 50, width: 230, background: t.surfaceRaised, border: `1px solid ${t.border}`, borderRadius: 14, boxShadow: 'var(--shadow-lift)', overflow: 'hidden' }}>
+            {menuOpen && menuPos && mounted && createPortal(
+                <div ref={menuPanelRef} role="menu" style={{ position: 'fixed', top: menuPos.top, right: menuPos.right, zIndex: 1000, width: 230, background: t.surfaceRaised, border: `1px solid ${t.border}`, borderRadius: 14, boxShadow: 'var(--shadow-lift)', overflow: 'hidden' }}>
                   <div style={{ padding: '14px 16px', borderBottom: `1px solid ${t.border}` }}>
                     <div style={{ fontFamily: font.display, fontWeight: 600, fontSize: 14, color: t.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name ?? profile.email}</div>
                     <div style={{ fontFamily: font.body, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', color: roleColor, textTransform: 'uppercase', marginTop: 3 }}>{profile.role.replace('_', ' ')}</div>
@@ -248,7 +267,8 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
                     <LogOut size={15} />
                     {locale === 'en' ? 'Sign out' : 'Sair'}
                   </button>
-                </div>
+                </div>,
+                document.body,
             )}
           </div>
         </header>
