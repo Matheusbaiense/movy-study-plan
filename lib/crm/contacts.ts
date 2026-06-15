@@ -146,3 +146,49 @@ export async function upsertContact(supabase: Client, input: UpsertContactInput)
   if (error) throw new Error(error.message)
   return data
 }
+
+/** Well-known keys inside `contacts.custom_attributes` (woofed-shaped; sync 1:1 to the CRM). */
+export const CONTACT_ATTR = {
+  NATIONALITY: 'nationality',
+  LEAD_SOURCE: 'lead_source',
+  PREFERRED_LANGUAGE: 'preferred_language',
+} as const
+
+function readStringAttr(custom: Json | null | undefined, key: string): string | null {
+  if (custom && typeof custom === 'object' && !Array.isArray(custom)) {
+    const value = (custom as Record<string, unknown>)[key]
+    if (typeof value === 'string' && value.trim() !== '') return value
+  }
+  return null
+}
+
+/** Read the lead's nationality (ISO-3166 alpha-2) from `custom_attributes`, or null. */
+export function getContactNationality(contact: { custom_attributes?: Json | null }): string | null {
+  return readStringAttr(contact.custom_attributes, CONTACT_ATTR.NATIONALITY)
+}
+
+export interface LeadAttrs {
+  nationality?: string | null
+  leadSource?: string | null
+  preferredLanguage?: string | null
+}
+
+/**
+ * Build a `custom_attributes` object for a lead, merging onto `base`. Nationality is
+ * trimmed + uppercased; others trimmed. A provided-but-empty value removes the key.
+ * Keys absent from `attrs` are left untouched.
+ */
+export function buildContactAttributes(attrs: LeadAttrs, base: Json = {}): Json {
+  const out: Record<string, unknown> =
+    base && typeof base === 'object' && !Array.isArray(base) ? { ...(base as Record<string, unknown>) } : {}
+  const apply = (key: string, raw: string | null | undefined, upper = false) => {
+    if (raw === undefined) return
+    const value = (raw ?? '').trim()
+    if (value === '') delete out[key]
+    else out[key] = upper ? value.toUpperCase() : value
+  }
+  apply(CONTACT_ATTR.NATIONALITY, attrs.nationality, true)
+  apply(CONTACT_ATTR.LEAD_SOURCE, attrs.leadSource)
+  apply(CONTACT_ATTR.PREFERRED_LANGUAGE, attrs.preferredLanguage)
+  return out as Json
+}
