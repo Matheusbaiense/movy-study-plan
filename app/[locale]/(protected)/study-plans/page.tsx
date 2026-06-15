@@ -1,41 +1,112 @@
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { createStudyPlan } from './actions'
 import { NewQuoteButton } from '@/components/study-plans/NewQuoteButton'
+import { ProposalsList, type ProposalItem } from './ProposalsList'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
-import { color, ink, font, purpleA, t } from '@/lib/ui/theme'
-import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
+import { formatMoney } from '@/lib/calc/money'
+import { isAdminOrAbove } from '@/lib/permissions/can'
+import { font, ink, t } from '@/lib/ui/theme'
+import { Constants } from '@/types/supabase'
+import type { StudyPlanData, StudyPlanRow, StudyPlanStatus } from '@/lib/study-plans/types'
+
+const PAGE_SIZE = 25
+const APPLICANT_TYPES = ['Individual', 'Casal', 'Familia', 'Single Parent']
+const VALID_STATUS = Constants.public.Enums.study_plan_status as readonly string[]
+const DAY_MS = 86_400_000
 
 interface Props {
   params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default async function StudyPlansPage({ params }: Props) {
+function pick(value: string | string[] | undefined): string {
+  return (Array.isArray(value) ? value[0] : value ?? '').trim()
+}
+
+/** Sanitize free-text before embedding it in a PostgREST `or()` filter. */
+function sanitizeSearch(raw: string): string {
+  return raw.replace(/[,%()*:\\]/g, '').slice(0, 80).trim()
+}
+
+function buildTotalLabel(row: StudyPlanRow, data: StudyPlanData): string {
+  const cents = data.computed?.grandTotalCents
+  if (typeof cents === 'number') return formatMoney(cents, row.currency_code ?? 'AUD')
+  return money(planGrandTotal(data))
+}
+
+function daysToExpiry(expiresAt: string | null | undefined): { days: number | null; expired: boolean } {
+  if (!expiresAt) return { days: null, expired: false }
+  const diff = new Date(expiresAt).getTime() - Date.now()
+  if (Number.isNaN(diff)) return { days: null, expired: false }
+  if (diff < 0) return { days: 0, expired: true }
+  return { days: Math.ceil(diff / DAY_MS), expired: false }
+}
+
+export default async function StudyPlansPage({ params, searchParams }: Props) {
   const { locale } = await params
-  await getUser(locale)
+  const sp = await searchParams
+  const { profile } = await getUser(locale)
   const supabase = await createClient()
 
-  const { data: plans } = await supabase
-    .from('study_plans')
-    .select('id, title, student_name, applicant_type, status, data, updated_at, created_at, created_by, updated_by')
-    .is('deleted_at', null)
-    .order('updated_at', { ascending: false })
+  const view = pick(sp.view) === 'trash' ? 'trash' : 'active'
+  const query = pick(sp.q)
+  const statusFilter = VALID_STATUS.includes(pick(sp.status)) ? pick(sp.status) : ''
+  const typeFilter = APPLICANT_TYPES.includes(pick(sp.type)) ? pick(sp.type) : ''
+  const sort = ['updated', 'created', 'student'].includes(pick(sp.sort)) ? pick(sp.sort) : 'updated'
+  const page = Math.max(1, Number.parseInt(pick(sp.page) || '1', 10) || 1)
 
+  let q = supabase
+    .from('study_plans')
+    .select(
+      'id, title, student_name, applicant_type, status, data, currency_code, expires_at, updated_at, created_at',
+      { count: 'exact' }
+    )
+
+  q = view === 'trash' ? q.not('deleted_at', 'is', null) : q.is('deleted_at', null)
+  if (statusFilter) q = q.eq('status', statusFilter as StudyPlanStatus)
+  if (typeFilter) q = q.eq('applicant_type', typeFilter)
+  const safeSearch = sanitizeSearch(query)
+  if (safeSearch) q = q.or(`student_name.ilike.%${safeSearch}%,title.ilike.%${safeSearch}%`)
+
+  if (sort === 'student') q = q.order('student_name', { ascending: true })
+  else if (sort === 'created') q = q.order('created_at', { ascending: false })
+  else q = q.order('updated_at', { ascending: false })
+
+  const from = (page - 1) * PAGE_SIZE
+  q = q.range(from, from + PAGE_SIZE - 1)
+
+  const { data: plans, count } = await q
   const rows = (plans ?? []) as unknown as StudyPlanRow[]
+
+  const items: ProposalItem[] = rows.map((row) => {
+    const data = row.data as StudyPlanData
+    const exp = daysToExpiry(row.expires_at)
+    return {
+      id: row.id,
+      student: row.student_name || data.student || 'Sem estudante',
+      title: row.title,
+      applicantType: row.applicant_type,
+      status: row.status as StudyPlanStatus,
+      totalLabel: buildTotalLabel(row, data),
+      updatedLabel: row.updated_at
+        ? new Date(row.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+        : '—',
+      daysToExpiry: exp.days,
+      expired: exp.expired,
+    }
+  })
 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <div className="movy-kicker">
-            {locale === 'en' ? 'Proposals' : 'Propostas'}
-          </div>
+          <div className="movy-kicker">{locale === 'en' ? 'Proposals' : 'Propostas'}</div>
           <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: t.text }}>
             Cotações &amp; Study Plans
           </h1>
           <p style={{ margin: 0, color: ink(0.62), fontSize: 14 }}>
-            Crie, simule e acompanhe planos de estudo com histórico de alterações.
+            Crie, simule e acompanhe propostas — filtre, selecione em lote e restaure da lixeira.
           </p>
         </div>
         <form action={createStudyPlan.bind(null, locale)}>
@@ -43,65 +114,19 @@ export default async function StudyPlansPage({ params }: Props) {
         </form>
       </div>
 
-      <div className="movy-card" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead>
-            <tr>
-              {['Estudante', 'Tipo', 'Status', 'Total estimado', 'Atualizado', ''].map((header) => (
-                <th key={header} className="movy-kicker" style={{ padding: '13px 16px', textAlign: 'left', color: ink(0.45), fontSize: 10, borderBottom: `1px solid ${color.line}` }}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} style={{ padding: '56px 24px', textAlign: 'center' }}>
-                  <svg viewBox="0 0 120 120" width={52} height={52} aria-hidden style={{ color: color.purple, opacity: 0.16, margin: '0 auto' }}>
-                    <use href="#movySymMono" />
-                  </svg>
-                  <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 800, color: t.text, marginTop: 14, letterSpacing: '-0.015em' }}>
-                    Nenhuma cotação ainda
-                  </div>
-                  <div style={{ color: ink(0.5), fontSize: 13.5, marginTop: 4 }}>
-                    Clique em <strong style={{ color: color.orange }}>+ Nova cotação</strong> para criar a primeira.
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              rows.map((plan) => {
-                const data = plan.data as StudyPlanData
-                return (
-                  <tr key={plan.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
-                    <td style={{ padding: '14px 16px' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}`} prefetch={false} style={{ fontFamily: font.display, color: t.text, fontWeight: 800, textDecoration: 'none' }}>
-                        {plan.student_name || data.student || 'Sem estudante'}
-                      </Link>
-                      <div style={{ marginTop: 3, color: ink(0.48), fontSize: 12 }}>{plan.title}</div>
-                    </td>
-                    <td style={{ padding: '14px 16px', color: ink(0.68) }}>{plan.applicant_type}</td>
-                    <td style={{ padding: '14px 16px' }}>
-                      <span style={{ borderRadius: 999, padding: '3px 10px', background: purpleA(0.1), color: color.purple, fontWeight: 700, fontSize: 11, textTransform: 'capitalize' }}>
-                        {plan.status === 'draft' && locale === 'pt' ? 'Rascunho' : plan.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 16px', fontFamily: font.display, fontWeight: 800, color: t.text }}>{money(planGrandTotal(data))}</td>
-                    <td style={{ padding: '14px 16px', fontFamily: font.mono, fontSize: 11, color: ink(0.55) }}>
-                      {plan.updated_at ? new Date(plan.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
-                    </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <Link href={`/${locale}/study-plans/${plan.id}/proposal`} prefetch={false} style={{ color: color.purple, fontWeight: 800, textDecoration: 'none', fontSize: 12, fontFamily: font.display }}>
-                        Proposta →
-                      </Link>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ProposalsList
+        locale={locale}
+        items={items}
+        total={count ?? items.length}
+        page={page}
+        pageSize={PAGE_SIZE}
+        view={view}
+        query={query}
+        statusFilter={statusFilter}
+        typeFilter={typeFilter}
+        sort={sort}
+        isAdmin={isAdminOrAbove(profile.role)}
+      />
     </div>
   )
 }

@@ -4,8 +4,8 @@
 > codar qualquer feature das três frentes (Portfólio, Propostas, Cálculo).
 > Decisões aqui têm precedência sobre planos antigos do `AI-HANDOVER.md`.
 >
-> **Status:** v1.1 — arquitetura aprovada. **SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅** (migration 010 aplicada).
-> **Próximo a executar = SPLIT 3.** **CRM e integrações externas (escolas/SEC/pagamento) FORA de escopo.**
+> **Status:** v1.1 — arquitetura aprovada. **SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅** (migration 010 aplicada).
+> **Próximo a executar = SPLIT 6 (portfólio + motor de regras).** **CRM/integrações externas FORA de escopo.**
 > **Revisão 2026-06-15 (lacunas GPT/Cursor, sobre 1/2 já entregues):** + motor de regras (extensão do
 > engine no SPLIT 1, dados/UI no SPLIT 6), + cenários comparativos, + comparador na autoria, + templates
 > + histórico de versões (migration 012 no SPLIT 4), + alertas de impacto de preço/promoção (SPLIT 6),
@@ -414,13 +414,24 @@ eventos gravados; nenhum dado de estudante perdido na migração; type-check + b
 família). Como a migration 010 já está aplicada, isto vira **migration nova (012)** entregue junto do
 **SPLIT 4** (editor consome ambos: TemplatePicker + VersionHistory). Não reabre o domínio já entregue.
 
-### SPLIT 3 — Lista de propostas (UI)
+### SPLIT 3 — Lista de propostas (UI) ✅ CONCLUÍDO (2026-06-15)
+> **ENTREGUE.** `study-plans/page.tsx` reescrito como server component: lê `searchParams`
+> (URL como estado: `q`/`status`/`type`/`sort`/`view`/`page`), consulta `study_plans` filtrado
+> (busca `ilike` sanitizada, status/tipo, ordenação, paginação server-side com `count:exact`,
+> `deleted_at` null/not-null p/ ativas×lixeira) e formata um view-model `ProposalItem` (total via
+> snapshot `computed.grandTotalCents`→`formatMoney`, dias p/ expirar). Componente client co-localizado
+> `study-plans/ProposalsList.tsx` (padrão `SettingsTabs`, p/ importar `./actions` limpo): checkbox +
+> selecionar-todos, **barra de ações em lote** (arquivar/excluir · restaurar na lixeira), **menu por
+> linha** (editar/proposta/duplicar/arquivar/excluir · restaurar/hard-delete-admin), badges de 10
+> status, indicador de expiração, busca debounced→URL, toasts (`useTransition`+`router.refresh()`).
+> +1 action aditiva `bulkStudyPlanAction(ids, op)` (archive/soft_delete/restore — getActor 1×, 1 revalidate).
+> type-check ✅. **Desvios:** co-localizei `ProposalsList.tsx` na rota (não em `components/`) p/ import
+> de actions sem caminho com `(protected)`; export/PDF/email → SPLIT 5; duplicar-em-lote adiado (per-row
+> no v1); labels pt-first (i18n completo = SPLIT 9); indicadores/widgets fora (dono dispensa vanity).
 **Objetivo:** gestão da lista. **Reescreve `study-plans/page.tsx` inteiro uma vez.**
-**Arquivos:** `app/[locale]/(protected)/study-plans/page.tsx`, `components/study-plans/NewQuoteButton.tsx`,
-talvez `components/study-plans/ProposalList*.tsx` (novos), `messages/pt.json`.
-**Recursos:** checkbox + seleção total, ações em lote (excluir/arquivar/duplicar/exportar),
-ações por linha (abrir/editar/duplicar/PDF/arquivar), status visual, busca, filtros
-(status/tipo/data), ordenação, paginação, lixeira, toasts.
+**Recursos:** checkbox + seleção total, ações em lote (excluir/arquivar), ações por linha
+(abrir/editar/duplicar/proposta/arquivar), status visual, busca, filtros (status/tipo), ordenação,
+paginação, lixeira, toasts.
 **Aceite:** lista usável com filtros/paginação; ações em lote e individuais via actions do SPLIT 2.
 **Depende de:** SPLIT 2.
 
@@ -587,8 +598,8 @@ em features diferentes.
 9 Polimento: transversal, ao final de cada bloco
 ```
 
-**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ (migration 010 aplicada). **Próximo a executar = 3.**
-**Sequência revisada (2026-06-15):** 0 → 1 → 2 → **3 → 6 → 4** → 5 → 7 → 8 → 9 → *(10 = futuro)*.
+**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ (migration 010 aplicada). **Próximo a executar = 6 (portfólio + motor de regras).**
+**Sequência revisada (2026-06-15):** 0 → 1 → 2 → 3 → **6 → 4** → 5 → 7 → 8 → 9 → *(10 = futuro)*.
 **Mudança vs. plano anterior:** **portfólio (6) agora vem ANTES do editor (4)** — o editor já nasce
 consumindo catálogo + motor de regras (taxas automáticas/comparador), sem reabrir o editor depois. A
 lista (3) segue como próximo ganho rápido sobre o domínio já pronto do SPLIT 2. Motor de regras =

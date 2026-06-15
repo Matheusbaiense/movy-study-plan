@@ -284,6 +284,24 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 3 CONCLUÍDO: lista de propostas (filtros, lote, lixeira, paginação)
+
+- **`study-plans/page.tsx`** reescrito (server): `searchParams` como estado (`q`/`status`/`type`/`sort`/
+  `view`/`page`), query `study_plans` filtrada (busca `ilike` **sanitizada** contra injeção em `or()`,
+  status/tipo validados, ordenação, paginação `range` + `count:exact`, `deleted_at` null/not-null p/
+  ativas×lixeira). Formata view-model `ProposalItem` server-side (total via `data.computed.grandTotalCents`
+  → `formatMoney`, fallback `money(planGrandTotal)`; dias p/ expirar de `expires_at`).
+- **`study-plans/ProposalsList.tsx`** (NOVO, client, co-localizado): seleção (checkbox + selecionar-todos),
+  barra de ações em lote (arquivar/excluir · restaurar na lixeira), menu por linha (editar/proposta/
+  duplicar/arquivar/excluir · restaurar/hard-delete-admin), badges de 10 status, indicador de expiração,
+  busca debounced→URL, paginação, toasts via `useTransition`+`router.refresh()` (idiom do `UsersManager`).
+- **`actions.ts`**: +`bulkStudyPlanAction(ids, op, locale)` (archive/soft_delete/restore) aditivo — getActor
+  1×, emite `proposal_events` por id, 1 audit, 1 revalidate; retorna `BulkResult` (não lança) p/ toast.
+- **Decisões:** co-localizei o client na rota (não `components/`) p/ importar `./actions` sem caminho com
+  `(protected)`. Adiados: export/PDF/email→SPLIT 5; duplicar-em-lote (per-row no v1); i18n completo→SPLIT 9.
+- **QA:** `tsc --noEmit` ✅ (in-place). Build verificado no worktree principal antes do push.
+- **Próximo:** **SPLIT 6** (portfólio instituição→campus→curso→preços + motor de regras `pricing_rules`).
+
 ### 2026-06-15 - Reconciliação de branch + revisão do roadmap vs. propostas GPT/Cursor (só docs)
 
 - **Achado:** via export de chat do Cursor (`cursor_chat_documenta_o_de_mudan_as_do_proje.json`),

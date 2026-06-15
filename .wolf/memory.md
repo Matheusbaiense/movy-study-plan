@@ -91,3 +91,11 @@
 | 09:02 | Edited lib/calc/money.ts | added 1 condition(s) | ~622 |
 | 09:03 | Edited tests/study-financial.test.mjs | expanded (+16 lines) | ~268 |
 | 09:04 | Edited docs/AI-HANDOVER.md | modified 1() | ~218 |
+| 09:09 | Edited app/[locale]/(protected)/study-plans/actions.ts | added error handling | ~596 |
+| 09:11 | Created app/[locale]/(protected)/study-plans/ProposalsList.tsx | — | ~5542 |
+| 09:12 | Created app/[locale]/(protected)/study-plans/page.tsx | — | ~1552 |
+| 09:14 | Edited docs/PRODUCT-ROADMAP.md | expanded (+11 lines) | ~478 |
+| 09:14 | Edited docs/PRODUCT-ROADMAP.md | modified revisada() | ~63 |
+| 09:14 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~59 |
+| 09:15 | Edited docs/AI-HANDOVER.md | modified reescrito() | ~470 |
+| 09:15 | SPLIT 3 lista de propostas: page.tsx server (searchParams filtros/sort/paginação), ProposalsList.tsx client (seleção/lote/lixeira/menu/toasts), +bulkStudyPlanAction. type-check verde | study-plans/{page,ProposalsList,actions}.tsx | concluído | ~14k |

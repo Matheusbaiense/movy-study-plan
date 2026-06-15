@@ -371,6 +371,68 @@ export async function hardDeleteStudyPlan(id: string, locale = 'pt') {
   revalidateStudyPlans(locale)
 }
 
+export type BulkStudyPlanOp = 'archive' | 'soft_delete' | 'restore'
+
+export interface BulkResult {
+  ok: boolean
+  count: number
+  error?: string
+}
+
+/**
+ * Apply a lifecycle op to many proposals in a single actor session (SPLIT 3).
+ * Resolves the actor once (not per id), emits a timeline event per proposal,
+ * writes one audit row, and revalidates once. Returns a result instead of
+ * throwing so the list UI can surface a toast. Editor+ only.
+ */
+export async function bulkStudyPlanAction(
+  ids: string[],
+  op: BulkStudyPlanOp,
+  locale = 'pt'
+): Promise<BulkResult> {
+  const unique = Array.from(new Set(ids)).filter(Boolean)
+  if (unique.length === 0) return { ok: true, count: 0 }
+
+  try {
+    const { supabase, user, profile } = await getActor()
+    const stamp = new Date().toISOString()
+
+    for (const id of unique) {
+      const patch =
+        op === 'archive'
+          ? { status: 'archived' as Enums<'study_plan_status'>, updated_by: user.id, updated_at: stamp }
+          : op === 'soft_delete'
+            ? { deleted_at: stamp, updated_by: user.id }
+            : { deleted_at: null, updated_by: user.id }
+
+      const { error } = await supabase.from('study_plans').update(patch).eq('id', id)
+      if (error) throw new Error(error.message)
+
+      await emitProposalEvent(supabase, {
+        orgId: profile.org_id,
+        studyPlanId: id,
+        actorId: user.id,
+        kind: op === 'archive' ? 'status_change' : op === 'soft_delete' ? 'deleted' : 'restored',
+        metadata: { bulk: true, ...(op === 'archive' ? { to: 'archived' } : {}) },
+      })
+    }
+
+    await logAuditWithClient(supabase, {
+      actorId: user.id,
+      actorEmail: profile.email,
+      action: `study_plan.bulk_${op}`,
+      entityType: 'study_plans',
+      entityId: unique[0],
+      metadata: { ids: unique, count: unique.length },
+    })
+
+    revalidateStudyPlans(locale)
+    return { ok: true, count: unique.length }
+  } catch (e) {
+    return { ok: false, count: 0, error: e instanceof Error ? e.message : 'Erro inesperado' }
+  }
+}
+
 export interface UpsertContactActionInput {
   id?: string | null
   fullName: string
