@@ -145,3 +145,6 @@
 | 10:09 | Created types/supabase.ts | — | ~13356 |
 | 10:11 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | 3→4 lines | ~90 |
 | 10:13 | SPLIT 6A: migration 011 APLICADA via MCP em xpthmguzcbmndyyexfbt (11 inst/12 cursos/12 price_versions seedados, markets país+mercado, current_course_price). Tipos regenerados. Advisors 0 ERROR. type-check verde | migrations/011, types/supabase.ts | aplicada | ~14k |
+| 10:15 | Session end: 74 writes across 11 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 17 reads | ~70373 tok |
+| 11:00 | Edited docs/AI-HANDOVER.md | modified 6A() | ~730 |
+| 11:01 | Handover atualizado: 6A com banco aplicado, COMECE AQUI = lib/portfolio + CourseSource (último sub-passo 6A, só TS) | docs/AI-HANDOVER.md | concluído | ~3k |

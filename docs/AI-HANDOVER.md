@@ -291,6 +291,36 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 6A: migration 011 APLICADA + país/mercado + tipos regenerados — **COMECE AQUI**
+
+> **Estado:** `origin/main` = `57b1555`. Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A (banco) ✅**.
+> Toda a árvore de trabalho está commitada e empurrada. Ordem dos splits: `6A → 4 → 6B → 5 → 7 → 8 → 9 (+10)`.
+
+- **Migration 011 APLICADA** via Supabase MCP no projeto canônico `xpthmguzcbmndyyexfbt`. Portfólio
+  normalizado vivo: `institutions/campuses/courses/course_price_versions/markets/pricing_rules` (todas
+  P0: org_id + RLS por org + índices; dinheiro em `*_in_cents`). Seed dos 12 presets → **11 instituições,
+  11 campus, 12 cursos, 12 vigências**. `markets`/`pricing_rules` **vazias** (no-op). `course_presets` DEPRECATED.
+- **Nacionalidade = país + mercado:** `course_price_versions.nationality` + `.market_id`; tabela `markets`
+  (por org); função SQL **`current_course_price(course, nationality, on_date)`** resolve país > mercado >
+  padrão sob RLS. Motor de regras (`lib/calc/rules.ts`) aceita `nationality` como condição.
+- **Tipos regenerados** do banco real (`types/supabase.ts` agora tem as 6 tabelas + a função). Advisors:
+  **0 ERROR**. type-check ✅, build ✅.
+
+- **🔜 O QUE FALTA NO 6A (último sub-passo, SÓ código TS, sem migration):**
+  1. **`lib/portfolio/*`** — tipos + queries: listar instituições/campus/cursos; ler preço via RPC
+     `current_course_price` (`supabase.rpc('current_course_price', { p_course, p_nationality })`); CRUD de
+     `pricing_rules` (admin) e `markets`. Converter `*_in_cents` → float na borda (cents↔dollars, `lib/calc/money`).
+  2. **Provider do contrato `CourseSource`** (§4 do roadmap): `search(q)` (busca cursos do catálogo) +
+     `resolve(courseId, { nationality })` → `PortfolioCourseRef` (snapshot de preço resolvido, em float p/ o
+     editor legado), aplicando `applyRulesToPlan` por cima (camada agência). Define-se contra a interface;
+     o **SPLIT 4 (editor) consome via o seam** sem reabrir `StudyPlanEditor.tsx`.
+  - **Pendência ligada ao SPLIT 4:** a **nacionalidade do aluno** precisa virar campo no `contacts`/proposta
+    (hoje passada por contexto ao motor/resolver). Adicionar quando o editor for religado aos contatos.
+  - **Reconciliar `docs/PRODUCT-ROADMAP.md` §3.2** (refletir: dinheiro em cents, `nationality`+`market_id`,
+    `markets`, promoções unificadas em `pricing_rules`) — o §3.2 ainda descreve o desenho antigo.
+- **Depois do 6A:** **SPLIT 4 (editor)** = maior ganho de usabilidade (wizard, autosave, barra fixa,
+  totais ao vivo, seleção de curso do portfólio com taxa automática, comparador, cenários, templates).
+
 ### 2026-06-15 - SPLIT 6A: migration 011 RASCUNHADA (revisão) + dimensão de NACIONALIDADE no preço
 
 - **Migration 011 escrita (`supabase/migrations/011_portfolio_pricing_rules.sql`) — RASCUNHO, NÃO
