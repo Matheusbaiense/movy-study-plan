@@ -20,7 +20,7 @@ interface CoursePortfolioPickerProps {
   onPriceVersion: (snapshot: PriceSnapshot) => void
 }
 
-const box: React.CSSProperties = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid var(--border, rgba(0,0,0,0.2))', fontSize: 13 }
+const box: React.CSSProperties = { width: '100%', padding: '10px 11px', borderRadius: 9, border: '1px solid var(--border)', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: 'var(--text)', background: 'var(--surface)', outline: 'none' }
 
 export function CoursePortfolioPicker({ nationality, location, onApply, onPriceVersion }: CoursePortfolioPickerProps) {
   const [results, setResults] = useState<CourseOption[]>([])
@@ -80,16 +80,16 @@ export function CoursePortfolioPicker({ nationality, location, onApply, onPriceV
         onFocus={() => results.length > 0 && setOpenList(true)}
       />
       {openList && results.length > 0 && (
-        <div style={{ position: 'absolute', top: 38, left: 0, right: 0, zIndex: 20, background: 'var(--surface, #fff)', border: '0.5px solid var(--border, rgba(0,0,0,0.2))', borderRadius: 8, maxHeight: 220, overflowY: 'auto' }}>
+        <div style={{ position: 'absolute', top: 44, left: 0, right: 0, zIndex: 30, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, maxHeight: 240, overflowY: 'auto', boxShadow: 'var(--shadow-lift, 0 10px 30px rgba(20,11,48,0.12))' }}>
           {results.map((option) => (
-            <button key={option.id} type="button" disabled={pending} onClick={() => pick(option)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', border: 'none', borderBottom: '0.5px solid rgba(0,0,0,0.08)', background: 'none', cursor: 'pointer', fontSize: 13 }}>
-              <span style={{ fontWeight: 500 }}>{option.provider}</span> — {option.name}
+            <button key={option.id} type="button" disabled={pending} onClick={() => pick(option)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 11px', border: 'none', borderBottom: '1px solid var(--border)', background: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: 'var(--text)' }}>
+              <span style={{ fontWeight: 600 }}>{option.provider}</span> — {option.name}
             </button>
           ))}
         </div>
       )}
       {prices.length > 0 && (
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-muted, #666)' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-muted)' }}>
           Preço aplicado:
           <select style={{ ...box, width: 'auto', flex: 1 }} value={selectedPriceId} onChange={(e) => changePrice(e.target.value)}>
             {prices.map((p) => (

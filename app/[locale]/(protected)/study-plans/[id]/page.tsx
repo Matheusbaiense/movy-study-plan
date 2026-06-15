@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { StudyPlanEditor } from '@/components/study-plans/StudyPlanEditor'
+import { getContactNationality } from '@/lib/crm/contacts'
 import { dbPresetToOption, type DbPreset } from '@/lib/study-plans/presets'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
@@ -31,14 +32,25 @@ export default async function StudyPlanDetailPage({ params }: Props) {
 
   const presets = ((presetRows ?? []) as unknown as DbPreset[]).map(dbPresetToOption)
 
-  const row = plan as unknown as StudyPlanRow
+  const planRow = plan as unknown as StudyPlanRow
+  let contactNationality: string | null = null
+  if (planRow.contact_id) {
+    const { data: contact } = await supabase
+      .from('contacts')
+      .select('custom_attributes')
+      .eq('id', planRow.contact_id)
+      .maybeSingle()
+    contactNationality = getContactNationality(contact ?? { custom_attributes: null })
+  }
+
   return (
     <StudyPlanEditor
-      id={row.id}
+      id={planRow.id}
       locale={locale}
-      initialData={row.data as StudyPlanData}
-      status={row.status}
+      initialData={planRow.data as StudyPlanData}
+      status={planRow.status}
       presets={presets}
+      contactNationality={contactNationality}
     />
   )
 }

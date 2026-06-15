@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { updateStudyPlan } from '@/app/[locale]/(protected)/study-plans/actions'
+import { computeProposal } from '@/lib/study-plans/calculations'
+import { formatMoney } from '@/lib/calc/money'
 import {
-  COURSE_PRESETS,
   COURSE_TYPES,
   DEFAULT_ELICOS_HOLIDAY_WEEKS,
   DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY,
@@ -43,6 +44,11 @@ import {
 } from '@/lib/study-plans/calculations'
 import type { ApplicantType, CourseType, ElicosModule, StudentLocation, StudyCourse, StudyPlanData, Timetable } from '@/lib/study-plans/types'
 import type { PresetOption } from '@/lib/study-plans/presets'
+import type { PriceSnapshot } from '@/lib/portfolio/types'
+import { CoursePortfolioPicker } from './CoursePortfolioPicker'
+import { EditorStickyBar } from './EditorStickyBar'
+import { EditorWizardNav } from './EditorWizardNav'
+import type { EditorWizardStep } from './editor-wizard-steps'
 import { color, ink, font, t } from '@/lib/ui/theme'
 
 interface Props {
@@ -51,6 +57,7 @@ interface Props {
   initialData: StudyPlanData
   status: string
   presets?: PresetOption[]
+  contactNationality?: string | null
 }
 
 const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Familia', 'Single Parent']
@@ -60,13 +67,15 @@ const timetableLabels: Record<Timetable, string> = {
   Noite: 'Noite',
 }
 
-export function StudyPlanEditor({ id, locale, initialData, status, presets }: Props) {
+export function StudyPlanEditor({ id, locale, initialData, status, presets: _presets, contactNationality }: Props) {
   const [plan, setPlan] = useState(initialData)
-  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle')
+  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('saved')
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(() => Date.now())
+  const [wizardStep, setWizardStep] = useState<EditorWizardStep>('cliente')
   const [isPending, startTransition] = useTransition()
+  const lastPersistedRef = useRef(JSON.stringify(initialData))
   const schedule = useMemo(() => buildSchedule(plan), [plan])
-  // DB presets when available, else the bundled defaults.
-  const presetList: PresetOption[] = presets && presets.length > 0 ? presets : COURSE_PRESETS
+  const computed = useMemo(() => computeProposal(plan), [plan])
 
   function patchPlan(patch: Partial<StudyPlanData>) {
     setPlan((current) => ({ ...current, ...patch }))
@@ -135,38 +144,71 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
     })
   }
 
-  function save() {
+  const persist = useCallback(() => {
     startTransition(async () => {
       try {
         await updateStudyPlan(id, plan, status)
+        lastPersistedRef.current = JSON.stringify(plan)
         setSaveState('saved')
+        setLastSavedAt(Date.now())
       } catch {
         setSaveState('error')
       }
     })
+  }, [id, plan, status, startTransition])
+
+  function save() {
+    persist()
   }
 
-  function applyPreset(courseId: string, index: number) {
-    const preset = presetList[index]
-    if (!preset) return
-    const course = plan.courses.find((item) => item.id === courseId)
-    const studyWeeksBeforeHoliday = course?.studyWeeksBeforeHoliday ?? DEFAULT_ELICOS_STUDY_WEEKS_BEFORE_HOLIDAY
-    const holidayWeeks = course?.holidayWeeks ?? DEFAULT_ELICOS_HOLIDAY_WEEKS
-    const modules = preset.type === 'elicos'
-      ? [createElicosModule(preset.name, preset.ratePerWeek ?? course?.ratePerWeek ?? 260, courseStudyWeeks(course ?? createCourse('elicos')) || 12)]
-      : undefined
+  useEffect(() => {
+    if (JSON.stringify(plan) === lastPersistedRef.current) return
+    if (isPending) return
+    const timer = window.setTimeout(() => {
+      persist()
+    }, 2500)
+    return () => window.clearTimeout(timer)
+  }, [plan, persist, isPending])
+
+  function applyPortfolioCourse(
+    courseId: string,
+    picked: { course: StudyCourse; priceVersionId: string },
+  ) {
+    const current = plan.courses.find((item) => item.id === courseId)
+    if (!current) return
+    if (current.type === picked.course.type) {
+      updateCourse(courseId, {
+        provider: picked.course.provider,
+        name: picked.course.name,
+        url: picked.course.url,
+        ratePerWeek: picked.course.ratePerWeek,
+        tuition: picked.course.tuition,
+        enrolmentFee: picked.course.enrolmentFee,
+        materialFee: picked.course.materialFee,
+        hasMaterial: picked.course.hasMaterial,
+        scholarship: picked.course.scholarship,
+        depositWeeks: picked.course.depositWeeks,
+        paymentParts: picked.course.paymentParts,
+        paymentFrequency: picked.course.paymentFrequency,
+        priceVersionId: picked.priceVersionId,
+      })
+    } else {
+      updateCourse(courseId, { ...picked.course, id: courseId, priceVersionId: picked.priceVersionId })
+    }
+  }
+
+  function applyPriceSnapshot(courseId: string, snapshot: PriceSnapshot) {
     updateCourse(courseId, {
-      ...preset,
-      modules,
-      studyWeeksBeforeHoliday: preset.type === 'elicos' ? studyWeeksBeforeHoliday : undefined,
-      holidayWeeks: preset.type === 'elicos' ? holidayWeeks : undefined,
-      segments: preset.type === 'elicos'
-        ? buildElicosSegments(modules ?? [], studyWeeksBeforeHoliday, holidayWeeks)
-        : createCourse(preset.type).segments,
-      hasMaterial: preset.hasMaterial ?? preset.type === 'vet',
-      paymentParts: preset.paymentParts ?? 4,
-      paymentFrequency: preset.paymentFrequency ?? 'A confirmar',
-      depositWeeks: preset.depositWeeks ?? 0,
+      ratePerWeek: snapshot.ratePerWeek,
+      tuition: snapshot.tuition,
+      enrolmentFee: snapshot.enrolmentFee,
+      materialFee: snapshot.materialFee,
+      hasMaterial: snapshot.hasMaterial,
+      scholarship: snapshot.scholarship,
+      depositWeeks: snapshot.depositWeeks,
+      paymentParts: snapshot.paymentParts,
+      paymentFrequency: snapshot.paymentFrequency,
+      priceVersionId: snapshot.priceVersionId,
     })
   }
 
@@ -195,6 +237,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
   const visa = planNewVisaDate(plan)
 
   return (
+    <>
     <div className="sp-editor-layout">
       <style dangerouslySetInnerHTML={{ __html: editorStyles }} />
       <div style={{ display: 'grid', gap: 18 }}>
@@ -212,9 +255,6 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
             <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
               Proposta / PDF
             </Link>
-            <button onClick={save} disabled={isPending} style={primaryButton}>
-              {isPending ? 'Salvando...' : saveState === 'saved' ? 'Salvo' : 'Salvar'}
-            </button>
           </div>
         </div>
 
@@ -222,11 +262,27 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
           <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
         )}
 
-        <Section title="Dados do estudante">
+        <EditorWizardNav step={wizardStep} onStepChange={setWizardStep} />
+
+        <div style={{ display: wizardStep === 'cliente' ? 'grid' : 'none', gap: 18 }}>
+        <Section title="Cliente">
           <div style={grid2}>
             <Field label="Nome do estudante ou casal">
               <input style={input} value={plan.student} onChange={(e) => patchPlan({ student: e.target.value })} />
             </Field>
+            <Field label="E-mail">
+              <input style={input} type="email" value={plan.email} onChange={(e) => patchPlan({ email: e.target.value })} />
+            </Field>
+            <Field label="Telefone">
+              <input style={input} value={plan.phone} onChange={(e) => patchPlan({ phone: e.target.value })} />
+            </Field>
+          </div>
+        </Section>
+        </div>
+
+        <div style={{ display: wizardStep === 'preferencias' ? 'grid' : 'none', gap: 18 }}>
+        <Section title="Preferências">
+          <div style={grid2}>
             <Field label="Tipo de visto / aplicante">
               <select
                 style={input}
@@ -253,7 +309,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
             </Field>
           </div>
         </Section>
+        </div>
 
+        <div style={{ display: wizardStep === 'cursos' ? 'grid' : 'none', gap: 18 }}>
         <Section
           title="Cursos"
           action={
@@ -269,7 +327,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
           <div style={{ display: 'grid', gap: 14 }}>
             {plan.courses.map((course, courseIndex) => (
               <div key={course.id} style={{ border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                   <span style={{ ...pill, background: `${COURSE_TYPES[course.type].color}18`, color: COURSE_TYPES[course.type].color }}>
                     #{courseIndex + 1} {COURSE_TYPES[course.type].label}
                   </span>
@@ -278,12 +336,14 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
                     <option value="vet">VET</option>
                     <option value="he">Higher Ed</option>
                   </select>
-                  <select style={{ ...input, width: 260 }} onChange={(e) => applyPreset(course.id, Number(e.target.value))} value="">
-                    <option value="">Aplicar preset...</option>
-                    {presetList.map((preset, i) => (
-                      <option key={`${preset.provider}-${preset.name}-${i}`} value={i}>{preset.provider} - {preset.name}</option>
-                    ))}
-                  </select>
+                  <div style={{ width: 280 }}>
+                    <CoursePortfolioPicker
+                      nationality={contactNationality}
+                      location={plan.studentLocation}
+                      onApply={(applied) => applyPortfolioCourse(course.id, applied)}
+                      onPriceVersion={(snapshot) => applyPriceSnapshot(course.id, snapshot)}
+                    />
+                  </div>
                   <button
                     type="button"
                     style={dangerButton}
@@ -405,29 +465,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
             ))}
           </div>
         </Section>
+        </div>
 
-        <Section
-          title="Linha do tempo"
-          action={
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: ink(0.72), fontFamily: font.ui }}>
-              <input
-                type="checkbox"
-                checked={plan.includeHolidayPlanning !== false}
-                onChange={(e) => patchPlan({ includeHolidayPlanning: e.target.checked })}
-                style={{ width: 16, height: 16, accentColor: color.orange, cursor: 'pointer' }}
-              />
-              Incluir planejamento de férias na proposta
-            </label>
-          }
-        >
-          {plan.includeHolidayPlanning === false && (
-            <div style={{ marginBottom: 12, fontSize: 12.5, color: ink(0.55), background: color.lilac, border: `1px solid ${color.line}`, borderRadius: 10, padding: '9px 12px' }}>
-              O planejamento de férias e o cronograma <strong>não</strong> sairão na proposta — apenas valores e pagamento.
-            </div>
-          )}
-          <Timeline plan={plan} visaDate={visa.date} />
-        </Section>
-
+        <div style={{ display: wizardStep === 'custos' ? 'grid' : 'none', gap: 18 }}>
         <Section title="Custos adicionais">
           <div style={{ display: 'grid', gap: 10 }}>
             {plan.extraCosts.map((extra) => (
@@ -489,6 +529,64 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
             ))}
           </div>
         </Section>
+        </div>
+
+        <div style={{ display: wizardStep === 'revisao' ? 'grid' : 'none', gap: 18 }}>
+        <Section title="Revisão da proposta">
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={grid2}>
+              <MiniStat label="Cliente" value={plan.student || '—'} />
+              <MiniStat label="Aplicante" value={plan.applicantType} />
+              <MiniStat label="Situação" value={plan.studentLocation === 'onshore' ? 'Onshore' : 'Offshore'} />
+              <MiniStat label="Cursos" value={`${plan.courses.length}`} />
+            </div>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'grid', gap: 8 }}>
+              {plan.courses.map((course, index) => (
+                <div key={course.id} style={{ fontSize: 13 }}>
+                  <strong>{index + 1}. {course.provider || 'Escola'}</strong>
+                  <span style={{ color: 'var(--text-muted)' }}> — {course.name || COURSE_TYPES[course.type].label}</span>
+                </div>
+              ))}
+              {plan.courses.length === 0 && (
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Nenhum curso adicionado ainda.</span>
+              )}
+            </div>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'grid', gap: 6 }}>
+              <MiniStat label="Total" value={formatMoney(computed.grandTotalCents, computed.currencyCode)} strong />
+              <MiniStat label="Fechamento" value={formatMoney(computed.upfrontSchoolsCents + computed.extrasTotalCents, computed.currencyCode)} />
+              <MiniStat label="Saldo parcelar" value={formatMoney(computed.installmentBalanceCents, computed.currencyCode)} />
+              <MiniStat label="Novo venc. visto" value={visa.date ? formatDate(visa.date) : '—'} />
+            </div>
+            {plan.currentVisaExpiry && visa.date && plan.currentVisaExpiry < visa.date && (
+              <div style={{ ...noticeDanger, marginTop: 4 }}>
+                O visto atual vence antes do fim do plano de estudos — confira as datas.
+              </div>
+            )}
+          </div>
+        </Section>
+
+        <Section
+          title="Linha do tempo"
+          action={
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: ink(0.72), fontFamily: font.ui }}>
+              <input
+                type="checkbox"
+                checked={plan.includeHolidayPlanning !== false}
+                onChange={(e) => patchPlan({ includeHolidayPlanning: e.target.checked })}
+                style={{ width: 16, height: 16, accentColor: color.orange, cursor: 'pointer' }}
+              />
+              Incluir planejamento de férias na proposta
+            </label>
+          }
+        >
+          {plan.includeHolidayPlanning === false && (
+            <div style={{ marginBottom: 12, fontSize: 12.5, color: ink(0.55), background: color.lilac, border: `1px solid ${color.line}`, borderRadius: 10, padding: '9px 12px' }}>
+              O planejamento de férias e o cronograma <strong>não</strong> sairão na proposta — apenas valores e pagamento.
+            </div>
+          )}
+          <Timeline plan={plan} visaDate={visa.date} />
+        </Section>
+        </div>
       </div>
 
       <aside className="sp-editor-aside">
@@ -515,6 +613,17 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets }: Pr
         </SummaryCard>
       </aside>
     </div>
+
+      <EditorStickyBar
+        locale={locale}
+        planId={id}
+        computed={computed}
+        saveState={saveState}
+        lastSavedAt={lastSavedAt}
+        isPending={isPending}
+        onSave={save}
+      />
+    </>
   )
 }
 
@@ -701,7 +810,6 @@ function Dot({ color, border = false }: { color: string; border?: boolean }) {
 const HAIR = 'var(--border)'
 const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }
 const input = { width: '100%', border: `1px solid ${HAIR}`, borderRadius: 9, padding: '10px 11px', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: 'var(--text)', background: 'var(--surface)', outline: 'none' }
-const primaryButton = { border: 0, borderRadius: 10, padding: '11px 18px', background: '#F36B1C', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
 const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
 const ghostButton = { border: `1px solid ${HAIR}`, borderRadius: 9, padding: '8px 12px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 12 }
 const dangerButton = { ...ghostButton, color: '#D23B2B' }
@@ -718,6 +826,137 @@ const editorStyles = `
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  padding-bottom: 8px;
+}
+.sp-editor-sticky-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 35;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.sp-editor-sticky-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sp-editor-sticky-totals {
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.sp-editor-sticky-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.sp-editor-sticky-link {
+  border: 1px solid #2A1153;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+}
+.sp-editor-sticky-save {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 18px;
+  background: #F36B1C;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+  font-size: 13px;
+}
+.sp-editor-sticky-save:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.sp-wizard-nav {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.sp-wizard-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+.sp-wizard-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5B238E, #F36B1C);
+  transition: width 220ms ease;
+}
+.sp-wizard-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sp-wizard-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Outfit, sans-serif;
+}
+.sp-wizard-step.active {
+  border-color: #5B238E;
+  color: var(--text);
+  background: color-mix(in srgb, #5B238E 8%, var(--surface));
+}
+.sp-wizard-step.done {
+  color: var(--text);
+}
+.sp-wizard-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: var(--surface-sunken);
+}
+.sp-wizard-step.active .sp-wizard-step-num {
+  background: #5B238E;
+  color: #fff;
+}
+.sp-wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .sp-editor-aside {
   position: sticky;
