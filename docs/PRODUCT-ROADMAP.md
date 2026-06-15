@@ -4,8 +4,8 @@
 > codar qualquer feature das três frentes (Portfólio, Propostas, Cálculo).
 > Decisões aqui têm precedência sobre planos antigos do `AI-HANDOVER.md`.
 >
-> **Status:** v1.1 — arquitetura aprovada. **SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅** (migration 010 aplicada).
-> **Próximo a executar = SPLIT 6A (portfólio backend + motor de regras).** SPLIT 6 quebrado em 6A (backend) + 6B (UI). **CRM/integrações externas FORA de escopo.**
+> **Status:** v1.1 — arquitetura aprovada. **SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅** (migrations 010 + 011 aplicadas).
+> **Próximo a executar = SPLIT 4 (editor de proposta).** SPLIT 6 quebrado em 6A (backend ✅) + 6B (UI). **CRM/integrações externas FORA de escopo.**
 > **Revisão 2026-06-15 (lacunas GPT/Cursor, sobre 1/2 já entregues):** + motor de regras (extensão do
 > engine no SPLIT 1, dados/UI no SPLIT 6), + cenários comparativos, + comparador na autoria, + templates
 > + histórico de versões (migration 012 no SPLIT 4), + alertas de impacto de preço/promoção (SPLIT 6),
@@ -116,32 +116,42 @@ audit_logs (id, org_id, actor_id, action, entity_type, entity_id, meta)   [+org_
   infinita de RLS). Toda policy de negócio inclui `org_id = current_org_id()`. Org "Movy" semeada
   com **UUID determinístico/fixo**; `org_id` default = Movy.
 
-### 3.2 Portfólio (NOVO — substitui `course_presets`)
+### 3.2 Portfólio (substitui `course_presets`) — **migration 011 APLICADA (2026-06-15)**
+> Estado real do banco `xpthmguzcbmndyyexfbt`. Dinheiro em **`*_in_cents` (P9/R1)**; `metadata jsonb`
+> (R6) + `external_id` por org (R7) em toda entidade; org_id + RLS por org + índices (P1). `markets`
+> e `pricing_rules` começam **vazias** (no-op). `course_presets` **DEPRECATED**.
 ```
 institutions (id, org_id, name, country, city, website, logo_url,
               partnership_status, commission_default, notes,
-              prices_valid_until, completeness, source, deleted_at)
-campuses     (id, org_id, institution_id, name, city, address)
+              prices_valid_until, completeness, source, metadata, external_id, deleted_at)
+campuses     (id, org_id, institution_id, name, city, address, metadata, external_id, deleted_at)
 courses      (id, org_id, institution_id, campus_id?, type[elicos|vet|he],
               name, cricos, english_level, timetable, default_intake,
-              currency, confidence, source[manual|ai], is_active, deleted_at)
+              currency_code, confidence, source[manual|ai], is_active,
+              metadata, external_id, deleted_at)
+markets      (id, org_id, name, code, country_codes text[],                 -- agrupa nacionalidades
+              metadata, deleted_at)                                          -- ex.: LATAM = [BR,AR,CL]
 course_price_versions (id, org_id, course_id, valid_from, valid_until,
-              tuition, rate_per_week, enrolment_fee, material_fee, has_material,
-              deposit_weeks, payment_parts, payment_frequency, currency,
-              source_document_id?, created_by)               -- histórico de preço
-promotions   (id, org_id, scope[institution|campus|course], scope_id,
-              kind[pct|fixed|rate_override], value, valid_from, valid_until,
-              conditions jsonb)                               -- ex.: ≥24 sem
-fees         (opção: tabela própria OU embutido em price_version)
+              nationality, market_id→markets,                                -- preço por país/mercado
+              tuition_in_cents, rate_per_week_in_cents, enrolment_fee_in_cents,
+              material_fee_in_cents, scholarship_in_cents, has_material,
+              deposit_weeks, payment_parts, payment_frequency, currency_code,
+              source_document_id?, metadata, created_by)         -- histórico de preço (centavos)
 pricing_rules (id, org_id, scope[org|institution|campus|course|type], scope_id?,
-              when jsonb [courseType/minWeeks/applicantMode/intake/campus…],
-              effect[add_fee|fee_per_week|material_cap|discount_pct|discount_fixed|
-                     promo_rate_override|deposit|installments|markup|agency_fee|rounding],
-              value, currency_code, priority, is_active, deleted_at)   [NOVO — motor de regras, SPLIT 6]
-              -- casa das regras consumidas pelo `applyRules()` do engine. Ex.: "ELICOS sempre matrícula
-              -- + material/semana; ≥24 sem aplica promo longa; offshore <25 sem = pagamento integral".
+              conditions jsonb [courseType/minWeeks/maxWeeks/applicantMode/intakeMonth/nationality],
+              effect jsonb [promo_rate_override|discount_pct|discount_fixed|agency_fee|agency_markup_pct],
+              label, priority, is_active, valid_from, valid_until, metadata, deleted_at)
+              -- camada configurável da AGÊNCIA consumida por `applyRules()` (lib/calc/rules.ts).
+              -- PROMOÇÕES UNIFICADAS AQUI (promo = regra com effect=promo_rate_override + janela
+              -- valid_from/until). As regras ESTRUTURAIS (material por tipo, depósito, offshore<25 =
+              -- sem parcela) já vivem no engine `calculations.ts` — não são `pricing_rules`.
 ```
-Regra: a proposta referencia `course_id` + grava snapshot do `course_price_version` vigente.
+**Resolução de preço (SQL):** função `current_course_price(p_course, p_nationality?, p_on?)`
+(SECURITY INVOKER → respeita RLS) resolve **mais específico vence**: match de `nationality` >
+`market_id` (país no `country_codes`) > padrão (NULL), depois `valid_from` mais recente dentro da
+vigência. Lida via `supabase.rpc('current_course_price', { p_course, p_nationality })`.
+Regra: a proposta referencia `course_id` + grava snapshot do `course_price_version` vigente
+(em float na borda do editor legado via `lib/portfolio` / `centsToNumber`).
 **Impacto reverso (NOVO):** "quais propostas usam este `price_version`/`promotion`" se responde varrendo
 `study_plans.data.options[].courses[].priceVersionId` (o snapshot guarda a FK) — base do alerta
 "promoção vence em 7 dias, 12 propostas usam este valor" (SPLIT 6).
@@ -492,7 +502,14 @@ seções ricas; múltiplas opções/comparador; link público + aceite; validade
 > catálogo×regras, que deixaria o editor esperando os dois). **6A destrava o SPLIT 4**; 6B é frontend
 > puro sobre o 6A. Ordem: **6A → 4 → 6B**.
 
-### SPLIT 6A — Portfólio: domínio, dados e motor de regras (backend) — **destrava o SPLIT 4**
+### SPLIT 6A — Portfólio: domínio, dados e motor de regras (backend) ✅ CONCLUÍDO (2026-06-15) — **destrava o SPLIT 4**
+> **Entregue:** migration 011 APLICADA (`institutions/campuses/courses/course_price_versions/markets/
+> pricing_rules` + RPC `current_course_price`, dinheiro em `*_in_cents`); seed dos 12 presets →
+> 11 instituições/11 campus/12 cursos/12 vigências; motor de regras `lib/calc/{rules,scenarios}.ts`
+> (puro, com testes); **`lib/portfolio/*`** (tipos+mappers puros, queries org-scoped, CRUD de
+> `pricing_rules`/`markets`, provider `createPortfolioCourseSource` do contrato `CourseSource`);
+> tipos regenerados. type-check ✅ · `node --test` (26) ✅ · build ✅. **Pendência p/ SPLIT 4:**
+> `nationality` do aluno precisa virar campo no `contacts`/proposta (hoje passada por contexto ao resolver).
 **Objetivo:** o schema do portfólio + o catálogo populado + o motor de regras + o provider que o editor
 consome. **Sem telas de gestão** (ficam no 6B). **Aposenta `course_presets`** (migra para `courses`).
 **Schema (migration 011):** tabelas §3.2 (`institutions`/`campuses`/`courses`/`course_price_versions`/
@@ -622,7 +639,7 @@ em features diferentes.
 9 Polimento: transversal, ao final de cada bloco
 ```
 
-**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ (migration 010 aplicada). **Próximo a executar = 6A (portfólio backend + motor de regras).**
+**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅ (migrations 010 + 011 aplicadas). **Próximo a executar = 4 (editor de proposta).**
 **Sequência revisada (2026-06-15):** 0 → 1 → 2 → 3 → **6A → 4 → 6B** → 5 → 7 → 8 → 9 → *(10 = futuro)*.
 **Mudança vs. plano anterior:** o **SPLIT 6 foi quebrado em 6A (backend) + 6B (UI)**; o portfólio vem
 ANTES do editor. **6A** entrega dados + motor de regras (com testes) + `CourseSource` e **destrava o

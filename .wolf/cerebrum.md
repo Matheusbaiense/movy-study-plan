@@ -153,6 +153,37 @@ versão atual, marcando 1/2 como ✅ e **re-ancorando** o que eu havia posto "de
 **Decisão do dono nesta sessão:** só reconciliar o **roadmap** agora (sem codar feature). Próximo split
 a executar quando retomar = **SPLIT 3** (lista) — ou 6, conforme a reordenação.
 
+## SPLIT 6A CONCLUÍDO — `lib/portfolio/*` + provider `CourseSource` (2026-06-15)
+
+Fechado o último sub-passo do 6A (só código TS; migration 011 já estava aplicada). Novo módulo
+**`lib/portfolio/`** espelhando `lib/crm/contacts.ts`:
+- **`types.ts`** = aliases das 6 tabelas + **mappers PUROS** (sem DB, testáveis): `priceVersionToSnapshot`
+  (cents→float na borda via `centsToNumber`), `buildStudyCourse` (snapshot→`StudyCourse` legado, parte de
+  `createCourse` p/ herdar segments/defaults), `rowToPricingRule`/`isRuleActiveOn`/`draftToInsert`/
+  `draftToUpdate` (DB jsonb ↔ engine `PricingRule`), `asCourseType`. Contratos `CourseSource`/
+  `PortfolioCourseRef`/`PriceSnapshot` (roadmap §4).
+- **`queries.ts`** = reads org-scoped + `currentCoursePrice` via `supabase.rpc('current_course_price',
+  { p_course, p_nationality })`. **`pricing-rules.ts`** = CRUD + `getActiveRules`→`PricingRule[]`.
+  **`markets.ts`** = CRUD. **`course-source.ts`** = `createPortfolioCourseSource(supabase)` (search/resolve;
+  `resolve` aplica `applyRulesToPlan` por cima num plano de 1 curso, devolvendo snapshot float + course
+  editor-ready + extras/adjustments explicáveis). `index.ts` = barrel.
+
+**Aprendizados/decisões reutilizáveis:**
+- **Snapshot = verdade do catálogo (P3); regras = camada separada.** `PortfolioCourseRef.snapshot` guarda o
+  preço resolvido cru (float); o `course` derivado é que recebe a camada agência (promo/desconto/fee). Assim
+  o snapshot continua um registro fiel da `price_version`, e a resolução é point-in-time (`takenAt`).
+- **RPC setof one-row:** `current_course_price` pode vir como objeto único OU array de 1 — tratar os dois
+  (`Array.isArray(data) ? data[0] : data`).
+- **Provider reutiliza `applyRulesToPlan` (não reimplementa regras)** rodando sobre um plano mínimo de 1
+  curso (`singleCoursePlan`); extras de `agency_fee` saem em `adjustedPlan.extraCosts` (lista vazia → só os
+  adicionados). Mantém o engine do SPLIT 1/6A intocado.
+- **`nationality` do aluno ainda é contexto, não dado:** falta virar campo no `contacts`/proposta — fazer no
+  SPLIT 4 ao religar o editor aos contatos. (Já registrado como pendência no roadmap §3.2 e handover.)
+- DoD: type-check ✅ · `node --test` 26/26 ✅ (9 novos em `tests/portfolio.test.mjs`, só mappers puros) ·
+  build ✅. `lib/portfolio` ainda não é importado pelo app (consumido no SPLIT 4/6B) → zero efeito runtime.
+
+**Próximo = SPLIT 4 (editor).** Ordem: `4 → 6B → 5 → 7 → 8 → 9 (+10)`.
+
 ## Decisão — SPLIT 6 quebrado em 6A (backend) + 6B (UI) (2026-06-15)
 
 **Contexto:** SPLIT 3 (lista) entregue/pushed (`8b308cd`). O dono perguntou se quebrava o SPLIT 6.

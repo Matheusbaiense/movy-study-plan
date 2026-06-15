@@ -127,19 +127,32 @@
 
 ## lib/calc/
 
-- `money.ts` — ISO 4217 currency code that travels alongside an integer-cents amount. (~1712 tok)
+- `money.ts` — integer-cents money primitives + legacy-float border coercion (toCents/centsToNumber). (~1712 tok)
+- `rules.ts` — pure pricing-rules engine (agency/promo layer): applyRulesToCourse/applyRulesToPlan, PricingRule/RuleEffect. Empty ruleSet = no-op. (~2200 tok)
+- `scenarios.ts` — pure computeScenarios + withFirstCourseStudyWeeks (N proposal variants side by side). (~600 tok)
+- `types.ts`, `index.ts` — ComputedTotals/ComputedPerCourse + barrel.
 
 ## lib/constants/
 
 
 ## lib/crm/
 
+- `contacts.ts` — org-scoped CRM contacts seam (SPLIT 2): queries + dedup upsertContact, RLS-scoped. (~1400 tok)
 
 ## lib/financial/
 
 
 ## lib/permissions/
 
+
+## lib/portfolio/ — SPLIT 6A (catálogo normalizado + seam editor↔portfólio)
+
+- `types.ts` — table aliases (institutions/campuses/courses/course_price_versions/markets/pricing_rules) + PURE mappers: priceVersionToSnapshot (cents→float), buildStudyCourse, rowToPricingRule/isRuleActiveOn/draftToInsert/draftToUpdate; CourseSource/PortfolioCourseRef/PriceSnapshot contracts. (~2300 tok)
+- `queries.ts` — org-scoped reads: listInstitutions/listCampuses/listCourses/getCourseWithRefs + currentCoursePrice (RPC). (~1200 tok)
+- `pricing-rules.ts` — CRUD de pricing_rules + getActiveRules (→ PricingRule[] p/ o engine). (~900 tok)
+- `markets.ts` — CRUD de markets (agrupa nacionalidades em country_codes). (~700 tok)
+- `course-source.ts` — createPortfolioCourseSource(supabase): provider do CourseSource (search/resolve), aplica applyRulesToPlan no resolve. (~1100 tok)
+- `index.ts` — barrel.
 
 ## lib/security/
 

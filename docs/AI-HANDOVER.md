@@ -291,7 +291,37 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
-### 2026-06-15 - SPLIT 6A: migration 011 APLICADA + país/mercado + tipos regenerados — **COMECE AQUI**
+### 2026-06-15 - SPLIT 6A CONCLUÍDO: `lib/portfolio/*` + provider `CourseSource` — **COMECE AQUI**
+
+> **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅ (banco + código)**.
+> Migrations 010 + 011 aplicadas em `xpthmguzcbmndyyexfbt`. **Próximo a executar = SPLIT 4 (editor).**
+> Ordem: `4 → 6B → 5 → 7 → 8 → 9 (+10)`.
+
+- **Fechado o último sub-passo do 6A (SÓ código TS, sem migration).** Novo módulo **`lib/portfolio/`**:
+  - **`types.ts`** — aliases das 6 tabelas + **mappers PUROS** (testáveis sem DB): `priceVersionToSnapshot`
+    (cents→float na borda via `centsToNumber`), `buildStudyCourse` (snapshot→`StudyCourse` legado, parte de
+    `createCourse`), `rowToPricingRule`/`isRuleActiveOn`/`draftToInsert`/`draftToUpdate` (DB jsonb ↔ engine
+    `PricingRule`), `asCourseType`. Define o contrato **`CourseSource`** + `PortfolioCourseRef` + `PriceSnapshot`.
+  - **`queries.ts`** — leituras org-scoped (espelha `lib/crm/contacts.ts`): `listInstitutions/listCampuses/
+    listCourses/getCourseWithRefs` (+ embed `institutions(name)`/`campuses(name)`) e **`currentCoursePrice`**
+    via `supabase.rpc('current_course_price', { p_course, p_nationality })` (resolve país>mercado>padrão sob RLS).
+  - **`pricing-rules.ts`** — CRUD de `pricing_rules` + **`getActiveRules(onDate)`** (filtra is_active/janela,
+    mapeia p/ `PricingRule[]` — alimenta `applyRulesToPlan`). **`markets.ts`** — CRUD de `markets`.
+  - **`course-source.ts`** — **`createPortfolioCourseSource(supabase): CourseSource`**: `search(q)` lista cursos
+    do catálogo; `resolve(courseId, { nationality, onDate, location })` → `PortfolioCourseRef` (snapshot float
+    travado **+** `course` editor-ready com a camada agência aplicada via `applyRulesToPlan` por cima, **+**
+    `extras`/`adjustments` explicáveis). **Destrava o SPLIT 4.** `index.ts` = barrel.
+- **Convenções respeitadas:** sem `(supabase as any)` (só `as unknown as` nos seams jsonb↔tipo); imports
+  runtime relativos `.ts` com extensão explícita (node --test). Money sempre em float só na borda do editor.
+- **QA:** `tests/portfolio.test.mjs` (9 testes dos mappers puros: cents→float, snapshot→course elicos/vet,
+  rowToPricingRule, isRuleActiveOn janela, draftToInsert/Update). **type-check ✅ · `node --test` 26/26 ✅ ·
+  build ✅.** Nada no app importa `lib/portfolio` ainda (consumido no SPLIT 4/6B) — zero efeito em runtime.
+- **Reconciliado `docs/PRODUCT-ROADMAP.md` §3.2** (cents, `nationality`+`market_id`, `markets`, promoções
+  unificadas em `pricing_rules`, RPC `current_course_price`) e marcado **6A ✅** (§5 + headers + §7).
+- **Pendência ligada ao SPLIT 4:** a **nacionalidade do aluno** precisa virar campo no `contacts`/proposta
+  (hoje passada por contexto a `resolve`/motor). Adicionar quando o editor for religado aos contatos.
+
+### 2026-06-15 - SPLIT 6A: migration 011 APLICADA + país/mercado + tipos regenerados
 
 > **Estado:** `origin/main` = `57b1555`. Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A (banco) ✅**.
 > Toda a árvore de trabalho está commitada e empurrada. Ordem dos splits: `6A → 4 → 6B → 5 → 7 → 8 → 9 (+10)`.
