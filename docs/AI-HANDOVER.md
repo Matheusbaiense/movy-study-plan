@@ -284,6 +284,33 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - Reconciliação de branch + revisão do roadmap vs. propostas GPT/Cursor (só docs)
+
+- **Achado:** via export de chat do Cursor (`cursor_chat_documenta_o_de_mudan_as_do_proje.json`),
+  descobri que o Cursor **já concluiu SPLIT 1 e SPLIT 2** (commits `7326e1f`/`80cab52`/`68c6db5`,
+  migration 010 aplicada) e que a **`main` já estava nesses commits**. A branch `claude/sleepy-cannon`
+  estava **3 commits atrás**, e o handover dela dizia "SPLIT 1 = próximo" — desatualizado. Eu havia
+  planejado adições de roadmap achando que 1/2 não estavam feitos.
+- **Ação (autorizada pelo dono):** `git merge --ff-only main` (fast-forward p/ `68c6db5`); descartei as
+  edições stale e **re-apliquei** as melhorias do roadmap sobre a versão atual, marcando 1/2 como ✅ e
+  **re-ancorando** o escopo extra como continuação (sem reabrir o que já foi entregue):
+  - Motor de regras → `lib/calc/rules.ts` (extensão do engine) entregue no **SPLIT 6**; cenários →
+    `computeScenarios` no SPLIT 4.
+  - `proposal_versions` + `proposal_templates` → **migration 012 no SPLIT 4** (010 já aplicada);
+    SPLIT 7 (documents) renumerado p/ **migration 013**.
+  - Comparador / templates / histórico de versões / **seam `ProposalComposer`** → SPLIT 4;
+    **SPLIT 10** (autoria por IA, futuro); alertas de impacto de preço/promo → SPLIT 6.
+  - **Reordenação confirmada: 6 antes do 4.** Ordem: 0✅→1✅→2✅→**3→6→4**→5→7→8→9 (+10 futuro).
+  - §8 lista os itens GPT conscientemente adiados (wiki/câmbio/seguros/SSO/anexos/audit-UI/dashboard).
+- **Fix do SPLIT 1 (NIT de revisão, commit separado):** `parseMoneyToCents` (`lib/calc/money.ts`)
+  reescrito locale-aware — corrige milhar pt-BR com ponto (`"1.234.567"` ia virar `1.234` via parseFloat)
+  e milhar en-US; lone-comma=decimal pt-BR, lone-dot=decimal p/ 1-2 dígitos / milhar p/ ≥3. Era NIT
+  dormente (só usado em testes hoje; borda de dinheiro do SPLIT 4). +9 casos de teste → **11/11 verdes**.
+  NIT 1 (`toCents` 2 casas) já estava documentado; NIT 3 (estilo de import) deixado (build verde, mexer
+  arriscaria a resolução `.ts` do node test). Registrado em `.wolf/buglog.json` (bug-014).
+- **⚠️ Para o próximo agente:** confira `git log --oneline --all` e o estado da `main` ANTES de planejar
+  — pode haver branch/agente mais avançado que o handover local. **Próximo split a EXECUTAR = SPLIT 3.**
+
 ### 2026-06-15 - SPLIT 2 CONCLUÍDO: domínio da proposta + seam de contatos CRM-ready (migration 010 APLICADA)
 
 > P1 (org_id+RLS) · P7 (soft-delete) · P8 (auditoria) · P10 (CRM-ready, woofed-shape) ·

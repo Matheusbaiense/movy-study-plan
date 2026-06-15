@@ -72,3 +72,22 @@
 | --:-- | Legacy cleanup: nav label "Campanhas"→"Planos de Estudo"; legacy mentions removed from manifest | messages/pt.json, public/manifest.json | applied | ~0.5k |
 | --:-- | (Claude, separate window) created test user testemovy@movy.com.br / teste123! (role admin); fixed GoTrue 500 by setting NULL token cols to '' | Supabase auth (prod xpthmguzcbmndyyexfbt) | login works | ~1k |
 | --:-- | Documented-error fixes (staged for separate commit): manifest 404 (/pt/manifest.json), Draft→Rascunho, lang="pt-BR", legend contrast (WCAG), Wiki excerpt spacing | middleware.ts, study-plans/page.tsx, app/layout.tsx, WikiListItem.tsx, FxConverter.tsx, wiki/page.tsx | staged, not committed | ~2k |
+| 08:52 | Edited docs/PRODUCT-ROADMAP.md | modified applyRules() | ~538 |
+| 08:52 | Edited docs/PRODUCT-ROADMAP.md | modified reverso() | ~288 |
+| 08:52 | Edited docs/PRODUCT-ROADMAP.md | modified pendente() | ~166 |
+| 08:52 | Edited docs/PRODUCT-ROADMAP.md | modified pendente() | ~164 |
+| 08:52 | Edited docs/PRODUCT-ROADMAP.md | modified 4() | ~487 |
+| 08:53 | Edited docs/PRODUCT-ROADMAP.md | modified Schema() | ~581 |
+| 08:53 | Edited docs/PRODUCT-ROADMAP.md | modified Schema() | ~78 |
+| 08:53 | Edited docs/PRODUCT-ROADMAP.md | modified pede() | ~413 |
+| 08:53 | Edited docs/PRODUCT-ROADMAP.md | expanded (+7 lines) | ~296 |
+| 08:54 | Edited docs/PRODUCT-ROADMAP.md | modified revisada() | ~265 |
+| 08:54 | Edited docs/PRODUCT-ROADMAP.md | modified ADIADAS() | ~466 |
+| 08:54 | Edited docs/PRODUCT-ROADMAP.md | modified 15() | ~194 |
+| 08:55 | Edited docs/AI-HANDOVER.md | modified o() | ~552 |
+| 08:55 | Reconciliação: descoberto via export Cursor que SPLIT 1/2 já estão na main; ff-merge p/ 68c6db5; re-apliquei revisão do roadmap (motor de regras→SPLIT 6, versões/templates→migration 012/SPLIT 4, SPLIT 10 IA, 6 antes do 4) marcando 1/2 ✅ | docs/PRODUCT-ROADMAP.md, .wolf/cerebrum.md, docs/AI-HANDOVER.md | concluído (só docs) | ~12k |
+| 08:56 | Session end: 28 writes across 2 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md) | 3 reads | ~10253 tok |
+| 08:58 | Session end: 28 writes across 2 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md) | 4 reads | ~10253 tok |
+| 09:02 | Edited lib/calc/money.ts | added 1 condition(s) | ~622 |
+| 09:03 | Edited tests/study-financial.test.mjs | expanded (+16 lines) | ~268 |
+| 09:04 | Edited docs/AI-HANDOVER.md | modified 1() | ~218 |

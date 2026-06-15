@@ -120,3 +120,28 @@ a régua é MP 2.200-2/ICP-Brasil (assinatura simples vale mas tem peso probató
 lembretes/SMS são Pro.
 
 **Posicionamento:** MVP-aceite (v1/SPLIT 5) · DocuSeal (v2) · Lago (v3).
+
+## Decisão — Reconciliação de branch + revisão do roadmap vs. propostas GPT/Cursor (2026-06-15)
+
+**Contexto/achado:** descobri (via export de chat do Cursor) que o Cursor **já tinha concluído SPLIT 1
+e SPLIT 2** (commits `7326e1f`/`80cab52`/`68c6db5`, migration 010 APLICADA no banco), e que a `main` já
+estava nesses commits — mas a branch de trabalho `claude/sleepy-cannon` estava 3 commits atrás, com um
+handover desatualizado dizendo "SPLIT 1 = próximo". Eu havia editado o roadmap achando que 1/2 não
+estavam feitos. **Do-Not-Repeat:** SEMPRE conferir `git log --oneline --all` e o estado da `main` antes
+de planejar — outra branch/agente pode ter avançado sem que o handover local saiba.
+
+**Reconciliação (autorizada pelo dono):** descartei as edições stale, avancei a branch para a `main`
+(`git merge --ff-only`, fast-forward para `68c6db5`), e **re-apliquei** as adições do roadmap sobre a
+versão atual, marcando 1/2 como ✅ e **re-ancorando** o que eu havia posto "dentro" de 1/2:
+- **Motor de regras** → extensão do engine (`lib/calc/rules.ts`, `applyRules`/`PricingRule`) entregue
+  no **SPLIT 6** (dono das `pricing_rules`), não reabrindo o engine já entregue do SPLIT 1.
+- **Cenários** (`computeScenarios`) → extensão consumida no **SPLIT 4**.
+- **`proposal_versions` + `proposal_templates`** → **migration 012 nova no SPLIT 4** (010 já aplicada).
+- **SPLIT 7** documents renumerado para **migration 013**.
+- **Comparador/templates/histórico/seam de IA** → SPLIT 4; **SPLIT 10** (autoria por IA, futuro) com
+  seam `ProposalComposer` já no SPLIT 4; **alertas de impacto de preço/promo** → SPLIT 6.
+- **Reordenação confirmada:** **6 antes do 4**. Ordem atual: 0✅→1✅→2✅→**3→6→4**→5→7→8→9 (+10 futuro).
+- **§8** lista os itens GPT conscientemente adiados (wiki/câmbio/seguros/SSO/anexos/audit-UI/dashboard).
+
+**Decisão do dono nesta sessão:** só reconciliar o **roadmap** agora (sem codar feature). Próximo split
+a executar quando retomar = **SPLIT 3** (lista) — ou 6, conforme a reordenação.
