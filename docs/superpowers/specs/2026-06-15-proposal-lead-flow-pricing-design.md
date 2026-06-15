@@ -54,6 +54,26 @@ comment on column public.contacts.nationality is
 Já suportado por `course_price_versions(nationality, market_id)` + função `current_course_price`.
 A versão com `nationality IS NULL AND market_id IS NULL` é o preço **Normal/padrão**.
 
+### 4.3 Modelo de escopo de preço — CAMADAS, não modo (decisão 2026-06-15)
+O preço NÃO é "país OU mercado" (toggle). São **três camadas que coexistem** e a mais específica vence
+(`current_course_price` já implementa, migration 011 linhas 343-354): **país > mercado > normal**, depois
+`valid_from` mais recente.
+
+- **Normal · padrão** — base; cobre quem não tem regra mais específica.
+- **Mercado** — grupo de países (`markets.country_codes[]`) nomeado uma vez e reusado; precifica vários
+  países de uma vez (ex.: LATAM = 245).
+- **País** — override pontual de 1 país por cima do mercado (ex.: Brasil = 240, Colômbia = 255).
+
+**Regra-chave:** país e mercado são **independentes** — NÃO atrelar o preço de país a um mercado. Override
+de país só onde a escola realmente diferencia (resolve "Colômbia ≠ Brasil dentro de LATAM" sem gambiarra).
+
+**Cadastro (SPLIT 6B):** ao adicionar preço, escolhe escopo = Normal | Mercado (seleciona 1 mercado salvo)
+| País (seleciona 1 país da lista mundial ISO-3166).
+
+**Determinismo:** um país deve pertencer a **no máximo 1 mercado por org** (validado na UI de mercados do
+6B). Sem essa regra, país em 2 mercados com preço cai no desempate por `valid_from` desc — funciona, mas é
+ambíguo. Não é bloqueio deste trabalho (preço por país já cobre o caso); fica registrado para o 6B.
+
 ## 5. Camada de portfólio (`lib/portfolio`)
 
 ### 5.1 `priceVersionLabel(version, markets?)` — PURO, testável
