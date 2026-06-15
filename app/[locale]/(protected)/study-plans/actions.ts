@@ -7,7 +7,8 @@ import { logAuditWithClient } from '@/lib/api/audit'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
-import { upsertContact as upsertContactRecord } from '@/lib/crm/contacts'
+import { upsertContact as upsertContactRecord, searchContacts } from '@/lib/crm/contacts'
+import type { Contact } from '@/lib/crm/contacts'
 import type { StudyPlanData, StudyPlanStatus } from '@/lib/study-plans/types'
 import type { Database, Json, Enums } from '@/types/supabase'
 import { Constants } from '@/types/supabase'
@@ -496,6 +497,94 @@ export async function upsertContact(
 
   revalidateStudyPlans(locale)
   return { id: contact.id }
+}
+
+export interface ContactPick {
+  id: string
+  fullName: string
+  email: string | null
+  phone: string | null
+  nationality: string | null
+}
+
+function toContactPick(contact: Contact): ContactPick {
+  const custom = contact.custom_attributes
+  const nationality =
+    custom && typeof custom === 'object' && !Array.isArray(custom)
+      ? ((custom as Record<string, unknown>).nationality as string | undefined) ?? null
+      : null
+  return { id: contact.id, fullName: contact.full_name, email: contact.email, phone: contact.phone, nationality }
+}
+
+/** Typeahead for the "passo 0" modal. Editor+ only; org-scoped via RLS. */
+export async function searchContactsAction(query: string): Promise<ContactPick[]> {
+  const { supabase } = await getActor()
+  const rows = await searchContacts(supabase, query)
+  return rows.map(toContactPick)
+}
+
+/**
+ * Create a draft proposal already linked to a contact (the "passo 0" flow).
+ * Mirrors the contact's name/email/phone into the plan's working copy; the
+ * nationality stays on the contact (read at price-resolve time). Redirects to
+ * the editor. Editor+ only.
+ */
+export async function createProposalForContact(contactId: string, locale = 'pt') {
+  const { supabase, user, profile } = await getActor()
+
+  const { data: contact, error: contactErr } = await supabase
+    .from('contacts')
+    .select('id, full_name, email, phone')
+    .eq('id', contactId)
+    .single()
+  if (contactErr) throw new Error(contactErr.message)
+  if (!contact) throw new Error('Contact not found')
+
+  const base = createBlankStudyPlan()
+  base.student = contact.full_name
+  base.email = contact.email ?? ''
+  base.phone = contact.phone ?? ''
+  base.contactRef = { id: contact.id, fullName: contact.full_name, email: contact.email, phone: contact.phone }
+  const data = withComputed(base)
+
+  const { data: plan, error } = await supabase
+    .from('study_plans')
+    .insert({
+      title: `Cotação - ${contact.full_name}`,
+      student_name: contact.full_name,
+      applicant_type: data.applicantType,
+      status: 'draft',
+      data: data as unknown as Json,
+      contact_id: contact.id,
+      created_by: user.id,
+      updated_by: user.id,
+    })
+    .select('id')
+    .single()
+
+  if (error) throw new Error(error.message)
+  if (!plan) throw new Error('Failed to create study plan')
+
+  await emitProposalEvent(supabase, {
+    orgId: profile.org_id,
+    studyPlanId: plan.id,
+    actorId: user.id,
+    contactId: contact.id,
+    kind: 'created',
+    metadata: { student: contact.full_name, from_contact: true },
+  })
+
+  await logAuditWithClient(supabase, {
+    actorId: user.id,
+    actorEmail: profile.email,
+    action: 'study_plan.create',
+    entityType: 'study_plans',
+    entityId: plan.id,
+    metadata: { contact_id: contact.id, student: contact.full_name },
+  })
+
+  revalidatePath(`/${locale}/study-plans`)
+  redirect(`/${locale}/study-plans/${plan.id}`)
 }
 
 export async function deleteStudyPlan(id: string, locale = 'pt') {

@@ -147,6 +147,25 @@ export async function upsertContact(supabase: Client, input: UpsertContactInput)
   return data
 }
 
+/**
+ * Search contacts in the current org by name/email/phone (case-insensitive),
+ * newest first. The term is sanitized for use inside a PostgREST `or()` filter.
+ */
+export async function searchContacts(supabase: Client, query: string, limit = 8): Promise<Contact[]> {
+  const term = query.trim()
+  if (!term) return []
+  const safe = term.replace(/[,()%*]/g, ' ').trim()
+  if (!safe) return []
+  const { data } = await supabase
+    .from('contacts')
+    .select('*')
+    .is('deleted_at', null)
+    .or(`full_name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`)
+    .order('updated_at', { ascending: false })
+    .limit(limit)
+  return data ?? []
+}
+
 /** Well-known keys inside `contacts.custom_attributes` (woofed-shaped; sync 1:1 to the CRM). */
 export const CONTACT_ATTR = {
   NATIONALITY: 'nationality',
