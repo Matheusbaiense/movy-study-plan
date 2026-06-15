@@ -5,6 +5,46 @@ const financial = await import('../lib/financial/calculator.ts')
 const defaults = await import('../lib/study-plans/defaults.ts')
 const calculations = await import('../lib/study-plans/calculations.ts')
 const money = await import('../lib/calc/money.ts')
+const rules = await import('../lib/calc/rules.ts')
+const scenarios = await import('../lib/calc/scenarios.ts')
+
+function makeElicos({ weeks = 24, rate = 290, scholarship = 0, start = '2026-08-03' } = {}) {
+  return {
+    id: 'c1',
+    type: 'elicos',
+    provider: 'Test College',
+    name: 'General English',
+    url: '',
+    timetable: 'Manha',
+    start,
+    enrolmentFee: 250,
+    tuition: 0,
+    ratePerWeek: rate,
+    materialFee: 15,
+    hasMaterial: true,
+    scholarship,
+    depositWeeks: 4,
+    paymentParts: 4,
+    paymentFrequency: '',
+    segments: [{ id: 's1', label: 'Estudo', kind: 'study', weeks }],
+  }
+}
+
+function makePlan(course, location = 'offshore') {
+  return {
+    student: 'Test',
+    applicantType: 'Individual',
+    currentVisaExpiry: '',
+    consultant: '',
+    email: '',
+    phone: '',
+    courses: [course],
+    extraCosts: [],
+    payments: [],
+    notes: '',
+    studentLocation: location,
+  }
+}
 
 test('financial calculator matches current workbook constants', () => {
   const input = {
@@ -152,6 +192,57 @@ test('parseMoneyToCents disambiguates thousands vs decimal (locale-aware)', () =
   assert.equal(money.parseMoneyToCents('1,234,567'), 123456700)
   // Negative + currency symbol.
   assert.equal(money.parseMoneyToCents('-R$ 1.234,56'), -123456)
+})
+
+test('applyRules: empty ruleSet is a no-op (course + plan unchanged)', () => {
+  const plan = makePlan(makeElicos())
+  const res = rules.applyRulesToPlan(plan, [])
+  assert.equal(res.plan, plan)
+  assert.deepEqual(res.adjustments, [])
+})
+
+test('applyRules: promo_rate_override fires only when week condition matches', () => {
+  const course = makeElicos({ weeks: 24, rate: 290 })
+  const promo = { id: 'p1', scope: 'type', when: { courseType: 'elicos', minWeeks: 24 }, effect: { kind: 'promo_rate_override', ratePerWeek: 260 } }
+  const hit = rules.applyRulesToCourse(course, [promo], { location: 'offshore' })
+  assert.equal(hit.course.ratePerWeek, 260)
+  assert.equal(hit.adjustments.length, 1)
+
+  // A 20-week course must NOT get the >=24 promo.
+  const miss = rules.applyRulesToCourse(makeElicos({ weeks: 20, rate: 290 }), [promo])
+  assert.equal(miss.course.ratePerWeek, 290)
+  assert.equal(miss.adjustments.length, 0)
+})
+
+test('applyRules: discount lowers the course total via scholarship', () => {
+  const course = makeElicos({ weeks: 24, rate: 290, scholarship: 0 })
+  const before = calculations.courseTotalCents(course)
+  const res = rules.applyRulesToCourse(course, [{ id: 'd1', scope: 'org', when: {}, effect: { kind: 'discount_fixed', amount: 500 } }])
+  assert.equal(res.course.scholarship, 500)
+  assert.equal(calculations.courseTotalCents(res.course), before - 50000)
+})
+
+test('applyRules: agency_fee adds an extra line (off by default until activated)', () => {
+  const course = makeElicos()
+  const fee = { id: 'f1', scope: 'org', when: {}, isActive: true, effect: { kind: 'agency_fee', amount: 350, label: 'Taxa Movy' } }
+  const res = rules.applyRulesToCourse(course, [fee])
+  assert.equal(res.extras.length, 1)
+  assert.equal(res.extras[0].amount, 350)
+  // An inactive rule is skipped.
+  const off = rules.applyRulesToCourse(course, [{ ...fee, isActive: false }])
+  assert.equal(off.extras.length, 0)
+})
+
+test('computeScenarios totals each plan variant through the engine', () => {
+  const base = makePlan(makeElicos({ weeks: 24 }))
+  const results = scenarios.computeScenarios([
+    { label: '24 sem', plan: base },
+    { label: '12 sem', plan: scenarios.withFirstCourseStudyWeeks(base, 12) },
+  ])
+  assert.equal(results.length, 2)
+  assert.equal(results[0].computed.studyWeeks, 24)
+  assert.equal(results[1].computed.studyWeeks, 12)
+  assert.ok(results[1].computed.grandTotalCents < results[0].computed.grandTotalCents)
 })
 
 test('splitCents partitions a total with the remainder on the last part', () => {

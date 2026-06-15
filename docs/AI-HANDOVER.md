@@ -284,6 +284,25 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 6A (parte 1/2): motor de regras + cenários (puro, testado)
+
+- **Insight que definiu o escopo:** o `calculations.ts` já codifica as regras ESTRUTURAIS
+  (material por tipo, depósito, offshore<25=sem parcela) — não duplicar. `pricing_rules`/`applyRules`
+  é **só a camada configurável da agência**: promoções, desconto, fee/markup. A "inclusão automática
+  de taxa" vem dos DADOS do portfólio (price_version), não de regra.
+- **`lib/calc/rules.ts` (NOVO):** `applyRules*` como **pré-processador puro** — ajusta o curso (promo
+  rate / markup / desconto via bolsa) + adiciona extras (agency_fee) ANTES do `computeProposal`, deixando
+  o engine do SPLIT 1 **intocado**. **ruleSet vazio = no-op.** Efeitos: `promo_rate_override`,
+  `discount_pct`/`discount_fixed`, `agency_fee`, `agency_markup_pct`. Condições: tipo/min-max semanas/
+  modo/intake; escopo org/instituição/campus/curso/tipo. **Decisão do dono:** fee da agência fica
+  **disponível mas off por padrão** (`isActive:false`); escopo v1 = promo+desconto+agência.
+- **`lib/calc/scenarios.ts` (NOVO):** `computeScenarios` (puro, totaliza N variantes via engine) +
+  `withFirstCourseStudyWeeks` (helper p/ "24 vs 12 semanas").
+- **QA:** +5 testes (no-op, promo condicional, desconto, agency_fee on/off, cenários) → **16/16 verdes**;
+  `tsc --noEmit` ✅. Nada importa esses módulos ainda (consumidos no SPLIT 4/6B) — sem efeito no app.
+- **Próximo (SPLIT 6A parte 2/2):** migration 011 (portfólio + `pricing_rules` + RLS), seed
+  `course_presets→courses`, `lib/portfolio/*` + provider `CourseSource`, regen de tipos (precisa Supabase MCP).
+
 ### 2026-06-15 - SPLIT 6 quebrado em 6A (backend) + 6B (UI) — roadmap restruturado (só docs)
 
 - A pedido do dono, quebrei o SPLIT 6 (grande demais) por **backend vs UI**:

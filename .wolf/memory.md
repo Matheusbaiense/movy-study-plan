@@ -114,3 +114,10 @@
 | 09:24 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~56 |
 | 09:24 | Edited docs/AI-HANDOVER.md | expanded (+13 lines) | ~292 |
 | 09:25 | SPLIT 6 quebrado em 6A (backend: schema+regras+CourseSource, destrava editor) + 6B (UI gestão). Roadmap restruturado, nova ordem 6A→4→6B→5 | docs/PRODUCT-ROADMAP.md, cerebrum, handover | concluído (docs) | ~6k |
+| 09:25 | Session end: 51 writes across 7 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 11 reads | ~35329 tok |
+| 09:34 | Created lib/calc/rules.ts | — | ~2220 |
+| 09:34 | Created lib/calc/scenarios.ts | — | ~488 |
+| 09:35 | Edited tests/study-financial.test.mjs | modified makeElicos() | ~262 |
+| 09:35 | Edited tests/study-financial.test.mjs | expanded (+51 lines) | ~675 |
+| 09:36 | Edited docs/AI-HANDOVER.md | modified 6A() | ~461 |
+| 09:36 | SPLIT 6A parte 1/2: lib/calc/rules.ts (applyRules pré-processador puro, ruleSet vazio=no-op) + scenarios.ts + 5 testes (16/16). Motor de regras = camada agência (promo/desconto/fee), estrutural fica no engine | lib/calc/{rules,scenarios}.ts | concluído | ~10k |
