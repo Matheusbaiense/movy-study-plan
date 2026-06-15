@@ -2,7 +2,8 @@
 
 - **Data:** 2026-06-15
 - **Status:** aprovado para spec (aguardando revisão do dono antes do plano)
-- **Splits relacionados:** núcleo do **SPLIT 4 (editor)** + uma migration pequena. NÃO é o SPLIT 4 inteiro.
+- **Splits relacionados:** núcleo do **SPLIT 4 (editor)**. NÃO é o SPLIT 4 inteiro. **Sem migration**
+  (campos de lead em `custom_attributes`, no padrão woofed).
 - **Regra-mãe (P0):** white-label first — toda escolha assume Movy → multi-agência. `org_id` + RLS por
   org, unicidade por org, dinheiro em `*_in_cents`, nada hardcodado de marca.
 
@@ -17,7 +18,8 @@ A nacionalidade do lead faz o **preço do curso se resolver sozinho** (país ›
 
 **Dentro (este trabalho):**
 1. Modal "passo 0" de criação de proposta: buscar contato existente OU criar novo lead inline.
-2. `migration 012`: campo `contacts.nationality` (ISO-3166 alpha-2, nullable, org/RLS).
+2. Campos de lead **woofed-shaped em `contacts.custom_attributes`** (nationality/lead_source/
+   preferred_language) — **SEM migration** (a coluna jsonb já existe na migration 010).
 3. Resolução de preço por nacionalidade + **seleção manual** do preço no editor (Normal/Mercado/País).
 4. Helpers de portfólio: `priceVersionLabel` + `CourseSource.listPrices`.
 5. Ação `createProposalForContact` (cria `study_plan` com `contact_id`).
@@ -26,7 +28,8 @@ A nacionalidade do lead faz o **preço do curso se resolver sozinho** (país ›
 - Editor completo do SPLIT 4 (wizard multi-etapa, autosave, barra fixa, totais ao vivo, comparador,
   cenários, templates) — fica para o SPLIT 4 cheio.
 - Telas de gestão do catálogo/preços (cadastrar/editar/expirar versões) — **SPLIT 6B**.
-- `proposal_templates`/`proposal_versions` — adiados (decisão do dono: 012 só com `nationality`).
+- `proposal_templates`/`proposal_versions` — adiados.
+- `custom_attribute_definitions` (formalização woofed dos campos custom) — só na fusão com o CRM.
 
 ## 3. Decisões (do Q&A com o dono, 2026-06-15)
 
@@ -34,21 +37,36 @@ A nacionalidade do lead faz o **preço do curso se resolver sozinho** (país ›
 - **Comportamento de preço:** sem nacionalidade → **Normal**; com nacionalidade → preço de **país/
   mercado** (mais específico vence); o consultor **pode trocar** entre o valor de nacionalidade e o Normal
   no editor. ⇒ o seam precisa **listar os preços disponíveis**, não só resolver um.
-- **`contacts.nationality` entra agora** (`migration 012`, só esse campo).
-- **Escopo = fluxo + elo de preço** (modal pick/create + nationality + fiação do `CourseSource`).
+- **Campos de lead no padrão woofed (`custom_attributes`), NÃO colunas dedicadas.** O lead criado aqui
+  vai depois para o CRM (woofed) — `custom_attributes` sincroniza 1:1. Some a migration; nacionalidade
+  passa a viver em `custom_attributes.nationality`.
+- **Escopo = fluxo + elo de preço** (modal pick/create + nacionalidade via custom_attributes + fiação
+  do `CourseSource`).
 
 ## 4. Modelo de dados
 
-### 4.1 migration 012 — `contacts.nationality`
-```sql
-alter table public.contacts
-  add column nationality text;            -- ISO-3166 alpha-2 (ex.: 'BR'); NULL = desconhecida
-comment on column public.contacts.nationality is
-  'ISO-3166 alpha-2 do lead; alimenta current_course_price (país > mercado > normal).';
-```
-- Nullable (lead pode entrar sem nacionalidade). Sem default de marca/país (white-label).
-- RLS herdada da `contacts` (já org-scoped). Sem novo índice (cardinalidade baixa; filtragem é por org).
-- Tipos regenerados após aplicar (sem editar `types/supabase.ts` à mão).
+### 4.1 Campos de lead woofed-shaped (SEM migration)
+Evidência (woofed `db/schema.rb`): `contacts` tem só 3 colunas de negócio nativas (`full_name`/`phone`/
+`email`); todo campo extra vive em **`custom_attributes` jsonb** (formalizável via
+`custom_attribute_definitions`); `additional_attributes` é p/ dado de integração (ex.: `chatwoot_id`).
+Nosso `contacts` (migration 010) já tem `custom_attributes` + `metadata` (R6 ≈ `additional_attributes`).
+
+| Campo | woofed | Nosso `contacts` |
+|---|---|---|
+| Nome | `full_name` (nativo) | coluna `full_name` |
+| Email | `email` (nativo) | coluna `email` |
+| Telefone | `phone` (nativo) | coluna `phone` |
+| Nacionalidade | custom field | `custom_attributes.nationality` (ISO-3166 alpha-2) |
+| Origem do lead | custom field | `custom_attributes.lead_source` |
+| Idioma preferido | custom field | `custom_attributes.preferred_language` |
+| Tipo de aplicante | — (é da proposta) | `study_plans.data`, **não** no contato |
+
+- **Chaves padronizadas como constantes** em `lib/crm` (ex.: `CONTACT_ATTR.NATIONALITY = 'nationality'`)
+  p/ não espalhar string mágica e garantir o mesmo nome no sync com o woofed.
+- **Sem migration, sem regen de tipos** (jsonb já tipado como `Json`). Acesso via helpers tipados em
+  `lib/crm/contacts.ts` (`getContactNationality(contact)` etc.), nunca `as any`.
+- Pricing: o app lê `custom_attributes.nationality` e passa string p/ `current_course_price` — a função
+  e o `CourseSource.resolve` não mudam.
 
 ### 4.2 Preço — SEM mudança de schema
 Já suportado por `course_price_versions(nationality, market_id)` + função `current_course_price`.
@@ -100,9 +118,16 @@ interface PricedOption {
 
 ### 5.3 `createProposalForContact(supabase, { orgId, contactId, actorId })`
 - Cria `study_plans` com `contact_id`, `status='draft'`, `data` = `createBlankStudyPlan()` com
-  `contactRef`/`student`/`email`/`phone`/nacionalidade espelhados do contato.
+  `contactRef`/`student`/`email`/`phone` espelhados do contato. Nacionalidade NÃO é copiada p/ o `data`
+  (fica no contato, lida no resolve); evita duplicar a fonte da verdade.
 - Emite `proposal_events` (`kind='status_change'`/created) + `audit_logs`, como as ações do SPLIT 2.
 - Retorna o `id` para o editor redirecionar.
+
+### 5.4 Helpers de contato woofed-shaped (`lib/crm/contacts.ts`)
+- `CONTACT_ATTR` (constantes das chaves: `nationality`/`lead_source`/`preferred_language`).
+- `getContactNationality(contact)` / `setContactAttrs(input, { nationality, leadSource, preferredLanguage })`
+  — leem/escrevem em `custom_attributes` de forma tipada (sem `as any`). `upsertContact` já aceita
+  `customAttributes`; o form só monta o objeto via esses helpers.
 
 ## 6. UX — modal "passo 0"
 
@@ -110,35 +135,43 @@ interface PricedOption {
 [Criar proposta] ─▶ Modal "Para quem é essa proposta?"
    ├─ busca (typeahead em contacts, org-scoped)  ──▶ seleciona lead ──┐
    └─ "Criar novo lead" ▶ form inline                                 │
-        (nome · email · telefone · nacionalidade)                     │
+        4 campos: nome* · email · telefone · nacionalidade            │
+        (+ "mais campos": origem · idioma — opcionais, recolhidos)    │
         └─ upsertContact (dedup email/telefone por org) ──────────────┤
                                                                        ▼
                                    createProposalForContact ─▶ abre /study-plans/[id] (editor)
 ```
 
+- **Form de novo lead = 4 campos visíveis:** nome (obrigatório) · email · telefone · nacionalidade
+  (`<select>` ISO-3166 alpha-2). Origem do lead e idioma preferido ficam num expander **"mais campos"**
+  (opcionais, recolhidos por padrão) — capturáveis sem poluir o passo-0. Todos os extras → `custom_attributes`.
+- Tipo de aplicante NÃO entra aqui (é da proposta; vai no editor).
 - Busca: reusa/estende `lib/crm/contacts.ts` (ex.: `searchContacts(supabase, q)` org-scoped, limit ~8).
-- Novo lead: form curto; nacionalidade = `<select>` de países (alpha-2). Validação leve (nome obrigatório).
 - Componente client (`'use client'`) que chama uma **server action**; nada de `supabase as any`.
 - No editor: cada curso do portfólio mostra "Preço aplicado: <label> ▼" com as `listPrices` para troca;
   trocar reconstrói o curso de `buildStudyCourse(snapshot)` da versão escolhida.
 
-## 7. Considerações white-label
+## 7. Considerações white-label / CRM-ready
 
-- `nationality` é por contato (por org via RLS); nenhuma suposição de "todos são brasileiros".
-- `markets`/preços por org → cada agência define seus mercados e tabelas de preço (config, não reescrita).
+- Campos de lead no padrão woofed (`custom_attributes`) → o contato criado aqui sincroniza 1:1 com o CRM
+  futuro sem remapear; chaves padronizadas por constante (R3 naming woofed-shaped).
+- `custom_attributes`/preço/`markets` por org via RLS; nenhuma suposição de "todos são brasileiros" nem
+  de agência única. Cada agência define seus mercados e preços (config, não reescrita).
 - Labels e países vêm de dados/tabela de referência, não de strings de marca Movy.
 
 ## 8. Testes / DoD
 
 - **Puros (node --test):** `priceVersionLabel` (país/mercado/normal + market name lookup);
-  `listPrices` mapper (ordenação Normal→Mercado→País, label correta, cents→float).
+  `listPrices` mapper (ordenação Normal→Mercado→País, label correta, cents→float);
+  `getContactNationality`/`setContactAttrs` (round-trip em custom_attributes, chaves corretas).
 - **Comportamento:** resolução auto (com/sem nacionalidade) já coberta; +teste de "override" reconstrói
   o curso a partir de outra versão.
 - **Gates:** `npm run type-check` ✅ · `node --test` ✅ · `npm run build` ✅ (toca dinheiro → build obrigatório).
-- **Migration 012** aplicada em `xpthmguzcbmndyyexfbt` + tipos regenerados (segue o padrão da 010/011).
+- **SEM migration** (nacionalidade em `custom_attributes`, coluna jsonb já existe) → sem regen de tipos.
 - Docs/`.wolf` atualizados; commit próprio; push fast-forward para `origin/main`.
 
 ## 9. Dependências e ordem
 
-- Depende de: SPLIT 2 (`contacts`), SPLIT 6A (`lib/portfolio` + `CourseSource`) — ambos ✅.
+- Depende de: SPLIT 2 (`contacts` + `custom_attributes`), SPLIT 6A (`lib/portfolio` + `CourseSource`) — ambos ✅.
 - Habilita o resto do SPLIT 4 (editor cheio) e a SPLIT 6B (gestão de preços usa `priceVersionLabel`).
+- Na fusão com o CRM: formalizar as chaves custom via `custom_attribute_definitions` (padrão woofed).
