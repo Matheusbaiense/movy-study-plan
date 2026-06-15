@@ -52,6 +52,8 @@ export interface StudyCourse {
   holidayWeeks?: number
   gapBeforeWeeks?: number
   paymentCadenceDays?: number
+  /** Portfolio price version this course's price came from (SPLIT 4 picker); for reverse-impact. */
+  priceVersionId?: string
 }
 
 export interface ExtraCost {
