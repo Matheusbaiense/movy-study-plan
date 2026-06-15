@@ -256,3 +256,63 @@ export function draftToUpdate(patch: Partial<PricingRuleDraft>, actorId?: string
   if (patch.validUntil !== undefined) update.valid_until = patch.validUntil
   return update
 }
+
+// --- Price version label + picker options (pure) --------------------------------
+
+export type PriceVersionKind = 'country' | 'market' | 'default'
+
+export interface PriceVersionLabel {
+  kind: PriceVersionKind
+  label: string
+  scopeValue: string | null
+}
+
+function regionName(code: string): string {
+  const upper = (code ?? '').toUpperCase()
+  try {
+    return new Intl.DisplayNames(['pt-BR'], { type: 'region' }).of(upper) ?? upper
+  } catch {
+    return upper
+  }
+}
+
+/** Human label for a price version: País · X (most specific) > Mercado · Y > Normal · padrão. */
+export function priceVersionLabel(
+  version: Pick<CoursePriceVersion, 'nationality' | 'market_id'>,
+  markets: Pick<Market, 'id' | 'name'>[] = [],
+): PriceVersionLabel {
+  if (version.nationality) {
+    const code = version.nationality.toUpperCase()
+    return { kind: 'country', label: `País · ${regionName(code)}`, scopeValue: code }
+  }
+  if (version.market_id) {
+    const market = markets.find((m) => m.id === version.market_id)
+    return { kind: 'market', label: `Mercado · ${market?.name ?? '—'}`, scopeValue: version.market_id }
+  }
+  return { kind: 'default', label: 'Normal · padrão', scopeValue: null }
+}
+
+export interface PricedOption {
+  priceVersionId: string
+  label: string
+  kind: PriceVersionKind
+  /** Float snapshot, ready for the editor (`buildStudyCourse`). */
+  snapshot: PriceSnapshot
+}
+
+const PRICE_KIND_ORDER: Record<PriceVersionKind, number> = { default: 0, market: 1, country: 2 }
+
+/** Map active price versions to ordered, labeled options for the editor's price picker. */
+export function toPricedOptions(versions: CoursePriceVersion[], markets: Market[] = []): PricedOption[] {
+  return versions
+    .map((version) => {
+      const labeled = priceVersionLabel(version, markets)
+      return {
+        priceVersionId: version.id,
+        label: labeled.label,
+        kind: labeled.kind,
+        snapshot: priceVersionToSnapshot(version),
+      }
+    })
+    .sort((a, b) => PRICE_KIND_ORDER[a.kind] - PRICE_KIND_ORDER[b.kind])
+}

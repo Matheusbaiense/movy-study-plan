@@ -169,3 +169,31 @@ test('draftToUpdate includes only provided fields', () => {
   assert.equal('scope' in update, false)
   assert.equal('conditions' in update, false)
 })
+
+test('priceVersionLabel classifies país > mercado > normal with a human label', () => {
+  const markets = [{ id: 'm1', name: 'LATAM' }]
+  assert.deepEqual(portfolio.priceVersionLabel({ nationality: 'BR', market_id: null }, markets), {
+    kind: 'country', label: 'País · Brasil', scopeValue: 'BR',
+  })
+  assert.deepEqual(portfolio.priceVersionLabel({ nationality: null, market_id: 'm1' }, markets), {
+    kind: 'market', label: 'Mercado · LATAM', scopeValue: 'm1',
+  })
+  assert.deepEqual(portfolio.priceVersionLabel({ nationality: null, market_id: null }, markets), {
+    kind: 'default', label: 'Normal · padrão', scopeValue: null,
+  })
+})
+
+test('toPricedOptions orders normal → mercado → país and carries the float snapshot', () => {
+  const markets = [{ id: 'm1', name: 'LATAM' }]
+  const opts = portfolio.toPricedOptions(
+    [
+      makeVersion({ id: 'pvBR', nationality: 'BR', rate_per_week_in_cents: 24000 }),
+      makeVersion({ id: 'pvDef', nationality: null, market_id: null, rate_per_week_in_cents: 26000 }),
+      makeVersion({ id: 'pvLat', nationality: null, market_id: 'm1', rate_per_week_in_cents: 24500 }),
+    ],
+    markets,
+  )
+  assert.deepEqual(opts.map((o) => o.kind), ['default', 'market', 'country'])
+  assert.equal(opts[0].label, 'Normal · padrão')
+  assert.equal(opts[2].snapshot.ratePerWeek, 240)
+})
