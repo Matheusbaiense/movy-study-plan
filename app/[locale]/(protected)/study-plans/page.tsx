@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
-import { createStudyPlan } from './actions'
-import { NewQuoteButton } from '@/components/study-plans/NewQuoteButton'
+import NewProposalModal from './NewProposalModal'
 import { ProposalsList, type ProposalItem } from './ProposalsList'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
 import { formatMoney } from '@/lib/calc/money'
@@ -109,9 +108,7 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
             Crie, simule e acompanhe propostas — filtre, selecione em lote e restaure da lixeira.
           </p>
         </div>
-        <form action={createStudyPlan.bind(null, locale)}>
-          <NewQuoteButton />
-        </form>
+        <NewProposalModal locale={locale} />
       </div>
 
       <ProposalsList
