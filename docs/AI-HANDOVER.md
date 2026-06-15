@@ -298,6 +298,28 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 4 · fatia A: ScenarioPanel (comparador "e se?" por semanas)
+
+> **Estado:** entregue. type-check ✅ · `node --test` 41/41 ✅ · build ✅. Commit direto em `main`.
+> Spec: `docs/superpowers/specs/2026-06-15-split4-scenario-panel-design.md`.
+
+Novo `components/study-plans/ScenarioPanel.tsx` (`'use client'`) — comparador **só-leitura e
+transitório** que redimensiona as semanas de estudo do 1º curso em 3 variantes e totaliza cada uma
+via `computeScenarios` + `withFirstCourseStudyWeeks` (já no engine, puros). Mostra Total / Fechamento /
+Saldo a parcelar por coluna; a coluna que bate com o baseline ganha selo "Atual"; botão "Redefinir".
+
+**Decisões (regras-mãe):** (1) ELICOS **não tem duração padrão** (dono: "pode ser 4, 7, 20 semanas"),
+então as colunas são **semanas configuráveis**, nunca 6/8/12 meses fixos. (2) **Nada é persistido** →
+nenhuma entidade nova para remapear no woofed = a opção mais migration-safe (white-label/woofed-shaped
+first). "Aplicar cenário" ficou de fora (mutar semanas de ELICOS com módulos é delicado) — follow-up.
+
+Integração cirúrgica no hot file `StudyPlanEditor.tsx`: 1 import + 1 `<Section title="Cenários de
+duração">` no passo **Revisão** (sem mexer em wizard nav). Testes **APPEND** em
+`tests/study-financial.test.mjs` (não-mutação, resize só do 1º curso/1º segmento, plano sem study
+segment inalterado, ordem/labels/cents inteiros).
+
+**Próximo:** fatia B (comparador `data.options[]`) ou C (migration 012: templates + versões).
+
 ### 2026-06-15 - SPLIT 4 (editor) REFEITO: picker + override + sticky/autosave + wizard — **COMECE AQUI**
 
 > **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅**. SPLIT 4 editor entregue

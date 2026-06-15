@@ -9,6 +9,7 @@
 - **EditorWizardNav.tsx** + **editor-wizard-steps.ts** — 5-step wizard nav (Cliente → Preferências → Cursos → Custos → Revisão).
 - **StudyPlanEditor.tsx** — wizard shell; one step at a time; visa date warning on Revisão.
 - **EditorStickyBar.tsx** — fixed bottom bar: Total/Fechamento/Saldo parcelar, save status, Salvar + Proposta/PDF links.
+- **ScenarioPanel.tsx** — `'use client'` read-only "what if?" comparator (SPLIT 4 fatia A). Resizes 1st course study weeks into 3 configurable-week variants via `computeScenarios`+`withFirstCourseStudyWeeks`; shows Total/Fechamento/Saldo per column. No persistence. Prop: `plan`. Rendered in Revisão step.
 
 ## ./
 

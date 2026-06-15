@@ -344,3 +344,53 @@ test('computeFinancialCapacityCents bridges the float result to integer cents', 
   assert.equal(cents.totalAudCents, 5166100) // 51661.00 AUD
   assert.equal(cents.totalBrlCents, 13535182) // 135351.82 BRL
 })
+
+// ── SPLIT 4 (fatia A): ScenarioPanel engine helpers ─────────────────────────
+
+test('withFirstCourseStudyWeeks does not mutate the input plan', () => {
+  const base = makePlan(makeElicos({ weeks: 24 }))
+  const snapshot = JSON.stringify(base)
+  const variant = scenarios.withFirstCourseStudyWeeks(base, 12)
+  // Input untouched; a new plan is returned.
+  assert.equal(JSON.stringify(base), snapshot)
+  assert.notEqual(variant, base)
+  assert.equal(base.courses[0].segments[0].weeks, 24)
+  assert.equal(variant.courses[0].segments[0].weeks, 12)
+})
+
+test('withFirstCourseStudyWeeks resizes only the first study segment of the first course', () => {
+  const base = makePlan(makeElicos({ weeks: 24 }))
+  // Second course must stay untouched.
+  base.courses.push({ ...makeElicos({ weeks: 30 }), id: 'c2' })
+  const variant = scenarios.withFirstCourseStudyWeeks(base, 10)
+  assert.equal(variant.courses[0].segments[0].weeks, 10)
+  assert.equal(variant.courses[1].segments[0].weeks, 30)
+})
+
+test('withFirstCourseStudyWeeks returns the plan unchanged when there is no study segment', () => {
+  const base = makePlan(makeElicos({ weeks: 24 }))
+  base.courses[0].segments = [] // no study segment to resize
+  const variant = scenarios.withFirstCourseStudyWeeks(base, 12)
+  assert.deepEqual(variant.courses[0].segments, [])
+  assert.equal(variant.courses[0].segments.length, 0)
+})
+
+test('computeScenarios preserves order/labels and yields integer cents', () => {
+  const base = makePlan(makeElicos({ weeks: 24 }))
+  const results = scenarios.computeScenarios([
+    { label: '24 sem', plan: base },
+    { label: '34 sem', plan: scenarios.withFirstCourseStudyWeeks(base, 34) },
+    { label: '44 sem', plan: scenarios.withFirstCourseStudyWeeks(base, 44) },
+  ])
+  assert.deepEqual(results.map((r) => r.label), ['24 sem', '34 sem', '44 sem'])
+  assert.deepEqual(results.map((r) => r.computed.studyWeeks), [24, 34, 44])
+  // More study weeks → higher grand total.
+  assert.ok(results[0].computed.grandTotalCents < results[1].computed.grandTotalCents)
+  assert.ok(results[1].computed.grandTotalCents < results[2].computed.grandTotalCents)
+  // Every monetary field is an integer number of cents.
+  for (const { computed } of results) {
+    assert.ok(Number.isInteger(computed.grandTotalCents))
+    assert.ok(Number.isInteger(computed.upfrontSchoolsCents))
+    assert.ok(Number.isInteger(computed.installmentBalanceCents))
+  }
+})

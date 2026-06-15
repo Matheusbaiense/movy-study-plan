@@ -47,6 +47,7 @@ import type { PresetOption } from '@/lib/study-plans/presets'
 import type { PriceSnapshot } from '@/lib/portfolio/types'
 import { CoursePortfolioPicker } from './CoursePortfolioPicker'
 import { EditorStickyBar } from './EditorStickyBar'
+import { ScenarioPanel } from './ScenarioPanel'
 import { EditorWizardNav } from './EditorWizardNav'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { color, ink, font, t } from '@/lib/ui/theme'
@@ -563,6 +564,10 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
               </div>
             )}
           </div>
+        </Section>
+
+        <Section title="Cenários de duração">
+          <ScenarioPanel plan={plan} />
         </Section>
 
         <Section
