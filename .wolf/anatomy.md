@@ -10,6 +10,10 @@
 - **StudyPlanEditor.tsx** — wizard shell; one step at a time; visa date warning on Revisão.
 - **EditorStickyBar.tsx** — fixed bottom bar: Total/Fechamento/Saldo parcelar, save status, Salvar + Proposta/PDF links.
 - **ScenarioPanel.tsx** — `'use client'` read-only "what if?" comparator (SPLIT 4 fatia A). Resizes 1st course study weeks into 3 configurable-week variants via `computeScenarios`+`withFirstCourseStudyWeeks`; shows Total/Fechamento/Saldo per column. No persistence. Prop: `plan`. Rendered in Revisão step.
+- **editor-ui.tsx** — shared editor primitives extracted from StudyPlanEditor (SPLIT 4 fatia B): `Section`, `Field`, `NumberInput`, `MiniStat` + style tokens (`input`, `ghostButton`, `dangerButton`, `pill`, `grid2`, `HAIR`). Imported by StudyPlanEditor, CourseListEditor, ExtraCostsEditor.
+- **CourseListEditor.tsx** — `'use client'` reusable course-cards editor (extracted from StudyPlanEditor). Operates only on a `courses` slice; props `{ courses, studentLocation, nationality, onCoursesChange }`. Owns ModuleEditor + all course handlers. Used by the primary mix AND each proposal option.
+- **ExtraCostsEditor.tsx** — `'use client'` small "Custos adicionais" list editor. Props `{ extraCosts, onChange }`. Reused by primary + options.
+- **OptionsManager.tsx** — `'use client'` AllyHub-style options tabs (SPLIT 4 fatia B). Opção 1 = primary mix; 2..5 = `plan.options[]`. Tabs + rename/duplicate/remove/recommended + side-by-side comparison strip (Total/Fechamento/Saldo via computeProposal). Props `{ plan, nationality, onChange }`. Rendered in Revisão step. Pure helpers in `lib/study-plans/options.ts`.
 
 ## ./
 
