@@ -218,7 +218,9 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         </header>
 
         {/* Desktop topbar */}
-        <header className="hidden lg:flex navbar-container">
+        {/* z-index lifts the navbar's stacking context (created by its backdrop-filter)
+            above the page content, so the account dropdown isn't painted under it. */}
+        <header className="hidden lg:flex navbar-container" style={{ position: 'relative', zIndex: 40 }}>
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
           <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
             <ThemeToggle />
