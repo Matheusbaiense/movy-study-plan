@@ -163,6 +163,27 @@ versão atual, marcando 1/2 como ✅ e **re-ancorando** o que eu havia posto "de
 **Decisão do dono nesta sessão:** só reconciliar o **roadmap** agora (sem codar feature). Próximo split
 a executar quando retomar = **SPLIT 3** (lista) — ou 6, conforme a reordenação.
 
+## SPLIT 4 (início) — passo-0 lead-flow + seam de preço por nacionalidade (2026-06-15)
+
+Executado via subagent-driven-development (8 tasks, TDD, 1 implementer por task + review do controller).
+**Entregue:** (1) `NewProposalModal` (passo-0): "Criar proposta" → buscar lead existente OU criar novo lead
+inline → cria `study_plan` com `contact_id` e abre o editor. (2) Lead **woofed-shaped**: nacionalidade/
+origem/idioma em `contacts.custom_attributes` (helpers `CONTACT_ATTR`/`getContactNationality`/
+`buildContactAttributes`), `searchContacts`, `lib/constants/countries.ts`. (3) Seam de preço:
+`priceVersionLabel`, `toPricedOptions`, `listActivePriceVersions`, `CourseSource.listPrices`. (4) Actions
+`searchContactsAction`/`createProposalForContact`. type-check ✅ · node --test 37/37 ✅ · build ✅.
+
+**Decisões/aprendizados:**
+- **WOOFED-SHAPED FIRST aplicado:** campos de lead em `custom_attributes` (sem migration) → sync 1:1 com o
+  CRM. Ver regra em User Preferences.
+- **Preço = camadas (país > mercado > normal), não modo "ou".** Override de país só onde a escola
+  diferencia (CO ≠ BR dentro de LATAM). `current_course_price` já resolve; `priceVersionLabel` rotula.
+- **Seletor de preço no editor + course picker = DEFERIDOS pro SPLIT 4 cheio** (reabririam
+  `StudyPlanEditor.tsx`; regra arquivo-quente-1x). Seam (`listPrices`/labels/nacionalidade) já pronto.
+- **Do-Not-Repeat (subagent):** um implementer SOBRESCREVEU `tests/crm-contacts.test.mjs` (tinha testes do
+  SPLIT 2) ao "criar" o arquivo — perdeu cobertura. Pego no review do controller e restaurado. **Sempre
+  instruir 'APPEND, nunca overwrite' quando o subagente toca arquivo de teste existente, e conferir o diff.**
+
 ## SPLIT 6A CONCLUÍDO — `lib/portfolio/*` + provider `CourseSource` (2026-06-15)
 
 Fechado o último sub-passo do 6A (só código TS; migration 011 já estava aplicada). Novo módulo

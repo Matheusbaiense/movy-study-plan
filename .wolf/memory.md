@@ -3,6 +3,20 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+| 2026-06-15 | Task 7: replaced `<form action={createStudyPlan}>/<NewQuoteButton>` with `<NewProposalModal locale={locale} />` in study-plans page.tsx; removed unused createStudyPlan + NewQuoteButton imports; type-check + build pass | app/[locale]/(protected)/study-plans/page.tsx | commit 69fee08 | ~800 tok |
+
+| 2026-06-15 | Task 5: searchContacts + searchContactsAction + createProposalForContact (passo-0 backend) | lib/crm/contacts.ts, app/[locale]/(protected)/study-plans/actions.ts | type-check clean, build clean, committed ee7b285 | ~3k |
+| 2026-06-15 | Task 4: listActivePriceVersions query + CourseSource.listPrices + interface extension | lib/portfolio/queries.ts, lib/portfolio/types.ts, lib/portfolio/course-source.ts | type-check clean, 11/11 tests pass, committed 1fd60a6 | ~2k |
+| 2026-06-15 | Task 3: appended priceVersionLabel + toPricedOptions tests + impl | lib/portfolio/types.ts, tests/portfolio.test.mjs | 11/11 tests pass, type-check clean, committed 6597bc5 | ~2k |
+
+## Session: 2026-06-15 (Task 1 — Contact custom-attribute helpers, woofed-shaped)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| now | TDD: wrote failing test for CONTACT_ATTR/getContactNationality/buildContactAttributes | tests/crm-contacts.test.mjs | RED: 4/4 fail (CONTACT_ATTR undefined) | ~1k |
+| now | Appended CONTACT_ATTR + readStringAttr + getContactNationality + LeadAttrs + buildContactAttributes to contacts.ts | lib/crm/contacts.ts | GREEN: 4/4 pass, 30/30 total, type-check clean | ~1k |
+| now | Committed feat(crm): woofed-shaped lead custom-attribute helpers | lib/crm/contacts.ts, tests/crm-contacts.test.mjs | commit f6c83fb on main | ~0.5k |
+
 ## Session: 2026-06-15 (SPLIT 2 â€” proposal domain + CRM contacts seam, migration 010)
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -151,3 +165,5 @@
 | 11:20 | SPLIT 6A final: lib/portfolio/* (types+queries+pricing-rules+markets+course-source+index) + provider CourseSource | lib/portfolio/*, tests/portfolio.test.mjs | type-check+test(26)+build green | ~9k |
 
 | 12:04 | Regra documentada: WOOFED-SHAPED FIRST (campo nao-nativo -> custom_attributes; conferir db/schema.rb antes de criar coluna) | .wolf/cerebrum.md, docs/AI-HANDOVER.md, spec | regra gravada | ~1k |
+| 12:20 | Task 2: country helpers — created lib/constants/countries.ts, appended 2 tests to tests/crm-contacts.test.mjs | lib/constants/countries.ts, tests/crm-contacts.test.mjs | 9/9 tests pass, type-check clean, committed 3003057 | ~600 |
+| 12:37 | SPLIT 4 inicio: passo-0 NewProposalModal (buscar/criar lead) + actions (searchContactsAction/createProposalForContact) + seam de preco (priceVersionLabel/toPricedOptions/listActivePriceVersions/CourseSource.listPrices) + countries.ts + lead helpers woofed-shaped | lib/crm, lib/portfolio, lib/constants, study-plans/* , tests | type-check+test(37)+build green | ~12k |

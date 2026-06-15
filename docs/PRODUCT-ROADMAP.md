@@ -453,7 +453,13 @@ paginação, lixeira, toasts.
 **Aceite:** lista usável com filtros/paginação; ações em lote e individuais via actions do SPLIT 2.
 **Depende de:** SPLIT 2.
 
-### SPLIT 4 — Editor de proposta (UI) — **consome o portfólio (SPLIT 6) já pronto**
+### SPLIT 4 — Editor de proposta (UI) — **consome o portfólio (SPLIT 6) já pronto** — 🚧 EM ANDAMENTO
+> **Iniciado 2026-06-15 (passo-0 + seam de preço, SEM tocar o editor):** entregue o fluxo "Criar proposta →
+> escolher/criar lead" (`NewProposalModal`, actions `searchContactsAction`/`createProposalForContact`),
+> lead **woofed-shaped** (`custom_attributes`: nationality/lead_source/preferred_language — sem migration),
+> e o seam de preço (`priceVersionLabel`/`toPricedOptions`/`CourseSource.listPrices`). **Falta (o grosso do
+> SPLIT 4):** refatorar `StudyPlanEditor.tsx` em wizard + course picker (consome `CourseSource.resolve`) +
+> seletor de preço (consome `listPrices`) + comparador/cenários/templates/autosave. Spec/plano em `docs/superpowers/`.
 **Objetivo:** o maior ganho de usabilidade. **Refatora `StudyPlanEditor.tsx` (~11k tok) em wizard.**
 **Schema (migration 012):** `proposal_versions` (restaurar versão) + `proposal_templates` (extensão do
 SPLIT 2, ver nota lá) + `types/supabase.ts`.

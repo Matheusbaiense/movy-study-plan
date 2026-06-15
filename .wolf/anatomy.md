@@ -48,7 +48,8 @@
 ## app/[locale]/(protected)/study-plans/
 
 - `actions.ts` — Narrow an arbitrary string to the live `study_plan_status` enum union. (~4700 tok)
-- `page.tsx` — Sanitize free-text before embedding it in a PostgREST `or()` filter. (~1552 tok)
+- `page.tsx` — Study plans list page; entry-point button is now `<NewProposalModal locale={locale} />`. (~1500 tok)
+- `NewProposalModal.tsx` — Passo-0 modal for creating proposals; default export, prop `locale: string`. (~est tok)
 - `ProposalsList.tsx` — Server-built view-model: all formatting done server-side, interaction client-side. (~5542 tok)
 
 ## app/[locale]/(protected)/study-plans/[id]/
@@ -134,10 +135,11 @@
 
 ## lib/constants/
 
+- `countries.ts` — ISO-3166 alpha-2 country list (190 codes) + `countryName(code, locale)` via Intl.DisplayNames + `countryOptions(locale)` sorted {code,name} pairs for lead forms. (~600 tok)
 
 ## lib/crm/
 
-- `contacts.ts` — org-scoped CRM contacts seam (SPLIT 2): queries + dedup upsertContact, RLS-scoped. (~1400 tok)
+- `contacts.ts` — org-scoped CRM contacts seam (SPLIT 2): queries + dedup upsertContact + searchContacts (typeahead) + woofed-shaped lead helpers (CONTACT_ATTR, getContactNationality, buildContactAttributes). RLS-scoped. (~1900 tok)
 
 ## lib/financial/
 
@@ -151,8 +153,9 @@
 - `queries.ts` — org-scoped reads: listInstitutions/listCampuses/listCourses/getCourseWithRefs + currentCoursePrice (RPC). (~1200 tok)
 - `pricing-rules.ts` — CRUD de pricing_rules + getActiveRules (→ PricingRule[] p/ o engine). (~900 tok)
 - `markets.ts` — CRUD de markets (agrupa nacionalidades em country_codes). (~700 tok)
-- `course-source.ts` — createPortfolioCourseSource(supabase): provider do CourseSource (search/resolve), aplica applyRulesToPlan no resolve. (~1100 tok)
+- `course-source.ts` — createPortfolioCourseSource(supabase): provider do CourseSource (search/resolve/listPrices), aplica applyRulesToPlan no resolve. (~1200 tok)
 - `index.ts` — barrel.
+- `types.ts` (SPLIT 4 add): priceVersionLabel (País>Mercado>Normal) + toPricedOptions + PricedOption. `queries.ts`: listActivePriceVersions.
 
 ## lib/security/
 

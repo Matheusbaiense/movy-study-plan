@@ -298,7 +298,32 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
-### 2026-06-15 - SPLIT 6A CONCLUÍDO: `lib/portfolio/*` + provider `CourseSource` — **COMECE AQUI**
+### 2026-06-15 - SPLIT 4 (início): fluxo "criar proposta → escolher/criar lead" + seam de preço por nacionalidade — **COMECE AQUI**
+
+> **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅**. SPLIT 4 **iniciado**
+> (passo-0 + seam de preço). **SEM migration** (campos de lead em `custom_attributes`, padrão woofed).
+> type-check ✅ · `node --test` 37/37 ✅ · build ✅. Spec/plano em `docs/superpowers/`.
+
+- **Regra nova documentada: WOOFED-SHAPED FIRST** (ver Regras de Ouro no topo). Campos de negócio sem
+  coluna nativa no woofed vão em `custom_attributes`, nunca coluna dedicada — sync 1:1 com o CRM futuro.
+- **Fluxo de criação de proposta (passo-0):** botão "Criar proposta" abre `NewProposalModal`
+  (`app/[locale]/(protected)/study-plans/NewProposalModal.tsx`) → buscar lead existente (typeahead) OU
+  criar novo lead inline (nome* · email · telefone · nacionalidade + expander origem/idioma) → cria o
+  `study_plan` com `contact_id` e abre o editor. Server actions novas em `study-plans/actions.ts`:
+  `searchContactsAction`, `createProposalForContact` (+ `ContactPick`).
+- **Lead woofed-shaped:** `lib/crm/contacts.ts` ganhou `CONTACT_ATTR` (nationality/lead_source/
+  preferred_language), `getContactNationality`, `buildContactAttributes`, `searchContacts`. Nacionalidade
+  mora em `custom_attributes.nationality` (alpha-2). `lib/constants/countries.ts` = lista ISO + `countryName`/`countryOptions`.
+- **Seam de preço:** `lib/portfolio` ganhou `priceVersionLabel` (País·X > Mercado·Y > Normal·padrão),
+  `toPricedOptions`, `listActivePriceVersions` e **`CourseSource.listPrices`** — tudo pronto pro editor
+  oferecer troca de preço (Normal/Mercado/País). Resolução automática por nacionalidade já existia em `resolve`.
+- **DEFERIDO pro SPLIT 4 cheio (não reabrir `StudyPlanEditor.tsx` 2×):** o **seletor de preço dentro do
+  editor** (dropdown que consome `listPrices`) e o **course picker** que consome `CourseSource.resolve`.
+  Tudo que eles precisam já está entregue. Ver `docs/superpowers/plans/2026-06-15-proposal-lead-flow-pricing.md` (seção "Deferred").
+- **Modelo de preço (decisão):** país e mercado são **camadas que coexistem** (mais específico vence), não
+  um modo "ou". Override de país só onde a escola diferencia (Colômbia ≠ Brasil dentro de LATAM). Ver roadmap §3.2/§4.3.
+
+### 2026-06-15 - SPLIT 6A CONCLUÍDO: `lib/portfolio/*` + provider `CourseSource`
 
 > **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅ (banco + código)**.
 > Migrations 010 + 011 aplicadas em `xpthmguzcbmndyyexfbt`. **Próximo a executar = SPLIT 4 (editor).**
