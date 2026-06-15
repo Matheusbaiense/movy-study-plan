@@ -68,3 +68,23 @@ test('buildContactAttributes removes a key when set to empty', () => {
   const out = crm.buildContactAttributes({ nationality: '' }, { nationality: 'BR' })
   assert.equal('nationality' in out, false)
 })
+
+// --- Task 2: Country helpers + options list ------------------------------------
+
+const countries = await import('../lib/constants/countries.ts')
+
+test('countryName returns a localized name and tolerates bad input', () => {
+  assert.equal(countries.countryName('BR'), 'Brasil')
+  assert.equal(countries.countryName('br'), 'Brasil')
+  assert.equal(countries.countryName('ZZ'), 'ZZ')
+})
+
+test('countryOptions returns sorted {code,name} pairs covering common nationalities', () => {
+  const opts = countries.countryOptions()
+  assert.ok(opts.length > 50)
+  assert.ok(opts.every((o) => typeof o.code === 'string' && o.code.length === 2))
+  assert.ok(opts.some((o) => o.code === 'BR'))
+  assert.ok(opts.some((o) => o.code === 'CO'))
+  const names = opts.map((o) => o.name)
+  assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b, 'pt-BR')))
+})
