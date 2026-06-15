@@ -1,7 +1,14 @@
 # anatomy.md
 
 > Auto-maintained by OpenWolf. Last scanned: 2026-06-15T01:15:06.167Z
-> Files: 7 tracked | Anatomy hits: 0 | Misses: 0
+> Files: 8 tracked | Anatomy hits: 0 | Misses: 0
+
+## components/study-plans/
+
+- **CoursePortfolioPicker.tsx** — `'use client'` subcomponent for searching the course portfolio catalog, picking a course (calls `searchCoursesAction` + `resolveCourseAction`), and switching price versions (calls `listCoursePricesAction`). Props: `nationality`, `location`, `onApply`, `onPriceVersion`. ~103 lines.
+- **EditorWizardNav.tsx** + **editor-wizard-steps.ts** — 5-step wizard nav (Cliente → Preferências → Cursos → Custos → Revisão).
+- **StudyPlanEditor.tsx** — wizard shell; one step at a time; visa date warning on Revisão.
+- **EditorStickyBar.tsx** — fixed bottom bar: Total/Fechamento/Saldo parcelar, save status, Salvar + Proposta/PDF links.
 
 ## ./
 
@@ -47,7 +54,7 @@
 
 ## app/[locale]/(protected)/study-plans/
 
-- `actions.ts` — Narrow an arbitrary string to the live `study_plan_status` enum union. (~4700 tok)
+- `actions.ts` — Server actions for study plans + portfolio course search/resolve/listPrices (SPLIT 4). Exports: createStudyPlan, updateStudyPlan, duplicateStudyPlan, changeStudyPlanStatus, archiveStudyPlan, softDeleteStudyPlan, restoreStudyPlan, hardDeleteStudyPlan, bulkStudyPlanAction, upsertContact, searchContactsAction, createProposalForContact, deleteStudyPlan, searchCoursesAction, resolveCourseAction, listCoursePricesAction. (~5000 tok)
 - `page.tsx` — Study plans list page; entry-point button is now `<NewProposalModal locale={locale} />`. (~1500 tok)
 - `NewProposalModal.tsx` — Passo-0 modal for creating proposals; default export, prop `locale: string`. (~est tok)
 - `ProposalsList.tsx` — Server-built view-model: all formatting done server-side, interaction client-side. (~5542 tok)

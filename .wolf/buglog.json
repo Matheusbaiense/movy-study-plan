@@ -257,6 +257,30 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T01:04:33.558Z"
+    },
+    {
+      "id": "bug-split4-sticky",
+      "timestamp": "2026-06-15T00:00:00.000Z",
+      "error_message": "Barra de totais do editor cobre a sidebar no desktop",
+      "file": "components/study-plans/StudyPlanEditor.tsx",
+      "root_cause": "EditorStickyBar usava position:fixed; left:0; right:0 (preso ao viewport); o scroll real e o <div overflowY:auto> do AppShell e a sidebar e irma flex, entao a barra atravessava por baixo dela",
+      "fix": "Mover a barra para fora do .sp-editor-layout (irma do grid, filha direta de <main>) e usar position:sticky; bottom:0 — restrita a largura da coluna de conteudo",
+      "tags": ["split4", "css", "layout", "sticky", "visual"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T00:00:00.000Z"
+    },
+    {
+      "id": "bug-split4-wizard-remount",
+      "timestamp": "2026-06-15T00:00:00.000Z",
+      "error_message": "Ao trocar de etapa do wizard, o CoursePortfolioPicker perde busca e seletor de preco",
+      "file": "components/study-plans/StudyPlanEditor.tsx",
+      "root_cause": "Etapas renderizadas condicionalmente ({step === 'x' && ...}) desmontavam os componentes e zeravam o estado local do picker",
+      "fix": "Renderizar todas as etapas sempre e alternar visibilidade por style display none/grid (nao usar atributo hidden, sobrescrito por inline display)",
+      "tags": ["split4", "react", "state", "wizard"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T00:00:00.000Z"
     }
   ]
 }

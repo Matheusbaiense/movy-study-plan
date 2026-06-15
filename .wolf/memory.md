@@ -3,6 +3,13 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+| 2026-06-15 | SPLIT 4 slice 3: wizard shell (5 steps + EditorWizardNav) | editor-wizard-steps.ts, EditorWizardNav.tsx, StudyPlanEditor.tsx | type-check + build ✓ | ~2k |
+| 2026-06-15 | SPLIT 4 slice 2: EditorStickyBar + autosave (2.5s debounce) | EditorStickyBar.tsx, StudyPlanEditor.tsx | type-check + 37 tests + build ✓ | ~1.2k |
+| 2026-06-15 | SPLIT 4 slice 1: wired CoursePortfolioPicker into StudyPlanEditor + page passes contactNationality | StudyPlanEditor.tsx, [id]/page.tsx | commits 1e783b0 + 04d8468, type-check + build ✓ | ~1.5k |
+| 2026-06-15 | Created CoursePortfolioPicker.tsx (Task C of SPLIT 4) | components/study-plans/CoursePortfolioPicker.tsx | type-check clean, committed aa39841 | ~800 tokens |
+
+| 00:00 | SPLIT 4: Added portfolio course server actions (searchCoursesAction, resolveCourseAction, listCoursePricesAction) + imports (createPortfolioCourseSource, CourseOption, PortfolioCourseRef, PricedOption, StudentLocation) | app/[locale]/(protected)/study-plans/actions.ts | committed 6777edd, type-check clean, build ✓ | ~500 |
+
 | 2026-06-15 | Task 7: replaced `<form action={createStudyPlan}>/<NewQuoteButton>` with `<NewProposalModal locale={locale} />` in study-plans page.tsx; removed unused createStudyPlan + NewQuoteButton imports; type-check + build pass | app/[locale]/(protected)/study-plans/page.tsx | commit 69fee08 | ~800 tok |
 
 | 2026-06-15 | Task 5: searchContacts + searchContactsAction + createProposalForContact (passo-0 backend) | lib/crm/contacts.ts, app/[locale]/(protected)/study-plans/actions.ts | type-check clean, build clean, committed ee7b285 | ~3k |
@@ -167,3 +174,4 @@
 | 12:04 | Regra documentada: WOOFED-SHAPED FIRST (campo nao-nativo -> custom_attributes; conferir db/schema.rb antes de criar coluna) | .wolf/cerebrum.md, docs/AI-HANDOVER.md, spec | regra gravada | ~1k |
 | 12:20 | Task 2: country helpers — created lib/constants/countries.ts, appended 2 tests to tests/crm-contacts.test.mjs | lib/constants/countries.ts, tests/crm-contacts.test.mjs | 9/9 tests pass, type-check clean, committed 3003057 | ~600 |
 | 12:37 | SPLIT 4 inicio: passo-0 NewProposalModal (buscar/criar lead) + actions (searchContactsAction/createProposalForContact) + seam de preco (priceVersionLabel/toPricedOptions/listActivePriceVersions/CourseSource.listPrices) + countries.ts + lead helpers woofed-shaped | lib/crm, lib/portfolio, lib/constants, study-plans/* , tests | type-check+test(37)+build green | ~12k |
+| 15:49 | SPLIT 4 REFEITO: reset --hard aa39841 + force-push (apaga commits do Cursor D→wizard); editor reconstruido (picker+override+sticky/autosave+wizard) com fix da sticky bar (sticky vs fixed) e wizard sem desmontar etapas | StudyPlanEditor.tsx, EditorStickyBar.tsx, EditorWizardNav.tsx, CoursePortfolioPicker.tsx, page.tsx | type-check+test(37)+build green; commit 593c384 | ~20k |

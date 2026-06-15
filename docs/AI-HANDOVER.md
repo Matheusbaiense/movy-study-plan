@@ -298,7 +298,39 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
-### 2026-06-15 - SPLIT 4 (início): fluxo "criar proposta → escolher/criar lead" + seam de preço por nacionalidade — **COMECE AQUI**
+### 2026-06-15 - SPLIT 4 (editor) REFEITO: picker + override + sticky/autosave + wizard — **COMECE AQUI**
+
+> **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅**. SPLIT 4 editor entregue
+> (picker · auto-price · override · sticky/autosave · wizard 5 etapas). Migration 012 + comparador/cenários
+> ainda pendente. type-check ✅ · `node --test` 37/37 ✅ · build ✅.
+> Plano: `docs/superpowers/plans/2026-06-15-split4-course-picker.md`.
+
+**Contexto do refazimento:** a primeira passada (feita no Cursor com um modelo fraco) entrou em `main`
+com bugs visuais. A pedido do dono, o histórico foi resetado para `aa39841` (Task C) com `git reset --hard`
++ `push --force`, e o editor foi reconstruído nesta sessão (Claude/Opus). Os bugs foram corrigidos:
+
+- **Barra de totais:** `position: sticky; bottom:0` dentro do `<main>` — antes era `position: fixed`, que
+  atravessava por baixo da sidebar no desktop. Agora respeita a largura da coluna de conteúdo.
+- **Wizard:** as 5 etapas ficam **montadas** (alternadas por `display`), então o `CoursePortfolioPicker`
+  preserva busca + seletor de preço ao trocar de etapa (antes desmontava e perdia o estado local).
+- **Autosave:** inicia em `'saved'` com `lastSavedAt` no mount (sem "Alterações não salvas" ao abrir limpo)
+  e tem guarda `isPending` (sem save sobreposto). Debounce 2,5s via `updateStudyPlan`.
+- **`CoursePortfolioPicker`:** estilos alinhados aos tokens de input do editor.
+
+**Editor:** o `<select>` "Aplicar preset…" foi substituído por `CoursePortfolioPicker` em cada card de
+curso. Busca typeahead → `resolveCourseAction` preenche identidade + preço pela nacionalidade do lead +
+`studentLocation`; seletor "Preço aplicado" (Normal/Mercado/País) via `listCoursePricesAction`. Mesmo tipo
+= overlay (preserva cronograma/módulos); tipo diferente = curso resolvido inteiro. `priceVersionId` gravado.
+**Wizard 5 etapas:** Cliente → Preferências → Cursos → Custos → Revisão (resumo + alerta visto × datas +
+timeline), `EditorWizardNav` com progresso/pills/Anterior-Próximo. Sidebar + sticky bar visíveis sempre.
+**Server actions:** `searchCoursesAction`, `resolveCourseAction`, `listCoursePricesAction`.
+**Página:** `[id]/page.tsx` lê `contact_id` → `getContactNationality` → prop `contactNationality`.
+**Presets legados:** prop `presets` mantida (não usada na UI). Campos manuais continuam como fallback.
+**A verificar visualmente no app rodando** (rota protegida, não dá pra screenshotar daqui): sticky bar,
+transições do wizard e o dropdown do picker em telas estreitas.
+**DEFERIDO:** migration 012 (templates + histórico de versões), comparador de opções, cenários 6/8/12.
+
+### 2026-06-15 - SPLIT 4 (início): fluxo "criar proposta → escolher/criar lead" + seam de preço por nacionalidade
 
 > **Estado:** Splits prontos: **UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ · 6A ✅**. SPLIT 4 **iniciado**
 > (passo-0 + seam de preço). **SEM migration** (campos de lead em `custom_attributes`, padrão woofed).
@@ -317,9 +349,9 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 - **Seam de preço:** `lib/portfolio` ganhou `priceVersionLabel` (País·X > Mercado·Y > Normal·padrão),
   `toPricedOptions`, `listActivePriceVersions` e **`CourseSource.listPrices`** — tudo pronto pro editor
   oferecer troca de preço (Normal/Mercado/País). Resolução automática por nacionalidade já existia em `resolve`.
-- **DEFERIDO pro SPLIT 4 cheio (não reabrir `StudyPlanEditor.tsx` 2×):** o **seletor de preço dentro do
-  editor** (dropdown que consome `listPrices`) e o **course picker** que consome `CourseSource.resolve`.
-  Tudo que eles precisam já está entregue. Ver `docs/superpowers/plans/2026-06-15-proposal-lead-flow-pricing.md` (seção "Deferred").
+- **DEFERIDO pro SPLIT 4 cheio (não reabrir `StudyPlanEditor.tsx` 2×):** refatorar em wizard +
+  comparador/cenários/templates/autosave (migration 012). **Course picker + seletor de preço JÁ ENTREGUES**
+  (2026-06-15 slice 1). Ver `docs/superpowers/plans/2026-06-15-split4-course-picker.md`.
 - **Modelo de preço (decisão):** país e mercado são **camadas que coexistem** (mais específico vence), não
   um modo "ou". Override de país só onde a escola diferencia (Colômbia ≠ Brasil dentro de LATAM). Ver roadmap §3.2/§4.3.
 

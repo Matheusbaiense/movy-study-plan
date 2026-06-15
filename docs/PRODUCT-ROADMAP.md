@@ -457,9 +457,12 @@ paginação, lixeira, toasts.
 > **Iniciado 2026-06-15 (passo-0 + seam de preço, SEM tocar o editor):** entregue o fluxo "Criar proposta →
 > escolher/criar lead" (`NewProposalModal`, actions `searchContactsAction`/`createProposalForContact`),
 > lead **woofed-shaped** (`custom_attributes`: nationality/lead_source/preferred_language — sem migration),
-> e o seam de preço (`priceVersionLabel`/`toPricedOptions`/`CourseSource.listPrices`). **Falta (o grosso do
-> SPLIT 4):** refatorar `StudyPlanEditor.tsx` em wizard + course picker (consome `CourseSource.resolve`) +
-> seletor de preço (consome `listPrices`) + comparador/cenários/templates/autosave. Spec/plano em `docs/superpowers/`.
+> e o seam de preço (`priceVersionLabel`/`toPricedOptions`/`CourseSource.listPrices`).
+> **Slice 1 (2026-06-15): course picker + auto-price + override ✅** — `CoursePortfolioPicker` no editor,
+> actions `searchCoursesAction`/`resolveCourseAction`/`listCoursePricesAction`, nacionalidade do lead
+> passada pela página. **Slice 2 (2026-06-15): sticky totals + autosave ✅** — `EditorStickyBar` + debounce
+> 2,5s. **Slice 3 (2026-06-15): wizard shell ✅** — 5 etapas + `EditorWizardNav`. **Falta:** comparador,
+> cenários, templates/histórico (migration 012), painel explain, BRL. Spec em `docs/superpowers/plans/`.
 **Objetivo:** o maior ganho de usabilidade. **Refatora `StudyPlanEditor.tsx` (~11k tok) em wizard.**
 **Schema (migration 012):** `proposal_versions` (restaurar versão) + `proposal_templates` (extensão do
 SPLIT 2, ver nota lá) + `types/supabase.ts`.
