@@ -1,9 +1,10 @@
 -- ============================================================================
 -- 011 — Portfólio normalizado + motor de regras (SPLIT 6A, parte 2/2)
 -- ============================================================================
--- RASCUNHO PARA REVISÃO — NÃO APLICADO. Aplicar via Supabase MCP `apply_migration`
--- no projeto canônico `xpthmguzcbmndyyexfbt` após revisão do dono. Idempotente
--- (IF NOT EXISTS / DROP POLICY IF EXISTS) e seguro para re-rodar.
+-- ✅ APLICADA em 2026-06-15 no projeto canônico `xpthmguzcbmndyyexfbt` via Supabase MCP
+-- (após aprovação do dono). Tipos regenerados (`types/supabase.ts`). Idempotente
+-- (IF NOT EXISTS / DROP POLICY IF EXISTS) e seguro para re-rodar. Inclui `markets`
+-- (país+mercado) e `current_course_price()` — ver decisão de nacionalidade abaixo.
 --
 -- P0 WHITE-LABEL FIRST: TODA tabela carrega org_id (default Movy) + RLS por org +
 -- índice em org_id; unicidade SEMPRE por org (nunca global). P9: todo dinheiro é
@@ -211,6 +212,48 @@ create policy "admins delete courses" on public.courses
   );
 
 -- ============================================================================
+-- 3.5) markets — agrupamento de nacionalidades por mercado (por org, P0)
+--    Cada agência define seus mercados (ex.: "América do Sul" = [BR,CO,AR,...]).
+--    Um price_version pode mirar um país (nationality) OU um mercado (market_id).
+--    Resolução: país-específico > mercado > padrão (ver current_course_price).
+-- ============================================================================
+create table if not exists public.markets (
+  id             uuid primary key default gen_random_uuid(),
+  org_id         uuid not null default '11111111-1111-4111-8111-111111111111'
+                   references public.organizations(id) on delete restrict,
+  name           text not null,
+  code           text,                                  -- slug curto opcional (ex.: 'south_america')
+  country_codes  text[] not null default '{}',          -- ISO-3166 alpha-2 maiúsculo
+  metadata       jsonb not null default '{}'::jsonb,     -- R6
+  created_by     uuid references public.profiles(id) on delete set null,
+  updated_by     uuid references public.profiles(id) on delete set null,
+  deleted_at     timestamptz,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+
+create index if not exists markets_org_idx on public.markets(org_id);
+create unique index if not exists markets_org_name_uniq
+  on public.markets(org_id, lower(name)) where deleted_at is null;
+
+drop trigger if exists markets_set_updated_at on public.markets;
+create trigger markets_set_updated_at before update on public.markets
+  for each row execute function public.set_updated_at();
+
+alter table public.markets enable row level security;
+
+drop policy if exists "active users read markets" on public.markets;
+create policy "active users read markets" on public.markets
+  for select using (public.is_active_user() and org_id = public.current_org_id());
+drop policy if exists "admins manage markets" on public.markets;
+create policy "admins manage markets" on public.markets
+  for all using (
+    public.current_user_role() in ('admin','super_admin') and org_id = public.current_org_id()
+  ) with check (
+    public.current_user_role() in ('admin','super_admin') and org_id = public.current_org_id()
+  );
+
+-- ============================================================================
 -- 4) course_price_versions — histórico de preço (P9: tudo em *_in_cents)
 -- ============================================================================
 create table if not exists public.course_price_versions (
@@ -218,11 +261,11 @@ create table if not exists public.course_price_versions (
   org_id                 uuid not null default '11111111-1111-4111-8111-111111111111'
                            references public.organizations(id) on delete restrict,
   course_id              uuid not null references public.courses(id) on delete cascade,
-  -- Preço por NACIONALIDADE/mercado: NULL = preço padrão (todas as nacionalidades);
-  -- uma linha com nationality='BR' SOBREPÕE para brasileiros. Resolução = mais
-  -- específico vence (match de nacionalidade > NULL), depois valid_from mais recente.
-  -- ISO-3166 alpha-2 maiúsculo (ex.: 'BR','CN','CO'); livre p/ permitir mercados.
-  nationality            text,
+  -- Preço por NACIONALIDADE/MERCADO. Um price_version mira: um país (nationality),
+  -- um mercado (market_id), ou nenhum (padrão/todas). Resolução = mais específico
+  -- vence: país > mercado > padrão; depois valid_from recente (ver current_course_price).
+  nationality            text,   -- ISO-3166 alpha-2 maiúsculo (ex.: 'BR','CN','CO')
+  market_id              uuid references public.markets(id) on delete set null,
   valid_from             date not null default current_date,
   valid_until            date,
   tuition_in_cents       bigint not null default 0,    -- VET/HE
@@ -244,9 +287,11 @@ create table if not exists public.course_price_versions (
 
 create index if not exists cpv_org_idx on public.course_price_versions(org_id);
 create index if not exists cpv_course_valid_idx on public.course_price_versions(course_id, valid_from desc);
--- Resolução por nacionalidade: filtra por (course, nationality | NULL) e pega o mais recente.
+-- Resolução por nacionalidade/mercado.
 create index if not exists cpv_course_nat_idx
   on public.course_price_versions(course_id, nationality, valid_from desc);
+create index if not exists cpv_course_market_idx
+  on public.course_price_versions(course_id, market_id, valid_from desc);
 
 drop trigger if exists cpv_set_updated_at on public.course_price_versions;
 create trigger cpv_set_updated_at before update on public.course_price_versions
@@ -275,10 +320,11 @@ create policy "admins delete price versions" on public.course_price_versions
     public.current_user_role() in ('admin','super_admin') and org_id = public.current_org_id()
   );
 
--- Resolução canônica de preço por NACIONALIDADE (1 só lugar, reusado pelo provider
--- CourseSource). SECURITY INVOKER (default) → respeita RLS do usuário/org. Mais
--- específico vence: vigência com nationality = p_nationality antes da NULL (padrão);
--- depois valid_from mais recente, dentro da janela de validade.
+-- Resolução canônica de preço por NACIONALIDADE/MERCADO (1 só lugar, reusado pelo
+-- provider CourseSource). SECURITY INVOKER (default) → respeita RLS do usuário/org.
+-- Especificidade: país (nationality = p_nationality) > mercado (market contém o país)
+-- > padrão (nationality e market_id NULL); depois valid_from mais recente, dentro da
+-- janela. Linhas de OUTRO país/mercado não casam o WHERE e são ignoradas.
 create or replace function public.current_course_price(
   p_course      uuid,
   p_nationality text default null,
@@ -289,11 +335,22 @@ set search_path = public
 as $$
   select cpv.*
   from public.course_price_versions cpv
+  left join public.markets m on m.id = cpv.market_id and m.deleted_at is null
   where cpv.course_id = p_course
     and cpv.valid_from <= p_on
     and (cpv.valid_until is null or cpv.valid_until >= p_on)
-    and (cpv.nationality is null or cpv.nationality = p_nationality)
-  order by (cpv.nationality is not null) desc, cpv.valid_from desc
+    and (
+      (cpv.nationality is null and cpv.market_id is null)                    -- padrão
+      or cpv.nationality = p_nationality                                     -- país
+      or (cpv.market_id is not null and p_nationality = any(m.country_codes))-- mercado
+    )
+  order by
+    case
+      when cpv.nationality = p_nationality then 3
+      when cpv.market_id is not null and p_nationality = any(m.country_codes) then 2
+      else 1
+    end desc,
+    cpv.valid_from desc
   limit 1
 $$;
 

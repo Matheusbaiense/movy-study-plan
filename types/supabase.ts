@@ -1,3 +1,7 @@
+// types/supabase.ts — Auto-generated from Supabase project xpthmguzcbmndyyexfbt (org "movy education").
+// Regenerated 2026-06-15 after migration 011 (portfolio: institutions/campuses/courses/
+// course_price_versions/markets/pricing_rules + current_course_price). Do NOT edit by hand;
+// run the Supabase type generator after each migration. Source of truth = supabase/migrations/*.
 export type Json =
   | string
   | number
@@ -201,6 +205,83 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campuses: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          external_id: string | null
+          id: string
+          institution_id: string
+          metadata: Json
+          name: string
+          org_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          external_id?: string | null
+          id?: string
+          institution_id: string
+          metadata?: Json
+          name?: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          external_id?: string | null
+          id?: string
+          institution_id?: string
+          metadata?: Json
+          name?: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campuses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campuses_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campuses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campuses_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -501,6 +582,218 @@ export type Database = {
           },
         ]
       }
+      course_price_versions: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          deposit_weeks: number
+          enrolment_fee_in_cents: number
+          has_material: boolean
+          id: string
+          market_id: string | null
+          material_fee_in_cents: number
+          metadata: Json
+          nationality: string | null
+          org_id: string
+          payment_frequency: string
+          payment_parts: number
+          rate_per_week_in_cents: number
+          scholarship_in_cents: number
+          source_document_id: string | null
+          tuition_in_cents: number
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          deposit_weeks?: number
+          enrolment_fee_in_cents?: number
+          has_material?: boolean
+          id?: string
+          market_id?: string | null
+          material_fee_in_cents?: number
+          metadata?: Json
+          nationality?: string | null
+          org_id?: string
+          payment_frequency?: string
+          payment_parts?: number
+          rate_per_week_in_cents?: number
+          scholarship_in_cents?: number
+          source_document_id?: string | null
+          tuition_in_cents?: number
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          deposit_weeks?: number
+          enrolment_fee_in_cents?: number
+          has_material?: boolean
+          id?: string
+          market_id?: string | null
+          material_fee_in_cents?: number
+          metadata?: Json
+          nationality?: string | null
+          org_id?: string
+          payment_frequency?: string
+          payment_parts?: number
+          rate_per_week_in_cents?: number
+          scholarship_in_cents?: number
+          source_document_id?: string | null
+          tuition_in_cents?: number
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_price_versions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_price_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_price_versions_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_price_versions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          campus_id: string | null
+          confidence: number
+          created_at: string
+          created_by: string | null
+          cricos: string | null
+          currency_code: string
+          default_intake: string | null
+          deleted_at: string | null
+          english_level: string | null
+          external_id: string | null
+          id: string
+          institution_id: string
+          is_active: boolean
+          metadata: Json
+          name: string
+          org_id: string
+          source: string
+          timetable: string
+          type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          campus_id?: string | null
+          confidence?: number
+          created_at?: string
+          created_by?: string | null
+          cricos?: string | null
+          currency_code?: string
+          default_intake?: string | null
+          deleted_at?: string | null
+          english_level?: string | null
+          external_id?: string | null
+          id?: string
+          institution_id: string
+          is_active?: boolean
+          metadata?: Json
+          name: string
+          org_id?: string
+          source?: string
+          timetable?: string
+          type: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          campus_id?: string | null
+          confidence?: number
+          created_at?: string
+          created_by?: string | null
+          cricos?: string | null
+          currency_code?: string
+          default_intake?: string | null
+          deleted_at?: string | null
+          english_level?: string | null
+          external_id?: string | null
+          id?: string
+          institution_id?: string
+          is_active?: boolean
+          metadata?: Json
+          name?: string
+          org_id?: string
+          source?: string
+          timetable?: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           color: string | null
@@ -557,6 +850,161 @@ export type Database = {
           },
         ]
       }
+      institutions: {
+        Row: {
+          city: string | null
+          commission_default: number | null
+          completeness: number
+          country: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          external_id: string | null
+          id: string
+          logo_url: string | null
+          metadata: Json
+          name: string
+          notes: string | null
+          org_id: string
+          partnership_status: string
+          prices_valid_until: string | null
+          source: string
+          updated_at: string
+          updated_by: string | null
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          commission_default?: number | null
+          completeness?: number
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          external_id?: string | null
+          id?: string
+          logo_url?: string | null
+          metadata?: Json
+          name: string
+          notes?: string | null
+          org_id?: string
+          partnership_status?: string
+          prices_valid_until?: string | null
+          source?: string
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          commission_default?: number | null
+          completeness?: number
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          external_id?: string | null
+          id?: string
+          logo_url?: string | null
+          metadata?: Json
+          name?: string
+          notes?: string | null
+          org_id?: string
+          partnership_status?: string
+          prices_valid_until?: string | null
+          source?: string
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      markets: {
+        Row: {
+          code: string | null
+          country_codes: string[]
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          metadata: Json
+          name: string
+          org_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code?: string | null
+          country_codes?: string[]
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          metadata?: Json
+          name: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string | null
+          country_codes?: string[]
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          metadata?: Json
+          name?: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "markets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "markets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "markets_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           ai_usage: Json
@@ -589,6 +1037,88 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pricing_rules: {
+        Row: {
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effect: Json
+          id: string
+          is_active: boolean
+          label: string | null
+          metadata: Json
+          org_id: string
+          priority: number
+          scope: string
+          scope_id: string | null
+          updated_at: string
+          updated_by: string | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effect: Json
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          metadata?: Json
+          org_id?: string
+          priority?: number
+          scope: string
+          scope_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effect?: Json
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          metadata?: Json
+          org_id?: string
+          priority?: number
+          scope?: string
+          scope_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_rules_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -817,6 +1347,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_course_price: {
+        Args: { p_course: string; p_nationality?: string; p_on?: string }
+        Returns: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          deposit_weeks: number
+          enrolment_fee_in_cents: number
+          has_material: boolean
+          id: string
+          market_id: string | null
+          material_fee_in_cents: number
+          metadata: Json
+          nationality: string | null
+          org_id: string
+          payment_frequency: string
+          payment_parts: number
+          rate_per_week_in_cents: number
+          scholarship_in_cents: number
+          source_document_id: string | null
+          tuition_in_cents: number
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "course_price_versions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_org_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never

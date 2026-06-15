@@ -138,3 +138,10 @@
 | 09:47 | Edited tests/study-financial.test.mjs | expanded (+13 lines) | ~249 |
 | 09:48 | Edited docs/AI-HANDOVER.md | modified NACIONALIDADE() | ~547 |
 | 09:48 | SPLIT 6A: migration 011 rascunhada (portfólio+pricing_rules, P0/P9, promotions unificada) + NACIONALIDADE no preço (course_price_versions.nationality + fn current_course_price + RuleCondition.nationality). 17/17 testes | migrations/011, lib/calc/rules.ts | rascunho p/ revisão | ~12k |
+| 09:52 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | modified public() | ~679 |
+| 09:52 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | 6→6 lines | ~129 |
+| 09:52 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | 5→7 lines | ~127 |
+| 09:52 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | modified public() | ~378 |
+| 10:09 | Created types/supabase.ts | — | ~13356 |
+| 10:11 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | 3→4 lines | ~90 |
+| 10:13 | SPLIT 6A: migration 011 APLICADA via MCP em xpthmguzcbmndyyexfbt (11 inst/12 cursos/12 price_versions seedados, markets país+mercado, current_course_price). Tipos regenerados. Advisors 0 ERROR. type-check verde | migrations/011, types/supabase.ts | aplicada | ~14k |
