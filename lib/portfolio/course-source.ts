@@ -17,14 +17,15 @@ import type { Database } from '@/types/supabase'
 import type { StudyPlanData } from '../study-plans/types'
 import { applyRulesToPlan } from '../calc/rules.ts'
 import { getActiveRules } from './pricing-rules.ts'
-import { currentCoursePrice, getCourseWithRefs, listCourses } from './queries.ts'
-import { listInstitutions } from './queries.ts'
+import { listMarkets } from './markets.ts'
+import { currentCoursePrice, getCourseWithRefs, listActivePriceVersions, listCourses, listInstitutions } from './queries.ts'
 import {
   asCourseType,
   buildStudyCourse,
   priceVersionToSnapshot,
+  toPricedOptions,
 } from './types.ts'
-import type { CourseOption, CourseSource, PortfolioCourseRef, ResolveOptions } from './types'
+import type { CourseOption, CourseSource, PortfolioCourseRef, PricedOption, ResolveOptions } from './types'
 
 type Client = SupabaseClient<Database>
 
@@ -113,6 +114,14 @@ export function createPortfolioCourseSource(supabase: Client): CourseSource {
         extras: adjustedPlan.extraCosts,
         adjustments,
       }
+    },
+
+    async listPrices(courseId: string): Promise<PricedOption[]> {
+      const [versions, markets] = await Promise.all([
+        listActivePriceVersions(supabase, courseId),
+        listMarkets(supabase),
+      ])
+      return toPricedOptions(versions, markets)
     },
   }
 }

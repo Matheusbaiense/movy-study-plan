@@ -172,6 +172,8 @@ export interface ResolveOptions {
 export interface CourseSource {
   search(query: string): Promise<CourseOption[]>
   resolve(courseId: string, options?: ResolveOptions): Promise<PortfolioCourseRef | null>
+  /** All available prices for a course (Normal/Mercado/País), for the editor's override picker. */
+  listPrices(courseId: string): Promise<PricedOption[]>
 }
 
 // --- pricing_rules DB ↔ engine `PricingRule` mappers (PURE) --------------------

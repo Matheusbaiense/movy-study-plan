@@ -70,6 +70,23 @@ export async function getCourseWithRefs(supabase: Client, courseId: string): Pro
   return (data as CourseWithRefs | null) ?? null
 }
 
+/** All in-force price versions for a course (valid window honored), newest valid_from first. */
+export async function listActivePriceVersions(
+  supabase: Client,
+  courseId: string,
+  onDate?: string,
+): Promise<CoursePriceVersion[]> {
+  const today = onDate ?? new Date().toISOString().slice(0, 10)
+  const { data } = await supabase
+    .from('course_price_versions')
+    .select('*')
+    .eq('course_id', courseId)
+    .lte('valid_from', today)
+    .or(`valid_until.is.null,valid_until.gte.${today}`)
+    .order('valid_from', { ascending: false })
+  return data ?? []
+}
+
 /**
  * Resolve the price for a course as of `onDate` (default today), honoring the
  * student's `nationality` precedence, via the `current_course_price` RPC. Returns
