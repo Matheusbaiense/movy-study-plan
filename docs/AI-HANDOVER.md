@@ -298,6 +298,29 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 4 · fatia B: comparador de opções (B1 editor + B2 proposta)
+
+> **Estado:** entregue (B1 `79f6367` + B2 `ae582aa`). type-check ✅ · `node --test` 47/47 ✅ · build ✅.
+> Sem migration. Spec: `docs/superpowers/specs/2026-06-15-split4-options-comparator-design.md`.
+> Referência de UX: `docs/competitor-allyhub-blueprint.md` (AllyHub QuotePlayground/TabSystem).
+
+Múltiplas opções comparáveis na proposta (modelo AllyHub), até 5, editáveis **independentemente**.
+`plan.courses` = Opção 1 (principal); 2..5 em `plan.options[]` (jsonb, sem migration).
+
+- **B1 (editor):** refactor DRY — extraídos `editor-ui.tsx` (Section/Field/NumberInput/MiniStat +
+  tokens), `CourseListEditor.tsx` (cards de curso) e `ExtraCostsEditor.tsx` de `StudyPlanEditor`; o
+  mix primário passou a reusá-los (prova de não-regressão). `OptionsManager.tsx` no passo **Revisão**:
+  abas Opção 1 + 2..5, menu renomear/duplicar/remover/recomendada, faixa de comparação lado a lado.
+  Helpers puros `lib/study-plans/options.ts` + `tests/options.test.mjs` (6 casos).
+- **B2 (proposta/PDF):** `StudyPlanProposal` renderiza `OptionsComparison` (opções lado a lado,
+  recomendada destacada) após o resumo quando há `data.options`. Sem opções = render single-mix igual.
+
+**Fora de escopo (backlog no blueprint):** acomodação/seguro/add-on por opção; câmbio/IOF; landing
+page rica (mídia/like/WhatsApp); comissão; payment plan por opção.
+**⚠️ Validação visual da rota protegida pendente** (não consigo abrir o app autenticado): testar no
+editor → passo Revisão → "Opções da proposta" (criar/duplicar/renomear/recomendar, comparação) e a
+proposta/PDF com 2+ opções.
+
 ### 2026-06-15 - SPLIT 4 · fatia A: ScenarioPanel (comparador "e se?" por semanas)
 
 > **Estado:** entregue. type-check ✅ · `node --test` 41/41 ✅ · build ✅. Commit direto em `main`.
