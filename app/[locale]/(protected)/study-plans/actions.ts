@@ -9,7 +9,9 @@ import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
 import { upsertContact as upsertContactRecord, searchContacts } from '@/lib/crm/contacts'
 import type { Contact } from '@/lib/crm/contacts'
-import type { StudyPlanData, StudyPlanStatus } from '@/lib/study-plans/types'
+import type { StudyPlanData, StudyPlanStatus, StudentLocation } from '@/lib/study-plans/types'
+import { createPortfolioCourseSource } from '@/lib/portfolio/course-source'
+import type { CourseOption, PortfolioCourseRef, PricedOption } from '@/lib/portfolio/types'
 import type { Database, Json, Enums } from '@/types/supabase'
 import { Constants } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -585,6 +587,31 @@ export async function createProposalForContact(contactId: string, locale = 'pt')
 
   revalidatePath(`/${locale}/study-plans`)
   redirect(`/${locale}/study-plans/${plan.id}`)
+}
+
+/** Search the portfolio catalog for courses (picker typeahead). Editor+ only. */
+export async function searchCoursesAction(query: string): Promise<CourseOption[]> {
+  const { supabase } = await getActor()
+  if (!query.trim()) return []
+  return createPortfolioCourseSource(supabase).search(query)
+}
+
+/** Resolve a catalog course to a price snapshot + editor-ready course, by nationality. Editor+ only. */
+export async function resolveCourseAction(
+  courseId: string,
+  opts: { nationality?: string | null; location?: StudentLocation } = {},
+): Promise<PortfolioCourseRef | null> {
+  const { supabase } = await getActor()
+  return createPortfolioCourseSource(supabase).resolve(courseId, {
+    nationality: opts.nationality ?? undefined,
+    location: opts.location,
+  })
+}
+
+/** List the available prices for a catalog course (Normal/Mercado/País) for the override selector. */
+export async function listCoursePricesAction(courseId: string): Promise<PricedOption[]> {
+  const { supabase } = await getActor()
+  return createPortfolioCourseSource(supabase).listPrices(courseId)
 }
 
 export async function deleteStudyPlan(id: string, locale = 'pt') {
