@@ -8,6 +8,13 @@
 
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
+- **WHITE-LABEL FIRST (regra-mãe — aplicar em TODA decisão técnica).** Owner directive (2026-06-15):
+  every technical choice — schema, RLS, API, UI, naming, libs, config, integrations — must assume Movy
+  becomes a **white-label / multi-agency SaaS** later. Tie-breaker: always pick the option that makes
+  going white-label a **config change, not a rewrite**. Never assume a single agency; never hardcode the
+  Movy brand/data. Already-locked consequences: `org_id` + per-org RLS on every business entity;
+  uniqueness **per org**, never global; per-org branding/config; woofed-shaped naming; no hardcoded
+  secret/brand. This supersedes convenience — when in doubt, choose the multi-tenant-safe path.
 - Prefer fixing documented bugs before starting planned features, even when the feature work is already scoped.
 - High bar for visual quality; wants a genuinely professional UI. For a redesign, the ONLY brand constraints are the brand colors and the logo — typography, layout, components are all open to redesign.
 - When committing, keep documented bug/error fixes as separate commits from feature/redesign work.
@@ -165,3 +172,16 @@ deixaria o editor esperando os dois):
 **Por que esse corte:** o editor (4) só precisa de dados + `CourseSource` + motor de regras = tudo no 6A;
 com o seed dos presets, a proposta já monta com taxa automática sem esperar a UI. O motor de regras ganha
 **testes** antes de qualquer tela (onde um bug de cobrança passaria). **Nova ordem: 6A → 4 → 6B → 5.**
+
+## Decisão — White-label first é a regra-mãe de TODA decisão técnica (2026-06-15)
+
+**Diretriz do dono (verbatim de intenção):** "todas as decisões técnicas desse projeto precisam sempre
+se basear na ideia de ele virar um white-label no futuro. Isso precisa ser regra documentada."
+
+**Regra (governa todas as outras):** qualquer escolha técnica — schema, RLS, API, UI, naming, libs,
+config, integrações — assume Movy → **white-label / multi-agência (SaaS)**. **Desempate:** preferir
+SEMPRE a opção que torna o white-label **config, não reescrita/migração**. Proibido assumir agência única
+ou hardcodar marca/dados Movy. Consequências verificáveis em PR: `org_id`+RLS por org em toda entidade,
+unicidade por org (nunca global), branding/config por org, naming woofed-shaped, zero segredo/marca
+hardcoded. **Documentada em:** `docs/PRODUCT-ROADMAP.md` §2 (P0), `docs/AI-HANDOVER.md` (Regras de Ouro,
+1º item), e User Preferences acima. P1/P10 e R1–R11 (convergência) são consequências deste P0.

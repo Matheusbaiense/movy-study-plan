@@ -49,6 +49,14 @@ para poucos minutos, sem erro de cobrança.
 
 ## 2. Princípios de arquitetura (inegociáveis)
 
+- **P0 — WHITE-LABEL FIRST (regra-mãe, governa todas as outras).** TODA decisão técnica — schema, RLS,
+  API, UI, naming, escolha de libs, config, integrações — é tomada assumindo que a Movy vira **white-label
+  / multi-agência (SaaS)** no futuro. **Critério de desempate:** entre duas opções, escolher SEMPRE a que
+  torna o white-label uma **mudança de configuração, não uma reescrita/migração**. Nada pode assumir
+  "existe só uma agência" nem hardcodar marca/dados da Movy. P1 (tenancy-ready) e P10 (CRM-ready) são
+  **consequências** deste princípio; na prática ele se verifica via: `org_id` + RLS por org em toda
+  entidade de negócio, unicidade **por org** (nunca global), branding/config por org, naming woofed-shaped,
+  zero segredo/marca hardcoded. (Diretriz do dono, 2026-06-15 — vale acima de conveniência.)
 - **P1 — Tenancy-ready, single-tenant-ativo.** Hoje roda só pra Movy, mas o schema e o RLS
   já carregam a fronteira de organização (`org_id`) desde o dia 1, com uma org "Movy" semeada
   e usada por padrão. Virar **white-label / SaaS multi-agência** depois é mudança de

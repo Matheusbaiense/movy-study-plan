@@ -4,6 +4,13 @@ Este documento e o ponto de passagem entre Codex, Claude e qualquer outro agente
 
 ## Regras de Ouro
 
+- **WHITE-LABEL FIRST (regra-mãe, vale acima de todas).** TODA decisão técnica — schema, RLS, API, UI,
+  naming, libs, config, integrações — deve assumir que a Movy vai virar **white-label / multi-agência
+  (SaaS)** no futuro. Critério de desempate entre duas opções: escolher SEMPRE a que torna o white-label
+  uma **mudança de configuração, não uma reescrita**. Nada pode assumir "existe só uma agência" nem
+  hardcodar a marca/dados da Movy. Consequências já travadas (não são opcionais): `org_id` + RLS por org
+  em toda entidade de negócio; unicidade **por org**, nunca global; branding/config por org; naming
+  woofed-shaped; sem segredo/marca hardcoded. Ver `docs/PRODUCT-ROADMAP.md` §2 (P0/P1/P10).
 - O projeto agora e Movy Education. Nao reintroduzir nomes, rotas, textos ou processos da Fyme como marca ativa.
 - Conteudo antigo so pode ficar quando for conhecimento/processo realmente reutilizavel e ja neutralizado para Movy.
 - Nao adicionar pessoas reais em seed, UI, testes ou exemplos. Evitar nomes como Julia, Marcos, Mariana, Matheus, Beatriz/Beatrice.

@@ -121,3 +121,7 @@
 | 09:35 | Edited tests/study-financial.test.mjs | expanded (+51 lines) | ~675 |
 | 09:36 | Edited docs/AI-HANDOVER.md | modified 6A() | ~461 |
 | 09:36 | SPLIT 6A parte 1/2: lib/calc/rules.ts (applyRules pré-processador puro, ruleSet vazio=no-op) + scenarios.ts + 5 testes (16/16). Motor de regras = camada agência (promo/desconto/fee), estrutural fica no engine | lib/calc/{rules,scenarios}.ts | concluído | ~10k |
+| 09:38 | Session end: 56 writes across 9 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 14 reads | ~39534 tok |
+| 09:39 | Edited docs/AI-HANDOVER.md | modified travadas() | ~224 |
+| 09:39 | Edited docs/PRODUCT-ROADMAP.md | expanded (+8 lines) | ~256 |
+| 09:39 | Regra-mãe documentada: WHITE-LABEL FIRST governa toda decisão técnica (desempate = config, não reescrita). Em roadmap §2 (P0), handover Regras de Ouro, cerebrum prefs+decision log | docs/PRODUCT-ROADMAP.md, docs/AI-HANDOVER.md, .wolf/cerebrum.md | concluído | ~3k |
