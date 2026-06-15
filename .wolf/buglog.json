@@ -8,7 +8,12 @@
       "file": "app/[locale]/(protected)/wiki/page.tsx; app/[locale]/(protected)/departments/[slug]/page.tsx; components/study-plans/StudyPlanEditor.tsx; data/knowledge-sop-content.json; supabase/migrations/005_movy_knowledge_content.sql; supabase/migrations/006_cleanup_movy_knowledge.sql",
       "root_cause": "Previous brand pass left a few residual literal values in lower-traffic pages and seed data; timetable stored value was being rendered directly.",
       "fix": "Use font.display for residual headings, replace FYME teal with Movy purple in knowledge seeds, and add a timetable display label map while preserving the stored Manha value.",
-      "tags": ["brand", "frontend", "knowledge-seed", "study-plan"],
+      "tags": [
+        "brand",
+        "frontend",
+        "knowledge-seed",
+        "study-plan"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-11T23:44:32+08:00"
@@ -20,7 +25,10 @@
       "file": "shell command",
       "root_cause": "Paths with parentheses were passed to PowerShell without quoting.",
       "fix": "Reran the command with quoted paths and kept later Git path arguments quoted.",
-      "tags": ["powershell", "workflow"],
+      "tags": [
+        "powershell",
+        "workflow"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-11T23:44:32+08:00"
@@ -32,7 +40,11 @@
       "file": "validation clone workflow",
       "root_cause": "The local clone attempted to hardlink Git objects from the Google Drive-backed workspace.",
       "fix": "Created the validation clone with git clone --no-local and copied the changed files into that clone for validation.",
-      "tags": ["git", "google-drive", "validation"],
+      "tags": [
+        "git",
+        "google-drive",
+        "validation"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-11T23:44:32+08:00"
@@ -44,7 +56,13 @@
       "file": "components/layout/AppShell.tsx; app/globals.css",
       "root_cause": "Containers used 100vh (ignores mobile dynamic toolbar) and the html/body default background (white) showed behind the AppShell; the sticky blurred topbar overlapped scrolling content.",
       "fix": "Switched 100vh to 100dvh, set html/body background to var(--bg), and restructured the layout so the topbar is static and only <main> scrolls internally (overflow-y:auto).",
-      "tags": ["frontend", "layout", "dark-mode", "viewport", "css"],
+      "tags": [
+        "frontend",
+        "layout",
+        "dark-mode",
+        "viewport",
+        "css"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
@@ -56,8 +74,14 @@
       "file": "components/cambio/*; components/wiki/*; components/study-plans/*; settings/*; financial; departments; home",
       "root_cause": "Components used color.purpleDeep / hardcoded hex (e.g. #2A1153, #fff) as text and surface colors, which do not adapt to the theme.",
       "fix": "Migrated ~29 files to semantic theme tokens (t.text, var(--surface), ink(a)). Kept printed PDF document surfaces white on purpose.",
-      "tags": ["frontend", "dark-mode", "theme-tokens"],
-      "related_bugs": ["bug-004"],
+      "tags": [
+        "frontend",
+        "dark-mode",
+        "theme-tokens"
+      ],
+      "related_bugs": [
+        "bug-004"
+      ],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
     },
@@ -68,7 +92,12 @@
       "file": "middleware.ts; public/manifest.json",
       "root_cause": "The manifest link resolved relative to the locale segment and was not excluded from the next-intl + auth middleware matcher.",
       "fix": "Adjusted middleware so the manifest path bypasses i18n/auth (same pattern as /api/*).",
-      "tags": ["next-intl", "middleware", "pwa", "manifest"],
+      "tags": [
+        "next-intl",
+        "middleware",
+        "pwa",
+        "manifest"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
@@ -80,7 +109,12 @@
       "file": "Supabase auth (prod xpthmguzcbmndyyexfbt)",
       "root_cause": "User inserted via raw SQL left auth token columns NULL; GoTrue expects empty strings and errors when reading NULLs.",
       "fix": "Set the NULL token columns to '' (empty string). Prefer the Supabase Admin API over raw SQL inserts for auth users.",
-      "tags": ["supabase", "auth", "gotrue", "sql"],
+      "tags": [
+        "supabase",
+        "auth",
+        "gotrue",
+        "sql"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
@@ -92,7 +126,12 @@
       "file": "app/[locale]/(protected)/wiki/page.tsx; components/wiki/WikiListItem.tsx",
       "root_cause": "Excerpt generation used body.replace(/<[^>]+>/g, '') which stripped tags but concatenated adjacent block text with no separator.",
       "fix": "Replace each tag with a space (and bumped low-contrast legend colors to meet WCAG AA).",
-      "tags": ["frontend", "ux-copy", "wiki", "accessibility"],
+      "tags": [
+        "frontend",
+        "ux-copy",
+        "wiki",
+        "accessibility"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
@@ -104,7 +143,12 @@
       "file": "app/[locale]/(protected)/study-plans/page.tsx; messages/pt.json; app/layout.tsx",
       "root_cause": "Untranslated status label; <input type=date> follows the browser/OS locale, and <html> lacked lang.",
       "fix": "Draft -> Rascunho; set lang=\"pt-BR\" on <html>. Note: native date picker still follows the OS locale (already DD/MM/AAAA on PT-BR machines) — not a real prod bug, would need a custom masked component to force.",
-      "tags": ["i18n", "ux-copy", "localization", "date"],
+      "tags": [
+        "i18n",
+        "ux-copy",
+        "localization",
+        "date"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-14T00:00:00+08:00"
@@ -116,7 +160,13 @@
       "file": "tsconfig.json; lib/financial/calculator.ts; lib/study-plans/calculations.ts",
       "root_cause": "Node 24's native type-stripping for `node --test` requires an explicit `.ts` extension on relative VALUE imports; it does not do bundler-style extensionless resolution. Pre-existing relative imports in these files were all `import type` (erased at runtime), so SPLIT 1 was the first time a real value import (`lib/calc/money`) ran under the test loader and failed.",
       "fix": "Added `allowImportingTsExtensions: true` to tsconfig (safe under the existing `noEmit: true`) and used the explicit `'../calc/money.ts'` specifier in the two runtime value imports the test traverses. Other imports stay extensionless (bundler resolution); webpack/Next resolves the physical .ts file. type-check + node --test + build all green afterward.",
-      "tags": ["node", "esm", "typescript", "tests", "tooling"],
+      "tags": [
+        "node",
+        "esm",
+        "typescript",
+        "tests",
+        "tooling"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T04:50:00+08:00"
@@ -128,10 +178,85 @@
       "file": "test run command (DoD gate)",
       "root_cause": "On this Node/Windows setup `node --test <dir>` did not auto-discover the directory's test files and instead tried to resolve the directory itself as a module entrypoint.",
       "fix": "Pass explicit test file paths instead of a directory: `node --test tests/study-financial.test.mjs tests/crm-contacts.test.mjs`. Keep listing each new test file in the DoD command.",
-      "tags": ["node", "tests", "tooling", "windows"],
-      "related_bugs": ["bug-010"],
+      "tags": [
+        "node",
+        "tests",
+        "tooling",
+        "windows"
+      ],
+      "related_bugs": [
+        "bug-010"
+      ],
       "occurrences": 1,
       "last_seen": "2026-06-15T05:15:00+08:00"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-06-15T00:52:52.309Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/PRODUCT-ROADMAP.md",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 10→21 lines (10 removed) | Also: ### SPLIT 4 — Editor de proposta (UI); `app/[locale]/(protected)/study-plans/[id]/page.ts | Also: 0 Fundação ──▶ 1 Engine ──▶ 2 Domínio proposta ──▶; │ | Also: > **Status:** v1 — arquitetura aprovada, execução ; > **CRM e integrações externas (escolas/SEC/pagame",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-06-15T00:54:30.077Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-06-15T01:02:50.594Z",
+      "error_message": "Type error",
+      "file": "lib/calc/money.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T01:02:50.594Z"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-06-15T01:04:11.737Z",
+      "error_message": "parseMoneyToCents misparses thousands-grouped money strings (pt-BR \"1.234.567\"→1.234 via parseFloat; en-US \"1,234\" thousands)",
+      "file": "lib/calc/money.ts",
+      "root_cause": "Lone-dot/lone-comma inputs were passed to parseFloat which stops at the 2nd separator; no thousands-vs-decimal disambiguation. Flagged as NIT in SPLIT 1 review; dormant (only used in tests) but money border consumed by SPLIT 4.",
+      "fix": "Rewrote parseMoneyToCents with locale-aware rules: both separators → rightmost is decimal; lone comma → decimal (pt-BR), repeated → en-US thousands; lone dot → decimal for 1-2 trailing digits, thousands for multiple dots or exactly 3 trailing digits. Added negative handling + tests (1.234→123400, 1.234.567→123456700, 12.34→1234, 1,5→150). 11/11 tests green.",
+      "tags": [
+        "calc",
+        "money",
+        "cents",
+        "parsing",
+        "locale",
+        "split-1",
+        "nit"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T01:04:11.738Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-06-15T01:04:33.557Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/AI-HANDOVER.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T01:04:33.558Z"
     }
   ]
 }

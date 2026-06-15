@@ -138,6 +138,22 @@ test('centsToNumber and parseMoneyToCents round-trip across locales', () => {
   assert.equal(money.parseMoneyToCents(''), 0)
 })
 
+test('parseMoneyToCents disambiguates thousands vs decimal (locale-aware)', () => {
+  // pt-BR thousands with a lone/repeated dot (would misparse via parseFloat).
+  assert.equal(money.parseMoneyToCents('1.234'), 123400)
+  assert.equal(money.parseMoneyToCents('1.500'), 150000)
+  assert.equal(money.parseMoneyToCents('1.234.567'), 123456700)
+  assert.equal(money.parseMoneyToCents('100.000'), 10000000)
+  // Lone dot with 1–2 trailing digits stays decimal.
+  assert.equal(money.parseMoneyToCents('12.34'), 1234)
+  assert.equal(money.parseMoneyToCents('0.5'), 50)
+  // Comma: lone = decimal (pt-BR); repeated = en-US thousands.
+  assert.equal(money.parseMoneyToCents('1,5'), 150)
+  assert.equal(money.parseMoneyToCents('1,234,567'), 123456700)
+  // Negative + currency symbol.
+  assert.equal(money.parseMoneyToCents('-R$ 1.234,56'), -123456)
+})
+
 test('splitCents partitions a total with the remainder on the last part', () => {
   const parts = money.splitCents(10000, 3)
   assert.deepEqual(parts, [3333, 3333, 3334])

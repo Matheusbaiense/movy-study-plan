@@ -76,27 +76,49 @@ export function formatMoneyValue(value: Money, locale = 'pt-BR'): string {
 }
 
 /**
- * Parse a user-entered display string into integer cents. Handles pt-BR ("1.234,56"),
- * plain ("1234.56") and number inputs. Strips currency symbols/spaces.
+ * Parse a user-entered display string into integer cents. **pt-BR is the primary locale**, with
+ * en-US tolerated. Handles thousands and decimal separators without `parseFloat` ambiguity:
+ *
+ * - Both separators present → the RIGHT-MOST is the decimal; the other groups thousands
+ *   ("1.234,56"→123456 pt-BR, "1,234.56"→123456 en-US).
+ * - Lone comma → DECIMAL ("1,50"→150); repeated commas → en-US thousands ("1,234,567"→123456700).
+ * - Lone dot → DECIMAL when it has 1–2 trailing digits ("12.34"→1234); pt-BR THOUSANDS when there
+ *   are multiple dots OR exactly 3 trailing digits ("1.234"→123400, "1.234.567"→123456700).
+ *
+ * Calibrated for 2-decimal currencies (see `toCents`). A lone comma is treated as decimal by
+ * design (pt-BR), so en-US "1,234" without a decimal is read as 1.234 — type "1,234.00" or "1234"
+ * to mean one thousand. Currency symbols/spaces are stripped. Returns 0 on empty.
  */
 export function parseMoneyToCents(input: string | number): number {
   if (typeof input === 'number') return toCents(input)
   const cleaned = String(input).replace(/[^\d,.-]/g, '').trim()
-  if (!cleaned) return 0
+  if (!cleaned || cleaned === '-') return 0
 
-  const hasComma = cleaned.includes(',')
-  const hasDot = cleaned.includes('.')
-  let normalized = cleaned
+  const negative = cleaned.startsWith('-')
+  const digits = cleaned.replace(/-/g, '')
+  const hasComma = digits.includes(',')
+  const hasDot = digits.includes('.')
+
+  let normalized: string
   if (hasComma && hasDot) {
-    // The right-most separator is the decimal one; the other groups thousands.
     normalized =
-      cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')
-        ? cleaned.replace(/\./g, '').replace(',', '.')
-        : cleaned.replace(/,/g, '')
+      digits.lastIndexOf(',') > digits.lastIndexOf('.')
+        ? digits.replace(/\./g, '').replace(',', '.')
+        : digits.replace(/,/g, '')
   } else if (hasComma) {
-    normalized = cleaned.replace(',', '.')
+    // Lone comma = decimal (pt-BR); repeated commas = en-US thousands grouping.
+    normalized = (digits.match(/,/g) || []).length > 1 ? digits.replace(/,/g, '') : digits.replace(',', '.')
+  } else if (hasDot) {
+    // Lone dot: thousands when there are multiple dots or exactly 3 trailing digits; else decimal.
+    const dots = (digits.match(/\./g) || []).length
+    const trailing = digits.length - digits.lastIndexOf('.') - 1
+    normalized = dots > 1 || trailing === 3 ? digits.replace(/\./g, '') : digits
+  } else {
+    normalized = digits
   }
-  return toCents(normalized)
+
+  const cents = toCents(normalized)
+  return negative ? -cents : cents
 }
 
 /** Build a `Money` value from integer cents. */
