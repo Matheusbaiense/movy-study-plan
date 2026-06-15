@@ -284,6 +284,19 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 6 quebrado em 6A (backend) + 6B (UI) — roadmap restruturado (só docs)
+
+- A pedido do dono, quebrei o SPLIT 6 (grande demais) por **backend vs UI**:
+  - **6A** (backend, **destrava o SPLIT 4**): migration 011 (portfólio + `pricing_rules` + RLS), seed
+    `course_presets→courses` (+ regras ELICOS default), `lib/calc/rules.ts` (`applyRules`, com testes) +
+    `scenarios.ts`, `lib/portfolio/*` (queries + provider `CourseSource`), regen de tipos.
+  - **6B** (UI de gestão): telas CRUD instituições/campus/cursos/promoções + editor de regras + alertas
+    de impacto + nav. Frontend puro sobre o 6A.
+- **Nova ordem:** `0✅→1✅→2✅→3✅ → 6A → 4 → 6B → 5 → 7 → 8 → 9 (+10)`. Roadmap atualizado (§5 splits,
+  §6 matriz, §7 ordem+diagrama, header, refs cruzadas 4/7/10 → 6A). Decisão em `.wolf/cerebrum.md`.
+- **Próximo a EXECUTAR = SPLIT 6A.** Recomendado: análise de requisitos focada (schema do portfólio +
+  quais regras seedar) antes da migration, igual ao SPLIT 3.
+
 ### 2026-06-15 - SPLIT 3 CONCLUÍDO: lista de propostas (filtros, lote, lixeira, paginação)
 
 - **`study-plans/page.tsx`** reescrito (server): `searchParams` como estado (`q`/`status`/`type`/`sort`/

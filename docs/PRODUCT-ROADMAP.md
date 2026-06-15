@@ -5,7 +5,7 @@
 > Decisões aqui têm precedência sobre planos antigos do `AI-HANDOVER.md`.
 >
 > **Status:** v1.1 — arquitetura aprovada. **SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅** (migration 010 aplicada).
-> **Próximo a executar = SPLIT 6 (portfólio + motor de regras).** **CRM/integrações externas FORA de escopo.**
+> **Próximo a executar = SPLIT 6A (portfólio backend + motor de regras).** SPLIT 6 quebrado em 6A (backend) + 6B (UI). **CRM/integrações externas FORA de escopo.**
 > **Revisão 2026-06-15 (lacunas GPT/Cursor, sobre 1/2 já entregues):** + motor de regras (extensão do
 > engine no SPLIT 1, dados/UI no SPLIT 6), + cenários comparativos, + comparador na autoria, + templates
 > + histórico de versões (migration 012 no SPLIT 4), + alertas de impacto de preço/promoção (SPLIT 6),
@@ -376,8 +376,8 @@ offshore/visto/arredondamento.
 **Depende de:** SPLIT 0.
 **🔜 Extensão pendente (revisão 2026-06-15, NÃO feita neste split):** **motor de regras**
 (`lib/calc/rules.ts` — `applyRules`/`PricingRule`, função pura, ruleSet vazio = no-op idêntico ao
-atual) + **cenários** (`lib/calc/scenarios.ts` — `computeScenarios`). Ficam para o **SPLIT 6** (dono
-das `pricing_rules`) e o **SPLIT 4** (cenários na UI) — assim não reabrimos o engine já entregue.
+atual) + **cenários** (`lib/calc/scenarios.ts` — `computeScenarios`). Ficam para o **SPLIT 6A** (dono
+das `pricing_rules`, com testes) e o **SPLIT 4** (cenários na UI) — sem reabrir o engine já entregue.
 
 ### SPLIT 2 — Domínio da proposta (study_plans) + seam de contatos (CRM-ready) ✅ CONCLUÍDO (2026-06-15)
 
@@ -447,7 +447,7 @@ SPLIT 2, ver nota lá) + `types/supabase.ts`.
 **barra fixa** Salvar/Publicar/Salvar-e-sair; **autosave** + "salvo há Xs" + recuperação;
 **painel de totais fixo** (Total/Entrada/Saldo/BRL) lendo `computeProposal`; **explicação do
 cálculo** ao clicar no número (usa `explain[]`, incl. regras aplicadas); validação datas × validade do
-visto (`visaExpiry`); **seleção de curso do portfólio** via `CourseSource` (SPLIT 6 já entregue) —
+visto (`visaExpiry`); **seleção de curso do portfólio** via `CourseSource` (SPLIT 6A já entregue) —
 **taxas obrigatórias entram sozinhas** pelo motor de regras; fallback à entrada manual.
 - **Comparador na autoria (NOVO):** até 4 opções lado a lado com flags (melhor preço/menor depósito/
   maior promoção/recomendação) + diferença AUD↔BRL → vira `data.options[]`.
@@ -458,7 +458,7 @@ visto (`visaExpiry`); **seleção de curso do portfólio** via `CourseSource` (S
   **provider no-op**; provider real é o SPLIT 10. **Não** implementar IA aqui.
 **Aceite:** consultor monta proposta por etapas, escolhe do catálogo com taxas automáticas, compara
 opções/cenários, vê totais ao vivo, salva sem rolar; autosave + restaurar versão OK.
-**Depende de:** SPLIT 1, 2, **6** (catálogo + regras). (IA de autoria = SPLIT 10, plugada no seam.)
+**Depende de:** SPLIT 1, 2, **6A** (catálogo + regras). (IA de autoria = SPLIT 10, plugada no seam.)
 
 ### SPLIT 5 — Visualização / PDF / compartilhamento da proposta
 **Objetivo:** página de proposta vira central de ação + apresentação chamativa.
@@ -479,27 +479,42 @@ seções ricas; múltiplas opções/comparador; link público + aceite; validade
 **Aceite:** PDF/print fiéis (papel branco nos 2 temas, P já documentado); link público abre sem login.
 **Depende de:** SPLIT 2, 4.
 
-### SPLIT 6 — Portfólio (domínio + UI + motor de regras) — **vem ANTES do editor (SPLIT 4)**
-**Objetivo:** instituição → campus → curso → preços/promoções **+ casa do motor de regras**.
-**Aposenta `course_presets`.** Reordenado para **antes** do SPLIT 4 (decisão 2026-06-15): o editor já
-nasce consumindo catálogo + regras (taxas automáticas/comparador) — a "mágica" aparece cedo.
-**Schema (migration 011):** tabelas §3.2 (incl. **`pricing_rules`**) + RLS por org; script de migração
-`course_presets`→`courses`.
-**Arquivos:** `migrations/011_*.sql`, `lib/portfolio/*` (novo: tipos, queries), `lib/calc/rules.ts`
-(NOVO — `applyRules`/`PricingRule`, extensão do engine do SPLIT 1), `lib/portfolio/rules.ts` (CRUD de
-`pricing_rules`), telas novas `app/[locale]/(protected)/portfolio/**` (+ área de **Regras** e
-**Promoções**), implementa o provider de portfólio do contrato **`CourseSource`** (§4) que o SPLIT 4
-consome, item de nav (`AppShell.tsx`), `lib/study-plans/presets.ts` (adaptar/depreciar),
-`messages/pt.json`, `types/supabase.ts`.
+> **SPLIT 6 foi QUEBRADO em 6A (backend) + 6B (UI) (2026-06-15).** Era grande demais p/ um split
+> (migration + telas CRUD + motor de regras + provider + seed). Corte = **backend vs UI** (não
+> catálogo×regras, que deixaria o editor esperando os dois). **6A destrava o SPLIT 4**; 6B é frontend
+> puro sobre o 6A. Ordem: **6A → 4 → 6B**.
+
+### SPLIT 6A — Portfólio: domínio, dados e motor de regras (backend) — **destrava o SPLIT 4**
+**Objetivo:** o schema do portfólio + o catálogo populado + o motor de regras + o provider que o editor
+consome. **Sem telas de gestão** (ficam no 6B). **Aposenta `course_presets`** (migra para `courses`).
+**Schema (migration 011):** tabelas §3.2 (`institutions`/`campuses`/`courses`/`course_price_versions`/
+`promotions`/**`pricing_rules`**) + RLS por org + índices; script `course_presets`→`courses` (sem perda).
+**Motor de regras (engine, testável):** `lib/calc/rules.ts` — `applyRules(data, ruleSet)` (função pura,
+extensão do engine do SPLIT 1; **ruleSet vazio = no-op**) + `lib/calc/scenarios.ts` (`computeScenarios`).
+**Testes unitários** em `tests/` (inclusão automática de taxa, promo por faixa de semanas, offshore,
+arredondamento) — é onde um bug de cobrança passaria pelo build.
+**Seed:** alimenta `courses`/`price_versions` a partir dos presets atuais **e** semeia algumas regras
+ELICOS default (matrícula obrigatória + material/semana) p/ a "mágica" de taxa automática já funcionar.
+**Arquivos:** `migrations/011_*.sql`, `lib/calc/{rules,scenarios}.ts` (+ testes), `lib/portfolio/*`
+(tipos, queries, CRUD de `pricing_rules`, **provider do `CourseSource`** §4), `lib/study-plans/presets.ts`
+(adaptar/depreciar), `types/supabase.ts` (regen).
+**Aceite:** catálogo populado via seed; `applyRules` aplica/explica regras com testes verdes;
+`CourseSource` resolve curso→`PortfolioCourseRef`; presets migrados sem perda; type-check + build verdes.
+**Depende de:** SPLIT 0, 1. **Habilita SPLIT 4.**
+
+### SPLIT 6B — Portfólio: UI de gestão (frontend) — **depois do editor (SPLIT 4)**
+**Objetivo:** telas para admin gerir o catálogo e as regras que o 6A criou. Frontend puro sobre as
+queries do 6A (como o SPLIT 3 foi sobre o SPLIT 2).
+**Arquivos:** telas `app/[locale]/(protected)/portfolio/**` (lista + detalhe c/ abas), componentes client,
+item de nav (`AppShell.tsx`), `messages/pt.json`.
 **Recursos:** CRUD instituições/campus/cursos, abas (visão/campus/cursos/promoções/taxas/**regras**/docs/
 histórico), busca/filtros, duplicar, arquivar, indicador de completude/vigência;
-**motor de regras (UI):** definir regras por escopo (org/instituição/campus/curso/tipo) que o engine
-aplica (inclusão automática de taxa, promo condicional, markup/fee, arredondamento);
-**alertas de impacto (NOVO):** "preço/promoção vence em N dias — X propostas usam este valor"
-(varre snapshots reversos, §3.2).
-**Aceite:** editor (SPLIT 4) consome portfólio via `CourseSource`; regras aplicadas pelo engine;
-alertas de vencimento com contagem de propostas afetadas; presets antigos migrados; sem perda de dado.
-**Depende de:** SPLIT 0, 1 (estende o engine com `applyRules`); **habilita SPLIT 4.**
+**editor de regras** (definir por escopo org/instituição/campus/curso/tipo: inclusão de taxa, promo
+condicional, markup/fee, arredondamento); **alertas de impacto** "preço/promoção vence em N dias — X
+propostas usam este valor" (snapshots reversos, §3.2).
+**Aceite:** admin cria/edita escola→campus→curso→preço→regra→promoção pela UI; alertas de vencimento com
+contagem de propostas afetadas; type-check + build verdes.
+**Depende de:** SPLIT 6A (dados/queries/regras). Independente do editor — pode vir antes ou depois do 4.
 
 ### SPLIT 7 — Import documental por IA
 **Objetivo:** o diferencial. Pipeline P5 completo.
@@ -518,7 +533,7 @@ MCP) e **pgvector/embeddings** — o pipeline OCR→LLM→validação determiní
 embeddings** (embedding é do assistente/chat do CRM, fora de escopo agora). Cortado para não
 sobre-engenheirar uma agência single-tenant.
 **Aceite:** PDF de price list vira cursos revisáveis; nada salvo sem aprovação; auditoria + versão.
-**Depende de:** SPLIT 6 (precisa do destino: courses/price_versions).
+**Depende de:** SPLIT 6A (precisa do destino: courses/price_versions).
 
 ### SPLIT 8 — Organização, branding, settings & preferências
 **Objetivo:** base do white-label + prefs de usuário.
@@ -549,7 +564,7 @@ modelo do SPLIT 7), rota `app/api/proposals/compose/**`, ligação no editor (j�
 **Reuso:** mesma contagem de tokens/custo (`organizations.ai_usage`) e teto de custo do SPLIT 7.
 **Aceite:** frase em PT vira rascunho revisável (nunca publica sozinho — P5); sugestões de curso vêm do
 portfólio real; consumo de IA auditado.
-**Depende de:** SPLIT 4 (seam), 6 (catálogo), 7 (camada de modelo/IA).
+**Depende de:** SPLIT 4 (seam), 6A (catálogo), 7 (camada de modelo/IA).
 
 ---
 
@@ -562,18 +577,18 @@ portfólio real; consumo de IA auditado.
 | Wizard / autosave / barra fixa / totais ao vivo | 4 | `StudyPlanEditor.tsx` |
 | Explicação do cálculo / validação de datas | 1 (engine) + 4 (UI) | `calculations.ts`, editor |
 | Cálculo financeiro em contexto | 1 + 4 | `lib/financial/calculator.ts`, editor |
-| **Motor de regras / inclusão automática de taxas** | 1 (engine, ext.) + 6 (regras/UI) | `lib/calc/rules.ts`, `pricing_rules` |
-| **Cenários comparativos (6/8/12 meses)** | 1 (engine, ext.) + 4 (UI) | `lib/calc/scenarios.ts`, `ScenarioPanel` |
+| **Motor de regras / inclusão automática de taxas** | 6A (engine `applyRules` + dados) + 6B (editor de regras) | `lib/calc/rules.ts`, `pricing_rules` |
+| **Cenários comparativos (6/8/12 meses)** | 6A (engine `computeScenarios`) + 4 (UI) | `lib/calc/scenarios.ts`, `ScenarioPanel` |
 | **Comparador de opções na autoria** | 4 (UI) | `OptionComparator.tsx`, `data.options[]` |
 | **Templates de proposta** | 4 (migration 012 + UI) | `proposal_templates`, `TemplatePicker` |
 | **Histórico de versões / restaurar** | 4 (migration 012 + UI) | `proposal_versions`, `VersionHistory` |
-| **Alerta de impacto de preço/promoção** | 6 | `pricing_rules`/snapshots reversos |
+| **Alerta de impacto de preço/promoção** | 6B | `pricing_rules`/snapshots reversos |
 | **Autoria por IA (NL / recomendação)** | 10 (futuro) + 4 (seam) | `ProposalComposer`, `lib/ai/composer.ts` |
 | Múltiplas opções / comparador (visualização) | 2 (dado) + 5 (UI) | `data.options[]`, `StudyPlanProposal.tsx` |
 | Status rico / expiração / timeline | 2 | `study_plans`, `proposal_events` |
 | PDF / link público / compartilhar / aceite | 5 | proposta + rota pública |
-| Cadastro instituição/campus/curso | 6 | `portfolio/**`, migration 011 |
-| Preços versionados / promoções / vigência | 6 | `course_price_versions`, `promotions` |
+| Cadastro instituição/campus/curso | 6A (schema/seed) + 6B (UI) | `portfolio/**`, migration 011 |
+| Preços versionados / promoções / vigência | 6A (dados) + 6B (UI) | `course_price_versions`, `promotions` |
 | Import PDF por IA / fila / conferência | 7 | `documents`, `lib/ai/*` |
 | Branding da agência na proposta | 8 (config) + 5 (render) | `organizations.branding` |
 | Prefs de usuário (tema/idioma/fuso) | 8 | `settings/**` |
@@ -589,21 +604,23 @@ em features diferentes.
 ## 7. Ordem de execução e dependências
 
 ```
-0✅ Fundação ─▶ 1✅ Engine(+regras ext.) ─▶ 2✅ Domínio proposta ─▶ 3 Lista (UI)
-                          │                          │
-                          └──▶ 6 Portfólio(+regras/UI) ──▶ 4 Editor (UI) ──▶ 5 Proposta/PDF
-                                             └──▶ 7 Import IA
+0✅ Fundação ─▶ 1✅ Engine ─▶ 2✅ Domínio proposta ─▶ 3✅ Lista (UI)
+                    │                    │
+                    └──▶ 6A Portfólio backend (dados+regras+CourseSource) ─▶ 4 Editor ─▶ 5 Proposta/PDF
+                                        ├──▶ 6B Portfólio UI (gestão)
+                                        └──▶ 7 Import IA
 0 ──▶ 8 Org/branding/prefs ──(alimenta)──▶ 5
-4(seam) + 6 + 7 ──▶ 10 Autoria por IA (futuro/Fase 5)
+4(seam) + 6A + 7 ──▶ 10 Autoria por IA (futuro/Fase 5)
 9 Polimento: transversal, ao final de cada bloco
 ```
 
-**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ (migration 010 aplicada). **Próximo a executar = 6 (portfólio + motor de regras).**
-**Sequência revisada (2026-06-15):** 0 → 1 → 2 → 3 → **6 → 4** → 5 → 7 → 8 → 9 → *(10 = futuro)*.
-**Mudança vs. plano anterior:** **portfólio (6) agora vem ANTES do editor (4)** — o editor já nasce
-consumindo catálogo + motor de regras (taxas automáticas/comparador), sem reabrir o editor depois. A
-lista (3) segue como próximo ganho rápido sobre o domínio já pronto do SPLIT 2. Motor de regras =
-extensão do engine (SPLIT 1) + dados/UI no SPLIT 6.
+**Estado atual:** SPLIT UI ✅ · 0 ✅ · 1 ✅ · 2 ✅ · 3 ✅ (migration 010 aplicada). **Próximo a executar = 6A (portfólio backend + motor de regras).**
+**Sequência revisada (2026-06-15):** 0 → 1 → 2 → 3 → **6A → 4 → 6B** → 5 → 7 → 8 → 9 → *(10 = futuro)*.
+**Mudança vs. plano anterior:** o **SPLIT 6 foi quebrado em 6A (backend) + 6B (UI)**; o portfólio vem
+ANTES do editor. **6A** entrega dados + motor de regras (com testes) + `CourseSource` e **destrava o
+editor (4)**; o editor vem pelo ganho de usabilidade (taxas automáticas/comparador); **6B** (UI de
+gestão) é frontend puro sobre o 6A, independente do editor. Motor de regras = extensão do engine
+(SPLIT 1) entregue no **6A**; UI das regras no 6B.
 
 ---
 

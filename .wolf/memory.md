@@ -99,3 +99,18 @@
 | 09:14 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~59 |
 | 09:15 | Edited docs/AI-HANDOVER.md | modified reescrito() | ~470 |
 | 09:15 | SPLIT 3 lista de propostas: page.tsx server (searchParams filtros/sort/paginação), ProposalsList.tsx client (seleção/lote/lixeira/menu/toasts), +bulkStudyPlanAction. type-check verde | study-plans/{page,ProposalsList,actions}.tsx | concluído | ~14k |
+| 09:17 | Session end: 38 writes across 7 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 11 reads | ~20231 tok |
+| 09:21 | Edited docs/PRODUCT-ROADMAP.md | modified Schema() | ~811 |
+| 09:21 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~44 |
+| 09:21 | Edited docs/PRODUCT-ROADMAP.md | inline fix | ~27 |
+| 09:21 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~55 |
+| 09:22 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~46 |
+| 09:22 | Edited docs/PRODUCT-ROADMAP.md | inline fix | ~19 |
+| 09:23 | Edited docs/PRODUCT-ROADMAP.md | modified revisada() | ~318 |
+| 09:23 | Edited docs/PRODUCT-ROADMAP.md | inline fix | ~44 |
+| 09:23 | Edited docs/PRODUCT-ROADMAP.md | "lib/calc/rules.ts" → "applyRules" | ~41 |
+| 09:23 | Edited docs/PRODUCT-ROADMAP.md | "lib/calc/scenarios.ts" → "computeScenarios" | ~35 |
+| 09:24 | Edited docs/PRODUCT-ROADMAP.md | inline fix | ~23 |
+| 09:24 | Edited docs/PRODUCT-ROADMAP.md | 2→2 lines | ~56 |
+| 09:24 | Edited docs/AI-HANDOVER.md | expanded (+13 lines) | ~292 |
+| 09:25 | SPLIT 6 quebrado em 6A (backend: schema+regras+CourseSource, destrava editor) + 6B (UI gestão). Roadmap restruturado, nova ordem 6A→4→6B→5 | docs/PRODUCT-ROADMAP.md, cerebrum, handover | concluído (docs) | ~6k |

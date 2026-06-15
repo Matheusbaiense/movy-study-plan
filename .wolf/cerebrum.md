@@ -145,3 +145,23 @@ versão atual, marcando 1/2 como ✅ e **re-ancorando** o que eu havia posto "de
 
 **Decisão do dono nesta sessão:** só reconciliar o **roadmap** agora (sem codar feature). Próximo split
 a executar quando retomar = **SPLIT 3** (lista) — ou 6, conforme a reordenação.
+
+## Decisão — SPLIT 6 quebrado em 6A (backend) + 6B (UI) (2026-06-15)
+
+**Contexto:** SPLIT 3 (lista) entregue/pushed (`8b308cd`). O dono perguntou se quebrava o SPLIT 6.
+SPLIT 6 acumulava migration + telas CRUD + motor de regras + provider + seed — grande demais p/ "um
+split inteiro, testes verdes, commit próprio".
+
+**Decisão (recomendação do Claude, aceita):** quebrar por **backend vs UI** (NÃO catálogo×regras, que
+deixaria o editor esperando os dois):
+- **SPLIT 6A — backend:** migration 011 (`institutions/campuses/courses/course_price_versions/promotions/
+  pricing_rules` + RLS + índices), seed `course_presets→courses` (+ regras ELICOS default),
+  `lib/calc/rules.ts` (`applyRules`, função pura, **com testes**) + `lib/calc/scenarios.ts`,
+  `lib/portfolio/*` (queries + provider `CourseSource`), regen de tipos. **Destrava o SPLIT 4.**
+- **SPLIT 6B — UI de gestão:** telas CRUD (instituições/campus/cursos/promoções/**editor de regras**),
+  filtros, completude/vigência, **alertas de impacto** ("X propostas usam este preço"), nav. Frontend
+  puro sobre o 6A (como o SPLIT 3 foi sobre o SPLIT 2). Independente do editor.
+
+**Por que esse corte:** o editor (4) só precisa de dados + `CourseSource` + motor de regras = tudo no 6A;
+com o seed dos presets, a proposta já monta com taxa automática sem esperar a UI. O motor de regras ganha
+**testes** antes de qualquer tela (onde um bug de cobrança passaria). **Nova ordem: 6A → 4 → 6B → 5.**
