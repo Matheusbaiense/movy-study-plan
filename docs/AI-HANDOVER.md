@@ -291,6 +291,30 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ## Log de Handover
 
+### 2026-06-15 - SPLIT 6A: migration 011 RASCUNHADA (revisão) + dimensão de NACIONALIDADE no preço
+
+- **Migration 011 escrita (`supabase/migrations/011_portfolio_pricing_rules.sql`) — RASCUNHO, NÃO
+  APLICADA.** Aguarda revisão do dono → aplicar via Supabase MCP no projeto `xpthmguzcbmndyyexfbt` +
+  regen de tipos. 6 tabelas (`institutions/campuses/courses/course_price_versions/pricing_rules`), todas
+  **P0**: org_id default Movy + RLS por org + índices; unicidade por org; `metadata`/`external_id` (R6/R7);
+  **dinheiro em `*_in_cents` (P9)**. Espelha 1:1 os padrões da 010.
+- **Decisão de desenho:** `promotions` **unificada dentro de `pricing_rules`** (promoção = regra com
+  `effect=promo_rate_override` + janela `valid_from/until`) — uma só mecânica, casando com o `applyRules`
+  testado. `conditions jsonb` ↔ campo `when` do tipo TS. `pricing_rules` começa **vazia** (no-op), gerida
+  por admin.
+- **NACIONALIDADE (pedido do dono — escolas têm preços por nacionalidade/mercado):**
+  - `course_price_versions.nationality` (nullable; NULL = padrão/todas; 'BR' sobrepõe p/ brasileiros).
+  - Função SQL `current_course_price(course, nationality, on_date)` (SECURITY INVOKER → respeita RLS):
+    resolução **mais específico vence** (match de nacionalidade > NULL), depois `valid_from` recente.
+  - **Motor de regras (`lib/calc/rules.ts`) atualizado:** `RuleCondition.nationality` + `RuleContext.
+    nationality` + `applyRulesToPlan(plan, rules, { nationality })` — promo/desconto por nacionalidade.
+    +1 teste → **17/17 verdes**, type-check limpo.
+  - **Pendência p/ SPLIT 4:** a nacionalidade do aluno precisa morar no `contacts`/proposta (campo novo) —
+    hoje é passada por contexto. Reconciliar `docs/PRODUCT-ROADMAP.md` §3.2 (cents/nationality/unificação)
+    ao aplicar a migration.
+- **Pontos em revisão pelo dono:** unificar promoções em pricing_rules? cidade de campus vazia no seed?
+  pricing_rules gerida por admin (vs editor)?
+
 ### 2026-06-15 - SPLIT 6A (parte 1/2): motor de regras + cenários (puro, testado)
 
 - **Insight que definiu o escopo:** o `calculations.ts` já codifica as regras ESTRUTURAIS

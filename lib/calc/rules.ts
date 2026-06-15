@@ -30,6 +30,12 @@ export interface RuleCondition {
   applicantMode?: StudentLocation
   /** 1–12; matches the month of the course start date. */
   intakeMonth?: number
+  /**
+   * Student nationality (ISO-3166 alpha-2, e.g. 'BR'). When set, the rule only fires
+   * for that nationality — for promos/discounts targeted at a market. Base price-by-
+   * nationality is handled by the price_version, not here; this is the agency layer.
+   */
+  nationality?: string
 }
 
 export type RuleEffect =
@@ -53,6 +59,8 @@ export interface PricingRule {
 
 export interface RuleContext {
   location?: StudentLocation
+  /** Student nationality (ISO-3166 alpha-2), used to match nationality-scoped rules. */
+  nationality?: string
   /** Resolve which scopes a course belongs to (institution/campus/course ids). */
   scopeIds?: { institutionId?: string; campusId?: string; courseId?: string }
 }
@@ -97,6 +105,7 @@ function conditionMatches(when: RuleCondition, course: StudyCourse, ctx: RuleCon
   if (typeof when.maxWeeks === 'number' && studyWeeks > when.maxWeeks) return false
   if (when.applicantMode && when.applicantMode !== ctx.location) return false
   if (typeof when.intakeMonth === 'number' && when.intakeMonth !== startMonth(course)) return false
+  if (when.nationality && when.nationality !== ctx.nationality) return false
   return true
 }
 
@@ -163,6 +172,13 @@ export interface ApplyRulesToPlanResult {
   adjustments: AppliedAdjustment[]
 }
 
+export interface ApplyRulesOptions {
+  /** Student nationality (ISO-3166 alpha-2), from the linked contact — matches nationality rules. */
+  nationality?: string
+  /** Resolve the institution/campus/course ids a course maps to (for scoped rules). */
+  resolveScopeIds?: (course: StudyCourse) => RuleContext['scopeIds']
+}
+
 /**
  * Apply rules across every course in a plan, collecting agency-fee extras into the
  * plan's `extraCosts`. Pure: returns a new plan (the inputs are not mutated). With an
@@ -171,7 +187,7 @@ export interface ApplyRulesToPlanResult {
 export function applyRulesToPlan(
   plan: StudyPlanData,
   rules: PricingRule[],
-  resolveScopeIds?: (course: StudyCourse) => RuleContext['scopeIds'],
+  opts: ApplyRulesOptions = {},
 ): ApplyRulesToPlanResult {
   if (rules.length === 0) return { plan, adjustments: [] }
 
@@ -181,7 +197,8 @@ export function applyRulesToPlan(
   const courses = plan.courses.map((course) => {
     const res = applyRulesToCourse(course, rules, {
       location: plan.studentLocation,
-      scopeIds: resolveScopeIds?.(course),
+      nationality: opts.nationality,
+      scopeIds: opts.resolveScopeIds?.(course),
     })
     allAdjustments.push(...res.adjustments)
     addedExtras.push(...res.extras)

@@ -233,6 +233,19 @@ test('applyRules: agency_fee adds an extra line (off by default until activated)
   assert.equal(off.extras.length, 0)
 })
 
+test('applyRules: nationality condition targets a market only', () => {
+  const course = makeElicos({ weeks: 24, rate: 290 })
+  const promoBR = { id: 'br', scope: 'type', when: { courseType: 'elicos', nationality: 'BR' }, effect: { kind: 'promo_rate_override', ratePerWeek: 250 } }
+  const hit = rules.applyRulesToCourse(course, [promoBR], { nationality: 'BR' })
+  assert.equal(hit.course.ratePerWeek, 250)
+  const miss = rules.applyRulesToCourse(course, [promoBR], { nationality: 'CN' })
+  assert.equal(miss.course.ratePerWeek, 290)
+  // applyRulesToPlan threads the nationality option through.
+  const plan = makePlan(course)
+  assert.equal(rules.applyRulesToPlan(plan, [promoBR], { nationality: 'BR' }).plan.courses[0].ratePerWeek, 250)
+  assert.equal(rules.applyRulesToPlan(plan, [promoBR], { nationality: 'CN' }).plan.courses[0].ratePerWeek, 290)
+})
+
 test('computeScenarios totals each plan variant through the engine', () => {
   const base = makePlan(makeElicos({ weeks: 24 }))
   const results = scenarios.computeScenarios([

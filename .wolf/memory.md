@@ -125,3 +125,16 @@
 | 09:39 | Edited docs/AI-HANDOVER.md | modified travadas() | ~224 |
 | 09:39 | Edited docs/PRODUCT-ROADMAP.md | expanded (+8 lines) | ~256 |
 | 09:39 | Regra-mãe documentada: WHITE-LABEL FIRST governa toda decisão técnica (desempate = config, não reescrita). Em roadmap §2 (P0), handover Regras de Ouro, cerebrum prefs+decision log | docs/PRODUCT-ROADMAP.md, docs/AI-HANDOVER.md, .wolf/cerebrum.md | concluído | ~3k |
+| 09:40 | Session end: 58 writes across 9 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 14 reads | ~40048 tok |
+| 09:43 | Created supabase/migrations/011_portfolio_pricing_rules.sql | — | ~5621 |
+| 09:43 | Session end: 59 writes across 10 files (PRODUCT-ROADMAP.md, AI-HANDOVER.md, money.ts, study-financial.test.mjs, actions.ts) | 15 reads | ~46070 tok |
+| 09:45 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | expanded (+8 lines) | ~578 |
+| 09:46 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | modified public() | ~314 |
+| 09:46 | Edited supabase/migrations/011_portfolio_pricing_rules.sql | inline fix | ~38 |
+| 09:46 | Edited lib/calc/rules.ts | expanded (+6 lines) | ~202 |
+| 09:46 | Edited lib/calc/rules.ts | 5→7 lines | ~96 |
+| 09:46 | Edited lib/calc/rules.ts | added 1 condition(s) | ~78 |
+| 09:47 | Edited lib/calc/rules.ts | modified applyRulesToPlan() | ~413 |
+| 09:47 | Edited tests/study-financial.test.mjs | expanded (+13 lines) | ~249 |
+| 09:48 | Edited docs/AI-HANDOVER.md | modified NACIONALIDADE() | ~547 |
+| 09:48 | SPLIT 6A: migration 011 rascunhada (portfólio+pricing_rules, P0/P9, promotions unificada) + NACIONALIDADE no preço (course_price_versions.nationality + fn current_course_price + RuleCondition.nationality). 17/17 testes | migrations/011, lib/calc/rules.ts | rascunho p/ revisão | ~12k |
