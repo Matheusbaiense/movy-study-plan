@@ -115,6 +115,10 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
 
         <SummaryStrip data={data} showHolidays={showHolidays} />
 
+        {data.options && data.options.length > 0 && (
+          <OptionsComparison data={data} fxRate={fxRate} />
+        )}
+
         <SectionTitle>Cursos</SectionTitle>
         <div style={{ display: 'grid', gap: 14 }}>
           {data.courses.map((course, index) => (
@@ -226,6 +230,60 @@ function SummaryStrip({ data, showHolidays }: { data: StudyPlanData; showHoliday
       <Stat label="Cursos" value={`${data.courses.length}`} />
       <Stat label="Total geral" value={money(planGrandTotal(data))} accent />
     </section>
+  )
+}
+
+function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: number | null }) {
+  const options = data.options ?? []
+  const anyRecommended = options.some((option) => option.recommended)
+  const columns = [
+    { key: 'primary', label: 'Opção 1', recommended: !anyRecommended, plan: data, courses: data.courses },
+    ...options.map((option) => ({
+      key: option.id,
+      label: option.label,
+      recommended: !!option.recommended,
+      plan: { ...data, courses: option.courses, extraCosts: option.extraCosts ?? [] } as StudyPlanData,
+      courses: option.courses,
+    })),
+  ]
+  return (
+    <>
+      <SectionTitle>Opções da proposta</SectionTitle>
+      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 12, marginBottom: 8 }}>
+        {columns.map((col) => (
+          <div
+            key={col.key}
+            style={{
+              border: `1px solid ${col.recommended ? PURPLE : HAIR}`,
+              borderRadius: 12,
+              padding: 14,
+              background: col.recommended ? 'rgba(75,26,119,0.05)' : '#fff',
+              display: 'grid',
+              gap: 8,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+              <strong style={{ fontSize: 14, color: INK }}>{col.label}</strong>
+              {col.recommended && (
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: PURPLE, borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>Recomendada</span>
+              )}
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>{money(planGrandTotal(col.plan))}</div>
+            {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(planGrandTotal(col.plan) * fxRate)}</div>}
+            <div style={{ display: 'grid', gap: 4, borderTop: `1px solid ${HAIR}`, paddingTop: 8 }}>
+              <CostLine label="Fechamento" value={money(planUpfrontSchools(col.plan) + planExtrasTotal(col.plan))} />
+              <CostLine label="Saldo a parcelar" value={money(planInstallmentBalance(col.plan))} muted />
+              <CostLine label="Estudo" value={`${planStudyWeeks(col.plan)} sem`} muted />
+            </div>
+            <div style={{ fontSize: 12, color: MUTED, lineHeight: 1.5 }}>
+              {col.courses.length > 0
+                ? col.courses.map((course) => course.name || course.provider || COURSE_TYPES[course.type].label).join(' · ')
+                : 'Sem cursos'}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   )
 }
 

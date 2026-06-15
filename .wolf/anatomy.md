@@ -14,6 +14,7 @@
 - **CourseListEditor.tsx** — `'use client'` reusable course-cards editor (extracted from StudyPlanEditor). Operates only on a `courses` slice; props `{ courses, studentLocation, nationality, onCoursesChange }`. Owns ModuleEditor + all course handlers. Used by the primary mix AND each proposal option.
 - **ExtraCostsEditor.tsx** — `'use client'` small "Custos adicionais" list editor. Props `{ extraCosts, onChange }`. Reused by primary + options.
 - **OptionsManager.tsx** — `'use client'` AllyHub-style options tabs (SPLIT 4 fatia B). Opção 1 = primary mix; 2..5 = `plan.options[]`. Tabs + rename/duplicate/remove/recommended + side-by-side comparison strip (Total/Fechamento/Saldo via computeProposal). Props `{ plan, nationality, onChange }`. Rendered in Revisão step. Pure helpers in `lib/study-plans/options.ts`.
+- **StudyPlanProposal.tsx** — client proposal/PDF render. SPLIT 4 fatia B2: when `data.options?.length`, renders `OptionsComparison` (options side by side, recommended highlighted) after the summary strip; otherwise unchanged single-mix render.
 
 ## ./
 
