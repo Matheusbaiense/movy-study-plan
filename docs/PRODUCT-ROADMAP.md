@@ -219,6 +219,11 @@ schema/UX. A fundação já fica CRM-ready: `contacts` extraído, dinheiro em ce
 **Blueprint AllyHub (futuro):** análise do concorrente Ally/AllyHub será feita como **usuário de
 teste da plataforma** (pesquisa de UX), **não** a partir do código. Insumo para Splits 4/5/6
 (UX de proposta, comparador, portfólio). Não acionável agora.
+> 📄 **Análise consolidada (vídeos 1-9):** `docs/competitor-allyhub-blueprint.md` — mapa
+> AllyHub→Movy por split. Só **múltiplas opções** (SPLIT 4 · fatia B) está em execução; pricing
+> engine avançado (6), advanced/smart search + reporte de erro (6), DMS+RBAC (futuro),
+> branding/billing multi-idioma (8), comissão (finanças) e LeadGen (woofed) são backlog.
+> Marketplace/Ally+ é N/A para a Movy white-label.
 - **Múltiplas opções** na mesma proposta: `data.options[]` (recomendado/econômica/premium)
   dentro do `jsonb` — o editor já manipula arrays de `courses`.
 - **Status estendido (enum aditivo, seguro):** `draft, ready_review, approved_internal,
