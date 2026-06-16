@@ -463,5 +463,41 @@
     "occurrences": 1,
     "last_seen": "2026-06-16"
   }
+  ,{
+    "id": "bug-029",
+    "timestamp": "2026-06-17T00:00:00Z",
+    "error_message": "app/error.tsx had <html><body> tags — invalid for inner error boundary, renders inside root layout",
+    "file": "app/error.tsx, app/global-error.tsx",
+    "root_cause": "Inner error boundaries (error.tsx) render inside the root layout and cannot have html/body tags. Only global-error.tsx (which replaces the layout) needs them.",
+    "fix": "Created app/global-error.tsx with correct <html><body> structure for Sentry. Rewrote app/error.tsx with <div> container (no html/body).",
+    "tags": ["nextjs", "error-boundary", "sentry", "global-error"],
+    "related_bugs": [],
+    "occurrences": 1,
+    "last_seen": "2026-06-17"
+  }
+  ,{
+    "id": "bug-030",
+    "timestamp": "2026-06-17T00:00:00Z",
+    "error_message": "Turbopack: @import rules must precede all rules aside from @charset and @layer — globals.css:909 parse error",
+    "file": "app/globals.css",
+    "root_cause": "Tailwind @tailwind directives expand to ~900 lines of CSS. When @import was placed after @tailwind in source, Turbopack correctly enforced CSS spec: @import must come before all rules. Webpack was lenient about this and worked fine; Turbopack enforces the spec strictly.",
+    "fix": "Moved both @import url() statements to the very top of globals.css, before @tailwind base/components/utilities.",
+    "tags": ["turbopack", "css", "import-order", "globals.css", "build"],
+    "related_bugs": [],
+    "occurrences": 1,
+    "last_seen": "2026-06-17"
+  }
+  ,{
+    "id": "bug-031",
+    "timestamp": "2026-06-17T00:00:00Z",
+    "error_message": "Next.js webpack dev server corrupts .next cache on Windows — ENOENT routes-manifest.json, Cannot find module vendor-chunks/next-intl.js",
+    "file": "package.json",
+    "root_cause": "Next.js webpack dev server on Windows frequently corrupts the .next cache when files change rapidly during compilation. Causes 3+ second page loads and module-not-found errors that require full cache wipe.",
+    "fix": "Switched dev script to Turbopack: 'next dev --turbopack'. Turbopack uses a different incremental engine (persistent cache in .next/cache/turbopack) that is stable on Windows. Also manually deleted .next directory to clear corruption.",
+    "tags": ["turbopack", "windows", "cache", "dev-server", "performance"],
+    "related_bugs": ["bug-030"],
+    "occurrences": 1,
+    "last_seen": "2026-06-17"
+  }
   ]}
 

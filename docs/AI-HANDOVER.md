@@ -302,6 +302,37 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ---
 
+### 2026-06-17 - MEGA-AUDIT (continuação): H-3, L-6, H14, migrations 020–023
+
+> **Estado:** todos os itens do mega-audit concluídos. type-check ✅ · `node --test` 29/29 ✅.
+> **Próximo = SPLIT 7 (IA import portfólio) ou SPLIT 8 (contact/CRM light).**
+
+**H-3 — next-intl 3→4 (CVE: open redirect + prototype pollution)**
+
+- `package.json`: `next-intl` 3.26.5 → 4.13.0 (`pnpm install`).
+- `middleware.ts`: `createIntlMiddleware` → `createMiddleware` (única breaking change; restante da API é idêntico).
+
+**L-6 — Rate limiter multi-instância (Upstash Redis)**
+
+- `lib/api/rate-limit.ts`: reescrito com `@upstash/ratelimit` + `@upstash/redis`; sliding window 60 req/1h quando `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` estão presentes; fallback in-process Map (dev sem Redis).
+- `rateLimitIp` tornou-se `async` — `await` adicionado nos dois callers: `app/api/fx/route.ts:148` e `app/api/fx/history/route.ts:64`.
+- `.env.example`: novo bloco `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` documentado.
+
+**Migrations 020–023 (aplicadas ao projeto remoto `xpthmguzcbmndyyexfbt`)**
+
+- `020_perf_indexes.sql`: 4 índices parciais (`time_entries_invoice_idx`, `proposal_events_contact_idx`, `proposal_events_actor_idx`, `courses_campus_idx`).
+- `021_audit_org_id.sql`: `audit_logs.org_id uuid` + `audit_logs_org_idx`.
+- `022_rls_subselect.sql`: 5 policies RLS recriadas com `(SELECT auth.uid())` (InitPlan vs row-eval).
+- `023_share_token_expiry.sql`: `study_plans.share_token_expires_at timestamptz DEFAULT NULL` + índice.
+
+**H14 — `types/supabase.ts` regenerado (pós-migrations)**
+
+- Regenerado via Supabase MCP após aplicação das 4 migrations; 58 245 chars.
+- `share_token_expires_at` agora tipado diretamente em `StudyPlanRow`.
+- Type cast `plan as unknown as { share_token_expires_at?: string | null }` removido de `app/[locale]/p/[token]/page.tsx:53`.
+
+---
+
 ### 2026-06-16 - SPLIT 5: Link público / aceite de proposta (assinatura eletrônica simples)
 
 > **Estado:** SPLIT 5 **entregue**. type-check ✅ · `node --test` 64/64 ✅.
@@ -1065,3 +1096,26 @@ transições do wizard e o dropdown do picker em telas estreitas.
 - **Arquivos SEM alteração** (já estavam prontos para Next 15): `lib/supabase/server.ts` (já tinha `await cookies()`), `middleware.ts` (usa `request.cookies`, não `cookies()` de `next/headers`), `app/[locale]/p/[token]/actions.ts` (já tinha `await headers()`), demais pages/layouts (já usavam `params: Promise<{...}>`).
 - **DoD:** `npm run type-check` ✅ · `npm run build` ✅ (Next.js 15.5.19, 37 rotas) · `npm test` ✅ (139/139 tests).
 - **Avisos Sentry não-bloqueantes** (deprecações, não causam falha): `autoInstrumentServerFunctions` → `webpack.autoInstrumentServerFunctions`; `disableLogger` → `webpack.treeshake.removeDebugLogging`; `sentry.client.config.ts` pode virar `instrumentation-client.ts` futuramente.
+
+### 2026-06-17 - Performance QA: 3+ segundo navegação corrigido
+
+> **Estado:** Dev server estável via Turbopack. Warm loads: Home ~470ms · HR ~900ms · study-plans ~270ms.
+
+**Problema:** Navegação entre páginas demorava 3+ segundos no servidor de desenvolvimento.
+
+**Causas-raiz (3 combinadas):**
+1. **Cache .next corrompido** no webpack dev server (Windows) — `ENOENT routes-manifest.json`, `Cannot find module vendor-chunks/next-intl.js`.
+2. **CSS parse error** ao migrar para Turbopack: `@import` estava DEPOIS das diretivas `@tailwind` em `app/globals.css`. O Turbopack enforce a spec CSS corretamente (diferente do webpack que era permissivo).
+3. **`app/error.tsx`** tinha `<html><body>` tags — inválido para inner error boundary (renderiza dentro do layout raiz). Necessário apenas em `global-error.tsx`.
+
+**Correções aplicadas:**
+- **`package.json`:** `"dev": "next dev --turbopack"` — Turbopack tem cache persistente estável no Windows.
+- **`app/globals.css`:** Movidos os dois `@import url()` para o topo absoluto do arquivo, antes de `@tailwind base/components/utilities`.
+- **`app/global-error.tsx`:** CRIADO — cópia de error.tsx com `<html><body>` para o Sentry boundary global.
+- **`app/error.tsx`:** Removidos `<html><body>` — substituídos por `<div>` container (inner boundary não pode ter html/body).
+- **`app/[locale]/(protected)/hr/page.tsx`:** Queries admin paralelas via `Promise.all([getEmployeeByProfileId, listTimeEntries, listEmployeesWithNames])`.
+- **`lib/auth/get-user.ts`:** Tentou `getSession()` → revertido para `getUser()`. `getSession()` lê cookie sem validação server-side (sessions revogadas passam) — segurança mais importante que 300ms.
+
+**Bugs registrados:** bug-029 (error.tsx html/body), bug-030 (Turbopack CSS @import), bug-031 (webpack cache corruption).
+
+**Próximo:** Nenhum bloqueio técnico pendente. Dev server estável. Próxima feature = SPLIT 7 (IA import portfólio) ou SPLIT 8 (contact/CRM light).

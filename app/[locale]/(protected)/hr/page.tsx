@@ -41,31 +41,45 @@ export default async function HrPage({ params }: Props) {
   const TEAM_ROLES = ['reader', 'editor', 'admin', 'super_admin'] as const
   const isTeamMember = TEAM_ROLES.includes(profile.role as typeof TEAM_ROLES[number])
 
-  let employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+  // For admins: run employee lookup + all data queries in parallel (no employee filter needed).
+  // For non-admins: must resolve employee first to filter by their id.
+  let employee: Awaited<ReturnType<typeof getEmployeeByProfileId>>
+  let entries: Awaited<ReturnType<typeof listTimeEntries>>
+  let allEmployees: Awaited<ReturnType<typeof listEmployeesWithNames>>
+  let activeEntry: Awaited<ReturnType<typeof getActiveClockEntry>> | null
 
-  // Auto-create employee profile for internal team roles.
-  // Clients (future role) must NOT get an employee profile automatically.
-  if (!employee && isTeamMember) {
-    try {
-      employee = await upsertEmployee(supabase, {
-        org_id: profile.org_id,
-        profile_id: profile.id,
-        hourly_rate_in_cents: 0,
-      })
-    } catch {
-      // RLS edge case — fall through, page renders without clock widget
+  if (isAdmin) {
+    const [emp, ent, emps] = await Promise.all([
+      getEmployeeByProfileId(supabase, profile.org_id, profile.id),
+      listTimeEntries(supabase, profile.org_id, { from: weekStart }),
+      listEmployeesWithNames(supabase, profile.org_id),
+    ])
+    employee = emp
+    entries = ent
+    allEmployees = emps
+    activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null
+  } else {
+    employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+
+    // Auto-create employee profile for internal team roles.
+    if (!employee && isTeamMember) {
+      try {
+        employee = await upsertEmployee(supabase, {
+          org_id: profile.org_id,
+          profile_id: profile.id,
+          hourly_rate_in_cents: 0,
+        })
+      } catch {
+        // RLS edge case — fall through, page renders without clock widget
+      }
     }
-  }
 
-  // Fetch clock entry, week entries, and (if admin) employee list in parallel
-  const [activeEntry, entries, allEmployees] = await Promise.all([
-    employee ? getActiveClockEntry(supabase, employee.id) : Promise.resolve(null),
-    listTimeEntries(supabase, profile.org_id, {
-      ...(isAdmin ? {} : { employeeId: employee!.id }),
-      from: weekStart,
-    }),
-    isAdmin ? listEmployeesWithNames(supabase, profile.org_id) : Promise.resolve([]),
-  ])
+    ;[activeEntry, entries] = await Promise.all([
+      employee ? getActiveClockEntry(supabase, employee.id) : Promise.resolve(null),
+      listTimeEntries(supabase, profile.org_id, { employeeId: employee?.id, from: weekStart }),
+    ])
+    allEmployees = []
+  }
 
   // Own entries for the WeekSummary bars (only relevant if has employee profile)
   const ownEntries = employee && isAdmin

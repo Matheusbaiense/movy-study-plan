@@ -323,3 +323,12 @@ Qualquer nova action de HR que muda status de invoice DEVE ter `isHrAdmin` guard
 ### 2026-06-16 — Shared auth helper for server actions
 
 All server action files now import `getActorSession()` and `svc()` from `lib/actions/auth.ts` instead of duplicating the Supabase client setup. When adding new action files, import from there — never reinvent the pattern.
+
+## Key Learnings — Performance & Dev Server (2026-06-17)
+
+- **Turbopack enforces CSS spec strictly:** `@import` rules MUST precede all other CSS including `@tailwind`. webpack was lenient; Turbopack throws `Parsing CSS source code failed: @import rules must precede all rules`. Solution: put @import at the very top of globals.css before @tailwind base/components/utilities. See bug-030.
+- **Next.js webpack dev server corrupts .next cache on Windows** causing ENOENT routes-manifest.json and `Cannot find module vendor-chunks/next-intl.js`. Fix: delete .next dir AND switch to Turbopack (`next dev --turbopack`) which has a different, stable persistent cache. See bug-031.
+- **getUser() vs getSession() security tradeoff:** `auth.getSession()` reads JWT from cookie locally (~0ms) but doesn't validate with Supabase Auth server — sessions revoked server-side still appear valid. `auth.getUser()` makes a ~300ms HTTP round-trip but properly validates. For server components handling data access (get-user.ts), always use `getUser()`. Middleware can use `getSession()` for redirect-only checks.
+- **app/error.tsx vs global-error.tsx structure:** Inner error boundaries (error.tsx) render INSIDE the root layout — they must NOT have `<html>/<body>` tags. Only `global-error.tsx` (which replaces the root layout on catastrophic errors) needs `<html><body>`. See bug-029.
+- **Do-Not-Repeat:** [2026-06-17] Never put @import after @tailwind in globals.css — Turbopack CSS spec enforcement breaks all pages with 500. Always place @import at the absolute top.
+- **Do-Not-Repeat:** [2026-06-17] Never add `<html><body>` to app/error.tsx — only global-error.tsx should have them. Inner error boundaries render inside the layout.
