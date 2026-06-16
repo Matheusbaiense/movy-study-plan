@@ -5,15 +5,18 @@
 
 ## components/hr/
 
+- **DateInputPT.tsx** — `'use client'` reusable single `<input type="date">` with themed styling (border, bg, color tokens, colorScheme light/dark). Props: value, onChange, min, max, style. ~30 lines.
 - **ClockWidget.tsx** — `'use client'` time-clock card. Purple gradient (145deg, #4B1A77→#190A38). Header: clock icon + “CLOCKED IN”/”READY” status pill with pulsing green dot. Clocked-in state: 144px gold ring with HH:MM:SS elapsed + “since HH:MM” caption + description frosted card + Clock Out button. Not clocked-in: description input (Enter submits) + gold Clock In button. Calls clockInAction/clockOutAction via useTransition. Bilingual (pt/en). ~180 lines.
 - **WeekSummary.tsx** — `'use client'` week-at-a-glance bars (Mon–Sun). Shows totalHours per day as a colored progress bar with status dots. Props: entries, locale. ~130 lines.
-- **HrDashboard.tsx** — `'use client'` right-panel dashboard. Tab bar (Timesheet | Invoices | All Timesheets for admin). Week header + Add Entry / Generate Invoice buttons. Entries table: columns DATE | IN | OUT | HOURS | AMOUNT AU$ | STATUS | ACTIONS. StatusBadge component (pill + colored dot). Row hover highlight. Admin approve/reject buttons. AddEntryModal: date + time inputs, calls logHoursAction. Summary footer: stacked Approved / Pending / Approved Total metric blocks. ~290 lines.
+- **RateCard.tsx** — `'use client'` read-only hourly rate display card for employees. Shows "AU$X.XX/hr" in brand purple with display font. If rate is $0, shows soft warning (amber background). Props: rateCents, locale. Bilingual (pt/en). ~35 lines.
+- **SelfInvoiceButton.tsx** — `'use client'` button + modal for employees to generate their own invoice. Period presets: weekly/fortnightly/monthly/custom. Calls generateOwnInvoiceAction, then navigates to print page. Props: locale. Bilingual (pt/en). ~170 lines.
+- **HrDashboard.tsx** — `'use client'` right-panel dashboard. Tab bar (Timesheet | Invoices | All Timesheets for admin). Week header + Add Entry / Generate Invoice buttons. Entries table always rendered; empty state inside tbody: admin sees "wait for employees" message, employee sees "no entries" + "+ Add Entry" button (if employee record exists). StatusBadge component (pill + colored dot). Row hover highlight. Admin approve/reject buttons. AddEntryModal: uses DateInputPT for date selection + time inputs, calls logHoursAction. Summary footer: stacked Approved / Pending / Approved Total metric blocks. ~285 lines.
 - **TimesheetTable.tsx** â€” `'use client'` table rendering time entries with approve/reject action buttons. Columns: date, employee (optional), clock-in/out times, hours, status badge, actions. Calls approveEntryAction/rejectEntryAction via useTransition. Props: entries, employees (optional), showEmployeeName, locale. ~130 lines.
 - **TaxInvoice.tsx** â€” Print-optimised ABN-format tax invoice component. Renders invoice header (agency ABN, logo), employee details, line items table (date, description, hours, rate, amount), totals, payment terms. Uses window.print() via a Print button. Props: data (InvoicePrintData), rateRules. ~160 lines.
 
 ## app/[locale]/(protected)/hr/invoices/
 
-- **page.tsx** — Invoice list server page. Auth via supabase.auth.getUser() + profiles query. Fetches listInvoices + listEmployees in parallel. Table with invoice #, period, total (formatAUD), status badge (draft/issued/paid), issued date, View/Print link. Empty state bilingual. Renders GenerateInvoiceForm. ~80 lines.
+- **page.tsx** — Invoice list server page. Auth via supabase.auth.getUser() + profiles query. Fetches listInvoices + listEmployees in parallel. Table with invoice #, period, total (formatAUD), status badge (draft/issued/paid), issued date, View/Print link. Empty state: 🧾 icon + bold heading + actionable hint to click "Generate Invoice". Renders GenerateInvoiceForm. ~85 lines.
 - **GenerateInvoiceForm.tsx** — `'use client'` modal for generating a new tax invoice. Employee select + period start/end date inputs. Calls generateInvoiceAction, then router.push to print page. Bilingual (pt/en). ~110 lines.
 
 ## app/[locale]/(protected)/hr/
@@ -21,8 +24,8 @@
 - **team/page.tsx** — Employee Directory server page (admin-only, redirects non-admin to /hr). Calls listEmployeesWithStats. KPI summary bar: 4 tiles (employee count, clocked in now, hours this month, pending approvals). 3-column card grid: initials avatar (purple gradient), name+email, RoleBadge (super_admin/admin/employee), AU$/hr rate, stats row (hours, pending, working-now indicator), Timesheets + Invoices action links with ?employee= param. Empty state with Users icon. Bilingual pt/en. ~263 lines.
 - **clock/page.tsx** â€” Employee clock self-service page (server component). Auth via supabase.auth.getUser() + profiles query. Fetches employee record via getEmployeeByProfileId; falls back to bilingual "no active profile" message. Fetches active clock entry via getActiveClockEntry. Renders ClockWidget. ~49 lines.
 - **page.tsx** â€” HR dashboard server component. Auth via supabase.auth.getUser() + profiles query. Fetches employee record, active clock entry, current-week entries (Monâ€“Sun), and recent entries. Layout: left sidebar (ClockWidget + WeekSummary + nav links) + right panel (TimesheetTable last 20). Bilingual (pt/en). ~99 lines.
-- **actions.ts** â€” Server actions for HR module: clockInAction, clockOutAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, issueInvoiceAction, markInvoicePaidAction. Uses getActor() helper (createClient + profiles query with org_id). ~151 lines.
-- **timesheets/page.tsx** â€” Admin timesheet list (server component). Auth via supabase.auth.getUser() + profiles. Fetches all org time entries + employees in parallel. Renders pill-style status filters (All / pending / approved / rejected) as anchor links with query-string state. Preserves employeeId filter when switching status. Shows employee clear filter link when active. Renders TimesheetTable with showEmployeeName. Bilingual (pt/en). ~102 lines.
+- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, logHoursAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, generateOwnInvoiceAction (employee self-invoice), updateEmployeeRateAction, issueInvoiceAction, markInvoicePaidAction. Uses getActor() helper (createClient + profiles query with org_id). ~260 lines.
+- **timesheets/page.tsx** — Timesheet list server page. Role-scoped: admins see all org entries + employee count; non-admins see only their own entries (fetches employee via getEmployeeByProfileId; falls back to '__none__' if no employee profile). Imports isHrAdmin + getEmployeeByProfileId from lib/hr. Status filter pills (All/pending/approved/rejected). Empty-state message varies by role. TimesheetTable rendered with showEmployeeName={isAdmin}. Bilingual (pt/en). ~137 lines.
 - **invoices/[id]/print/page.tsx** â€” Invoice print/PDF server page. Auth via supabase.auth.getUser() + profiles. Fetches listRateRules + getInvoicePrintData in sequence; 404s if data null. Renders TaxInvoice in a white padded container. ~32 lines.
 
 ## lib/hr/
@@ -60,6 +63,23 @@
 
 ## ./
 
+- **next.config.mjs** — Next.js config: CSP (enforcing, built from NEXT_PUBLIC_SUPABASE_URL env var), security headers, Sentry via withSentryConfig, next-intl plugin. `outputFileTracingIncludes` at top-level (moved from `experimental` for Next.js 15). ~65 lines.
+- **instrumentation.ts** — Next.js 15 / Sentry v10 instrumentation hook. `register()` function imports `sentry.server.config` (nodejs runtime) or `sentry.edge.config` (edge runtime). Required to avoid Sentry falling back to Pages Router `_document` patching. ~9 lines.
+- **.env.example** — Documented env vars: Supabase (URL + anon key + service role), Wise API, Sentry DSN, MOVY_PREVIEW flag. ~40 lines.
+- **public/robots.txt** — Disallows /api/ and /(protected)/ paths for all bots.
+- **sentry.client.config.ts** / **sentry.server.config.ts** / **sentry.edge.config.ts** — Sentry init: DSN from env, tracesSampleRate 0.1, enabled only in production.
+
+## lib/actions/
+
+- **auth.ts** — Shared server-action helpers: `getActorSession()` (createClient → auth.getUser → profiles query → `{ supabase, user, profile }`) and `svc()` (wraps createServiceClient, returns null on missing env). Imported by all action files. ~30 lines.
+
+## app/api/health/
+
+- **route.ts** — GET /api/health — returns `{ status: 'ok', ts: ISO }`. nodejs runtime, force-dynamic. ~7 lines.
+
+## supabase/migrations/
+
+- **019_allowed_emails_rls_deny.sql** — Adds restrictive `no_direct_access` policy on `allowed_emails` (all mutations go through service-role). Idempotent via `if not exists`.
 
 ## .claude/
 
@@ -270,8 +290,23 @@
 
 ## tests/
 
-- `study-financial.test.mjs` â€” Declares financial (~2283 tok)
-- `hr-calculations.test.mjs` â€” 17 node:test assertions covering detectDayType/calculateHours/getMultiplier/calculateLineItemCents/computeTotalCents. Run with `node --experimental-strip-types --test`. ~80 lines.
+- `study-financial.test.mts` — Financial calc tests (formerly .mjs, now TypeScript ESM). ~100 lines.
+- `hr-calculations.test.mts` — 17 node:test assertions covering detectDayType/calculateHours/getMultiplier/calculateLineItemCents/computeTotalCents. ~80 lines.
+- `hr-queries.test.mts` — HR query tests. ~80 lines.
+- `options.test.mts` — 6 tests for study-plans option helpers (createOption/duplicateOption/withRecomputed/setRecommended/canAddOption). ~107 lines.
+- `permissions.test.mts` — Role permission matrix tests (isAdminOrAbove, isEditorOrAbove, etc.). ~100 lines.
+- `portfolio.test.mts` — Portfolio action tests. ~100 lines.
+- `sanitize-html.test.mts` — HTML sanitisation tests. ~100 lines.
+- `crm-contacts.test.mts` — CRM contact tests. ~80 lines.
+
+Run with: `npm test` → `node --experimental-strip-types --test 'tests/*.test.mts'`
+
+## Root docs
+
+- **CHANGELOG.md** — Keep-a-changelog format. Documents all audit fixes and notable changes since project start.
+- **CONTRIBUTING.md** — Dev setup, branch conventions, money-in-cents rule, server action pattern, no console.log policy.
+- **docs/MIGRATIONS.md** — How to write and apply Supabase migrations; idempotency rules; RLS conventions.
+- **docs/DEPLOYMENT.md** — Vercel deploy process, required env vars, DB migration order, rollback strategy, `/api/health` probe.
 
 ## types/
 

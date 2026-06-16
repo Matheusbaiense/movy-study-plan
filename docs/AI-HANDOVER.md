@@ -1051,3 +1051,17 @@ transições do wizard e o dropdown do picker em telas estreitas.
 - Pages: HR dashboard (hr/page.tsx), clock self-service (hr/clock/page.tsx), admin timesheets with filters (hr/timesheets/page.tsx), invoice list (hr/invoices/page.tsx + GenerateInvoiceForm.tsx), invoice print (hr/invoices/[id]/print/page.tsx).
 - All 38 tests passing (17 hr-calculations + 21 study-financial). TypeScript clean. Next.js build clean.
 - Key conventions confirmed: no `getUser` helper — use `supabase.auth.getUser()` + profiles query directly; `organizations.settings` not `metadata`; role is `'super_admin'` (not `'owner'`); server actions use `getActor()` pattern for org-scoped auth.
+
+### 2026-06-16 - Next.js 14 → 15 upgrade concluído
+
+- **Versões:** `next@14.2.29` → `next@15.5.19`; `eslint-config-next@14` → `@15`. **React 18 mantido** (--legacy-peer-deps).
+- **Codemods aplicados:** `npx @next/codemod@latest upgrade` — async `cookies()`/`headers()`/`params` nos arquivos que ainda precisavam.
+- **Arquivos modificados:**
+  - `app/[locale]/page.tsx` — params agora `Promise<{ locale: string }>` + `async` + `await params`.
+  - `app/api/imported/[name]/route.ts` — params agora `Promise<{ name: string }>` + `await params`.
+  - `components/study-plans/StudyPlanEditor.tsx` — `ticks` useMemo movido para antes do early-return (violação de Hook condicional que o ESLint do Next 15 passa a bloquear no build).
+  - `next.config.mjs` — `outputFileTracingIncludes` movido de `experimental` para o nível raiz (exigido pelo Next 15).
+  - `instrumentation.ts` — **NOVO** arquivo na raiz: hook `register()` para compatibilidade do `@sentry/nextjs@10.x` com Next.js 15 App Router. Sem ele, o Sentry tentava patch em `/_document` (Pages Router) e crashava o build.
+- **Arquivos SEM alteração** (já estavam prontos para Next 15): `lib/supabase/server.ts` (já tinha `await cookies()`), `middleware.ts` (usa `request.cookies`, não `cookies()` de `next/headers`), `app/[locale]/p/[token]/actions.ts` (já tinha `await headers()`), demais pages/layouts (já usavam `params: Promise<{...}>`).
+- **DoD:** `npm run type-check` ✅ · `npm run build` ✅ (Next.js 15.5.19, 37 rotas) · `npm test` ✅ (139/139 tests).
+- **Avisos Sentry não-bloqueantes** (deprecações, não causam falha): `autoInstrumentServerFunctions` → `webpack.autoInstrumentServerFunctions`; `disableLogger` → `webpack.treeshake.removeDebugLogging`; `sentry.client.config.ts` pode virar `instrumentation-client.ts` futuramente.

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { updateStudyPlan } from '@/app/[locale]/(protected)/study-plans/actions'
 import { computeProposal } from '@/lib/study-plans/calculations'
@@ -57,10 +57,18 @@ const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Familia', 'Sing
 
 export function StudyPlanEditor({ id, locale, initialData, status, presets: _presets, contactNationality }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [plan, setPlan] = useState(initialData)
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('saved')
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(() => Date.now())
-  const [wizardStep, setWizardStep] = useState<EditorWizardStep>('cliente')
+  const VALID_STEPS: EditorWizardStep[] = ['cliente', 'preferencias', 'cursos', 'custos', 'revisao']
+  const rawStep = searchParams.get('step') as EditorWizardStep | null
+  const wizardStep: EditorWizardStep = rawStep && VALID_STEPS.includes(rawStep) ? rawStep : 'cliente'
+  const setWizardStep = useCallback((step: EditorWizardStep) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('step', step)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }, [router, searchParams])
   const [isPending, startTransition] = useTransition()
   const [fxRate, setFxRate] = useState<number | null>(null)
   const [showVersions, setShowVersions] = useState(false)
@@ -405,6 +413,23 @@ const TIMELINE_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago',
 
 function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string }) {
   const rows = useMemo(() => buildSchedule(plan).filter((r) => r.start && r.end), [plan])
+
+  const ticks = useMemo(() => {
+    if (rows.length === 0) return []
+    const rangeStart = rows[0].start
+    const lastEnd = rows[rows.length - 1].end
+    const rangeEnd = visaDate && visaDate > lastEnd ? visaDate : lastEnd
+    const result: Array<{ iso: string; label: string }> = []
+    const startDate = new Date(`${rangeStart}T00:00:00Z`)
+    let m = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1))
+    if (m < startDate) m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
+    while (m.toISOString().slice(0, 10) <= rangeEnd) {
+      result.push({ iso: m.toISOString().slice(0, 10), label: `${TIMELINE_MONTHS[m.getUTCMonth()]} ${String(m.getUTCFullYear()).slice(2)}` })
+      m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
+    }
+    return result
+  }, [rows, visaDate])
+
   if (rows.length === 0) {
     return <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Defina a data de inicio do primeiro curso para ver a linha do tempo.</span>
   }
@@ -415,15 +440,6 @@ function Timeline({ plan, visaDate }: { plan: StudyPlanData; visaDate: string })
   const pct = (iso: string) => (daysBetween(rangeStart, iso) / total) * 100
   const lastStudy = [...rows].reverse().find((r) => r.segment.kind === 'study')
   const coe = lastStudy ? lastStudy.end : lastEnd
-
-  const ticks: Array<{ iso: string; label: string }> = []
-  const startDate = new Date(`${rangeStart}T00:00:00Z`)
-  let m = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1))
-  if (m < startDate) m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
-  while (m.toISOString().slice(0, 10) <= rangeEnd) {
-    ticks.push({ iso: m.toISOString().slice(0, 10), label: `${TIMELINE_MONTHS[m.getUTCMonth()]} ${String(m.getUTCFullYear()).slice(2)}` })
-    m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
-  }
 
   return (
     <div className="timeline-shell">

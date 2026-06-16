@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 
 interface Props {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
-export default function LocaleRoot({ params }: Props) {
-  redirect(`/${params.locale}/home`)
+export default async function LocaleRoot({ params }: Props) {
+  const { locale } = await params
+  redirect(`/${locale}/home`)
 }

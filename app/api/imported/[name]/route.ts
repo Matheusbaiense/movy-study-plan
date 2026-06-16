@@ -13,10 +13,11 @@ const CONTENT_TYPES: Record<string, string> = {
 }
 
 interface Params {
-  params: { name: string }
+  params: Promise<{ name: string }>
 }
 
 export async function GET(_request: Request, { params }: Params) {
+  const { name } = await params
   const supabase = await createClient()
   const { data: auth } = await supabase.auth.getUser()
 
@@ -24,12 +25,13 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const safeName = path.basename(params.name)
-  if (safeName !== params.name || !/^knowledge-sop-image-\d+\.(png|jpe?g|webp)$/i.test(safeName)) {
+  const safeName = path.basename(name)
+  if (safeName !== name || !/^knowledge-sop-image-\d+\.(png|jpe?g|webp)$/i.test(safeName)) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const filePath = path.join(process.cwd(), 'data', 'imported', safeName)
+
   const ext = path.extname(safeName).toLowerCase()
 
   try {

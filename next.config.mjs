@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
@@ -32,10 +33,8 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/imported/[name]': ['./data/imported/**/*'],
-    },
+  outputFileTracingIncludes: {
+    '/api/imported/[name]': ['./data/imported/**/*'],
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
@@ -54,4 +53,11 @@ const nextConfig = {
   },
 }
 
-export default withNextIntl(nextConfig)
+export default withSentryConfig(withNextIntl(nextConfig), {
+  silent: true,
+  disableLogger: true,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  tunnelRoute: '/monitoring',
+  autoInstrumentServerFunctions: false,
+})
