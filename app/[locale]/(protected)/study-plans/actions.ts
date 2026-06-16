@@ -151,6 +151,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
+    .eq('org_id', profile.org_id)
 
   if (error) throw new Error(error.message)
 
@@ -248,7 +249,7 @@ export async function changeStudyPlanStatus(id: string, status: string, locale =
   }
   if (status === 'accepted') patch.accepted_at = new Date().toISOString()
 
-  const { error } = await supabase.from('study_plans').update(patch).eq('id', id)
+  const { error } = await supabase.from('study_plans').update(patch).eq('id', id).eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
 
   await emitProposalEvent(supabase, {
@@ -287,6 +288,7 @@ export async function softDeleteStudyPlan(id: string, locale = 'pt') {
     .from('study_plans')
     .update({ deleted_at: new Date().toISOString(), updated_by: user.id })
     .eq('id', id)
+    .eq('org_id', profile.org_id)
 
   if (error) throw new Error(error.message)
 
@@ -316,6 +318,7 @@ export async function restoreStudyPlan(id: string, locale = 'pt') {
     .from('study_plans')
     .update({ deleted_at: null, updated_by: user.id })
     .eq('id', id)
+    .eq('org_id', profile.org_id)
 
   if (error) throw new Error(error.message)
 
@@ -360,7 +363,7 @@ export async function hardDeleteStudyPlan(id: string, locale = 'pt') {
     throw new Error('Insufficient permissions')
   }
 
-  const { error } = await supabase.from('study_plans').delete().eq('id', id)
+  const { error } = await supabase.from('study_plans').delete().eq('id', id).eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
 
   await logAuditWithClient(supabase, {
@@ -408,7 +411,7 @@ export async function bulkStudyPlanAction(
             ? { deleted_at: stamp, updated_by: user.id }
             : { deleted_at: null, updated_by: user.id }
 
-      const { error } = await supabase.from('study_plans').update(patch).eq('id', id)
+      const { error } = await supabase.from('study_plans').update(patch).eq('id', id).eq('org_id', profile.org_id)
       if (error) throw new Error(error.message)
 
       await emitProposalEvent(supabase, {
@@ -476,6 +479,7 @@ export async function upsertContact(
       .from('study_plans')
       .update({ contact_id: contact.id, updated_by: user.id })
       .eq('id', input.studyPlanId)
+      .eq('org_id', profile.org_id)
     if (error) throw new Error(error.message)
 
     await emitProposalEvent(supabase, {
@@ -542,12 +546,13 @@ export async function createProposalForContact(contactId: string, locale = 'pt')
   if (contactErr) throw new Error(contactErr.message)
   if (!contact) throw new Error('Contact not found')
 
-  const base = createBlankStudyPlan()
-  base.student = contact.full_name
-  base.email = contact.email ?? ''
-  base.phone = contact.phone ?? ''
-  base.contactRef = { id: contact.id, fullName: contact.full_name, email: contact.email, phone: contact.phone }
-  const data = withComputed(base)
+  const data = withComputed({
+    ...createBlankStudyPlan(),
+    student: contact.full_name,
+    email: contact.email ?? '',
+    phone: contact.phone ?? '',
+    contactRef: { id: contact.id, fullName: contact.full_name, email: contact.email, phone: contact.phone },
+  })
 
   const { data: plan, error } = await supabase
     .from('study_plans')
@@ -614,6 +619,244 @@ export async function listCoursePricesAction(courseId: string): Promise<PricedOp
   return createPortfolioCourseSource(supabase).listPrices(courseId)
 }
 
+// ─── Proposal Versions (migration 012 / SPLIT 4) ────────────────────────────
+
+export interface VersionSummary {
+  id: string
+  version_number: number
+  label: string | null
+  reason: string
+  status: string | null
+  created_at: string
+  created_by: string | null
+}
+
+/**
+ * Snapshot the current persisted plan data as an immutable version. The action
+ * reads from the DB so it always reflects the last auto-saved state. Editor+.
+ */
+export async function saveVersionAction(planId: string, label?: string): Promise<{ version_number: number }> {
+  const { supabase, user, profile } = await getActor()
+
+  const { data: plan, error: planErr } = await supabase
+    .from('study_plans')
+    .select('data, status, org_id')
+    .eq('id', planId)
+    .single()
+  if (planErr) throw new Error(planErr.message)
+  if (!plan) throw new Error('Plan not found')
+
+  const { data: version, error } = await supabase
+    .from('proposal_versions')
+    .insert({
+      org_id: plan.org_id ?? profile.org_id,
+      study_plan_id: planId,
+      version_number: 0, // trigger sets sequential number
+      label: label?.trim() || null,
+      reason: 'manual',
+      status: plan.status,
+      data: plan.data,
+      computed: (plan.data as unknown as StudyPlanData)?.computed as unknown as Json ?? null,
+      created_by: user.id,
+    })
+    .select('version_number')
+    .single()
+  if (error) throw new Error(error.message)
+  if (!version) throw new Error('Failed to create version')
+
+  await emitProposalEvent(supabase, {
+    orgId: profile.org_id,
+    studyPlanId: planId,
+    actorId: user.id,
+    kind: 'version_saved',
+    title: label ? `Versão: ${label}` : `Versão ${version.version_number}`,
+    metadata: { version_number: version.version_number, label: label ?? null },
+  })
+
+  revalidatePath('/[locale]/(protected)/study-plans/[id]', 'page')
+  return { version_number: version.version_number }
+}
+
+/** Return the last 20 versions for a plan (read-only). */
+export async function listVersionsAction(planId: string): Promise<VersionSummary[]> {
+  const { supabase } = await getActor()
+  const { data, error } = await supabase
+    .from('proposal_versions')
+    .select('id, version_number, label, reason, status, created_at, created_by')
+    .eq('study_plan_id', planId)
+    .order('version_number', { ascending: false })
+    .limit(20)
+  if (error) throw new Error(error.message)
+  return (data ?? []) as VersionSummary[]
+}
+
+/**
+ * Restore a specific version. Saves the current state as a `reason='restore'`
+ * snapshot first, then overwrites study_plans.data with the version's data.
+ * Revalidates so the editor server-renders fresh initial data. Editor+.
+ */
+export async function restoreVersionAction(planId: string, versionId: string): Promise<void> {
+  const { supabase, user, profile } = await getActor()
+
+  const { data: version, error: vErr } = await supabase
+    .from('proposal_versions')
+    .select('data, version_number, label')
+    .eq('id', versionId)
+    .eq('study_plan_id', planId)
+    .single()
+  if (vErr) throw new Error(vErr.message)
+  if (!version) throw new Error('Version not found')
+
+  // Snapshot current state before overwriting (best-effort).
+  const { data: current } = await supabase
+    .from('study_plans')
+    .select('data, status, org_id')
+    .eq('id', planId)
+    .single()
+  if (current) {
+    await supabase.from('proposal_versions').insert({
+      org_id: current.org_id ?? profile.org_id,
+      study_plan_id: planId,
+      version_number: 0,
+      label: null,
+      reason: 'restore',
+      status: current.status,
+      data: current.data,
+      computed: (current.data as unknown as StudyPlanData)?.computed as unknown as Json ?? null,
+      created_by: user.id,
+    })
+  }
+
+  const restoredData = withComputed(version.data as unknown as StudyPlanData)
+  const { error: updateErr } = await supabase
+    .from('study_plans')
+    .update({ data: restoredData as unknown as Json, updated_by: user.id })
+    .eq('id', planId)
+    .eq('org_id', profile.org_id)
+  if (updateErr) throw new Error(updateErr.message)
+
+  await emitProposalEvent(supabase, {
+    orgId: profile.org_id,
+    studyPlanId: planId,
+    actorId: user.id,
+    kind: 'restored',
+    title: version.label ? `Restaurado: ${version.label}` : `Restaurado v${version.version_number}`,
+    metadata: { restored_from_version: version.version_number, version_id: versionId },
+  })
+
+  revalidatePath('/[locale]/(protected)/study-plans/[id]', 'page')
+}
+
+// ─── Proposal Templates (migration 012 / SPLIT 4) ───────────────────────────
+
+export interface TemplateSummary {
+  id: string
+  name: string
+  description: string | null
+  applicant_type: string | null
+  created_at: string
+}
+
+/** Return all active templates for the org. */
+export async function listTemplatesAction(): Promise<TemplateSummary[]> {
+  const { supabase } = await getActor()
+  const { data, error } = await supabase
+    .from('proposal_templates')
+    .select('id, name, description, applicant_type, created_at')
+    .is('deleted_at', null)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw new Error(error.message)
+  return (data ?? []) as TemplateSummary[]
+}
+
+/**
+ * Save the current proposal's data as a reusable template (PII stripped — only
+ * courses, extraCosts, applicantType, studentLocation preserved). Editor+.
+ */
+export async function saveAsTemplateAction(
+  planId: string,
+  name: string,
+  description?: string,
+): Promise<{ id: string }> {
+  const { supabase, user, profile } = await getActor()
+
+  const { data: plan, error: planErr } = await supabase
+    .from('study_plans')
+    .select('data, applicant_type')
+    .eq('id', planId)
+    .single()
+  if (planErr) throw new Error(planErr.message)
+  if (!plan) throw new Error('Plan not found')
+
+  // Strip PII: keep only structural data (courses, extras, settings).
+  const source = plan.data as unknown as StudyPlanData
+  const templateData: Partial<StudyPlanData> = {
+    applicantType: source.applicantType,
+    studentLocation: source.studentLocation,
+    courses: source.courses,
+    extraCosts: source.extraCosts,
+    includeHolidayPlanning: source.includeHolidayPlanning,
+  }
+
+  const { data: tmpl, error } = await supabase
+    .from('proposal_templates')
+    .insert({
+      org_id: profile.org_id,
+      name: name.trim(),
+      description: description?.trim() || null,
+      applicant_type: plan.applicant_type || null,
+      data: templateData as unknown as Json,
+      is_active: true,
+      created_by: user.id,
+      updated_by: user.id,
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(error.message)
+  if (!tmpl) throw new Error('Failed to create template')
+
+  await logAuditWithClient(supabase, {
+    actorId: user.id,
+    actorEmail: profile.email,
+    action: 'proposal_template.create',
+    entityType: 'proposal_templates',
+    entityId: tmpl.id,
+    metadata: { from_plan: planId, name },
+  })
+
+  revalidatePath('/[locale]/(protected)/study-plans', 'page')
+  return { id: tmpl.id }
+}
+
+export async function getShareUrlAction(
+  id: string
+): Promise<{ url: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/unauthorized')
+
+  const { data: plan } = await supabase
+    .from('study_plans')
+    .select('share_token')
+    .eq('id', id)
+    .single()
+
+  if (!plan) throw new Error('Proposta não encontrada')
+  if (!plan.share_token) throw new Error('Token de compartilhamento não gerado para esta proposta')
+
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.VERCEL_URL ??
+    'http://localhost:3000'
+
+  const base = origin.startsWith('http') ? origin : `https://${origin}`
+  return { url: `${base}/pt/p/${plan.share_token}` }
+}
+
 export async function deleteStudyPlan(id: string, locale = 'pt') {
   const supabase = await createClient()
   const {
@@ -624,7 +867,7 @@ export async function deleteStudyPlan(id: string, locale = 'pt') {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, email')
+    .select('role, email, org_id')
     .eq('id', user.id)
     .single()
 
@@ -632,7 +875,7 @@ export async function deleteStudyPlan(id: string, locale = 'pt') {
     throw new Error('Insufficient permissions')
   }
 
-  const { error } = await supabase.from('study_plans').delete().eq('id', id)
+  const { error } = await supabase.from('study_plans').delete().eq('id', id).eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
 
   await logAuditWithClient(supabase, {

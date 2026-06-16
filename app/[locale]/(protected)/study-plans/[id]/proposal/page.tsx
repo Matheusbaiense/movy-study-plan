@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { StudyPlanProposal } from '@/components/study-plans/StudyPlanProposal'
+import { ShareProposalButton } from '@/components/study-plans/ShareProposalButton'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
 interface Props {
@@ -25,11 +26,14 @@ export default async function StudyPlanProposalPage({ params }: Props) {
   const reference = `MV-${row.id.slice(0, 8).toUpperCase()}`
 
   return (
-    <StudyPlanProposal
-      data={row.data as StudyPlanData}
-      reference={reference}
-      updatedAt={row.updated_at}
-      backHref={`/${locale}/study-plans/${row.id}`}
-    />
+    <>
+      <StudyPlanProposal
+        data={row.data as StudyPlanData}
+        reference={reference}
+        updatedAt={row.updated_at}
+        backHref={`/${locale}/study-plans/${row.id}`}
+      />
+      <ShareProposalButton planId={row.id} />
+    </>
   )
 }

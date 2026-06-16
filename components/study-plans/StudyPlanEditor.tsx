@@ -38,6 +38,7 @@ import { OptionsManager } from './OptionsManager'
 import { EditorStickyBar } from './EditorStickyBar'
 import { ScenarioPanel } from './ScenarioPanel'
 import { EditorWizardNav } from './EditorWizardNav'
+import { VersionHistory } from './VersionHistory'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
 import { color, ink, font, t } from '@/lib/ui/theme'
@@ -59,9 +60,15 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(() => Date.now())
   const [wizardStep, setWizardStep] = useState<EditorWizardStep>('cliente')
   const [isPending, startTransition] = useTransition()
+  const [fxRate, setFxRate] = useState<number | null>(null)
+  const [showVersions, setShowVersions] = useState(false)
   const lastPersistedRef = useRef(JSON.stringify(initialData))
   const schedule = useMemo(() => buildSchedule(plan), [plan])
   const computed = useMemo(() => computeProposal(plan), [plan])
+
+  useEffect(() => {
+    fetch('/api/fx').then((r) => r.json()).then((d) => { if (d?.rate > 0) setFxRate(d.rate) }).catch(() => null)
+  }, [])
 
   function patchPlan(patch: Partial<StudyPlanData>) {
     setPlan((current) => ({ ...current, ...patch }))
@@ -79,7 +86,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
   const persist = useCallback(() => {
     startTransition(async () => {
       try {
-        await updateStudyPlan(id, plan, status)
+        // Always autosave as 'draft' — explicit status transitions go through changeStudyPlanStatus.
+        // Using the `status` prop here would revert an externally-approved plan on the next keystroke.
+        await updateStudyPlan(id, plan, 'draft')
         lastPersistedRef.current = JSON.stringify(plan)
         setSaveState('saved')
         setLastSavedAt(Date.now())
@@ -87,7 +96,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         setSaveState('error')
       }
     })
-  }, [id, plan, status, startTransition])
+  }, [id, plan])
 
   function save() {
     persist()
@@ -142,6 +151,13 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setShowVersions((v) => !v)}
+              style={{ ...proposalButton, background: showVersions ? 'color-mix(in srgb, #5B238E 10%, var(--surface))' : 'var(--surface)', borderColor: showVersions ? '#5B238E' : '#2A1153' }}
+            >
+              {showVersions ? 'Fechar versões' : 'Versões'}
+            </button>
             <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
               Proposta / PDF
             </Link>
@@ -150,6 +166,15 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
 
         {saveState === 'error' && (
           <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
+        )}
+
+        {showVersions && (
+          <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--surface)' }}>
+            <VersionHistory
+              planId={id}
+              onRestored={() => { window.location.reload() }}
+            />
+          </div>
         )}
 
         <EditorWizardNav step={wizardStep} onStepChange={setWizardStep} />
@@ -359,6 +384,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         lastSavedAt={lastSavedAt}
         isPending={isPending}
         onSave={save}
+        fxRate={fxRate}
+        courses={plan.courses.map((c) => ({ id: c.id, provider: c.provider, name: c.name }))}
+        extraCosts={plan.extraCosts}
       />
     </>
   )
@@ -539,6 +567,16 @@ const editorStyles = `
 .sp-editor-sticky-save:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+.sp-explain-panel {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  font-family: Satoshi, Outfit, sans-serif;
+  animation: sp-explain-in 140ms ease;
+}
+@keyframes sp-explain-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .sp-wizard-nav {
   display: grid;

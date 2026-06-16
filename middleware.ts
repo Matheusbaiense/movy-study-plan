@@ -53,7 +53,16 @@ export async function middleware(request: NextRequest) {
   // Build a response we can attach cookies to
   const response = i18nResponse ?? NextResponse.next({ request })
 
+  // Public proposal links: /{locale}/p/{uuid-token}
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const isPublicProposal = routing.locales.some((l) => {
+    if (!pathname.startsWith(`/${l}/p/`)) return false
+    const token = pathname.slice(`/${l}/p/`.length).split('/')[0]
+    return UUID_RE.test(token)
+  })
+
   const isPublic =
+    isPublicProposal ||
     pathname.includes('/login') ||
     pathname === '/unauthorized' ||
     pathname === '/'
