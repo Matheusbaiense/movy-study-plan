@@ -207,7 +207,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     <div className="movy-atmosphere" style={{ display: 'flex', minHeight: '100dvh', background: t.bg }}>
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex color-bg-surface-default"
+        className="no-print hidden lg:flex color-bg-surface-default"
         style={{
           width: collapsed ? W_COLLAPSED : W_EXPANDED,
           flexShrink: 0,
@@ -225,10 +225,10 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
       {/* Mobile overlay + drawer */}
       {mobileOpen && (
-        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(20,11,48,0.5)' }} onClick={() => setMobileOpen(false)} />
+        <div className="no-print lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 20, background: 'rgba(20,11,48,0.5)' }} onClick={() => setMobileOpen(false)} />
       )}
       <aside
-        className="lg:hidden color-bg-surface-default"
+        className="no-print lg:hidden color-bg-surface-default"
         style={{
           position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 30, width: W_EXPANDED,
           borderRight: `1px solid ${t.border}`,
@@ -242,7 +242,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
       {/* Main column */}
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, height: '100dvh' }}>
         {/* Mobile topbar */}
-        <header className="flex lg:hidden navbar-container" style={{ height: 56, padding: '0 16px' }}>
+        <header className="no-print flex lg:hidden navbar-container" style={{ height: 56, padding: '0 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu" className="button-blank-secondary-icon">
               <Menu size={22} />
@@ -254,7 +254,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         </header>
 
         {/* Desktop topbar */}
-        <header className="hidden lg:flex navbar-container">
+        <header className="no-print hidden lg:flex navbar-container">
           <BreadcrumbFromPath pathname={pathname} locale={locale} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
             <ThemeToggle />
