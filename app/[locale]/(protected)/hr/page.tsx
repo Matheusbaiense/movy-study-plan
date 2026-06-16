@@ -5,9 +5,8 @@ import { WeekSummary } from '@/components/hr/WeekSummary'
 import { HrDashboard } from '@/components/hr/HrDashboard'
 import {
   getEmployeeByProfileId, getActiveClockEntry,
-  listTimeEntries, listEmployeesWithNames, isHrAdmin,
+  listTimeEntries, listEmployeesWithNames, isHrAdmin, upsertEmployee,
 } from '@/lib/hr'
-import { CreateEmployeeProfileButton } from '@/components/hr/CreateEmployeeProfileButton'
 import { t, ink, font } from '@/lib/ui/theme'
 
 interface Props { params: Promise<{ locale: string }> }
@@ -27,11 +26,23 @@ export default async function HrPage({ params }: Props) {
   if (profileError || !profile) redirect(`/${locale}/login`)
 
   const isAdmin = isHrAdmin(profile.role)
-  const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
-  const activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null
+  let employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
 
-  // Non-admin with no employee profile: show friendly message
-  if (!isAdmin && !employee) {
+  // Admins who don't have an employee profile yet: auto-create one silently.
+  // Regular employees see a "contact admin" message instead (admin onboards them).
+  if (!employee && isAdmin) {
+    try {
+      employee = await upsertEmployee(supabase, {
+        org_id: profile.org_id,
+        profile_id: profile.id,
+        hourly_rate_in_cents: 0,
+      })
+    } catch {
+      // If auto-create fails (e.g. RLS edge case), fall through — page still renders
+    }
+  }
+
+  if (!employee && !isAdmin) {
     return (
       <div style={{ padding: '48px 32px', maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontSize: 32, marginBottom: 16 }}>🕐</div>
@@ -46,6 +57,8 @@ export default async function HrPage({ params }: Props) {
       </div>
     )
   }
+
+  const activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null
 
   // Week bounds (Mon–Sun, local date — avoid toISOString UTC drift)
   const now = new Date()
@@ -95,26 +108,13 @@ export default async function HrPage({ params }: Props) {
 
         {/* Left column: clock + week bars */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {employee ? (
+          {employee && (
             <>
               <ClockWidget activeEntry={activeEntry} locale={locale} />
               <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 20 }}>
                 <WeekSummary entries={ownEntries} locale={locale} />
               </div>
             </>
-          ) : (
-            <div style={{
-              background: 'var(--surface)', border: `1px solid ${ink(0.1)}`,
-              borderRadius: 12, padding: 20, color: t.textMuted, fontSize: 13, lineHeight: 1.6,
-            }}>
-              <div style={{ fontWeight: 600, color: t.text, marginBottom: 6 }}>
-                {locale === 'pt' ? 'Modo Administrador' : 'Administrator Mode'}
-              </div>
-              {locale === 'pt'
-                ? 'Você ainda não tem um perfil de funcionário vinculado à sua conta.'
-                : "You don't have an employee profile linked to your account yet."}
-              <CreateEmployeeProfileButton locale={locale} />
-            </div>
           )}
         </div>
 
