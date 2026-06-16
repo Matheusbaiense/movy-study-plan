@@ -17,12 +17,15 @@ function getWeekDates(): string[] {
   const dow = now.getDay() // 0=Sun
   const monday = new Date(now)
   monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1))
+  const pad = (n: number) => String(n).padStart(2, '0')
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(monday)
     d.setDate(monday.getDate() + i)
-    return d.toISOString().slice(0, 10)
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
   })
 }
+
+const MAX_HOURS = 10
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#4ade80',
@@ -33,7 +36,6 @@ const STATUS_COLOR: Record<string, string> = {
 export function WeekSummary({ entries, locale }: WeekSummaryProps) {
   const days = getWeekDates()
   const labels = locale === 'pt' ? DAY_LABELS_PT : DAY_LABELS
-  const MAX_HOURS = 10
 
   const byDay = days.map((iso) => {
     const dayEntries = entries.filter((e) => e.clock_in.startsWith(iso))

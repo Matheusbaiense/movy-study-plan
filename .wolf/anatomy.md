@@ -1,7 +1,29 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-06-15T01:15:06.167Z
-> Files: 8 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-06-16T14:30:00.000Z
+> Files: 10 tracked | Anatomy hits: 0 | Misses: 0
+
+## components/hr/
+
+- **ClockWidget.tsx** — `'use client'` time-clock card. Purple gradient background. Shows live elapsed timer in gold when clocked in (setInterval, formatElapsed). Pulsing green dot + LIVE badge when active. Clock In (gold button + optional description input) / Clock Out (translucent white button). Calls clockInAction/clockOutAction server actions via useTransition. Bilingual (pt/en). ~165 lines.
+
+## app/[locale]/(protected)/hr/
+
+- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, issueInvoiceAction, markInvoicePaidAction. Uses getActor() helper (createClient + profiles query with org_id). ~151 lines.
+
+## lib/hr/
+
+- **types.ts** — HR module type aliases (EmployeeProfile, TimeEntry, HrRateRule, HrInvoice, + inserts + HrInvoiceUpdate), DayType/TimeEntryStatus/InvoiceStatus enums, TimeEntryComputed, InvoiceLine, InvoicePrintData, InvoicePeriod. ~49 lines.
+- **queries.ts** — Org-scoped Supabase query helpers: listEmployees, getEmployeeByProfileId, getEmployeeById, upsertEmployee; getActiveClockEntry, clockIn, clockOut, listTimeEntries, updateEntryStatus; listRateRules; listInvoices, getInvoiceById, createInvoice, updateInvoiceStatus, linkEntriesToInvoice, getInvoicePrintData. ~260 lines.
+- **calculations.ts** — Pure HR calculation functions: detectDayType (public holiday priority), calculateHours (ms→hours, 2dp), getMultiplier (date-range + max-wins), calculateLineItemCents (integer cents), computeTotalCents (reduce), formatAUD, formatDateAU. ~62 lines.
+
+## tests/
+
+- **hr-calculations.test.mjs** — 17 node:test assertions covering detectDayType/calculateHours/getMultiplier/calculateLineItemCents/computeTotalCents. Run with `node --test`. ~80 lines.
+
+## components/hr/
+
+- **WeekSummary.tsx** — `'use client'` widget: 7-day hours bar chart + approval-status dots for a given `entries: TimeEntry[]`. Uses `getWeekDates()` (Mon–Sun, local-date formatted to avoid UTC timezone drift), `calculateHours`, and theme tokens (`t`, `ink`, `color`, `font`) from `lib/ui/theme`. `MAX_HOURS=10` at module level. Props: `entries`, `locale`. ~129 lines.
 
 ## components/study-plans/
 
@@ -113,6 +135,7 @@
 
 ## components/layout/
 
+- **AppShell.tsx** — Root layout shell: desktop sidebar (collapsible, localStorage-persisted), mobile drawer, topbar with breadcrumb + avatar account menu. NavEntry interface, mainNav array, operationsNav array (HR & Time), SidebarContent inner component, NavItem/Avatar/MenuLink/BreadcrumbFromPath helpers. Uses Lucide icons incl. Clock. ~382 lines.
 
 ## components/study-plans/
 
@@ -128,7 +151,7 @@
 
 ## .wolf/allyhub-research/
 
-- `ALLY-BLUEPRINT.md` — Blueprint competitivo completo do AllyHub (concorrente SaaS CRM para agências de intercâmbio). Seções 1–48: identidade empresa, planos/preços, termos, tech stack (AngularJS 1.x + React iframe + Sellead backend), mapa de rotas, pipeline de alunos, perfil (5 abas), formulário (40+ campos), Quote 2.0 deep dive, catálogo AU 27 programas, revenue model AU$150/quote, simulação Perth (Lexis 1 semana AU$1,318), comissão BRL (R$789.76/quote), Finish = PUT /draft/{id}, links externos (/quote-detail/ vs /quote-online/), fluxo aluno (PT-BR, checkout, 2-12x), tracking multinível, 14+ endpoints. S45: Settings completo. S46: Builders (Quote Online/PDF/Email Template/Document Template). S47: Dashboard completo — 6 KPI cards, leaderboard, conversion rate, tasks calendar, last interactions; arquitetura 3-sided (type 1=agência/2=escola/3=rede); mapa moduleType (3=free/7=financial/11=marketing/15=full/16=automations); nav completo com 35+ itens e gates; 8 roles. S48 (NOVA): Reports & Commissions — 10 páginas documentadas: Performance Report (10 widgets), Funnel Performance (redirect hardcoded), General Behavior (auditoria de equipe), Sales/Cancellations (11 filtros cada), Receivable/Bills/Credits (financeiro gated por nav), Quotes List (CRM + #Q502 AU$1,318), Earnings (12 filtros por tipo de item/parceiro). Gate financeiro só no nav — rotas acessíveis por URL direta. (~3600+ lines, ~62k tok)
+- `ALLY-BLUEPRINT.md` — Blueprint competitivo completo do AllyHub (concorrente SaaS CRM para agências de intercâmbio). Seções 1–49: identidade empresa, planos/preços, termos, tech stack (AngularJS 1.x + React iframe + Sellead backend), mapa de rotas, pipeline de alunos, perfil (5 abas), formulário (40+ campos), Quote 2.0 deep dive, catálogo AU 27 programas, revenue model AU$150/quote, simulação Perth (Lexis 1 semana AU$1,318), comissão BRL (R$789.76/quote), Finish = PUT /draft/{id}, links externos (/quote-detail/ vs /quote-online/), fluxo aluno (PT-BR, checkout, 2-12x), tracking multinível, 14+ endpoints. S45: Settings completo. S46: Builders (Quote Online/PDF/Email Template/Document Template). S47: Dashboard completo — 6 KPI cards, leaderboard, conversion rate, tasks calendar, last interactions; arquitetura 3-sided (type 1=agência/2=escola/3=rede); mapa moduleType (3=free/7=financial/11=marketing/15=full/16=automations); nav completo com 35+ itens e gates; 8 roles. S48: Reports & Commissions — 10 páginas documentadas. S49: Financial CRUD Layer — 7 rotas ocultas. S50: Financial Layer Completo — /financial/dashboard, /instalment/earnings, /instalment/credits, /transition/list. Mapa financeiro 4 camadas completo. S50H (NOVA): /shipment = "Remessa Internacional" — produto early access de remessa internacional (Ally HUB Services - International Shipment); landing page React SPA em iframe; badge "Acesso antecipado aberto — vagas limitadas"; Simulador de Câmbio com taxa ao vivo AUD; integrado ao CRM; conteúdo não extraível via DOM (iframe separado). (~4350+ lines, ~77k tok)
 
 ## .wolf/allyhub-research/api-responses/
 
