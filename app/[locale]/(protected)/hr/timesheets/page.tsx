@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TimesheetTable } from '@/components/hr/TimesheetTable'
-import { listTimeEntries, listEmployees } from '@/lib/hr'
+import { listTimeEntries, listEmployeesWithNames, getEmployeeByProfileId, isHrAdmin } from '@/lib/hr'
 import { t, font, ink } from '@/lib/ui/theme'
 
 const PAGE_SIZE = 100
@@ -27,14 +27,18 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
     .single()
   if (profileError || !profile) redirect(`/${locale}/login`)
 
+  const isAdmin = isHrAdmin(profile.role)
+
+  const employee = isAdmin ? null : await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+
   const [entries, employees] = await Promise.all([
     listTimeEntries(supabase, profile.org_id, {
       status: status || undefined,
-      employeeId: employeeId || undefined,
+      employeeId: isAdmin ? (employeeId || undefined) : (employee?.id ?? '__none__'),
       limit: PAGE_SIZE,
       offset: (page - 1) * PAGE_SIZE,
     }),
-    listEmployees(supabase, profile.org_id),
+    isAdmin ? listEmployeesWithNames(supabase, profile.org_id) : Promise.resolve([]),
   ])
 
   const statuses = ['pending', 'approved', 'rejected']
@@ -49,7 +53,9 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
           {locale === 'pt' ? 'Registros de Ponto' : 'Timesheets'}
         </h1>
         <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
-          {employees.length} {locale === 'pt' ? 'funcionário(s)' : 'employee(s)'} · {entries.length} {locale === 'pt' ? 'registro(s)' : 'entr(ies)'}
+          {isAdmin
+            ? `${employees.length} ${locale === 'pt' ? 'funcionário(s)' : 'employee(s)'} · ${entries.length} ${locale === 'pt' ? 'registro(s)' : 'entr(ies)'}`
+            : `${entries.length} ${locale === 'pt' ? 'registro(s) pessoais' : 'personal entr(ies)'}`}
         </div>
       </div>
 
@@ -94,14 +100,27 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24 }}>
-        <TimesheetTable
-          entries={entries}
-          hourlyRateCents={0}
-          locale={locale}
-          showEmployeeName
-        />
-      </div>
+      {entries.length === 0 ? (
+        <div style={{
+          background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24,
+          textAlign: 'center', color: t.textMuted, fontSize: 14,
+        }}>
+          <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
+          {isAdmin
+            ? (locale === 'pt' ? 'Nenhuma entrada ainda. Aguarde seus funcionários lançarem horas.' : 'No entries yet. Wait for employees to log hours.')
+            : (locale === 'pt' ? 'Você ainda não lançou horas. Use o botão \'Lançar Horas\' no dashboard para começar.' : "No entries yet. Use the 'Add Entry' button on the dashboard to get started.")}
+        </div>
+      ) : (
+        <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24 }}>
+          <TimesheetTable
+            entries={entries}
+            employees={isAdmin ? employees : []}
+            hourlyRateCents={0}
+            locale={locale}
+            showEmployeeName={isAdmin}
+          />
+        </div>
+      )}
 
       {/* Pagination */}
       {(page > 1 || entries.length === PAGE_SIZE) && (
