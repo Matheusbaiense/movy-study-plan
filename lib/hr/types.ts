@@ -1,5 +1,5 @@
 // lib/hr/types.ts
-import type { Tables, TablesInsert } from '@/types/supabase'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 
@@ -11,6 +11,7 @@ export type HrRateRule = Tables<'hr_rate_rules'>
 export type HrRateRuleInsert = TablesInsert<'hr_rate_rules'>
 export type HrInvoice = Tables<'hr_invoices'>
 export type HrInvoiceInsert = TablesInsert<'hr_invoices'>
+export type HrInvoiceUpdate = TablesUpdate<'hr_invoices'>
 
 export type DayType = 'weekday' | 'saturday' | 'sunday' | 'public_holiday'
 export type TimeEntryStatus = 'pending' | 'approved' | 'rejected'
