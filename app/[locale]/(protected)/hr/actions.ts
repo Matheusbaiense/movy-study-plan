@@ -74,7 +74,9 @@ export async function clockInAction(description?: string) {
 
 export async function clockOutAction(entryId: string) {
   const { supabase, profile } = await getActor()
-  const entry = await clockOut(supabase, entryId, new Date().toISOString())
+  const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+  if (!employee) throw new Error('Employee profile not found')
+  const entry = await clockOut(supabase, entryId, profile.org_id, employee.id, new Date().toISOString())
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.clock_out', entityType: 'time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
@@ -198,7 +200,7 @@ export async function generateInvoiceAction(
     status: 'draft',
   })
 
-  await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id))
+  await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id), profile.org_id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.generate', entityType: 'hr_invoices', entityId: invoice.id, metadata: { employeeId, periodStart, periodEnd } })
 
   revalidatePath('/', 'layout')
@@ -256,7 +258,7 @@ export async function generateOwnInvoiceAction(
     status: 'draft',
   })
 
-  await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id))
+  await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id), profile.org_id)
   await logAudit({
     actorId: profile.id, actorEmail: profile.email,
     action: 'hr.invoice.generate_own', entityType: 'hr_invoices', entityId: invoice.id,
@@ -287,7 +289,7 @@ export async function updateEmployeeRateAction(employeeId: string, ratePerHour: 
 export async function issueInvoiceAction(invoiceId: string) {
   const { supabase, profile } = await getActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
-  const invoice = await updateInvoiceStatus(supabase, invoiceId, 'issued')
+  const invoice = await updateInvoiceStatus(supabase, invoiceId, 'issued', profile.org_id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.issued', entityType: 'hr_invoices', entityId: invoiceId })
   revalidatePath('/', 'layout')
   return invoice
@@ -296,7 +298,7 @@ export async function issueInvoiceAction(invoiceId: string) {
 export async function markInvoicePaidAction(invoiceId: string) {
   const { supabase, profile } = await getActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
-  const invoice = await updateInvoiceStatus(supabase, invoiceId, 'paid')
+  const invoice = await updateInvoiceStatus(supabase, invoiceId, 'paid', profile.org_id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.paid', entityType: 'hr_invoices', entityId: invoiceId })
   revalidatePath('/', 'layout')
   return invoice

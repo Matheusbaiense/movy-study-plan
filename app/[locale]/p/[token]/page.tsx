@@ -44,12 +44,14 @@ export default async function PublicProposalTokenPage({ params }: Props) {
 
   const { data: plan } = await db
     .from('study_plans')
-    .select('id, data, status, student_name, updated_at, accepted_at')
+    .select('id, data, status, student_name, updated_at, accepted_at, share_token_expires_at')
     .eq('share_token', token)
     .is('deleted_at', null)
     .single()
 
   if (!plan) notFound()
+  const expiresAt = (plan as unknown as { share_token_expires_at?: string | null }).share_token_expires_at
+  if (expiresAt && new Date(expiresAt) < new Date()) notFound()
 
   const row = plan as unknown as StudyPlanRow
   const reference = `MV-${row.id.slice(0, 8).toUpperCase()}`
