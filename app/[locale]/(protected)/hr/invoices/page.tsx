@@ -1,12 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { listInvoicesWithEmployeeName, listEmployeesWithNames } from '@/lib/hr'
+import { listInvoicesWithEmployeeName, listEmployeesWithNames, isHrAdmin } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
+import { InvoiceEmployeeFilter } from '@/components/hr/InvoiceEmployeeFilter'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, font, ink } from '@/lib/ui/theme'
 
-interface Props { params: Promise<{ locale: string }> }
+interface Props {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ employee?: string }>
+}
 
 const STATUS_BADGE: Record<string, { label: string; color: string; bg: string }> = {
   draft:  { label: 'Draft',  color: '#374151', bg: '#f3f4f6' },
@@ -14,8 +18,9 @@ const STATUS_BADGE: Record<string, { label: string; color: string; bg: string }>
   paid:   { label: 'Paid',   color: '#166534', bg: '#dcfce7' },
 }
 
-export default async function InvoicesPage({ params }: Props) {
+export default async function InvoicesPage({ params, searchParams }: Props) {
   const { locale } = await params
+  const { employee: employeeFilter } = await searchParams
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -28,9 +33,25 @@ export default async function InvoicesPage({ params }: Props) {
     .single()
   if (profileError || !profile) redirect(`/${locale}/login`)
 
+  const isAdmin = isHrAdmin(profile.role)
+
+  let myEmployeeId: string | undefined
+  if (!isAdmin) {
+    const { data: myEmp } = await supabase
+      .from('employee_profiles')
+      .select('id')
+      .eq('org_id', profile.org_id)
+      .eq('profile_id', profile.id)
+      .is('deleted_at', null)
+      .maybeSingle()
+    myEmployeeId = myEmp?.id
+  }
+
   const [invoices, employees] = await Promise.all([
-    listInvoicesWithEmployeeName(supabase, profile.org_id),
-    listEmployeesWithNames(supabase, profile.org_id),
+    listInvoicesWithEmployeeName(supabase, profile.org_id, {
+      employeeId: isAdmin ? (employeeFilter || undefined) : myEmployeeId,
+    }),
+    isAdmin ? listEmployeesWithNames(supabase, profile.org_id) : Promise.resolve([]),
   ])
 
   return (
@@ -39,8 +60,16 @@ export default async function InvoicesPage({ params }: Props) {
         <h1 style={{ fontFamily: font.display, fontSize: 28, fontWeight: 700, color: t.text, margin: 0 }}>
           Tax Invoices
         </h1>
-        <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} />
+        {isAdmin && <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} />}
       </div>
+
+      {isAdmin && employees.length > 0 && (
+        <InvoiceEmployeeFilter
+          employees={employees}
+          currentEmployeeId={employeeFilter}
+          locale={locale}
+        />
+      )}
 
       <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, overflow: 'hidden' }}>
         {invoices.length === 0 ? (
@@ -87,7 +116,7 @@ export default async function InvoicesPage({ params }: Props) {
                       <Link href={`/${locale}/hr/invoices/${inv.id}/print`} prefetch={false} style={{
                         fontSize: 12, color: '#4B1A77', fontWeight: 600, textDecoration: 'none',
                       }}>
-                        View / Print →
+                        {locale === 'pt' ? 'Ver / Imprimir →' : 'View / Print →'}
                       </Link>
                     </td>
                   </tr>
