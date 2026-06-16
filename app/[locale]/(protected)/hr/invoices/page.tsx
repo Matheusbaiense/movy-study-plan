@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { listInvoicesWithEmployeeName, listEmployeesWithNames, isHrAdmin } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
 import { InvoiceEmployeeFilter } from '@/components/hr/InvoiceEmployeeFilter'
+import { IssueInvoiceButton } from '@/components/hr/IssueInvoiceButton'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, font, ink } from '@/lib/ui/theme'
 
@@ -54,6 +55,13 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
     isAdmin ? listEmployeesWithNames(supabase, profile.org_id) : Promise.resolve([]),
   ])
 
+  const draftCount = invoices.filter(i => i.status === 'draft').length
+  const pt = locale === 'pt'
+
+  const tableHeaders = isAdmin
+    ? ['Invoice #', pt ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', '', '']
+    : ['Invoice #', pt ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', '']
+
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
@@ -71,15 +79,30 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
         />
       )}
 
+      {isAdmin && draftCount > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+          padding: '10px 16px', borderRadius: 10,
+          background: '#fffbeb', border: '1px solid #fcd34d',
+        }}>
+          <span style={{ fontSize: 15 }}>⚠️</span>
+          <span style={{ fontSize: 13, color: '#92400e', fontWeight: 500 }}>
+            {pt
+              ? `${draftCount} invoice(s) em rascunho — clique em "Emitir →" para enviar ao funcionário.`
+              : `${draftCount} draft invoice(s) pending — click "Issue →" to send to employees.`}
+          </span>
+        </div>
+      )}
+
       <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, overflow: 'hidden' }}>
         {invoices.length === 0 ? (
           <div style={{ padding: '56px 32px', textAlign: 'center', color: t.textMuted, fontSize: 14 }}>
             <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>🧾</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: t.text, marginBottom: 6 }}>
-              {locale === 'pt' ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
+              {pt ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
             </div>
             <div style={{ fontSize: 13 }}>
-              {locale === 'pt'
+              {pt
                 ? 'Clique em "Gerar Invoice" acima para criar a primeira.'
                 : 'Click "Generate Invoice" above to create the first one.'}
             </div>
@@ -88,8 +111,8 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${ink(0.1)}` }}>
-                {['Invoice #', locale === 'pt' ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', ''].map((h) => (
-                  <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: t.textMuted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                {tableHeaders.map((h, i) => (
+                  <th key={i} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: t.textMuted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                     {h}
                   </th>
                 ))}
@@ -116,9 +139,16 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
                       <Link href={`/${locale}/hr/invoices/${inv.id}/print`} prefetch={false} style={{
                         fontSize: 12, color: '#4B1A77', fontWeight: 600, textDecoration: 'none',
                       }}>
-                        {locale === 'pt' ? 'Ver / Imprimir →' : 'View / Print →'}
+                        {pt ? 'Ver / Imprimir →' : 'View / Print →'}
                       </Link>
                     </td>
+                    {isAdmin && (
+                      <td style={{ padding: '12px 16px' }}>
+                        {inv.status === 'draft' && (
+                          <IssueInvoiceButton invoiceId={inv.id} locale={locale} />
+                        )}
+                      </td>
+                    )}
                   </tr>
                 )
               })}
