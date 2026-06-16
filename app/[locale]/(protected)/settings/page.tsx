@@ -11,10 +11,13 @@ export default async function SettingsPage({ params }: Props) {
   const { profile } = await getUser(locale)
   const supabase = await createClient()
 
-  const [{ count: usersCount }, { count: contentCount }] = await Promise.all([
+  const [profilesRes, contentsRes] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('contents').select('*', { count: 'exact', head: true }).eq('status', 'published'),
   ])
+
+  const usersCount = profilesRes.count ?? 0
+  const contentCount = contentsRes.count ?? 0
 
   const accent = roleColor[profile.role] ?? color.purpleDeep
   const isPt = locale === 'pt'

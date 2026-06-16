@@ -77,7 +77,7 @@ export function FxChart() {
     return () => { active = false }
   }, [days])
 
-  const pts = hist?.points ?? []
+  const pts = useMemo(() => hist?.points ?? [], [hist])
   const n = pts.length
 
   const geo = useMemo(() => {

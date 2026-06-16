@@ -2,13 +2,14 @@
 
 import { useTransition } from 'react'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
-import type { TimeEntry } from '@/lib/hr/types'
+import type { TimeEntry, EmployeeProfile } from '@/lib/hr/types'
 import { calculateHours, formatDateAU, formatAUD } from '@/lib/hr/calculations'
 import { approveEntryAction, rejectEntryAction } from '@/app/[locale]/(protected)/hr/actions'
 import { t, ink } from '@/lib/ui/theme'
 
 interface TimesheetTableProps {
   entries: TimeEntry[]
+  employees?: (EmployeeProfile & { full_name: string; email: string })[]
   hourlyRateCents: number
   locale: string
   showEmployeeName?: boolean
@@ -27,8 +28,9 @@ const DAY_TYPE_LABEL: Record<string, string> = {
   public_holiday: 'Holiday',
 }
 
-export function TimesheetTable({ entries, hourlyRateCents, locale, showEmployeeName }: TimesheetTableProps) {
+export function TimesheetTable({ entries, employees, hourlyRateCents, locale, showEmployeeName }: TimesheetTableProps) {
   const [isPending, startTransition] = useTransition()
+  const employeeNameMap = Object.fromEntries((employees ?? []).map(e => [e.id, e.full_name || e.email || e.id.slice(0, 8)]))
 
   function approve(id: string) {
     startTransition(async () => { await approveEntryAction(id) })
@@ -67,8 +69,8 @@ export function TimesheetTable({ entries, hourlyRateCents, locale, showEmployeeN
             return (
               <tr key={e.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
                 {showEmployeeName && (
-                  <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.textMuted }}>
-                    {e.employee_id.slice(0, 8)}
+                  <td style={{ padding: '10px 12px', color: t.textMuted }}>
+                    {employeeNameMap[e.employee_id] ?? e.employee_id.slice(0, 8)}
                   </td>
                 )}
                 <td style={{ padding: '10px 12px' }}>

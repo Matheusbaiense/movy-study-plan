@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {
@@ -10,27 +11,19 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error(error)
+    Sentry.captureException(error)
   }, [error])
 
   return (
-    <html lang="pt">
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center', padding: 32, maxWidth: 400 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: '0 0 10px' }}>
-            Algo deu errado
-          </h2>
-          <p style={{ fontSize: 14, color: '#666', margin: '0 0 22px', lineHeight: 1.55 }}>
-            {error.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.'}
-          </p>
-          <button
-            onClick={reset}
-            style={{ padding: '10px 24px', background: '#4B1A77', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-          >
-            Tentar novamente
-          </button>
-        </div>
-      </body>
-    </html>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', fontFamily: 'sans-serif', gap: '1rem' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Algo deu errado</h2>
+      <p style={{ color: '#666', fontSize: '0.875rem' }}>{error.message ?? 'Erro inesperado'}</p>
+      <button
+        onClick={reset}
+        style={{ padding: '0.5rem 1.25rem', background: '#4B1A77', color: '#fff', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}
+      >
+        Tentar novamente
+      </button>
+    </div>
   )
 }

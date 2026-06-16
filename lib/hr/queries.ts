@@ -95,12 +95,16 @@ export async function clockIn(
 export async function clockOut(
   supabase: HrClient,
   entryId: string,
+  orgId: string,
+  employeeId: string,
   clockOutAt: string,
 ): Promise<TimeEntry> {
   const { data, error } = await supabase
     .from('time_entries')
     .update({ clock_out: clockOutAt, updated_at: new Date().toISOString() })
     .eq('id', entryId)
+    .eq('org_id', orgId)
+    .eq('employee_id', employeeId)
     .select('*')
     .single()
   if (error) throw new Error(error.message)
@@ -378,6 +382,7 @@ export async function updateInvoiceStatus(
   supabase: HrClient,
   invoiceId: string,
   status: 'issued' | 'paid',
+  orgId: string,
 ): Promise<HrInvoice> {
   const now = new Date().toISOString()
   const patch: HrInvoiceUpdate = {
@@ -391,6 +396,7 @@ export async function updateInvoiceStatus(
     .from('hr_invoices')
     .update(patch)
     .eq('id', invoiceId)
+    .eq('org_id', orgId)
     .select('*')
     .single()
   if (error) throw new Error(error.message)
@@ -401,11 +407,13 @@ export async function linkEntriesToInvoice(
   supabase: HrClient,
   invoiceId: string,
   entryIds: string[],
+  orgId: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('time_entries')
     .update({ invoice_id: invoiceId, updated_at: new Date().toISOString() })
     .in('id', entryIds)
+    .eq('org_id', orgId)
   if (error) throw new Error(error.message)
 }
 

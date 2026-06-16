@@ -309,3 +309,17 @@ O código deve ser agnóstico ao host — só o client de conexão muda na migra
   payroll, recruitment, performance reviews, etc.). Do NOT implement now � use as inspiration when planning
   new HR features. Check this repo before brainstorming any new HR capability.
 
+
+## Do-Not-Repeat
+
+### 2026-06-16 — L1: Never remove .ts extensions from local imports in this project
+
+Removing explicit `.ts` extensions from imports inside `lib/` breaks the `node --experimental-strip-types --test` runner (ERR_MODULE_NOT_FOUND) even though `tsc --noEmit` accepts extensionless imports. The test runner resolves ESM imports literally — `.ts` extension must be present. This project's test setup requires explicit `.ts` on all local imports in `lib/`.
+
+### 2026-06-16 — issueInvoiceAction / markInvoicePaidAction precisam de role check
+
+Qualquer nova action de HR que muda status de invoice DEVE ter `isHrAdmin` guard. Não é suficiente chamar apenas `getActor()` — o pattern correto é: `const { supabase, profile } = await getActor(); if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')`. Ver `approveEntryAction` como modelo. O mesmo vale para `logAudit` — toda mutação financeira/HR deve ser rastreada.
+
+### 2026-06-16 — Shared auth helper for server actions
+
+All server action files now import `getActorSession()` and `svc()` from `lib/actions/auth.ts` instead of duplicating the Supabase client setup. When adding new action files, import from there — never reinvent the pattern.

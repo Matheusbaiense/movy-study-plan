@@ -2,27 +2,16 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { logAuditWithClient } from '@/lib/api/audit'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { slugify } from '@/lib/slug'
 import { sanitizeHtml } from '@/lib/security/sanitize-html'
+import { getActorSession } from '@/lib/actions/auth'
 import type { Enums } from '@/types/supabase'
 
 export async function createContent(locale: string, formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name, email')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isEditorOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
+  const { supabase, profile } = await getActorSession()
+  if (!isEditorOrAbove(profile.role)) throw new Error('Insufficient permissions')
 
   const titlePt = formData.get('title_pt') as string
   const titleEn = (formData.get('title_en') as string) || null
@@ -68,6 +57,7 @@ export async function createContent(locale: string, formData: FormData) {
   const { data: content, error } = await supabase
     .from('contents')
     .insert({
+      org_id: profile.org_id,
       slug,
       title_pt: titlePt,
       title_en: titleEn,
@@ -79,8 +69,8 @@ export async function createContent(locale: string, formData: FormData) {
       tags: tags.length > 0 ? tags : null,
       status,
       is_featured: isFeatured,
-      created_by: user.id,
-      updated_by: user.id,
+      created_by: profile.id,
+      updated_by: profile.id,
     })
     .select()
     .single()
@@ -89,7 +79,7 @@ export async function createContent(locale: string, formData: FormData) {
   if (!content) throw new Error('Failed to create content')
 
   await logAuditWithClient(supabase, {
-    actorId: user.id,
+    actorId: profile.id,
     actorEmail: profile.email,
     action: 'content.create',
     entityType: 'contents',
@@ -102,19 +92,8 @@ export async function createContent(locale: string, formData: FormData) {
 }
 
 export async function updateContent(id: string, formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isEditorOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
+  const { supabase, profile } = await getActorSession()
+  if (!isEditorOrAbove(profile.role)) throw new Error('Insufficient permissions')
 
   const titlePt = formData.get('title_pt') as string
   const titleEn = (formData.get('title_en') as string) || null
@@ -149,10 +128,11 @@ export async function updateContent(id: string, formData: FormData) {
       tags: tags.length > 0 ? tags : null,
       status,
       is_featured: isFeatured,
-      updated_by: user.id,
+      updated_by: profile.id,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
+    .eq('org_id', profile.org_id)
     .select()
     .single()
 
@@ -160,7 +140,7 @@ export async function updateContent(id: string, formData: FormData) {
   if (!updatedContent) throw new Error('Failed to update content')
 
   await logAuditWithClient(supabase, {
-    actorId: user.id,
+    actorId: profile.id,
     actorEmail: profile.email,
     action: 'content.update',
     entityType: 'contents',
@@ -173,25 +153,19 @@ export async function updateContent(id: string, formData: FormData) {
 }
 
 export async function deleteContent(id: string, locale = 'pt') {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
+  const { supabase, profile } = await getActorSession()
+  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email')
-    .eq('id', user.id)
-    .single()
+  const { error } = await supabase
+    .from('contents')
+    .delete()
+    .eq('id', id)
+    .eq('org_id', profile.org_id)
 
-  if (!profile || !isAdminOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
-
-  const { error } = await supabase.from('contents').delete().eq('id', id)
   if (error) throw new Error(error.message)
 
   await logAuditWithClient(supabase, {
-    actorId: user.id,
+    actorId: profile.id,
     actorEmail: profile.email,
     action: 'content.delete',
     entityType: 'contents',

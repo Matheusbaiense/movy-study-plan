@@ -1,12 +1,12 @@
-{
+﻿{
   "version": 1,
   "bugs": [
     {
       "id": "bug-022",
       "timestamp": "2026-06-16T00:00:00.000Z",
-      "error_message": "Admin/super_admin sem employee_profile não conseguia bater ponto nem lançar horas — via mostrava 'Modo Administrador' com mensagem estática",
+      "error_message": "Admin/super_admin sem employee_profile nÃ£o conseguia bater ponto nem lanÃ§ar horas â€” via mostrava 'Modo Administrador' com mensagem estÃ¡tica",
       "file": "app/[locale]/(protected)/hr/page.tsx, app/[locale]/(protected)/hr/actions.ts, components/hr/CreateEmployeeProfileButton.tsx",
-      "root_cause": "page.tsx não renderizava ClockWidget quando employee === null, mesmo para admins; não havia mecanismo para criar o próprio employee_profile",
+      "root_cause": "page.tsx nÃ£o renderizava ClockWidget quando employee === null, mesmo para admins; nÃ£o havia mecanismo para criar o prÃ³prio employee_profile",
       "fix": "Adicionado createOwnEmployeeProfileAction (chama upsertEmployee idempotente + revalidatePath) e CreateEmployeeProfileButton client component exibido no card 'Modo Administrador'",
       "tags": [
         "hr",
@@ -140,7 +140,7 @@
     {
       "id": "bug-008",
       "timestamp": "2026-06-14T00:00:00+08:00",
-      "error_message": "Wiki excerpts had glued text, e.g. 'objetivaOpção A', 'dadosObrigada por entrar'.",
+      "error_message": "Wiki excerpts had glued text, e.g. 'objetivaOpÃ§Ã£o A', 'dadosObrigada por entrar'.",
       "file": "app/[locale]/(protected)/wiki/page.tsx; components/wiki/WikiListItem.tsx",
       "root_cause": "Excerpt generation used body.replace(/<[^>]+>/g, '') which stripped tags but concatenated adjacent block text with no separator.",
       "fix": "Replace each tag with a space (and bumped low-contrast legend colors to meet WCAG AA).",
@@ -160,7 +160,7 @@
       "error_message": "Proposal status shown as 'Draft' (English) in a PT-BR app; native date input rendered US format (MM/DD/YYYY).",
       "file": "app/[locale]/(protected)/study-plans/page.tsx; messages/pt.json; app/layout.tsx",
       "root_cause": "Untranslated status label; <input type=date> follows the browser/OS locale, and <html> lacked lang.",
-      "fix": "Draft -> Rascunho; set lang=\"pt-BR\" on <html>. Note: native date picker still follows the OS locale (already DD/MM/AAAA on PT-BR machines) — not a real prod bug, would need a custom masked component to force.",
+      "fix": "Draft -> Rascunho; set lang=\"pt-BR\" on <html>. Note: native date picker still follows the OS locale (already DD/MM/AAAA on PT-BR machines) â€” not a real prod bug, would need a custom masked component to force.",
       "tags": [
         "i18n",
         "ux-copy",
@@ -214,7 +214,7 @@
       "error_message": "Significant refactor of ",
       "file": "docs/PRODUCT-ROADMAP.md",
       "root_cause": "10 lines replaced/restructured",
-      "fix": "Rewrote 10→21 lines (10 removed) | Also: ### SPLIT 4 — Editor de proposta (UI); `app/[locale]/(protected)/study-plans/[id]/page.ts | Also: 0 Fundação ──▶ 1 Engine ──▶ 2 Domínio proposta ──▶; │ | Also: > **Status:** v1 — arquitetura aprovada, execução ; > **CRM e integrações externas (escolas/SEC/pagame",
+      "fix": "Rewrote 10â†’21 lines (10 removed) | Also: ### SPLIT 4 â€” Editor de proposta (UI); `app/[locale]/(protected)/study-plans/[id]/page.ts | Also: 0 FundaÃ§Ã£o â”€â”€â–¶ 1 Engine â”€â”€â–¶ 2 DomÃ­nio proposta â”€â”€â–¶; â”‚ | Also: > **Status:** v1 â€” arquitetura aprovada, execuÃ§Ã£o ; > **CRM e integraÃ§Ãµes externas (escolas/SEC/pagame",
       "tags": [
         "auto-detected",
         "refactor",
@@ -243,10 +243,10 @@
     {
       "id": "bug-014",
       "timestamp": "2026-06-15T01:04:11.737Z",
-      "error_message": "parseMoneyToCents misparses thousands-grouped money strings (pt-BR \"1.234.567\"→1.234 via parseFloat; en-US \"1,234\" thousands)",
+      "error_message": "parseMoneyToCents misparses thousands-grouped money strings (pt-BR \"1.234.567\"â†’1.234 via parseFloat; en-US \"1,234\" thousands)",
       "file": "lib/calc/money.ts",
       "root_cause": "Lone-dot/lone-comma inputs were passed to parseFloat which stops at the 2nd separator; no thousands-vs-decimal disambiguation. Flagged as NIT in SPLIT 1 review; dormant (only used in tests) but money border consumed by SPLIT 4.",
-      "fix": "Rewrote parseMoneyToCents with locale-aware rules: both separators → rightmost is decimal; lone comma → decimal (pt-BR), repeated → en-US thousands; lone dot → decimal for 1-2 trailing digits, thousands for multiple dots or exactly 3 trailing digits. Added negative handling + tests (1.234→123400, 1.234.567→123456700, 12.34→1234, 1,5→150). 11/11 tests green.",
+      "fix": "Rewrote parseMoneyToCents with locale-aware rules: both separators â†’ rightmost is decimal; lone comma â†’ decimal (pt-BR), repeated â†’ en-US thousands; lone dot â†’ decimal for 1-2 trailing digits, thousands for multiple dots or exactly 3 trailing digits. Added negative handling + tests (1.234â†’123400, 1.234.567â†’123456700, 12.34â†’1234, 1,5â†’150). 11/11 tests green.",
       "tags": [
         "calc",
         "money",
@@ -266,7 +266,7 @@
       "error_message": "Significant refactor of ",
       "file": "docs/AI-HANDOVER.md",
       "root_cause": "2 lines replaced/restructured",
-      "fix": "Rewrote 4→8 lines (2 removed)",
+      "fix": "Rewrote 4â†’8 lines (2 removed)",
       "tags": [
         "auto-detected",
         "refactor",
@@ -282,7 +282,7 @@
       "error_message": "Barra de totais do editor cobre a sidebar no desktop",
       "file": "components/study-plans/StudyPlanEditor.tsx",
       "root_cause": "EditorStickyBar usava position:fixed; left:0; right:0 (preso ao viewport); o scroll real e o <div overflowY:auto> do AppShell e a sidebar e irma flex, entao a barra atravessava por baixo dela",
-      "fix": "Mover a barra para fora do .sp-editor-layout (irma do grid, filha direta de <main>) e usar position:sticky; bottom:0 — restrita a largura da coluna de conteudo",
+      "fix": "Mover a barra para fora do .sp-editor-layout (irma do grid, filha direta de <main>) e usar position:sticky; bottom:0 â€” restrita a largura da coluna de conteudo",
       "tags": [
         "split4",
         "css",
@@ -335,7 +335,7 @@
       "timestamp": "2026-06-15T00:00:00.000Z",
       "error_message": "Menu do avatar (conta) nao fecha ao clicar fora",
       "file": "components/layout/AppShell.tsx",
-      "root_cause": "O backdrop de fechar era position:fixed dentro de .navbar-container, que tem backdrop-filter:blur — isso vira containing block p/ fixed, confinando o backdrop a caixa da navbar (clique fora nao era capturado)",
+      "root_cause": "O backdrop de fechar era position:fixed dentro de .navbar-container, que tem backdrop-filter:blur â€” isso vira containing block p/ fixed, confinando o backdrop a caixa da navbar (clique fora nao era capturado)",
       "fix": "Trocar o backdrop fixed por listener de pointerdown fora do menu + Escape (useRef no container, useEffect quando menuOpen)",
       "tags": [
         "appshell",
@@ -396,7 +396,7 @@
       "error_message": "Mega-audit (C1-C11 + H1-H5): XSS in wiki blocks via dangerouslySetInnerHTML without sanitizeHtml; silent audit failures; SupabaseClient<any>; service-role client bypasses RLS in portfolio pages; no role checks on HR approve/reject/generateInvoice; no audit logging in HR mutations; dead deleteStudyPlan; inline auth in getShareUrlAction missing role check; FX returns 200 with rate=0 on all-provider-failure; preset update/delete without org_id; no rate limiting on proposal accept",
       "file": "components/wiki/BlockRenderer.tsx, components/wiki/blocks/StepsBlock.tsx, components/wiki/blocks/InfoBox.tsx, lib/api/audit.ts, app/[locale]/(protected)/portfolio/page.tsx, app/[locale]/(protected)/portfolio/[institutionId]/page.tsx, app/[locale]/(protected)/hr/actions.ts, app/[locale]/(protected)/study-plans/actions.ts, app/api/fx/route.ts, app/[locale]/(protected)/settings/presets/actions.ts, app/[locale]/p/[token]/actions.ts, .github/workflows/ci.yml, tests/permissions.test.mjs",
       "root_cause": "Multiple gaps in security hardening: (1) wiki blocks rendered HTML without sanitization, (2) audit.ts swallowed DB failures silently and used SupabaseClient<any>, (3) portfolio pages used service client bypassing RLS for multi-tenant data, (4) HR actions lacked role enforcement and audit trail for sensitive mutations, (5) deleteStudyPlan was unreachable dead code with duplicate auth, (6) FX returning HTTP 200 even when no rate could be fetched is misleading for callers, (7) preset mutations used service client without org_id filter allowing cross-tenant writes, (8) proposal accept had no rate limiting.",
-      "fix": "C1: sanitizeHtml() wrapped around all dangerouslySetInnerHTML values; C2: isomorphic-dompurify upgraded to 3.17.0 (dompurify 3.4.10); C3: in-process rate limiter on acceptProposalAction; C4: portfolio pages switched to authenticated createClient() so RLS scopes by org; C5: .github/workflows/ci.yml created; C6: catch {} → catch(err) console.error([AUDIT_FAILED]); C7: logAudit added to approve/reject/generateInvoice; C8: tests/permissions.test.mjs 33/33 pass; C11: deleted deleteStudyPlan dead code; H1: isHrAdmin() gate added to approve/reject/generateInvoice; H2: org_id added to requireAdmin() return, applied to create/update/delete presets; H3: getShareUrlAction replaced inline auth with getActor(); H4: FX returns 503 when rate===0; H5: SupabaseClient<Database> replaces <any,any,any>, removed as never cast.",
+      "fix": "C1: sanitizeHtml() wrapped around all dangerouslySetInnerHTML values; C2: isomorphic-dompurify upgraded to 3.17.0 (dompurify 3.4.10); C3: in-process rate limiter on acceptProposalAction; C4: portfolio pages switched to authenticated createClient() so RLS scopes by org; C5: .github/workflows/ci.yml created; C6: catch {} â†’ catch(err) console.error([AUDIT_FAILED]); C7: logAudit added to approve/reject/generateInvoice; C8: tests/permissions.test.mjs 33/33 pass; C11: deleted deleteStudyPlan dead code; H1: isHrAdmin() gate added to approve/reject/generateInvoice; H2: org_id added to requireAdmin() return, applied to create/update/delete presets; H3: getShareUrlAction replaced inline auth with getActor(); H4: FX returns 503 when rate===0; H5: SupabaseClient<Database> replaces <any,any,any>, removed as never cast.",
       "tags": [
         "security",
         "xss",
@@ -418,14 +418,50 @@
   ,{
       "id": "bug-024",
       "timestamp": "2026-06-16T22:30:00.000Z",
-      "error_message": "Sistema extremamente lento — toda página demora 1.1s–2s para carregar",
+      "error_message": "Sistema extremamente lento â€” toda pÃ¡gina demora 1.1sâ€“2s para carregar",
       "file": "middleware.ts, app/[locale]/(protected)/hr/page.tsx, app/[locale]/(protected)/study-plans/page.tsx",
-      "root_cause": "Waterfall de 3+ chamadas sequenciais ao Supabase em cada request: (1) middleware.ts chamava auth.getUser() — round-trip HTTP ao Supabase Auth (~300ms); (2) getUser() helper na página chamava auth.getUser() novamente — outro round-trip; (3) hr/page.tsx fazia auth manual duplicada, bypassando o cache() do React; (4) queries no HR eram todas sequenciais (getEmployee → getActiveClock → listEntries → listEmployees).",
-      "fix": "middleware.ts: trocado auth.getUser() por auth.getSession() (lê cookie localmente, sem rede). hr/page.tsx: substituído auth manual pelo helper getUser() com cache React; queries paralelas via Promise.all([getActiveClockEntry, listTimeEntries, listEmployeesWithNames]). study-plans/page.tsx: getUser() + query study_plans executados em parallel via Promise.all.",
+      "root_cause": "Waterfall de 3+ chamadas sequenciais ao Supabase em cada request: (1) middleware.ts chamava auth.getUser() â€” round-trip HTTP ao Supabase Auth (~300ms); (2) getUser() helper na pÃ¡gina chamava auth.getUser() novamente â€” outro round-trip; (3) hr/page.tsx fazia auth manual duplicada, bypassando o cache() do React; (4) queries no HR eram todas sequenciais (getEmployee â†’ getActiveClock â†’ listEntries â†’ listEmployees).",
+      "fix": "middleware.ts: trocado auth.getUser() por auth.getSession() (lÃª cookie localmente, sem rede). hr/page.tsx: substituÃ­do auth manual pelo helper getUser() com cache React; queries paralelas via Promise.all([getActiveClockEntry, listTimeEntries, listEmployeesWithNames]). study-plans/page.tsx: getUser() + query study_plans executados em parallel via Promise.all.",
       "tags": ["performance", "ttfb", "supabase", "auth", "ssr", "middleware", "waterfall", "parallel"],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-16T22:30:00.000Z"
+    },{
+      "id": "bug-025",
+      "timestamp": "2026-06-16T00:00:00Z",
+      "error_message": "ERR_MODULE_NOT_FOUND: Cannot find module 'calculations' (no .ts extension)",
+      "file": "lib/study-plans/options.ts",
+      "root_cause": "Node --experimental-strip-types requires explicit .ts extensions on local ESM imports. Removing them breaks the test runner even though tsc accepts extensionless imports.",
+      "fix": "Reverted L1 audit fix: kept .ts extensions on imports inside lib/study-plans/options.ts",
+      "tags": ["esm", "strip-types", "extensions", "test-runner", "node24"],
+      "related_bugs": ["bug-022"],
+      "occurrences": 1,
+      "last_seen": "2026-06-16"
     }
-  ]
-}
+  ,{"id":"bug-026","timestamp":"2026-06-16T00:00:00+08:00","error_message":"Timesheets EMPLOYEE column shows truncated UUID (first 8 chars) instead of employee full name","file":"components/hr/TimesheetTable.tsx","root_cause":"TimesheetTable received no employee data; page fetched listEmployees() (no names) and did not pass it to the component. Component displayed e.employee_id.slice(0,8) as fallback.","fix":"1) Changed listEmployees to listEmployeesWithNames in timesheets/page.tsx; 2) Added employees prop to TimesheetTable; 3) Built employeeNameMap from employee id -> full_name; 4) Render name from map with UUID slice as fallback.","tags":["timesheets","employee-name","ui-bug","qa"],"related_bugs":[],"occurrences":1,"last_seen":"2026-06-16T00:00:00+08:00"}
+  ,{
+    "id": "bug-027",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "error_message": "issueInvoiceAction and markInvoicePaidAction missing role check — any authenticated user could mark HR invoices as issued/paid",
+    "file": "app/[locale]/(protected)/hr/actions.ts",
+    "root_cause": "Both actions called getActor() but did not check isHrAdmin(profile.role). Unlike approveEntry/rejectEntry/generateInvoice which had the guard, these two financial status transitions were unprotected.",
+    "fix": "Added isHrAdmin role check and logAudit call to both issueInvoiceAction and markInvoicePaidAction.",
+    "tags": ["security", "authorization", "hr", "invoice", "role-check"],
+    "related_bugs": [],
+    "occurrences": 1,
+    "last_seen": "2026-06-16"
+  }
+  ,{
+    "id": "bug-028",
+    "timestamp": "2026-06-16T00:00:00Z",
+    "error_message": "clockIn/clockOut/logHours/updateEmployeeRate had no audit trail — financial and time-tracking operations were invisible in audit_logs",
+    "file": "app/[locale]/(protected)/hr/actions.ts",
+    "root_cause": "Audit logging was added for approve/reject/generateInvoice but the primary clock actions and rate updates were missed.",
+    "fix": "Added logAudit calls to clockInAction, clockOutAction, logHoursAction, and updateEmployeeRateAction.",
+    "tags": ["observability", "audit", "hr", "compliance"],
+    "related_bugs": ["bug-027"],
+    "occurrences": 1,
+    "last_seen": "2026-06-16"
+  }
+  ]}
+

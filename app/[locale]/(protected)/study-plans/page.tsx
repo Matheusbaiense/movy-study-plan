@@ -81,7 +81,7 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
 
   const [{ profile }, plansResult] = await Promise.all([
     getUser(locale),
-    fetchPlans().then(q => q),
+    fetchPlans(),
   ])
 
   const { data: plans, count } = await plansResult
