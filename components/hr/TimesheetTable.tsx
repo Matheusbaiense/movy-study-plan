@@ -27,7 +27,7 @@ const DAY_TYPE_LABEL: Record<string, string> = {
   public_holiday: 'Holiday',
 }
 
-export function TimesheetTable({ entries, hourlyRateCents, locale }: TimesheetTableProps) {
+export function TimesheetTable({ entries, hourlyRateCents, locale, showEmployeeName }: TimesheetTableProps) {
   const [isPending, startTransition] = useTransition()
 
   function approve(id: string) {
@@ -51,7 +51,7 @@ export function TimesheetTable({ entries, hourlyRateCents, locale }: TimesheetTa
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
         <thead>
           <tr style={{ borderBottom: `1px solid ${ink(0.1)}` }}>
-            {['Date', 'Clock In', 'Clock Out', 'Hours', 'Day Type', 'Amount', 'Status', 'Actions'].map((h) => (
+            {(showEmployeeName ? ['Employee', 'Date', 'Clock In', 'Clock Out', 'Hours', 'Day Type', 'Amount', 'Status', 'Actions'] : ['Date', 'Clock In', 'Clock Out', 'Hours', 'Day Type', 'Amount', 'Status', 'Actions']).map((h) => (
               <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: t.textMuted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 {h}
               </th>
@@ -66,6 +66,11 @@ export function TimesheetTable({ entries, hourlyRateCents, locale }: TimesheetTa
             const isLive = !e.clock_out
             return (
               <tr key={e.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
+                {showEmployeeName && (
+                  <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.textMuted }}>
+                    {e.employee_id.slice(0, 8)}
+                  </td>
+                )}
                 <td style={{ padding: '10px 12px' }}>
                   {isLive && (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 6 }}>
@@ -107,6 +112,7 @@ export function TimesheetTable({ entries, hourlyRateCents, locale }: TimesheetTa
                         onClick={() => approve(e.id)}
                         disabled={isPending}
                         title="Approve"
+                        aria-label="Approve"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#16a34a' }}
                       >
                         <CheckCircle size={16} />
@@ -115,6 +121,7 @@ export function TimesheetTable({ entries, hourlyRateCents, locale }: TimesheetTa
                         onClick={() => reject(e.id)}
                         disabled={isPending}
                         title="Reject"
+                        aria-label="Reject"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#dc2626' }}
                       >
                         <XCircle size={16} />
