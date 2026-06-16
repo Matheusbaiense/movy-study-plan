@@ -1,7 +1,3 @@
-// types/supabase.ts — Auto-generated from Supabase project xpthmguzcbmndyyexfbt (org "movy education").
-// Regenerated 2026-06-15 after migration 011 (portfolio: institutions/campuses/courses/
-// course_price_versions/markets/pricing_rules + current_course_price). Do NOT edit by hand;
-// run the Supabase type generator after each migration. Source of truth = supabase/migrations/*.
 export type Json =
   | string
   | number
@@ -850,6 +846,191 @@ export type Database = {
           },
         ]
       }
+      employee_profiles: {
+        Row: {
+          abn: string | null
+          account_name: string | null
+          account_number: string | null
+          bank_name: string | null
+          bsb: string | null
+          created_at: string
+          currency_code: string
+          deleted_at: string | null
+          external_id: string | null
+          hourly_rate_in_cents: number
+          id: string
+          metadata: Json
+          org_id: string
+          profile_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          abn?: string | null
+          account_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          bsb?: string | null
+          created_at?: string
+          currency_code?: string
+          deleted_at?: string | null
+          external_id?: string | null
+          hourly_rate_in_cents?: number
+          id?: string
+          metadata?: Json
+          org_id?: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          abn?: string | null
+          account_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          bsb?: string | null
+          created_at?: string
+          currency_code?: string
+          deleted_at?: string | null
+          external_id?: string | null
+          hourly_rate_in_cents?: number
+          id?: string
+          metadata?: Json
+          org_id?: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_invoices: {
+        Row: {
+          created_at: string
+          currency_code: string
+          employee_id: string
+          external_id: string | null
+          id: string
+          invoice_number: string
+          issued_at: string | null
+          metadata: Json
+          org_id: string
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_cents: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency_code?: string
+          employee_id: string
+          external_id?: string | null
+          id?: string
+          invoice_number: string
+          issued_at?: string | null
+          metadata?: Json
+          org_id?: string
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          total_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency_code?: string
+          employee_id?: string
+          external_id?: string | null
+          id?: string
+          invoice_number?: string
+          issued_at?: string | null
+          metadata?: Json
+          org_id?: string
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          total_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_invoices_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_rate_rules: {
+        Row: {
+          applies_from: string
+          applies_until: string | null
+          created_at: string
+          day_type: string
+          id: string
+          metadata: Json
+          multiplier: number
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          applies_from: string
+          applies_until?: string | null
+          created_at?: string
+          day_type: string
+          id?: string
+          metadata?: Json
+          multiplier?: number
+          name: string
+          org_id?: string
+          updated_at?: string
+        }
+        Update: {
+          applies_from?: string
+          applies_until?: string | null
+          created_at?: string
+          day_type?: string
+          id?: string
+          metadata?: Json
+          multiplier?: number
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_rate_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutions: {
         Row: {
           city: string | null
@@ -1338,6 +1519,86 @@ export type Database = {
             columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_entries: {
+        Row: {
+          approved_by: string | null
+          clock_in: string
+          clock_out: string | null
+          created_at: string
+          day_type: string
+          deleted_at: string | null
+          description: string | null
+          employee_id: string
+          id: string
+          invoice_id: string | null
+          metadata: Json
+          org_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          clock_in: string
+          clock_out?: string | null
+          created_at?: string
+          day_type?: string
+          deleted_at?: string | null
+          description?: string | null
+          employee_id: string
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json
+          org_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          clock_in?: string
+          clock_out?: string | null
+          created_at?: string
+          day_type?: string
+          deleted_at?: string | null
+          description?: string | null
+          employee_id?: string
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json
+          org_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "hr_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
