@@ -129,7 +129,7 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={labelStyle}>{pt ? 'Data' : 'Date'}</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} lang="en-AU" />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
