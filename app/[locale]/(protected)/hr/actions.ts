@@ -162,6 +162,10 @@ export async function generateInvoiceAction(
     .single()
   if (!emp) throw new Error('Employee not found')
 
+  if (emp.hourly_rate_in_cents === 0) {
+    throw new Error("Rate not configured. Set the employee's hourly rate before generating an invoice.")
+  }
+
   const centValues = entries.map((e) => {
     if (!e.clock_out) return 0
     const hours = calculateHours(new Date(e.clock_in), new Date(e.clock_out))
