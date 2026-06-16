@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { ClockWidget } from '@/components/hr/ClockWidget'
 import { WeekSummary } from '@/components/hr/WeekSummary'
+import { RateCard } from '@/components/hr/RateCard'
 import { HrDashboard } from '@/components/hr/HrDashboard'
 import {
   getEmployeeByProfileId, getActiveClockEntry,
@@ -96,6 +97,9 @@ export default async function HrPage({ params }: Props) {
                 <WeekSummary entries={ownEntries} locale={locale} />
               </div>
             </>
+          )}
+          {employee && !isAdmin && (
+            <RateCard rateCents={employee.hourly_rate_in_cents} locale={locale} />
           )}
         </div>
 
