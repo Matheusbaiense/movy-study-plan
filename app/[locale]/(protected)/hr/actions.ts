@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
   getEmployeeByProfileId, getActiveClockEntry,
-  clockIn, clockOut, updateEntryStatus, listRateRules,
+  clockIn as insertEntry, clockOut, updateEntryStatus, listRateRules,
   createInvoice, linkEntriesToInvoice, updateInvoiceStatus,
   listTimeEntries,
 } from '@/lib/hr'
+import { isHrAdmin } from '@/lib/hr'
 import {
   detectDayType, calculateHours, getMultiplier,
   calculateLineItemCents, computeTotalCents,
@@ -16,9 +17,7 @@ import {
 
 async function getActor() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/unauthorized')
 
   const { data: profile } = await supabase
@@ -44,13 +43,13 @@ export async function clockInAction(description?: string) {
   const publicHolidays: string[] = (employee.metadata as Record<string, unknown> | null)?.public_holidays as string[] ?? []
   const dayType = detectDayType(now, publicHolidays)
 
-  const entry = await clockIn(supabase, {
+  const entry = await insertEntry(supabase, {
     org_id: profile.org_id,
     employee_id: employee.id,
     clock_in: now.toISOString(),
     day_type: dayType,
     description: description ?? null,
-    status: 'pending',
+    status: isHrAdmin(profile.role) ? 'approved' : 'pending',
   })
 
   revalidatePath('/hr')
@@ -60,6 +59,40 @@ export async function clockInAction(description?: string) {
 export async function clockOutAction(entryId: string) {
   const { supabase } = await getActor()
   const entry = await clockOut(supabase, entryId, new Date().toISOString())
+  revalidatePath('/hr')
+  return entry
+}
+
+/** Log hours manually (full clock_in + clock_out at once). */
+export async function logHoursAction(
+  date: string,       // 'YYYY-MM-DD'
+  startTime: string,  // 'HH:MM'
+  endTime: string,    // 'HH:MM'
+  description?: string,
+) {
+  const { supabase, profile } = await getActor()
+
+  const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+  if (!employee) throw new Error('Employee profile not found for this account')
+
+  const clockInTime = new Date(`${date}T${startTime}:00`)
+  const clockOutTime = new Date(`${date}T${endTime}:00`)
+  if (isNaN(clockInTime.getTime()) || isNaN(clockOutTime.getTime())) throw new Error('Invalid date or time')
+  if (clockOutTime <= clockInTime) throw new Error('End time must be after start time')
+
+  const publicHolidays: string[] = (employee.metadata as Record<string, unknown> | null)?.public_holidays as string[] ?? []
+  const dayType = detectDayType(clockInTime, publicHolidays)
+
+  const entry = await insertEntry(supabase, {
+    org_id: profile.org_id,
+    employee_id: employee.id,
+    clock_in: clockInTime.toISOString(),
+    clock_out: clockOutTime.toISOString(),
+    day_type: dayType,
+    description: description ?? null,
+    status: isHrAdmin(profile.role) ? 'approved' : 'pending',
+  })
+
   revalidatePath('/hr')
   return entry
 }

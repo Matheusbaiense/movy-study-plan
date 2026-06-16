@@ -1,12 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { ClockWidget } from '@/components/hr/ClockWidget'
 import { WeekSummary } from '@/components/hr/WeekSummary'
-import { TimesheetTable } from '@/components/hr/TimesheetTable'
+import { HrDashboard } from '@/components/hr/HrDashboard'
 import {
   getEmployeeByProfileId, getActiveClockEntry,
-  listTimeEntries,
+  listTimeEntries, listEmployeesWithNames, isHrAdmin,
 } from '@/lib/hr'
 import { t, ink, font } from '@/lib/ui/theme'
 
@@ -26,73 +25,108 @@ export default async function HrPage({ params }: Props) {
     .single()
   if (profileError || !profile) redirect(`/${locale}/login`)
 
+  const isAdmin = isHrAdmin(profile.role)
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   const activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null
 
-  // Get entries for this week (Mon–Sun, local date)
+  // Non-admin with no employee profile: show friendly message
+  if (!isAdmin && !employee) {
+    return (
+      <div style={{ padding: '48px 32px', maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ fontSize: 32, marginBottom: 16 }}>🕐</div>
+        <div style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.text, marginBottom: 8 }}>
+          {locale === 'pt' ? 'Sem perfil de funcionário' : 'No employee profile'}
+        </div>
+        <div style={{ fontSize: 14, color: t.textMuted }}>
+          {locale === 'pt'
+            ? 'Fale com o administrador para criar seu perfil e começar a registrar horas.'
+            : 'Contact your administrator to create your employee profile and start tracking hours.'}
+        </div>
+      </div>
+    )
+  }
+
+  // Week bounds (Mon–Sun, local date — avoid toISOString UTC drift)
   const now = new Date()
   const dow = now.getDay()
   const monday = new Date(now)
   monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1))
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
   const pad = (n: number) => String(n).padStart(2, '0')
   const weekStart = `${monday.getFullYear()}-${pad(monday.getMonth() + 1)}-${pad(monday.getDate())}`
 
-  const weekEntries = employee
-    ? await listTimeEntries(supabase, profile.org_id, {
-        employeeId: employee.id,
-        from: weekStart,
-      })
-    : []
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const weekLabel = `${months[monday.getMonth()]} ${monday.getDate()}–${sunday.getDate()}, ${sunday.getFullYear()}`
 
-  const recentEntries = await listTimeEntries(supabase, profile.org_id, {})
+  // Entries: admin sees all org entries for the week; employee sees only their own
+  const entries = await listTimeEntries(supabase, profile.org_id, {
+    ...(isAdmin ? {} : { employeeId: employee!.id }),
+    from: weekStart,
+  })
+
+  // Own entries for the WeekSummary bars (only relevant if has employee profile)
+  const ownEntries = employee && isAdmin
+    ? entries.filter(e => e.employee_id === employee.id)
+    : entries
+
+  // Employee name map for admin table (id → display name)
+  let employeeNameMap: Record<string, string> = {}
+  if (isAdmin) {
+    const employees = await listEmployeesWithNames(supabase, profile.org_id)
+    employeeNameMap = Object.fromEntries(
+      employees.map(e => [e.id, e.full_name || e.email || e.id.slice(0, 8)])
+    )
+  }
 
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1400, margin: '0 auto' }}>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontFamily: font.display, fontSize: 28, fontWeight: 700, color: t.text, margin: 0, letterSpacing: '-0.02em' }}>
           {locale === 'pt' ? 'RH & Controle de Horas' : 'HR & Time Management'}
         </h1>
         <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
-          {locale === 'pt' ? 'Operações' : 'Operations'} › {locale === 'pt' ? 'RH & Horas' : 'HR & Time'}
+          {locale === 'pt' ? 'Operações' : 'Operations'} › HR
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <ClockWidget activeEntry={activeEntry} locale={locale} />
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
 
-          {employee && (
-            <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 20 }}>
-              <WeekSummary entries={weekEntries} locale={locale} />
+        {/* Left column: clock + week bars */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {employee ? (
+            <>
+              <ClockWidget activeEntry={activeEntry} locale={locale} />
+              <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 20 }}>
+                <WeekSummary entries={ownEntries} locale={locale} />
+              </div>
+            </>
+          ) : (
+            <div style={{
+              background: 'var(--surface)', border: `1px solid ${ink(0.1)}`,
+              borderRadius: 12, padding: 20, color: t.textMuted, fontSize: 13, lineHeight: 1.6,
+            }}>
+              <div style={{ fontWeight: 600, color: t.text, marginBottom: 6 }}>
+                {locale === 'pt' ? 'Modo Administrador' : 'Administrator Mode'}
+              </div>
+              {locale === 'pt'
+                ? 'Você não tem perfil de funcionário. Crie um para registrar suas próprias horas.'
+                : 'You have no employee profile. Create one to track your own hours.'}
             </div>
           )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[
-              { href: `/${locale}/hr/timesheets`, label: locale === 'pt' ? 'Ver Todos os Registros' : 'All Timesheets' },
-              { href: `/${locale}/hr/invoices`, label: 'Invoices' },
-            ].map((l) => (
-              <Link key={l.href} href={l.href} prefetch={false} style={{
-                display: 'block', padding: '10px 16px', borderRadius: 8,
-                background: 'var(--surface)', border: `1px solid ${ink(0.1)}`,
-                color: t.text, fontSize: 13, fontWeight: 500, textDecoration: 'none',
-              }}>
-                {l.label} →
-              </Link>
-            ))}
-          </div>
         </div>
 
-        <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 16 }}>
-            {locale === 'pt' ? 'Registros Recentes' : 'Recent Entries'}
-          </div>
-          <TimesheetTable
-            entries={recentEntries.slice(0, 20)}
-            hourlyRateCents={employee?.hourly_rate_in_cents ?? 0}
-            locale={locale}
-          />
-        </div>
+        {/* Right column: dashboard with tabs */}
+        <HrDashboard
+          entries={entries}
+          employeeNameMap={employeeNameMap}
+          employee={employee}
+          hourlyRateCents={employee?.hourly_rate_in_cents ?? 0}
+          locale={locale}
+          isAdmin={isAdmin}
+          weekLabel={weekLabel}
+          weekStart={weekStart}
+        />
       </div>
     </div>
   )

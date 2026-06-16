@@ -46,3 +46,8 @@ export interface InvoicePrintData {
 }
 
 export type InvoicePeriod = 'weekly' | 'fortnightly' | 'monthly' | 'custom'
+
+export const HR_ADMIN_ROLES = ['admin', 'super_admin'] as const
+export function isHrAdmin(role: string | null | undefined): boolean {
+  return HR_ADMIN_ROLES.includes(role as typeof HR_ADMIN_ROLES[number])
+}

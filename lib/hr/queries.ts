@@ -152,6 +152,33 @@ export async function updateEntryStatus(
   return data
 }
 
+export async function listEmployeesWithNames(
+  supabase: HrClient,
+  orgId: string,
+): Promise<(EmployeeProfile & { full_name: string; email: string })[]> {
+  const { data: employees, error } = await supabase
+    .from('employee_profiles')
+    .select('*')
+    .eq('org_id', orgId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(error.message)
+  if (!employees || employees.length === 0) return []
+
+  const profileIds = employees.map(e => e.profile_id).filter(Boolean) as string[]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .in('id', profileIds)
+
+  const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]))
+  return employees.map(e => ({
+    ...e,
+    full_name: e.profile_id ? (profileMap[e.profile_id]?.full_name ?? '') : '',
+    email: e.profile_id ? (profileMap[e.profile_id]?.email ?? '') : '',
+  }))
+}
+
 // ── Rate Rules ────────────────────────────────────────────────────────────────
 
 export async function listRateRules(
