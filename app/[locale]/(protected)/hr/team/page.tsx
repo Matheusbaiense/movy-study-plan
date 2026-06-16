@@ -5,6 +5,7 @@ import { Users, Clock, FileText, TrendingUp } from 'lucide-react'
 import { EditRateButton } from '@/components/hr/EditRateButton'
 import { listEmployeesWithStats } from '@/lib/hr/queries'
 import { isHrAdmin } from '@/lib/hr'
+import { formatAUD } from '@/lib/hr/calculations'
 import { t, ink, font, color } from '@/lib/ui/theme'
 
 interface Props { params: Promise<{ locale: string }> }
@@ -68,6 +69,7 @@ export default async function TeamPage({ params }: Props) {
   const totalPending = employees.reduce((s, e) => s + e.pending_count, 0)
   const clockedIn   = employees.filter(e => e.is_clocked_in).length
   const pt = locale === 'pt'
+  const totalEstimatedCents = employees.reduce((s, e) => s + e.estimated_cost_cents, 0)
 
   const monthName = new Date().toLocaleString(locale === 'pt' ? 'pt-AU' : 'en-AU', { month: 'long', year: 'numeric' })
 
@@ -92,7 +94,7 @@ export default async function TeamPage({ params }: Props) {
           { label: pt ? 'Funcionários' : 'Employees', value: String(employees.length), sub: pt ? 'cadastrados' : 'registered', accent: color.purple },
           { label: pt ? 'Trabalhando agora' : 'Working now', value: String(clockedIn), sub: pt ? 'com ponto aberto' : 'clocked in', accent: '#22c55e' },
           { label: pt ? 'Horas este mês' : 'Hours this month', value: totalHours.toFixed(1) + 'h', sub: monthName, accent: color.gold },
-          { label: pt ? 'Pendentes' : 'Pending', value: String(totalPending), sub: pt ? 'aguardando aprovação' : 'awaiting approval', accent: '#f59e0b' },
+          { label: pt ? 'Folha Estimada' : 'Est. Payroll', value: formatAUD(totalEstimatedCents), sub: monthName, accent: '#16a34a' },
         ].map(({ label, value, sub, accent }) => (
           <div key={label} style={{
             background: t.surface, border: `1px solid ${ink(0.08)}`,
@@ -210,6 +212,14 @@ export default async function TeamPage({ params }: Props) {
                     label={pt ? 'este mês (aprovado)' : 'this month (approved)'}
                     color={color.gold}
                   />
+                  {emp.estimated_cost_cents > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#16a34a' }}>
+                        {formatAUD(emp.estimated_cost_cents)}
+                      </span>
+                      <span style={{ fontSize: 11, color: t.textMuted }}>{pt ? 'estimado este mês' : 'est. this month'}</span>
+                    </div>
+                  )}
                   {emp.pending_count > 0 && (
                     <StatPill
                       icon={TrendingUp}
