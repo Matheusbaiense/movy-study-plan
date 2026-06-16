@@ -320,9 +320,23 @@ Removing explicit `.ts` extensions from imports inside `lib/` breaks the `node -
 
 Qualquer nova action de HR que muda status de invoice DEVE ter `isHrAdmin` guard. Não é suficiente chamar apenas `getActor()` — o pattern correto é: `const { supabase, profile } = await getActor(); if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')`. Ver `approveEntryAction` como modelo. O mesmo vale para `logAudit` — toda mutação financeira/HR deve ser rastreada.
 
-### 2026-06-16 — Shared auth helper for server actions
+### 2026-06-16 → 2026-06-17 — CANONICAL server-action auth (audit unification)
 
-All server action files now import `getActorSession()` and `svc()` from `lib/actions/auth.ts` instead of duplicating the Supabase client setup. When adding new action files, import from there — never reinvent the pattern.
+`lib/actions/auth.ts` is the ONE auth layer for server actions. Use exactly:
+`requireActor()` (auth + **is_active** → `{supabase,user,profile:ActorProfile}`),
+`requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`),
+`svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the
+single actor shape — flatten with `const { profile: actor } = await requireAdmin()`.
+The 2026-06-17 audit removed 5 divergent patterns (local `getActor`, hr alias, and
+three `Actor` types with `org_id`/`orgId`/`role` mismatches). `getActorSession` is a
+deprecated alias, now vestigial.
+
+### 2026-06-17 — NEVER reinvent the actor/permission helper per action file
+
+When adding a server action, import `requireActor`/`requireEditor`/`requireAdmin`
+from `lib/actions/auth.ts`. Do NOT define a local `getActor`, `requireAdmin`, or an
+`Actor = {...}` type — that exact sprawl (5 copies, inconsistent shapes/messages) was
+the maintenance "colcha de retalhos" cleaned up in this audit. One shape, one gate, one message.
 
 ## Key Learnings — Performance & Dev Server (2026-06-17)
 

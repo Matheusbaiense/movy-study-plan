@@ -499,5 +499,17 @@
     "occurrences": 1,
     "last_seen": "2026-06-17"
   }
+  ,{
+    "id": "bug-032",
+    "timestamp": "2026-06-17T00:00:00Z",
+    "error_message": "TS2724: '@/lib/actions/auth' has no exported member named 'getActorSession' (5 actions.ts files)",
+    "file": "lib/actions/auth.ts",
+    "root_cause": "In-progress (uncommitted) 2026-06-17 auth audit renamed the canonical helper getActorSession → requireActor/requireEditor/requireAdmin but left portfolio/presets/users/study-plans/wiki actions.ts importing the old name. HEAD built fine; only the working tree was broken mid-refactor.",
+    "fix": "Added a backwards-compat alias `export const getActorSession = requireActor` (identical { supabase, user, profile } shape). Unblocks the build with zero change to any per-action role gate. New code should call requireActor/requireEditor/requireAdmin directly.",
+    "tags": ["typescript", "auth", "refactor", "build", "compat-alias"],
+    "related_bugs": [],
+    "occurrences": 1,
+    "last_seen": "2026-06-17"
+  }
   ]}
 

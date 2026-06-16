@@ -72,7 +72,7 @@
 
 ## lib/actions/
 
-- **auth.ts** — Shared server-action helpers: `getActorSession()` (createClient → auth.getUser → profiles query → `{ supabase, user, profile }`) and `svc()` (wraps createServiceClient, returns null on missing env). Imported by all action files. ~30 lines.
+- **auth.ts** — CANONICAL server-action auth layer (2026-06-17 audit). `requireActor()` (authenticated + **is_active** checked → `{supabase,user,profile:ActorProfile}`), `requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`), `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the single actor shape. `getActorSession` kept as a deprecated alias (vestigial — nobody imports it). ALL 6 action files use these; never reinvent a local `getActor`/`requireAdmin`/`Actor`. ~80 lines.
 
 ## app/api/health/
 
