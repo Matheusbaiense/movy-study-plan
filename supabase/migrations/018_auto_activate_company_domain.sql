@@ -3,7 +3,7 @@
 -- 018 — Auto-activate users with the company email domain (@movyeducation.com).
 --       Previously all users entered with is_active = false and required manual
 --       admin activation. Now:
---         - @movyeducation.com → is_active = true immediately on first login
+--         - @movyeducation.com.au → is_active = true immediately on first login
 --         - Gmail / external in allowed_emails → is_active = true (admin whitelist)
 --         - Gmail / external not in allowed_emails → is_active = false (future clients)
 -- ============================================================================
@@ -26,7 +26,7 @@ begin
 
   -- Company domain: auto-activate without requiring an allowed_emails entry.
   -- Use LIKE instead of regex for maximum Postgres compatibility.
-  is_company := lower(new.email) like '%@movyeducation.com';
+  is_company := lower(new.email) like '%@movyeducation.com.au';
 
   insert into public.profiles (id, email, full_name, avatar_url, role, is_active, org_id)
   values (
