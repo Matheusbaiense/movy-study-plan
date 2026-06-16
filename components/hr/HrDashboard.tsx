@@ -33,9 +33,16 @@ function formatEntryDate(iso: string): string {
   return `${days[d.getDay()]} ${dd}/${mm}`
 }
 
-function todayISO(): string {
-  const d = new Date()
+function dateISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function todayISO(): string { return dateISO(new Date()) }
+
+function minDateISO(): string {
+  const d = new Date()
+  d.setDate(d.getDate() - 30)
+  return dateISO(d)
 }
 
 // ── Status badge ──────────────────────────────────────────────────────────────
@@ -129,7 +136,7 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={labelStyle}>{pt ? 'Data' : 'Date'}</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} lang="en-AU" />
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} lang="en-AU" min={minDateISO()} max={todayISO()} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>

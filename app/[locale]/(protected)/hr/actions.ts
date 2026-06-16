@@ -99,6 +99,12 @@ export async function logHoursAction(
   if (isNaN(clockInTime.getTime()) || isNaN(clockOutTime.getTime())) throw new Error('Invalid date or time')
   if (clockOutTime <= clockInTime) throw new Error('End time must be after start time')
 
+  const now = new Date()
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+  const thirtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0)
+  if (clockInTime > endOfToday) throw new Error('Cannot log hours for future dates')
+  if (clockInTime < thirtyDaysAgo) throw new Error('Cannot log hours more than 30 days in the past')
+
   const publicHolidays: string[] = (employee.metadata as Record<string, unknown> | null)?.public_holidays as string[] ?? []
   const dayType = detectDayType(clockInTime, publicHolidays)
 
