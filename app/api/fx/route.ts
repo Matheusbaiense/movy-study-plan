@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { rateLimitIp, getClientIp } from '@/lib/api/rate-limit'
 
 // Live AUD→BRL exchange rate for the financial-capacity budget.
 //
@@ -32,7 +33,7 @@ const authHeaders = (token: string) => ({ Authorization: `Bearer ${token}`, 'Con
 async function wiseProfileId(token: string): Promise<string | null> {
   if (process.env.WISE_PROFILE_ID) return process.env.WISE_PROFILE_ID
   try {
-    const r = await fetch(`${WISE_BASE}/v1/profiles`, { headers: authHeaders(token), cache: 'no-store' })
+    const r = await fetch(`${WISE_BASE}/v1/profiles`, { headers: authHeaders(token), cache: 'no-store', signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const profiles = await r.json()
     if (!Array.isArray(profiles)) return null
@@ -54,6 +55,7 @@ async function fromWiseQuote(token: string): Promise<FxResult | null> {
       method: 'POST',
       headers: authHeaders(token),
       cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
       body: JSON.stringify({ sourceCurrency: 'AUD', targetCurrency: 'BRL', sourceAmount: source, payOut: 'BALANCE' }),
     })
     if (!r.ok) return null
@@ -90,7 +92,7 @@ async function fromWiseQuote(token: string): Promise<FxResult | null> {
 // Wise mid-market (/v1/rates) — read-only token, no fee.
 async function fromWiseMid(token: string): Promise<FxResult | null> {
   try {
-    const r = await fetch(`${WISE_BASE}/v1/rates?source=AUD&target=BRL`, { headers: authHeaders(token), next: { revalidate: 3600 } })
+    const r = await fetch(`${WISE_BASE}/v1/rates?source=AUD&target=BRL`, { headers: authHeaders(token), next: { revalidate: 3600 }, signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const j = await r.json()
     const row = Array.isArray(j) ? j[0] : j
@@ -105,7 +107,7 @@ async function fromWiseMid(token: string): Promise<FxResult | null> {
 
 async function fromErApi(): Promise<FxResult | null> {
   try {
-    const r = await fetch('https://open.er-api.com/v6/latest/AUD', { next: { revalidate: 3600 } })
+    const r = await fetch('https://open.er-api.com/v6/latest/AUD', { next: { revalidate: 3600 }, signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const j = await r.json()
     const rate = j?.rates?.BRL
@@ -119,7 +121,7 @@ async function fromErApi(): Promise<FxResult | null> {
 
 async function fromFrankfurter(): Promise<FxResult | null> {
   try {
-    const r = await fetch('https://api.frankfurter.app/latest?from=AUD&to=BRL', { next: { revalidate: 3600 } })
+    const r = await fetch('https://api.frankfurter.app/latest?from=AUD&to=BRL', { next: { revalidate: 3600 }, signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const j = await r.json()
     const rate = j?.rates?.BRL
@@ -142,7 +144,10 @@ async function resolveRate(): Promise<FxResult> {
   return (await fromErApi()) ?? (await fromFrankfurter()) ?? { rate: 0, asOf: new Date().toISOString(), source: 'indisponível' }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  if (!(await rateLimitIp(getClientIp(req)))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
   if (cache && Date.now() - cache.ts < TTL_MS) {
     return NextResponse.json(cache.data)
   }

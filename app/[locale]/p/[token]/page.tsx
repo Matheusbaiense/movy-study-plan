@@ -50,7 +50,7 @@ export default async function PublicProposalTokenPage({ params }: Props) {
     .single()
 
   if (!plan) notFound()
-  const expiresAt = (plan as unknown as { share_token_expires_at?: string | null }).share_token_expires_at
+  const expiresAt = plan.share_token_expires_at
   if (expiresAt && new Date(expiresAt) < new Date()) notFound()
 
   const row = plan as unknown as StudyPlanRow

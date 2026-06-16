@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
-import createIntlMiddleware from 'next-intl/middleware'
+import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 
-const handleI18nRouting = createIntlMiddleware(routing)
+const handleI18nRouting = createMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

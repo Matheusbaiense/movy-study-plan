@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -1580,6 +1580,7 @@ export type Database = {
           metadata: Json
           org_id: string
           share_token: string
+          share_token_expires_at: string | null
           status: Database["public"]["Enums"]["study_plan_status"]
           student_name: string
           title: string
@@ -1603,6 +1604,7 @@ export type Database = {
           metadata?: Json
           org_id?: string
           share_token?: string
+          share_token_expires_at?: string | null
           status?: Database["public"]["Enums"]["study_plan_status"]
           student_name?: string
           title?: string
@@ -1626,6 +1628,7 @@ export type Database = {
           metadata?: Json
           org_id?: string
           share_token?: string
+          share_token_expires_at?: string | null
           status?: Database["public"]["Enums"]["study_plan_status"]
           student_name?: string
           title?: string

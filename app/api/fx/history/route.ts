@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { rateLimitIp, getClientIp } from '@/lib/api/rate-limit'
 
 // Historical AUD→BRL series for the câmbio chart (mid-market).
 // Wise /v1/rates with from/to/group=day (token) → frankfurter (ECB) fallback.
@@ -22,7 +23,7 @@ async function wiseHistory(token: string, days: number): Promise<{ points: Point
     const to = new Date()
     const from = new Date(to.getTime() - days * 24 * 3600 * 1000)
     const url = `https://api.wise.com/v1/rates?source=AUD&target=BRL&from=${isoDate(from)}&to=${isoDate(to)}&group=day`
-    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 3600 } })
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 3600 }, signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const j = await r.json()
     if (!Array.isArray(j)) return null
@@ -41,7 +42,7 @@ async function frankfurterHistory(days: number): Promise<{ points: Point[]; sour
     const to = new Date()
     const from = new Date(to.getTime() - days * 24 * 3600 * 1000)
     const url = `https://api.frankfurter.app/${isoDate(from)}..${isoDate(to)}?from=AUD&to=BRL`
-    const r = await fetch(url, { next: { revalidate: 3600 } })
+    const r = await fetch(url, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(5000) })
     if (!r.ok) return null
     const j = await r.json()
     const rates = j?.rates
@@ -60,6 +61,10 @@ const cache = new Map<number, { data: unknown; ts: number }>()
 const TTL_MS = 60 * 60 * 1000
 
 export async function GET(req: Request) {
+  if (!(await rateLimitIp(getClientIp(req)))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const url = new URL(req.url)
   let days = Number.parseInt(url.searchParams.get('days') ?? '90', 10)
   if (!ALLOWED.includes(days)) days = 90
