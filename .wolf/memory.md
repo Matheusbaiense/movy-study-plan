@@ -5,6 +5,7 @@
 
 | 16:00 | Task 13: created timesheets admin page with status filters | app/[locale]/(protected)/hr/timesheets/page.tsx | committed e61f0be | ~8k |
 
+| 2026-06-16 | AllyHub S52: catalogo Q2.0 completo — card Q502 total AU$1268 confirmado; catálogo Accommodations global GBP; hierarquia painel esquerdo; View Quotes bug freeze; portal aluno quote.allyhub.co AngularJS+PagSeguro | ALLY-BLUEPRINT.md | documentado | ~4000 |
 | 2026-06-16 | AllyHub S51: sistema edicao preco Quote 2.0 — modal Edit item (Item value + Discount, 2 niveis margem, confirmacao obrigatoria, icone coin) | ALLY-BLUEPRINT.md | documentado | ~3000 |
 
 | 2026-06-16 | fix(hr): added authError guard to getUser() and profileError guard to profiles query; added aria-label + aria-hidden to print button | app/[locale]/(protected)/hr/page.tsx, components/hr/TaxInvoice.tsx | committed 672f322 | ~300 |

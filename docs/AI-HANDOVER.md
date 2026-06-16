@@ -360,6 +360,50 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ---
 
+### 2026-06-16 - AllyHub: Quote 2.0 Catálogo Completo — Add-ons, Accommodations Global, View Quotes Bug, Portal Aluno (sessão 11–12)
+
+> **Estado:** exploração dos itens 3 (Add-ons), 4 (View Quotes/Overview) e 5 (quote-detail portal aluno) concluída. Blueprint seção 52 (~300 linhas) adicionada. ALLY-BLUEPRINT.md agora ~4400+ linhas (~90k tok).
+
+**Descobertas críticas:**
+
+1. **Card Q502 total confirmado — AU$1,268:**
+   - Programs: Lexis English Perth 1 sem AU$960 (tuition+enrolment+material)
+   - Fees: 4 itens → Medibank OSHC Single AU$70 + Lexis English OSHC Single AU$58 + Ally Hub taxa AU$150 + Medibank OSHC transfer AU$30 = AU$308
+   - Total Converted: R$4,968.05 @ R$3.92/AUD
+
+2. **Hierarquia painel esquerdo Q2.0 — 4 seções com count e botão `+`:**
+   - Programs (1) | Accommodations (0) | Insurances (2) | Add-ons (2)
+   - Todos os itens não-programa aparecem na seção "Fees" do card (independente de tipo)
+   - Os 2 Add-ons correspondem aos 2 itens Administrative Tax: Ally Hub taxa + Medibank OSHC transfer
+
+3. **Catálogo Accommodations — global GBP (não AU):**
+   - 9 filtros de busca: Destination Country, City, School, Date Start/End, Duration (Weeks), Type, Students sharing, Meals
+   - Catálogo global com preços em GBP, não AUD — ex: Kings Hall Manchester £200-290/sem + placement fee £50-160
+   - Confirmação: Perth = zero resultados (campus AU não cadastraram acomodações separadas)
+
+4. **View Quotes / Overview — bug de renderer:**
+   - Breadcrumb: `Quote playground > View Quotes`
+   - Overview mostra: "1 Quotes Overview" com a quote atual
+   - Bug crítico: clicar no link "View Quotes" SEMPRE trava o renderer Chrome (CDP timeout 30s). Documentado como limitação de navegação interna do React Router.
+
+5. **Portal aluno `quote.allyhub.co` — stack completo:**
+   - AngularJS 1.x + jQuery + Bootstrap 3 (mesma geração do CRM, NÃO React)
+   - Idiomas: PT-BR / ES / EN (via `angular-translate`)
+   - Integração: PagSeguro (`assets.pagseguro.com.br/checkout-sdk-js`) para pagamento BRL
+   - Google Maps API para geolocalização
+   - Auth: token-gated via parâmetro URL (sem token → redirect `/signin`)
+   - Signin: spinner infinito (AngularJS aguarda API auth que nunca responde sem token)
+   - Domínio é Sellead re-branded sob marca AllyHub (confirmado pelo código-fonte)
+
+**Limitações desta sessão:**
+- Add-ons catalog: botão `+` não abriu (catálogo de Accommodations bloqueava UI state) — documentado por inferência
+- View Quotes mode puro: renderer freeze impediu acesso
+- Quote-detail aluno: requer magic link com token (URL sem token → redirect signin)
+
+**ALLY-BLUEPRINT.md:** seções 1–52, ~4400+ linhas, ~90k tok
+
+---
+
 ### 2026-06-16 - AllyHub: /shipment = Remessa Internacional — novo produto early access (sessão 10)
 
 > **Estado:** pesquisa AllyHub 100% concluída. Blueprint seção 50H adicionada. ALLY-BLUEPRINT.md agora ~4350+ linhas (~77k tok).

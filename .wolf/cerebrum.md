@@ -46,6 +46,29 @@
 - Test user for logged-in QA: `testemovy@movy.com.br` / `teste123!` (role admin). Login is by email, not username.
 - PowerShell is the shell: chain commands with `;` (not `&&`) and quote paths containing `(` `)` like `(protected)`.
 
+- **AllyHub = white-label Sellead (2026-06-15 — CRÍTICO):** O backend real do AllyHub é `api.sellead.com`. AllyHub é um **white-label da plataforma Sellead** — o produto não é proprietário. Isso é vulnerabilidade competitiva grave: dependência de terceiro, limitação de customização.
+- **AllyHub Quote 2.0 arquitetura (2026-06-15):** AngularJS parent (`Quote2Ctrl`) + React iframe (`quote2.allyhub.co`, CRA) + `api.sellead.com` REST API + Firebase Firestore (real-time) + Chatwoot + Google Maps + PagSeguro. Auth via JWT Bearer em localStorage. Dois editores: Quote 1.x (AngularJS legacy em `/quote2/edit/{id}/profile`) + Quote 2.0 (React em `/quote-2/edit/{id}`).
+- **AllyHub pagamentos 100% brasileiros (2026-06-15):** Gateways: PagBank (até 12x), Ally Checkout (link), PIX. Sem Stripe, sem PayPal, sem gateway australiano. Enorme fraqueza para o mercado AU.
+- **AllyHub tech stack (2026-06-15 — pesquisa competitiva):** AllyHub usa **AngularJS 1.x** (confirmado via `angular.element().scope().$apply()` em javascript_tool) — framework em EOL desde 2021. Usa `ui-select` (AngularJS dropdown) que requer manipulação de scope para abrir/pesquisar programaticamente. Também usa Chatwoot (chat widget `.woot-widget-bubble`), CKEditor (rich text), Aussie Translate (integração envio de documentos), Tawk.to (help). Backend hospedado no Railway (`allybilling-production.up.railway.app`). CNPJ brasileiro (Ribeirão Preto SP) — produto 100% em português.
+- **AllyHub módulos mapeados (2026-06-15):** Rotas principais: `/all-student` (pipeline kanban 6 estágios), `/student/{id}` (5 abas: Overview/Email/Quotes and Links/Info/Earnings), `/quote-2/edit/{id}` (Quote 2.0 v11.0.2), `/opportunity` (auto-criado ao iniciar cotação), `/report/*` (Performance/Behavior/Sales/Cancellations/Quotes/Commissions), `/experience` (Experiências/marketing), `/campaign`, `/settings/*` (16 sub-seções), `/automation` (pago — não incluso no Starter), `/report/plugandplayagency` (comissões Ally+).
+- **AllyHub UX gaps p/ Movy (2026-06-15):** (1) AngularJS EOL = lento, bugs, sem mobile; (2) interface 100% português = não serve agências internacionais; (3) formulário de aluno tem 40+ campos obrigatórios na criação; (4) automações são pagas (Starter não inclui); (5) planos confusos (Starter → Essential R$197/agente → Premium R$297/agente → Enterprise). Movy com Next.js/React é tecnologicamente superior.
+- **AllyHub Opportunity auto-criação (2026-06-15):** Ao iniciar uma cotação (criar rascunho de quote), o AllyHub auto-cria um módulo Opportunity (ex.: #OP500) com due date 6 meses automático. Relacionamento: 1 Oportunidade → N Cotações.
+- **AllyHub IA Qualification (2026-06-15):** Botão "Start IA Qualification" no perfil do aluno — scoring de lead com IA. Feature premium que a Movy pode replicar via Supabase + LLM.
+- **AllyHub modelo de receita por cotação (2026-06-16 — CRÍTICO):** Todo orçamento Ally+ com curso australiano injeta automaticamente uma taxa `AU$150` chamada "Taxa de consultoria (Dólar Australiano)" (tipo: Fee, supplier: "Ally Hub", label UI: "Administrative Tax"). É a comissão da plataforma por transação — cobrada do cliente final e embutida no bill.
+- **AllyHub Medibank OSHC auto-sugestão (2026-06-16):** Ao adicionar qualquer curso AU via Ally+, o modal "We found some suggestions" abre automaticamente sugerindo OSHC Medibank (AU$30 transfer fee + AU$70 OSHC Single = AU$100 total). Se aceito, entra no bill automaticamente.
+- **AllyHub regra 45 dias data de início (2026-06-16):** Cursos Ally+ exigem data de início ≥ 45 dias a frente da data atual. O botão fica desabilitado com datas mais próximas. Campo de data usa react-datepicker — `fill` via DevTools não dispara React onChange; usar navegação por calendário com cliques em uid.
+- **AllyHub catálogo AU limitado (2026-06-16):** Apenas 27 programas australianos (filter = Australia). Escolas: English Path Brisbane (13), LSI Brisbane (4), Lexis English (6 campi: Brisbane/Sydney/Perth/Noosa/Byron Bay), APAC/GEDU (1). Cidades ausentes: Melbourne, Adelaide, Cairns, Gold Coast, Canberra. Fraqueza competitiva grave.
+- **AllyHub Quote 2.0 React iframe UIDs (2026-06-16):** UIDs no formato `uid=FRAME_ID_ELEMENT_SEQ` (ex: `uid=25_21`). Mudam a cada re-render do React. SEMPRE tirar `take_snapshot` antes de cada interação para obter UIDs frescos. Checkbox de item: clicar no heading label (uid heading) em vez do próprio checkbox — React usa label toggling.
+- **AllyHub bill completo Q501 (2026-06-16):** Course AUD400 + Enrol AUD250 + Material AUD75 + AllyHub Fee AUD150 + Medibank transfer AUD30 + OSHC Single AUD70 + EP Insurance AUD30 = **AUD 1,005** (1 semana EP Brisbane General English Classic Morning).
+- **AllyHub playground efêmero (2026-06-16 — CRÍTICO):** O playground do Quote 2.0 é stateless no servidor. GET /draft retorna apenas metadados (id, student_id, quotes[] com converted_value) — sem cursos/fees. O estado completo (cursos + fees) existe só na memória React até o "Finish and Save Quotes". Só `converted_value` persiste via auto-save. Cada reload reconstrói o playground do zero.
+- **AllyHub CORS assimetria (2026-06-16):** GET liberado de qualquer origin; PUT/POST CORS-blocked de `app.allyhub.co`, liberado apenas de `quote2.allyhub.co`. AngularJS parent só lê; React iframe é a única origin autorizada para mutações.
+- **AllyHub postMessage init (2026-06-16):** React iframe aguarda em /loading até receber `{token, user(JSON string), toEditQuoteId, studentId, isPP}` via MessageChannel do Angular parent. Verifica `e.origin === "https://app.allyhub.co"`.
+- **AllyHub JWT com aspas literais (2026-06-16):** `localStorage.token` armazenado como `"eyJ..."` (JSON.stringify de string). Authorization header deve ser `Bearer "eyJ..."` com as aspas literais incluídas.
+- **AllyHub fee IDs AU (2026-06-16):** 266546=AllyHub taxa AU$150 (obrigatório), 425150=Medibank OSHC transfer AU$30 (obrigatório), 306366=Medibank OSHC Single AU$70/mês (**priceIsExpired:true**, expirou 2025-12-31), 384576=EP Insurance AU$30/sem (sugerido).
+- **AllyHub bug crítico OSHC expirado (2026-06-16):** Fee 306366 (OSHC Single Medibank) tem priceIsExpired:true. Finish (`autoSave:false`) retorna `{"error":true, "totals":[]}` (HTTP 200) e zera converted_value. **Nenhuma cotação AU pode ser finalizada via Ally+ no estado atual.**
+- **AllyHub WAF após Finish falho (2026-06-16):** Após PUT `autoSave:false` com `error:true`, todos os PUTs subsequentes falham com `net::ERR_FAILED`. OPTIONS preflight retorna 200 (CORS OK), mas o PUT é bloqueado pelo servidor. Afeta múltiplas abas/quotes/reloads. GET continua funcionando. Parece bloqueio WAF por sessão/IP após payload suspeito.
+- **AllyHub acomodações AU (2026-06-16):** Catálogo de acomodações vazio para escolas AU. As 5 escolas do catálogo AU não cadastraram acomodações separadas. Cursos "Full Experience Camp" incluem acomodação no próprio preço do curso.
+
 ## Do-Not-Repeat
 
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
@@ -247,3 +270,11 @@ ou hardcodar marca/dados Movy. Consequências verificáveis em PR: `org_id`+RLS 
 unicidade por org (nunca global), branding/config por org, naming woofed-shaped, zero segredo/marca
 hardcoded. **Documentada em:** `docs/PRODUCT-ROADMAP.md` §2 (P0), `docs/AI-HANDOVER.md` (Regras de Ouro,
 1º item), e User Preferences acima. P1/P10 e R1–R11 (convergência) são consequências deste P0.
+
+## Future Blueprint References
+
+- **Horilla HR** (2026-06-16): https://github.com/horilla/horilla-hr � open-source Django HR platform.
+  Owner wants this as the **feature reference blueprint** for future HR module expansions (leave management,
+  payroll, recruitment, performance reviews, etc.). Do NOT implement now � use as inspiration when planning
+  new HR features. Check this repo before brainstorming any new HR capability.
+

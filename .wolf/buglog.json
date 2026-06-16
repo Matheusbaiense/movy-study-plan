@@ -265,7 +265,13 @@
       "file": "components/study-plans/StudyPlanEditor.tsx",
       "root_cause": "EditorStickyBar usava position:fixed; left:0; right:0 (preso ao viewport); o scroll real e o <div overflowY:auto> do AppShell e a sidebar e irma flex, entao a barra atravessava por baixo dela",
       "fix": "Mover a barra para fora do .sp-editor-layout (irma do grid, filha direta de <main>) e usar position:sticky; bottom:0 — restrita a largura da coluna de conteudo",
-      "tags": ["split4", "css", "layout", "sticky", "visual"],
+      "tags": [
+        "split4",
+        "css",
+        "layout",
+        "sticky",
+        "visual"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
@@ -277,7 +283,12 @@
       "file": "components/study-plans/StudyPlanEditor.tsx",
       "root_cause": "Etapas renderizadas condicionalmente ({step === 'x' && ...}) desmontavam os componentes e zeravam o estado local do picker",
       "fix": "Renderizar todas as etapas sempre e alternar visibilidade por style display none/grid (nao usar atributo hidden, sobrescrito por inline display)",
-      "tags": ["split4", "react", "state", "wizard"],
+      "tags": [
+        "split4",
+        "react",
+        "state",
+        "wizard"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
@@ -289,7 +300,14 @@
       "file": "app/[locale]/(protected)/study-plans/NewProposalModal.tsx",
       "root_cause": "Overlay position:fixed renderizado dentro dos stacking contexts aninhados do app (.movy-atmosphere > * { z-index:1 }), entao nao cobria a viewport nem ficava acima do menu da navbar",
       "fix": "Renderizar o overlay via createPortal(document.body) com z-index 1000 (gate em mounted p/ SSR) + cores em tokens (var(--surface)/var(--border)/var(--text)) p/ dark mode",
-      "tags": ["modal", "portal", "zindex", "stacking-context", "dark-mode", "visual"],
+      "tags": [
+        "modal",
+        "portal",
+        "zindex",
+        "stacking-context",
+        "dark-mode",
+        "visual"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
@@ -301,8 +319,16 @@
       "file": "components/layout/AppShell.tsx",
       "root_cause": "O backdrop de fechar era position:fixed dentro de .navbar-container, que tem backdrop-filter:blur — isso vira containing block p/ fixed, confinando o backdrop a caixa da navbar (clique fora nao era capturado)",
       "fix": "Trocar o backdrop fixed por listener de pointerdown fora do menu + Escape (useRef no container, useEffect quando menuOpen)",
-      "tags": ["appshell", "menu", "backdrop-filter", "containing-block", "fixed"],
-      "related_bugs": ["bug-newproposalmodal-overlay"],
+      "tags": [
+        "appshell",
+        "menu",
+        "backdrop-filter",
+        "containing-block",
+        "fixed"
+      ],
+      "related_bugs": [
+        "bug-newproposalmodal-overlay"
+      ],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
     },
@@ -313,10 +339,38 @@
       "file": "components/layout/AppShell.tsx",
       "root_cause": "O .navbar-container tem backdrop-filter (cria stacking context proprio) e e estatico sem z-index; como vem antes do conteudo no DOM, o conteudo da pagina e pintado acima do menu (z-index:50 do menu so vale DENTRO do contexto da navbar)",
       "fix": "z-index:40 na navbar NAO bastou (botoes de header de pagina como '+ Criar proposta'/'+ Novo conteudo'/'Salvar PDF' ainda vazavam). Fix real: portalar o dropdown via createPortal(document.body) com position:fixed ancorado ao rect do botao do avatar (getBoundingClientRect), z-index 1000, fechando em outside-click/Escape/scroll/resize. Revertido o z-index da navbar.",
-      "tags": ["appshell", "menu", "stacking-context", "portal", "zindex", "backdrop-filter", "visual"],
-      "related_bugs": ["bug-account-menu-no-close", "bug-newproposalmodal-overlay"],
+      "tags": [
+        "appshell",
+        "menu",
+        "stacking-context",
+        "portal",
+        "zindex",
+        "backdrop-filter",
+        "visual"
+      ],
+      "related_bugs": [
+        "bug-account-menu-no-close",
+        "bug-newproposalmodal-overlay"
+      ],
       "occurrences": 1,
       "last_seen": "2026-06-15T00:00:00.000Z"
+    },
+    {
+      "id": "bug-NaN",
+      "timestamp": "2026-06-16T06:45:49.503Z",
+      "error_message": "getWeekDates() returned wrong UTC date for users in UTC-5 or earlier late at night, causing clock_in.startsWith(iso) mismatches in WeekSummary",
+      "file": "components/hr/WeekSummary.tsx",
+      "root_cause": "d.toISOString() converts to UTC; at 19:00 local time in UTC-5 it returns the next UTC day",
+      "fix": "Replaced toISOString().slice(0,10) with template literal using getFullYear/getMonth/getDate (local time). Moved MAX_HOURS=10 to module level.",
+      "tags": [
+        "timezone",
+        "date",
+        "hr",
+        "WeekSummary"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T06:45:49.505Z"
     }
   ]
 }
