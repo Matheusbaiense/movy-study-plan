@@ -3,6 +3,59 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+| 16:00 | Task 13: created timesheets admin page with status filters | app/[locale]/(protected)/hr/timesheets/page.tsx | committed e61f0be | ~8k |
+
+| 2026-06-16 | AllyHub S51: sistema edicao preco Quote 2.0 — modal Edit item (Item value + Discount, 2 niveis margem, confirmacao obrigatoria, icone coin) | ALLY-BLUEPRINT.md | documentado | ~3000 |
+
+| 2026-06-16 | fix(hr): added authError guard to getUser() and profileError guard to profiles query; added aria-label + aria-hidden to print button | app/[locale]/(protected)/hr/page.tsx, components/hr/TaxInvoice.tsx | committed 672f322 | ~300 |
+
+| 14:45 | Task 7: Created ClockWidget.tsx — real-time clock-in/out widget with live elapsed timer, gold timer display, pulsing LIVE indicator, bilingual pt/en | components/hr/ClockWidget.tsx | committed 98853bc | ~400 |
+
+| 2026-06-16 | Created HR server actions file (Task 5) | app/[locale]/(protected)/hr/actions.ts | success, 0 TS errors, committed a1f30e9 | ~2500 |
+
+---
+
+**Session: 2026-06-16 (AllyHub — /shipment Remessa Internacional / Sessão 10)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~14:30 | Appended Section 50H to ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | /shipment documentado: Remessa Internacional, early access, React SPA em iframe, Simulador de Câmbio AUD, badge "vagas limitadas" | ~1500 |
+| ~14:33 | Updated anatomy.md, AI-HANDOVER.md, memory.md | .wolf/ + docs/ | pesquisa AllyHub 100% concluída, todas as rotas documentadas | ~500 |
+
+**Achados desta sessão:**
+1. /shipment = produto de remessa internacional em early access — segundo modelo de receita AllyHub (SaaS + spread cambial)
+2. React SPA em iframe — DOM da shell não expõe conteúdo (documentado só via screenshot)
+3. "Simulate Shipment" = link de marketing para produto novo, não simulação técnica de parcelas
+
+---
+
+**Session: 2026-06-16 (AllyHub — Financial Layer Completo / Sessão 9)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~18:00 | Screenshot /financial/dashboard | browser | 3 cards (Receivables/Bills/Balance), 4 status each, Future Projections, 2 bottom widgets | ~800 |
+| ~18:05 | Screenshot /instalment/earnings | browser | Read-only, CSV export, 12 filtros incl. Destiny Country/City | ~600 |
+| ~18:10 | Screenshot /instalment/credits + New Credit modal via read_page | browser | form 7 campos, table Type/School/Partner/Value/Actions | ~2000 |
+| ~18:15 | Screenshot /transition/list | browser | cashbook, Print+CSV, 3 tabs time, Account Bank filter | ~500 |
+| ~18:20 | DOM do /instalment/pay via read_page (Bills) | browser | Course Start date filter, Simulate Shipment→/shipment, Payment Suggestions só category=school, Commission column | ~3000 |
+| ~18:30 | Documentou Seção 50 (A-G) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | 4 rotas + Bills extras + mapa financeiro 4 camadas + 10 insights | ~5000 |
+| ~18:35 | Atualizou anatomy.md, memory.md, AI-HANDOVER.md | .wolf/ + docs/ | sessão 9 concluída | ~500 |
+
+---
+
+**Session: 2026-06-16 (AllyHub — Financial CRUD Layer / Sessão 8)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~17:00 | Screenshot /instalment/commission — Total Commissions | browser | 5 filtros, 0 commissions, read-only | ~400 |
+| ~17:05 | Navegou /instalment/distributed — Distributed Commissions | browser | 2 tabs Office/User, 4 filtros | ~400 |
+| ~17:10 | Navegou /instalment/over — Over | browser | 3 filtros, "We did not found any over" | ~300 |
+| ~17:12 | Navegou /validation/payment — Permission Denied (hard gate) | browser | único gate server-side real do sistema | ~300 |
+| ~17:15 | Abriu modal New Receivable em /instalment/receive | browser | form completo: 11 campos, form DOM extraído via read_page | ~3000 |
+| ~17:20 | Navegou /instalment/pay — Bills page + Payment Suggestions tab | browser | 13 filtros, Simulate Shipment, tab Payment Suggestions | ~800 |
+| ~17:30 | Documentou Seção 49 (A-J) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | 7 rotas ocultas, form completo, arquitetura parcelas, 10 insights | ~5000 |
+| ~17:35 | Atualizou anatomy.md, memory.md, AI-HANDOVER.md | .wolf/ + docs/ | sessão 8 concluída | ~500 |
+
 ---
 
 **Session: 2026-06-16 (AllyHub — Reports Deep Dive / Sessão 7 final)**
@@ -331,3 +384,16 @@
 | 10:30 | Schema design (4 tables) shown in visual companion | .superpowers/brainstorm/.../design-schema.html | User approved ("sim ]") | ~2k |
 | 11:00 | UI mockup v1, v2, v3 (woofed shell) created iteratively | ui-mockup-hr*.html | v3 with Agency Hub sidebar + ABN Tax Invoice preview | ~8k |
 | 11:30 | Wrote full design spec | docs/superpowers/specs/2026-06-16-hr-time-management-design.md | Created; ready for writing-plans | ~4k |
+| 14:06 | Saved Horilla HR blueprint reference for future HR feature expansion | .wolf/cerebrum.md | logged | ~50 |
+| 14:30 | Task 3 HR module: wrote tests/hr-calculations.test.mjs (TDD RED), then lib/hr/calculations.ts (GREEN) | lib/hr/calculations.ts, tests/hr-calculations.test.mjs | 17/17 tests pass, committed 4a9f3e5 | ~3k |
+| 14:30 | Created lib/hr/queries.ts with all org-scoped query helpers; added HrInvoiceUpdate to types.ts | lib/hr/queries.ts, lib/hr/types.ts | tsc clean, committed | ~800 |
+| 14:34 | Added Clock icon + operationsNav + Operations section to sidebar | components/layout/AppShell.tsx | committed feat(hr) | ~300 |
+| 2026-06-16 | Task 8: Created WeekSummary.tsx — 7-day hours bar chart + status dots, using theme tokens | components/hr/WeekSummary.tsx | tsc clean, committed 2cceeab | ~800 |
+| 14:45 | fix timezone drift in WeekSummary getWeekDates() | components/hr/WeekSummary.tsx | committed b03b58d | ~400 |
+| 14:50 | Created HR dashboard page (Task 11) | app/[locale]/(protected)/hr/page.tsx | committed 90b7c67 | ~800 tokens |
+| 14:55 | Task 12: Created employee clock self-service page | app/[locale]/(protected)/hr/clock/page.tsx | tsc clean, committed c5b0423 | ~400 |
+| 14:51 | Created TaxInvoice.tsx — ABN-format print component (Task 10 HR module) | components/hr/TaxInvoice.tsx | committed 6108541 | ~800 |
+| 14:57 | Created HR invoices list page + GenerateInvoiceForm modal (Task 14) | app/[locale]/(protected)/hr/invoices/page.tsx, GenerateInvoiceForm.tsx | commit be590d8 | ~250 tokens |
+| 14:56 | Task 15: invoice print page + no-print on sidebar/header | app/[locale]/(protected)/hr/invoices/[id]/print/page.tsx, components/layout/AppShell.tsx | tsc clean, committed 02b31d0 | ~600 |
+
+| 15:45 | HR module complete — Tasks 1-16 done: DB migration, types, calculations (TDD), query helpers, server actions, sidebar nav, 4 components, 5 pages + 2 sub-components, print/PDF | lib/hr/, components/hr/, app/[locale]/(protected)/hr/ | ✅ build passing | ~2000 |
