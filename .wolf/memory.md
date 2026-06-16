@@ -3,8 +3,17 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+| 2026-06-16 | Employee Directory built: listEmployeesWithStats (parallel queries) in lib/hr/queries.ts; team/page.tsx (KPI bar + 3-col card grid, admin-only); "Equipe/Team" nav entry in AppShell.tsx (admin-only). Auth guard redirects non-admin. tsc clean. | lib/hr/queries.ts, app/[locale]/(protected)/hr/team/page.tsx, components/layout/AppShell.tsx | done |
+
+| 2026-06-16 | Criado docs/competitor-allyhub-blueprint.md: blueprint completo AllyHub→Movy por split (4→8+financeiro+estratégia) sintetizando 12 sessões de pesquisa competitiva | docs/competitor-allyhub-blueprint.md, .wolf/anatomy.md | blueprint criado, anatomy atualizado | ~3k tok |
+
+| 2026-06-16 | HR UI redesign: ClockWidget (CLOCKED IN pill, gold ring timer, radial glow) + HrDashboard (StatusBadge pill component, row hover, stacked summary footer, AddEntryModal polish) | components/hr/ClockWidget.tsx, components/hr/HrDashboard.tsx | build passes clean | ~1200 |
+| 2026-06-16 | Admin sem employee_profile agora vê botão "Criar meu perfil de funcionário": createOwnEmployeeProfileAction (upsertEmployee idempotente) + CreateEmployeeProfileButton client component; ao clicar, revalidatePath faz aparecer ClockWidget | actions.ts, components/hr/CreateEmployeeProfileButton.tsx, page.tsx | build passa | ~400 |
+| 2026-06-16 | Vercel failure diagnosed: Vercel MCP connected to "Admin Fyme's projects" team (0 projects) — actual deployment is on a different account via GitHub integration. Local build passes; issue is likely missing env vars NEXT_PUBLIC_SUPABASE_URL/ANON_KEY on Vercel | — | pending user action | ~200 |
+
 | 16:00 | Task 13: created timesheets admin page with status filters | app/[locale]/(protected)/hr/timesheets/page.tsx | committed e61f0be | ~8k |
 
+| 2026-06-16 | Separou entradas AllyHub do handover principal → docs/AI-HANDOVER-ALLYHUB.md (12 sessões). Main handover ficou com 1 linha de referência | AI-HANDOVER.md, AI-HANDOVER-ALLYHUB.md | feito | ~500 |
 | 2026-06-16 | AllyHub S52: catalogo Q2.0 completo — card Q502 total AU$1268 confirmado; catálogo Accommodations global GBP; hierarquia painel esquerdo; View Quotes bug freeze; portal aluno quote.allyhub.co AngularJS+PagSeguro | ALLY-BLUEPRINT.md | documentado | ~4000 |
 | 2026-06-16 | AllyHub S51: sistema edicao preco Quote 2.0 — modal Edit item (Item value + Discount, 2 niveis margem, confirmacao obrigatoria, icone coin) | ALLY-BLUEPRINT.md | documentado | ~3000 |
 
@@ -398,3 +407,9 @@
 | 14:56 | Task 15: invoice print page + no-print on sidebar/header | app/[locale]/(protected)/hr/invoices/[id]/print/page.tsx, components/layout/AppShell.tsx | tsc clean, committed 02b31d0 | ~600 |
 
 | 15:45 | HR module complete — Tasks 1-16 done: DB migration, types, calculations (TDD), query helpers, server actions, sidebar nav, 4 components, 5 pages + 2 sub-components, print/PDF | lib/hr/, components/hr/, app/[locale]/(protected)/hr/ | ✅ build passing | ~2000 |
+
+| 20:23 | SPLIT 4 complete: migration 012 applied to xpthmguzcbmndyyexfbt; types/supabase.ts regenerated; EditorStickyBar: BRL equiv + ExplainPanel (per-course breakdown); StudyPlanEditor: fxRate fetch + VersionHistory panel; VersionHistory.tsx created; saveVersionAction/listVersionsAction/restoreVersionAction/saveAsTemplateAction/listTemplatesAction added to actions.ts | EditorStickyBar.tsx, StudyPlanEditor.tsx, VersionHistory.tsx, actions.ts, types/supabase.ts | 64/64 tests + tsc clean | ~3500 tokens |
+
+| 09:00 | AI-HANDOVER.md updated with SPLIT 4 fatia C completion log (migration 012 + BRL/ExplainPanel + VersionHistory + 5 server actions). SPLIT 4 fully closed. Next = SPLIT 6B. | docs/AI-HANDOVER.md | handover logged | ~200 tokens |
+
+| 09:30 | SPLIT 6B: portfolio UI — actions.ts (9 server actions), portfolio/page.tsx, portfolio/[id]/page.tsx, PortfolioPage.tsx, InstitutionDetail.tsx (CoursesTab/PricesTab/RulesTab), AppShell.tsx nav entry (Building2/Portfólio) | app/[locale]/(protected)/portfolio/**, components/portfolio/**, AppShell.tsx | tsc clean + 64/64 tests | ~3000 tokens |

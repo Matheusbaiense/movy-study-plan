@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -1418,6 +1418,143 @@ export type Database = {
           },
           {
             foreignKeyName: "proposal_events_study_plan_id_fkey"
+            columns: ["study_plan_id"]
+            isOneToOne: false
+            referencedRelation: "study_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_templates: {
+        Row: {
+          applicant_type: string | null
+          created_at: string
+          created_by: string | null
+          data: Json
+          deleted_at: string | null
+          description: string | null
+          external_id: string | null
+          id: string
+          is_active: boolean
+          metadata: Json
+          name: string
+          org_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          applicant_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          deleted_at?: string | null
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          name: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          applicant_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          deleted_at?: string | null
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          name?: string
+          org_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_templates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_templates_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_versions: {
+        Row: {
+          computed: Json | null
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          label: string | null
+          org_id: string
+          reason: string
+          status: string | null
+          study_plan_id: string
+          version_number: number
+        }
+        Insert: {
+          computed?: Json | null
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          id?: string
+          label?: string | null
+          org_id?: string
+          reason?: string
+          status?: string | null
+          study_plan_id: string
+          version_number: number
+        }
+        Update: {
+          computed?: Json | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          label?: string | null
+          org_id?: string
+          reason?: string
+          status?: string | null
+          study_plan_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_versions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_versions_study_plan_id_fkey"
             columns: ["study_plan_id"]
             isOneToOne: false
             referencedRelation: "study_plans"

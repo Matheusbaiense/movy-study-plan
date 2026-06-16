@@ -7,6 +7,7 @@ import {
   getEmployeeByProfileId, getActiveClockEntry,
   listTimeEntries, listEmployeesWithNames, isHrAdmin,
 } from '@/lib/hr'
+import { CreateEmployeeProfileButton } from '@/components/hr/CreateEmployeeProfileButton'
 import { t, ink, font } from '@/lib/ui/theme'
 
 interface Props { params: Promise<{ locale: string }> }
@@ -110,8 +111,9 @@ export default async function HrPage({ params }: Props) {
                 {locale === 'pt' ? 'Modo Administrador' : 'Administrator Mode'}
               </div>
               {locale === 'pt'
-                ? 'Você não tem perfil de funcionário. Crie um para registrar suas próprias horas.'
-                : 'You have no employee profile. Create one to track your own hours.'}
+                ? 'Você ainda não tem um perfil de funcionário vinculado à sua conta.'
+                : "You don't have an employee profile linked to your account yet."}
+              <CreateEmployeeProfileButton locale={locale} />
             </div>
           )}
         </div>

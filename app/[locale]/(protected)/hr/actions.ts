@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
-  getEmployeeByProfileId, getActiveClockEntry,
+  getEmployeeByProfileId, getActiveClockEntry, upsertEmployee,
   clockIn as insertEntry, clockOut, updateEntryStatus, listRateRules,
   createInvoice, linkEntriesToInvoice, updateInvoiceStatus,
   listTimeEntries,
@@ -28,6 +28,25 @@ async function getActor() {
 
   if (!profile) throw new Error('Unauthenticated')
   return { supabase, profile }
+}
+
+export async function createOwnEmployeeProfileAction() {
+  const { supabase, profile } = await getActor()
+
+  const existing = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+  if (existing) {
+    revalidatePath('/hr')
+    return existing
+  }
+
+  const employee = await upsertEmployee(supabase, {
+    org_id: profile.org_id,
+    profile_id: profile.id,
+    hourly_rate_in_cents: 0,
+  })
+
+  revalidatePath('/hr')
+  return employee
 }
 
 export async function clockInAction(description?: string) {

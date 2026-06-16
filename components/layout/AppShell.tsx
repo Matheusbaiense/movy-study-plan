@@ -18,6 +18,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Clock,
+  Building2,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -134,6 +136,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const mainNav: NavEntry[] = [
     { href: `/${locale}/home`, icon: Home, label: 'Home' },
     { href: `/${locale}/study-plans`, icon: ClipboardList, label: locale === 'en' ? 'Proposals' : 'Propostas' },
+    { href: `/${locale}/portfolio`, icon: Building2, label: locale === 'en' ? 'Portfolio' : 'Portfólio' },
     { href: `/${locale}/financial`, icon: Calculator, label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
     { href: `/${locale}/cambio`, icon: ArrowLeftRight, label: locale === 'en' ? 'Exchange' : 'Câmbio' },
     { href: `/${locale}/wiki`, icon: BookText, label: locale === 'en' ? 'Knowledge' : 'Informações' },
@@ -142,6 +145,9 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
 
   const operationsNav: NavEntry[] = [
     { href: `/${locale}/hr`, icon: Clock, label: locale === 'pt' ? 'RH & Horas' : 'HR & Time' },
+    ...(isAdminOrAbove(profile.role)
+      ? [{ href: `/${locale}/hr/team`, icon: Users, label: locale === 'pt' ? 'Equipe' : 'Team' }]
+      : []),
   ]
 
   const settingsEntry: NavEntry | null = isAdminOrAbove(profile.role)

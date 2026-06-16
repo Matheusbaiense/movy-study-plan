@@ -74,6 +74,7 @@
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
+- [2026-06-16] **Pesquisa competitiva/espionagem vai em handover SEPARADO**, nunca no `AI-HANDOVER.md` principal. Criar `docs/AI-HANDOVER-ALLYHUB.md` (ou similar) para não poluir o log de desenvolvimento com sessões de pesquisa. O principal deve ter só uma linha de referência apontando para o arquivo separado.
 - [2026-06-11] Do not use `git clone --local` from the Google Drive workspace for validation; hardlink creation can fail. Use `git clone --no-local` or a normal copy outside Drive.
 - [2026-06-14] Do not use `color.purpleDeep` (or hardcoded hex) for TEXT — it renders dark-on-dark and is invisible in dark mode. Use `t.text` / theme tokens.
 - [2026-06-14] In PowerShell, `&&` is not a valid statement separator — use `;`. Quote paths with parentheses (e.g. `"app/[locale]/(protected)/..."`).
@@ -271,10 +272,40 @@ unicidade por org (nunca global), branding/config por org, naming woofed-shaped,
 hardcoded. **Documentada em:** `docs/PRODUCT-ROADMAP.md` §2 (P0), `docs/AI-HANDOVER.md` (Regras de Ouro,
 1º item), e User Preferences acima. P1/P10 e R1–R11 (convergência) são consequências deste P0.
 
+## Decisão — Banco de dados: Supabase hoje → VPS PostgreSQL futuro (2026-06-16)
+
+**Contexto:** Owner confirmou que o sistema hoje roda no Supabase (hosted), mas a intenção é migrar
+para PostgreSQL em VPS própria no futuro (quando escalar ou por custo/controle).
+
+**Regras para portabilidade (aplicar em TODO código SQL e data layer):**
+
+- **Standard SQL only:** usar apenas recursos do PostgreSQL puro. Nunca usar extensões ou funções
+  exclusivas do Supabase (ex.: `supabase_functions.*`, `graphql.*`, `realtime.*` direto em código).
+- **`auth.uid()` é Supabase-specific:** em RLS pode usar agora, mas manter um `current_user_id()`
+  wrapper no schema para que na migração apenas a função wrapper mude, não todas as políticas.
+- **Supabase Auth = camada substituível:** não acoplar lógica de negócio ao esquema `auth.*` diretamente.
+  Toda referência ao usuário passa por `profiles` (nossa tabela). Na migração, auth.users → outro sistema
+  (NextAuth, Clerk, custom) sem tocar regras de negócio.
+- **Migrations versionadas e idempotentes:** todo DDL em `supabase/migrations/` com número sequencial.
+  Nenhuma alteração de schema fora de migration. Na migração para VPS, rodar as migrations em sequência
+  deve recriar o schema 100% identico.
+- **Storage = referência por path, não por URL Supabase:** guardar o path relativo do arquivo, nunca
+  a URL `storage.googleapis.com/...` do Supabase hardcoded no banco. O bucket pode mudar para S3/MinIO.
+- **data layer (`lib/hr/queries.ts`, `lib/crm/`, etc.) usa apenas o Supabase JS client como adaptador.**
+  A lógica de negócio não chama `supabase.rpc()` sem wrapper. Na migração, o client é trocado
+  (para `pg`/Prisma/Drizzle) e os wrappers absorvem a mudança sem refatorar actions/components.
+- **RLS policies continuam válidas no PostgreSQL padrão** (é uma feature nativa do PG, não do Supabase).
+  A migração mantém as políticas — só muda quem define o `current_user` (role do PG em vez de JWT).
+- **Não usar `pg_graphql`, `pgvector` (se não migrar junto), `pgsodium`, ou `vault`** sem avaliar
+  se o VPS futuro terá essas extensões. Se usar, documentar dependência explicitamente.
+
+**Resumo:** escrever como se o Supabase fosse só um host conveniente de PostgreSQL + auth.
+O código deve ser agnóstico ao host — só o client de conexão muda na migração.
+
 ## Future Blueprint References
 
-- **Horilla HR** (2026-06-16): https://github.com/horilla/horilla-hr � open-source Django HR platform.
+- **Horilla HR** (2026-06-16): https://github.com/horilla/horilla-hr � open-source Django HR platform.
   Owner wants this as the **feature reference blueprint** for future HR module expansions (leave management,
-  payroll, recruitment, performance reviews, etc.). Do NOT implement now � use as inspiration when planning
+  payroll, recruitment, performance reviews, etc.). Do NOT implement now � use as inspiration when planning
   new HR features. Check this repo before brainstorming any new HR capability.
 

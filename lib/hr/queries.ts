@@ -179,6 +179,85 @@ export async function listEmployeesWithNames(
   }))
 }
 
+export interface EmployeeWithStats {
+  id: string
+  org_id: string
+  profile_id: string | null
+  hourly_rate_in_cents: number
+  metadata: unknown
+  created_at: string
+  full_name: string
+  email: string
+  role: string
+  hours_this_month: number
+  pending_count: number
+  approved_count: number
+  is_clocked_in: boolean
+}
+
+export async function listEmployeesWithStats(
+  supabase: HrClient,
+  orgId: string,
+): Promise<EmployeeWithStats[]> {
+  const [employees, profilesRes, entriesRes] = await Promise.all([
+    supabase
+      .from('employee_profiles')
+      .select('id, org_id, profile_id, hourly_rate_in_cents, metadata, created_at')
+      .eq('org_id', orgId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true }),
+
+    supabase
+      .from('profiles')
+      .select('id, full_name, email, role')
+      .eq('org_id', orgId),
+
+    (() => {
+      const now = new Date()
+      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+      return supabase
+        .from('time_entries')
+        .select('employee_id, clock_in, clock_out, status')
+        .eq('org_id', orgId)
+        .is('deleted_at', null)
+        .gte('clock_in', monthStart)
+    })(),
+  ])
+
+  if (employees.error) throw new Error(employees.error.message)
+
+  const profileMap = Object.fromEntries(
+    (profilesRes.data ?? []).map(p => [p.id, p])
+  )
+
+  const entriesByEmployee: Record<string, { hours: number; pending: number; approved: number; hasClockedIn: boolean }> = {}
+  for (const e of (entriesRes.data ?? [])) {
+    if (!entriesByEmployee[e.employee_id]) {
+      entriesByEmployee[e.employee_id] = { hours: 0, pending: 0, approved: 0, hasClockedIn: false }
+    }
+    const s = entriesByEmployee[e.employee_id]
+    if (!e.clock_out) { s.hasClockedIn = true; continue }
+    const h = (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3_600_000
+    if (e.status === 'approved') { s.hours += h; s.approved++ }
+    if (e.status === 'pending')  s.pending++
+  }
+
+  return (employees.data ?? []).map(emp => {
+    const p = emp.profile_id ? (profileMap[emp.profile_id] ?? null) : null
+    const s = entriesByEmployee[emp.id] ?? { hours: 0, pending: 0, approved: 0, hasClockedIn: false }
+    return {
+      ...emp,
+      full_name: p?.full_name ?? '',
+      email: p?.email ?? '',
+      role: p?.role ?? 'employee',
+      hours_this_month: Math.round(s.hours * 10) / 10,
+      pending_count: s.pending,
+      approved_count: s.approved,
+      is_clocked_in: s.hasClockedIn,
+    }
+  })
+}
+
 // ── Rate Rules ────────────────────────────────────────────────────────────────
 
 export async function listRateRules(

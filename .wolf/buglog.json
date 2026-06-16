@@ -2,6 +2,18 @@
   "version": 1,
   "bugs": [
     {
+      "id": "bug-022",
+      "timestamp": "2026-06-16T00:00:00.000Z",
+      "error_message": "Admin/super_admin sem employee_profile não conseguia bater ponto nem lançar horas — via mostrava 'Modo Administrador' com mensagem estática",
+      "file": "app/[locale]/(protected)/hr/page.tsx, app/[locale]/(protected)/hr/actions.ts, components/hr/CreateEmployeeProfileButton.tsx",
+      "root_cause": "page.tsx não renderizava ClockWidget quando employee === null, mesmo para admins; não havia mecanismo para criar o próprio employee_profile",
+      "fix": "Adicionado createOwnEmployeeProfileAction (chama upsertEmployee idempotente + revalidatePath) e CreateEmployeeProfileButton client component exibido no card 'Modo Administrador'",
+      "tags": ["hr", "admin", "employee-profile", "clock-widget", "server-action"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T00:00:00.000Z"
+    },
+    {
       "id": "bug-001",
       "timestamp": "2026-06-11T23:44:32+08:00",
       "error_message": "Documented brand bugs remained before Feature A: residual Bricolage font references, FYME teal #057570 in knowledge seed data, and unaccented Manha timetable label.",

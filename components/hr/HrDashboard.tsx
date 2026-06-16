@@ -38,10 +38,28 @@ function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  pending:  { label: 'Pending',  color: '#92400e', bg: '#fef3c7' },
-  approved: { label: 'Approved', color: '#166534', bg: '#dcfce7' },
-  rejected: { label: 'Rejected', color: '#991b1b', bg: '#fee2e2' },
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+const STATUS_CFG: Record<string, { label: string; dot: string; text: string; bg: string; border: string }> = {
+  pending:  { label: 'Pending',  dot: '#f59e0b', text: '#92400e', bg: '#fffbeb', border: '#fde68a' },
+  approved: { label: 'Approved', dot: '#22c55e', text: '#166534', bg: '#f0fdf4', border: '#bbf7d0' },
+  rejected: { label: 'Rejected', dot: '#ef4444', text: '#991b1b', bg: '#fef2f2', border: '#fecaca' },
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CFG[status] ?? STATUS_CFG.pending
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '3px 9px', borderRadius: 999,
+      background: cfg.bg, border: `1px solid ${cfg.border}`,
+      fontSize: 11, fontWeight: 600, color: cfg.text,
+      whiteSpace: 'nowrap',
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.dot, flexShrink: 0 }} />
+      {cfg.label}
+    </span>
+  )
 }
 
 // ── AddEntryModal ─────────────────────────────────────────────────────────────
@@ -62,12 +80,13 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: `1px solid ${ink(0.15)}`, background: 'var(--bg)',
+    border: `1px solid ${ink(0.14)}`,
+    background: 'var(--bg)',
     color: t.text, fontSize: 14, outline: 'none', boxSizing: 'border-box',
   }
   const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 600, color: t.textMuted,
-    letterSpacing: '0.05em', textTransform: 'uppercase', display: 'block', marginBottom: 5,
+    fontSize: 11, fontWeight: 700, color: t.textMuted,
+    letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 5,
   }
 
   function submit() {
@@ -84,25 +103,30 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div style={{
-        background: 'var(--surface)', borderRadius: 16, padding: 28,
+        background: 'var(--surface)', borderRadius: 18, padding: 28,
         width: 420, maxWidth: '90vw',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-        border: `1px solid ${ink(0.12)}`,
+        boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
+        border: `1px solid ${ink(0.1)}`,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <h2 style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.text, margin: 0 }}>
-            {pt ? 'Lançar Horas' : 'Log Hours'}
-          </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 4 }}>
-            <X size={18} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+          <div>
+            <h2 style={{ fontFamily: font.display, fontSize: 18, fontWeight: 700, color: t.text, margin: 0 }}>
+              {pt ? 'Lançar Horas' : 'Log Hours'}
+            </h2>
+            <p style={{ fontSize: 12, color: t.textMuted, margin: '3px 0 0' }}>
+              {pt ? 'Registro de ponto manual' : 'Manual time entry'}
+            </p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 6, borderRadius: 8, lineHeight: 0 }}>
+            <X size={16} />
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={labelStyle}>{pt ? 'Data' : 'Date'}</label>
             <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
@@ -121,6 +145,7 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
             <label style={labelStyle}>{pt ? 'Descrição (opcional)' : 'Description (optional)'}</label>
             <input
               type="text" value={desc} onChange={e => setDesc(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') submit() }}
               placeholder={pt ? 'Ex: Reunião com cliente' : 'e.g. Client meeting'}
               style={inputStyle}
             />
@@ -128,15 +153,15 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
         </div>
 
         {error && (
-          <div style={{ marginTop: 12, padding: '8px 12px', background: '#fee2e2', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
+          <div style={{ marginTop: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
             {error}
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 10, marginTop: 22, justifyContent: 'flex-end' }}>
           <button
             onClick={onClose}
-            style={{ padding: '8px 16px', borderRadius: 8, border: `1px solid ${ink(0.15)}`, background: 'none', color: t.text, cursor: 'pointer', fontSize: 14 }}
+            style={{ padding: '9px 18px', borderRadius: 9, border: `1px solid ${ink(0.14)}`, background: 'none', color: t.text, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}
           >
             {pt ? 'Cancelar' : 'Cancel'}
           </button>
@@ -144,10 +169,10 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
             onClick={submit}
             disabled={isPending}
             style={{
-              padding: '8px 20px', borderRadius: 8, border: 'none',
+              padding: '9px 22px', borderRadius: 9, border: 'none',
               background: color.purple, color: '#fff',
               cursor: isPending ? 'not-allowed' : 'pointer',
-              fontSize: 14, fontWeight: 600, opacity: isPending ? 0.7 : 1,
+              fontSize: 13, fontWeight: 600, opacity: isPending ? 0.7 : 1,
             }}
           >
             {isPending ? '...' : (pt ? 'Salvar' : 'Save')}
@@ -177,6 +202,7 @@ export function HrDashboard({
 }: HrDashboardProps) {
   const [isPending, startTransition] = useTransition()
   const [showAdd, setShowAdd] = useState(false)
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const pt = locale === 'pt'
 
   function approve(id: string) {
@@ -202,57 +228,61 @@ export function HrDashboard({
   const pendingCount = entries.filter(e => e.status === 'pending').length
   const approvedTotalCents = Math.round(approvedHours * hourlyRateCents)
 
-  // ── tab nav styles ─────────────────────────────────────────────────────────
-  const tabActive: React.CSSProperties = {
-    padding: '14px 16px', fontSize: 14, fontWeight: 600, color: t.text,
-    borderBottom: `2px solid ${color.purple}`, marginBottom: -1,
-    textDecoration: 'none', display: 'inline-block',
-  }
-  const tabInactive: React.CSSProperties = {
-    padding: '14px 16px', fontSize: 14, color: t.textMuted,
+  // ── tab styles ─────────────────────────────────────────────────────────────
+  const tabBase: React.CSSProperties = {
+    padding: '13px 16px', fontSize: 13, fontWeight: 500,
     borderBottom: '2px solid transparent', marginBottom: -1,
-    textDecoration: 'none', display: 'inline-block',
+    textDecoration: 'none', display: 'inline-block', transition: 'color 0.15s',
+    whiteSpace: 'nowrap',
   }
 
   return (
     <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 16, overflow: 'hidden' }}>
 
       {/* Tab bar */}
-      <div style={{ borderBottom: `1px solid ${ink(0.1)}`, padding: '0 24px', display: 'flex', gap: 2 }}>
-        <span style={tabActive}>{pt ? 'Registro de Horas' : 'Timesheet'}</span>
-        <a href={`/${locale}/hr/invoices`} style={tabInactive}>{pt ? 'Faturas' : 'Invoices'}</a>
+      <div style={{ borderBottom: `1px solid ${ink(0.08)}`, padding: '0 20px', display: 'flex', gap: 2 }}>
+        <span style={{ ...tabBase, color: t.text, fontWeight: 600, borderBottomColor: color.purple }}>
+          {pt ? 'Registro de Horas' : 'Timesheet'}
+        </span>
+        <a href={`/${locale}/hr/invoices`} style={{ ...tabBase, color: t.textMuted }}>
+          {pt ? 'Faturas' : 'Invoices'}
+        </a>
         {isAdmin && (
-          <a href={`/${locale}/hr/timesheets`} style={tabInactive}>
+          <a href={`/${locale}/hr/timesheets`} style={{ ...tabBase, color: t.textMuted }}>
             {pt ? 'Todos os Registros' : 'All Timesheets'}
           </a>
         )}
       </div>
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: '20px 24px' }}>
+
         {/* Week header + actions */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 700, color: t.text }}>
+            <div style={{ fontFamily: font.display, fontSize: 17, fontWeight: 700, color: t.text, letterSpacing: '-0.01em' }}>
               {pt ? 'Semana de' : 'Week of'} {weekLabel}
             </div>
-            <div style={{ fontSize: 13, color: t.textMuted, marginTop: 3 }}>
-              {entries.length} {pt ? 'registros' : 'entries'}
-              {totalWithLive > 0 && ` · ${formatHM(totalWithLive)}`}
-              {pendingCount > 0 && ` · ${pendingCount} ${pt ? 'pendentes' : 'pending approval'}`}
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3, display: 'flex', gap: 10 }}>
+              <span>{entries.length} {pt ? 'registros' : 'entries'}</span>
+              {totalWithLive > 0 && <span>·  {formatHM(totalWithLive)} {pt ? 'total' : 'total'}</span>}
+              {pendingCount > 0 && (
+                <span style={{ color: '#92400e' }}>· {pendingCount} {pt ? 'pendentes' : 'pending'}</span>
+              )}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
             {employee && (
               <button
                 onClick={() => setShowAdd(true)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '8px 14px', borderRadius: 8,
-                  border: `1px solid ${ink(0.2)}`, background: 'none',
+                  padding: '7px 14px', borderRadius: 8,
+                  border: `1px solid ${ink(0.18)}`, background: 'none',
                   color: t.text, cursor: 'pointer', fontSize: 13, fontWeight: 500,
                 }}
               >
-                <Plus size={14} />
+                <Plus size={13} />
                 {pt ? 'Lançar Horas' : 'Add Entry'}
               </button>
             )}
@@ -261,12 +291,13 @@ export function HrDashboard({
                 href={`/${locale}/hr/invoices`}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '8px 16px', borderRadius: 8,
+                  padding: '7px 16px', borderRadius: 8,
                   background: color.purple, color: '#fff',
                   fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <FileText size={14} />
+                <FileText size={13} />
                 {pt ? 'Gerar Fatura' : 'Generate Invoice'} →
               </a>
             )}
@@ -275,14 +306,15 @@ export function HrDashboard({
 
         {/* Table */}
         {entries.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: t.textMuted, fontSize: 14 }}>
+          <div style={{ textAlign: 'center', padding: '52px 0', color: t.textMuted, fontSize: 14 }}>
+            <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
             {pt ? 'Nenhum registro esta semana.' : 'No entries this week.'}
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr style={{ borderBottom: `1px solid ${ink(0.1)}` }}>
+                <tr>
                   {[
                     ...(isAdmin ? [pt ? 'Funcionário' : 'Employee'] : []),
                     pt ? 'Data' : 'Date',
@@ -291,13 +323,13 @@ export function HrDashboard({
                     pt ? 'Horas' : 'Hours',
                     pt ? 'Valor AU$' : 'Amount AU$',
                     'Status',
-                    pt ? 'Ações' : 'Actions',
-                  ].map((h) => (
-                    <th key={h} style={{
-                      padding: '8px 12px', textAlign: 'left',
+                    '',
+                  ].map((h, i) => (
+                    <th key={i} style={{
+                      padding: '6px 12px 10px', textAlign: 'left',
                       fontWeight: 600, color: t.textMuted,
-                      fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase',
-                      whiteSpace: 'nowrap',
+                      fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+                      whiteSpace: 'nowrap', borderBottom: `1px solid ${ink(0.08)}`,
                     }}>
                       {h}
                     </th>
@@ -311,63 +343,68 @@ export function HrDashboard({
                     ? calculateHours(new Date(e.clock_in), new Date())
                     : e.clock_out ? calculateHours(new Date(e.clock_in), new Date(e.clock_out)) : null
                   const amount = hours !== null ? Math.round(hours * hourlyRateCents) : null
-                  const badge = STATUS_STYLES[e.status] ?? STATUS_STYLES.pending
+                  const isHovered = hoveredRow === e.id
 
                   return (
-                    <tr key={e.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
+                    <tr
+                      key={e.id}
+                      onMouseEnter={() => setHoveredRow(e.id)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                      style={{
+                        borderBottom: `1px solid ${ink(0.05)}`,
+                        background: isHovered ? ink(0.03) : 'transparent',
+                        transition: 'background 0.1s ease',
+                      }}
+                    >
                       {isAdmin && (
-                        <td style={{ padding: '10px 12px', color: t.textMuted }}>
+                        <td style={{ padding: '11px 12px', color: t.textMuted, fontSize: 12 }}>
                           {employeeNameMap[e.employee_id] ?? e.employee_id.slice(0, 8)}
                         </td>
                       )}
-                      <td style={{ padding: '10px 12px', color: t.text, fontWeight: isLive ? 600 : 400, whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '11px 12px', color: t.text, fontWeight: isLive ? 600 : 400, whiteSpace: 'nowrap' }}>
                         {isLive && (
-                          <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#4ade80', marginRight: 6, verticalAlign: 'middle' }} />
+                          <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#4ade80', marginRight: 7, verticalAlign: 'middle', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }} />
                         )}
                         {formatEntryDate(e.clock_in)}
                       </td>
-                      <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
+                      <td style={{ padding: '11px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
                         {formatTime(e.clock_in)}
                       </td>
-                      <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.textMuted }}>
-                        {isLive
-                          ? <span style={{ color: '#4ade80', fontWeight: 600 }}>LIVE</span>
-                          : formatTime(e.clock_out!)}
+                      <td style={{ padding: '11px 12px', fontVariantNumeric: 'tabular-nums', color: isLive ? '#22c55e' : t.textMuted, fontWeight: isLive ? 600 : 400 }}>
+                        {isLive ? 'LIVE' : formatTime(e.clock_out!)}
                       </td>
-                      <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
+                      <td style={{ padding: '11px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
                         {hours !== null ? formatHM(hours) : '—'}
                       </td>
-                      <td style={{ padding: '10px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
+                      <td style={{ padding: '11px 12px', fontVariantNumeric: 'tabular-nums', color: t.text }}>
                         {amount !== null ? formatAUD(amount) : '—'}
                       </td>
-                      <td style={{ padding: '10px 12px' }}>
+                      <td style={{ padding: '11px 12px' }}>
                         {isLive ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#3b82f6', fontSize: 12, fontWeight: 600 }}>
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#3b82f6', fontSize: 11, fontWeight: 600 }}>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />
                             {pt ? 'Em andamento' : 'In progress'}
                           </span>
                         ) : (
-                          <span style={{
-                            display: 'inline-block', padding: '2px 8px', borderRadius: 20,
-                            fontSize: 11, fontWeight: 600,
-                            color: badge.color, background: badge.bg,
-                          }}>
-                            {badge.label}
-                          </span>
+                          <StatusBadge status={e.status ?? 'pending'} />
                         )}
                       </td>
-                      <td style={{ padding: '10px 12px' }}>
+                      <td style={{ padding: '11px 12px' }}>
                         {e.status === 'pending' && !isLive && isAdmin && (
-                          <div style={{ display: 'flex', gap: 6 }}>
-                            <button onClick={() => approve(e.id)} disabled={isPending}
-                              aria-label="Approve"
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#16a34a' }}>
-                              <CheckCircle size={16} />
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            <button
+                              onClick={() => approve(e.id)} disabled={isPending}
+                              title={pt ? 'Aprovar' : 'Approve'}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 5px', borderRadius: 6, color: '#16a34a', lineHeight: 0 }}
+                            >
+                              <CheckCircle size={15} />
                             </button>
-                            <button onClick={() => reject(e.id)} disabled={isPending}
-                              aria-label="Reject"
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#dc2626' }}>
-                              <XCircle size={16} />
+                            <button
+                              onClick={() => reject(e.id)} disabled={isPending}
+                              title={pt ? 'Rejeitar' : 'Reject'}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 5px', borderRadius: 6, color: '#dc2626', lineHeight: 0 }}
+                            >
+                              <XCircle size={15} />
                             </button>
                           </div>
                         )}
@@ -384,25 +421,39 @@ export function HrDashboard({
         {entries.length > 0 && (
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginTop: 16, paddingTop: 16, borderTop: `1px solid ${ink(0.08)}`,
-            fontSize: 13, color: t.textMuted, flexWrap: 'wrap', gap: 8,
+            marginTop: 16, paddingTop: 14,
+            borderTop: `1px solid ${ink(0.07)}`,
+            flexWrap: 'wrap', gap: 12,
           }}>
-            <div style={{ display: 'flex', gap: 20 }}>
-              <span>
-                {pt ? 'Aprovado:' : 'Approved:'}{' '}
-                <strong style={{ color: '#16a34a' }}>{formatHM(approvedHours)}</strong>
-              </span>
-              {pendingHours > 0 && (
-                <span>
-                  {pt ? 'Pendente:' : 'Pending:'}{' '}
-                  <strong style={{ color: '#92400e' }}>{formatHM(pendingHours)}</strong>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: t.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                  {pt ? 'Aprovado' : 'Approved'}
                 </span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#16a34a', fontVariantNumeric: 'tabular-nums' }}>
+                  {formatHM(approvedHours)}
+                </span>
+              </div>
+              {pendingHours > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: t.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                    {pt ? 'Pendente' : 'Pending'}
+                  </span>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: '#d97706', fontVariantNumeric: 'tabular-nums' }}>
+                    {formatHM(pendingHours)}
+                  </span>
+                </div>
               )}
             </div>
             {approvedTotalCents > 0 && (
-              <span style={{ fontWeight: 700, color: t.text }}>
-                {pt ? 'Total aprovado:' : 'Approved total:'} {formatAUD(approvedTotalCents)}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'right' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: t.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                  {pt ? 'Total Aprovado' : 'Approved Total'}
+                </span>
+                <span style={{ fontSize: 17, fontWeight: 800, color: t.text, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
+                  {formatAUD(approvedTotalCents)}
+                </span>
+              </div>
             )}
           </div>
         )}
