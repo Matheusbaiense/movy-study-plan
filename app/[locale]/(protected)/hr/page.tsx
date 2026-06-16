@@ -16,15 +16,15 @@ export default async function HrPage({ params }: Props) {
   const { locale } = await params
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(`/${locale}/login`)
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) redirect(`/${locale}/login`)
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('id, org_id, role')
     .eq('id', user.id)
     .single()
-  if (!profile) redirect(`/${locale}/login`)
+  if (profileError || !profile) redirect(`/${locale}/login`)
 
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   const activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null

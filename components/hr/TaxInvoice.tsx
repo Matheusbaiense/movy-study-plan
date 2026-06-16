@@ -33,6 +33,7 @@ export function TaxInvoice({ data, locale = 'en' }: TaxInvoiceProps) {
       <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24, gap: 12 }}>
         <button
           onClick={() => window.print()}
+          aria-label={locale === 'pt' ? 'Imprimir / Salvar PDF' : 'Print / Save as PDF'}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
             background: '#4B1A77', color: '#fff',
@@ -40,7 +41,7 @@ export function TaxInvoice({ data, locale = 'en' }: TaxInvoiceProps) {
             fontSize: 14, fontWeight: 600, cursor: 'pointer',
           }}
         >
-          <Printer size={16} />
+          <Printer size={16} aria-hidden="true" />
           {locale === 'pt' ? 'Imprimir / Salvar PDF' : 'Print / Save as PDF'}
         </button>
       </div>
