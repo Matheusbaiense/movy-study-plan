@@ -28,9 +28,8 @@ export default async function HrPage({ params }: Props) {
   const isAdmin = isHrAdmin(profile.role)
   let employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
 
-  // Admins who don't have an employee profile yet: auto-create one silently.
-  // Regular employees see a "contact admin" message instead (admin onboards them).
-  if (!employee && isAdmin) {
+  // Everyone in the system is an employee — auto-create profile on first visit.
+  if (!employee) {
     try {
       employee = await upsertEmployee(supabase, {
         org_id: profile.org_id,
@@ -38,24 +37,8 @@ export default async function HrPage({ params }: Props) {
         hourly_rate_in_cents: 0,
       })
     } catch {
-      // If auto-create fails (e.g. RLS edge case), fall through — page still renders
+      // RLS edge case — fall through, page renders without clock widget
     }
-  }
-
-  if (!employee && !isAdmin) {
-    return (
-      <div style={{ padding: '48px 32px', maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ fontSize: 32, marginBottom: 16 }}>🕐</div>
-        <div style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.text, marginBottom: 8 }}>
-          {locale === 'pt' ? 'Sem perfil de funcionário' : 'No employee profile'}
-        </div>
-        <div style={{ fontSize: 14, color: t.textMuted }}>
-          {locale === 'pt'
-            ? 'Fale com o administrador para criar seu perfil e começar a registrar horas.'
-            : 'Contact your administrator to create your employee profile and start tracking hours.'}
-        </div>
-      </div>
-    )
   }
 
   const activeEntry = employee ? await getActiveClockEntry(supabase, employee.id) : null
