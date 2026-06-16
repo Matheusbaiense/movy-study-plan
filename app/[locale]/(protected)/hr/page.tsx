@@ -28,8 +28,14 @@ export default async function HrPage({ params }: Props) {
   const isAdmin = isHrAdmin(profile.role)
   let employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
 
-  // Everyone in the system is an employee — auto-create profile on first visit.
-  if (!employee) {
+  // Auto-create employee profile for internal team roles.
+  // Clients (future role) must NOT get an employee profile automatically.
+  // Internal team roles: reader, editor, admin, super_admin.
+  // Future client role must NOT be added here.
+  const TEAM_ROLES = ['reader', 'editor', 'admin', 'super_admin'] as const
+  const isTeamMember = TEAM_ROLES.includes(profile.role as typeof TEAM_ROLES[number])
+
+  if (!employee && isTeamMember) {
     try {
       employee = await upsertEmployee(supabase, {
         org_id: profile.org_id,
