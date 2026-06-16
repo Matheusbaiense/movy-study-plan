@@ -29,6 +29,7 @@ export function ClockWidget({ activeEntry, locale }: ClockWidgetProps) {
   const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [clockOutMsg, setClockOutMsg] = useState<string | null>(null)
 
   const isClockedIn = activeEntry !== null
   const pt = locale === 'pt'
@@ -57,9 +58,20 @@ export function ClockWidget({ activeEntry, locale }: ClockWidgetProps) {
   function handleClockOut() {
     if (!activeEntry) return
     setError(null)
+    const sessionStart = new Date(activeEntry.clock_in).getTime()
     startTransition(async () => {
       try {
         await clockOutAction(activeEntry.id)
+        const durationMs = Date.now() - sessionStart
+        const totalMin = Math.round(durationMs / 60000)
+        const h = Math.floor(totalMin / 60)
+        const m = totalMin % 60
+        const durationStr = h > 0 ? `${h}h ${m}min` : `${m}min`
+        const msg = pt
+          ? `Sessão encerrada · ${durationStr} registrados`
+          : `Session ended · ${durationStr} logged`
+        setClockOutMsg(msg)
+        setTimeout(() => setClockOutMsg(null), 4000)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Error')
       }
@@ -203,6 +215,16 @@ export function ClockWidget({ activeEntry, locale }: ClockWidgetProps) {
 
       {error && (
         <div style={{ marginTop: 12, fontSize: 12, color: '#fca5a5', textAlign: 'center' }}>{error}</div>
+      )}
+
+      {clockOutMsg && (
+        <div style={{
+          marginTop: 12, padding: '8px 12px', borderRadius: 8,
+          background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)',
+          fontSize: 12, color: '#4ade80', textAlign: 'center', fontWeight: 600,
+        }}>
+          {clockOutMsg}
+        </div>
       )}
 
       <style>{`
