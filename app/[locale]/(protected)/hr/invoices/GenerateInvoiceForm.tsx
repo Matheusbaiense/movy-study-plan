@@ -13,7 +13,7 @@ interface Props {
   orgId: string
 }
 
-export function GenerateInvoiceForm({ employees, locale }: Props) {
+export function GenerateInvoiceForm({ employees, locale, orgId: _orgId }: Props) {
   const [open, setOpen] = useState(false)
   const [employeeId, setEmployeeId] = useState('')
   const [periodStart, setPeriodStart] = useState('')
