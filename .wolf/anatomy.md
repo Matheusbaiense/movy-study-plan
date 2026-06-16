@@ -16,6 +16,10 @@
 - **OptionsManager.tsx** — `'use client'` AllyHub-style options tabs (SPLIT 4 fatia B). Opção 1 = primary mix; 2..5 = `plan.options[]`. Tabs + rename/duplicate/remove/recommended + side-by-side comparison strip (Total/Fechamento/Saldo via computeProposal). Props `{ plan, nationality, onChange }`. Rendered in Revisão step. Pure helpers in `lib/study-plans/options.ts`.
 - **StudyPlanProposal.tsx** — client proposal/PDF render. SPLIT 4 fatia B2: when `data.options?.length`, renders `OptionsComparison` (options side by side, recommended highlighted) after the summary strip; otherwise unchanged single-mix render.
 
+## docs/superpowers/specs/
+
+- **2026-06-16-hr-time-management-design.md** — Full design spec for HR & Time Management module (Agency Hub › Operations). Covers: schema (4 tables), nav architecture, business logic (rate calc, day_type detection, invoice periods), UI design, TaxInvoice ABN-format PDF (window.print()), access control, data flow, implementation order.
+
 ## ./
 
 
@@ -121,6 +125,16 @@
 
 ## data/
 
+
+## .wolf/allyhub-research/
+
+- `ALLY-BLUEPRINT.md` — Blueprint competitivo completo do AllyHub (concorrente SaaS CRM para agências de intercâmbio). Seções 1–48: identidade empresa, planos/preços, termos, tech stack (AngularJS 1.x + React iframe + Sellead backend), mapa de rotas, pipeline de alunos, perfil (5 abas), formulário (40+ campos), Quote 2.0 deep dive, catálogo AU 27 programas, revenue model AU$150/quote, simulação Perth (Lexis 1 semana AU$1,318), comissão BRL (R$789.76/quote), Finish = PUT /draft/{id}, links externos (/quote-detail/ vs /quote-online/), fluxo aluno (PT-BR, checkout, 2-12x), tracking multinível, 14+ endpoints. S45: Settings completo. S46: Builders (Quote Online/PDF/Email Template/Document Template). S47: Dashboard completo — 6 KPI cards, leaderboard, conversion rate, tasks calendar, last interactions; arquitetura 3-sided (type 1=agência/2=escola/3=rede); mapa moduleType (3=free/7=financial/11=marketing/15=full/16=automations); nav completo com 35+ itens e gates; 8 roles. S48 (NOVA): Reports & Commissions — 10 páginas documentadas: Performance Report (10 widgets), Funnel Performance (redirect hardcoded), General Behavior (auditoria de equipe), Sales/Cancellations (11 filtros cada), Receivable/Bills/Credits (financeiro gated por nav), Quotes List (CRM + #Q502 AU$1,318), Earnings (12 filtros por tipo de item/parceiro). Gate financeiro só no nav — rotas acessíveis por URL direta. (~3600+ lines, ~62k tok)
+
+## .wolf/allyhub-research/api-responses/
+
+- `draft-angular-load.network-response` — GET /draft?quote_id=1644823&take=1&where={} (chamada do Angular parent). Prova que draft retorna apenas metadados (id, student_id, quotes list) sem cursos/fees — playground é efêmero.
+- `draft-q501-current.network-response` — GET /draft?quote_id=1644823&myTest=1. Idêntico ao acima; confirma que mesmo com parâmetros diferentes o servidor não retorna dados do playground.
+- `quote-1644823-current.network-response` — GET /quote/1644823?withBusiness=true. Quote completo em estado draft: bill:[], courses:[], fees:[], converted_value:1005. Confirma que bill só é preenchido após Finish bem-sucedido.
 
 ## docs/
 

@@ -3,6 +3,102 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+---
+
+**Session: 2026-06-16 (AllyHub — Reports Deep Dive / Sessão 7 final)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~16:00 | Navegou todas as 10 páginas de Reports & Commissions | browser | Performance/Behavior/Sales/Cancellations/Receivable/Bills/Credits/Quotes/Earnings capturados | ~4000 |
+| ~16:10 | Confirmou Funnel Performance redireciona para /dashboard — whitelist hardcoded | browser | gate confirmado: account.id == 10 \|\| 2015 | ~200 |
+| ~16:15 | Confirmou gate financeiro só no nav — rotas /receive /pay /credits acessíveis por URL | browser | security by obscurity documentado | ~200 |
+| ~16:20 | Documentou Seção 48 (A-M) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | 10 páginas, filtros completos, 10 insights estratégicos | ~4000 |
+| ~16:25 | Atualizou anatomy.md, memory.md, AI-HANDOVER.md | .wolf/ + docs/ | sessão 7 concluída | ~400 |
+
+---
+
+**Session: 2026-06-16 (AllyHub — Dashboard Deep Dive / Sessão 7 cont.)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~15:00 | Navegou para /dashboard — capturou layout via screenshot | browser | 6 KPI cards, leaderboard, conversion rate, tasks, last interactions | ~1500 |
+| ~15:05 | Extraiu ng-show/ng-if — descobriu arquitetura type 1/2/3 e moduleType tiers | browser DOM | 35+ nav items, 8 roles, gating completo | ~2000 |
+| ~15:10 | Leu Angular scope (App.user) — confirmou moduleType=3, type=1, allyPlus=1, useNewMenu=2 | browser JS | perfil conta Movy confirmado | ~400 |
+| ~15:15 | Documentou Seção 47 (A-H) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | dashboard widgets, type architecture, nav completo, 10 insights | ~3500 |
+| ~15:20 | Atualizou anatomy.md, memory.md | .wolf/ | sessão concluída | ~300 |
+
+---
+
+**Session: 2026-06-16 (AllyHub — Builders Deep Dive / Sessão 7)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| ~14:00 | Document Template modal aberto — capturou todos 83 vars via querySelectorAll('[draggable="true"]') | browser | 4 seções, labels extraídos | ~2000 |
+| ~14:05 | Injetou sample contract HTML no CKEditor via iframe.contentDocument.body | browser | template renderizado com vars azuis sublinhadas | ~800 |
+| ~14:10 | Capturou labels completos das seções Quote (30 vars) e General (3 vars) | browser | labels confirmados | ~600 |
+| ~14:15 | Fechou modal Document Template, testou navegação Quote Preferences | browser | modal fechado OK, nav Quote Prefs via LI click | ~300 |
+| ~14:20 | Documentou Seção 46 (A-F) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | ~300 linhas adicionadas, comparativo 5 builders, 83 var tables | ~3000 |
+| ~14:25 | Atualizou anatomy.md, memory.md, AI-HANDOVER.md | .wolf/ + docs/ | concluído sessão 7 | ~400 |
+
+---
+
+**Session: 2026-06-16 (AllyHub — Settings Completo / Sessão 6)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| 02:10 | Info/Billing scroll — Billings vazio junho, All Users: Livia Ribeiro criada 15/06 | browser | dados capturados | ~800 |
+| 02:12 | Import Leads — Lead Import History vazia, Download Sample Spreadsheet link | browser | dados capturados | ~400 |
+| 02:14 | Integrations > Payments — PagBank/Qualy/ZOOP ocultos por moduleType; ZOOP hard-disabled (false &&) | browser | dados capturados | ~600 |
+| 02:15 | Integrations > General — 8 integrações: RD Station, Pipedrive, ActiveCampaign, Zoho, SMTP, Zapier, Aussie Translate, Ollara | browser | dados capturados | ~600 |
+| 02:18 | Student Public Form — 6 seções, 30+ campos, CPF/RG default ON, Scholar Info OFF, Custom Success Feedback | browser | dados capturados | ~1200 |
+| 02:20 | Reasons to Cancel Lead — vazio, + Add Reason | browser | dados capturados | ~200 |
+| 02:21 | Lead Sources — vazio, + Add Lead Source | browser | dados capturados | ~200 |
+| 02:22 | Tags — vazio, + New Tag | browser | dados capturados | ~200 |
+| 02:25 | Documentou Seção 45 (A-S) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | ~650 linhas adicionadas | ~3000 |
+| 02:26 | Atualizou anatomy.md, memory.md, AI-HANDOVER.md | .wolf/ + docs/ | concluído | ~400 |
+
+## Session: 2026-06-16 (AllyHub — Links Externos para Aluno / Sessão 5)
+
+| Hora | Ação | Arquivo(s) | Resultado | ~tokens |
+|------|------|-----------|-----------|---------|
+| 03:02 | Abriu /quote-detail/1645489/{hash} — página do aluno | quote.allyhub.co | HTTP 200 — página PT-BR completa | 2k |
+| 03:02 | Capturou network requests do /quote-detail/ | — | 88 requests: quotehash, feepricehash, api-student, pagbank, zoop | 3k |
+| 03:03 | Leu response /quotehash/1645489?hash= | api.sellead.com | Payload completo: account bcrypt hash exposto publicamente | 4k |
+| 03:03 | Leu response /quoteonline?hash= | api.sellead.com | Link entity: id=1018611, opened=0, quotes[].view=2, like=null | 1k |
+| 03:03 | Leu response /getinstallments?value=1318 | api-student.allyhub.co | 11 parcelas 2x–12x, juros 4.68%–11.68% | 1k |
+| 03:04 | Rolou página, viu COMPRAR button | quote.allyhub.co | URL: student.allyhub.co/checkout/{id}/{hash}?paymentType=full | 1k |
+| 03:04 | Abriu /quote-online/1018611/{hash} | quote.allyhub.co | Visualmente idêntico ao /quote-detail/ | 1k |
+| 03:09 | Capturou network requests do /quote-online/ | — | 99 requests: quoteonlinehash (novo!), opportunityhash (novo!) | 3k |
+| 03:09 | Leu responses quoteonlinehash + opportunityhash | api.sellead.com | Diferença arquitetural confirmada: link entity separada da quote | 3k |
+| 03:15 | Documentou seção 44 (A–K) no ALLY-BLUEPRINT.md | ALLY-BLUEPRINT.md | 14 subseções, 14 novos endpoints, mapa completo 6 subdomínios | 5k |
+
+## Session: 2026-06-16 (AllyHub — Quote 2.0 Botões & Finish / Sessão 4 continuação)
+
+| Hora | Ação | Arquivo(s) | Resultado | ~tok |
+|------|------|-----------|-----------|------|
+| 10:44 | Gear menu ⚙️ → My comission → modal R$789.76 BRL | — | GET /calculatecommissionplugAndplay expõe breakdown completo | 200 |
+| 10:44 | Gear → Add custom fee → modal "Add Discount" (nome errado) | — | Teto = comissão BRL; desconto sai do bolso da agência | 100 |
+| 10:45 | Gear → Duplicate → cria Q503 (id=1645492) | — | PUT {"duplicateQuote":true} → 200, Q503 cópia exata | 200 |
+| 10:45 | calculatecommissionplugAndplay interceptado | — | Vazou: agency=Ally+, email=contato@allyhub.co, plan=1, credits=999, office=Ribeirao Preto | 800 |
+| 10:46 | Advanced options expandido | — | Só mostra Description + due date | 100 |
+| 10:49 | Gear Q503 → Delete → soft delete Q503 | — | PUT {"status":"delete"} → 200, deleted_at setado, sem confirmação | 200 |
+| 10:50 | Finish and Save Quotes → confirmation modal | — | "Attention — I am aware..." + Yes/No buttons | 100 |
+| 10:50 | Yes, finish and save → PUT /draft/545900 {"finish":true} → 204 | — | **SUCESSO** — Finish real usa draft endpoint, não quote! Expired fee não bloqueia | 300 |
+| 10:50 | Redirect → perfil Lucas Andrade → aba Quotes and Links | — | Q502 em "Quotes" section, status=new, AU$1,318, R$3.84/AUD | 200 |
+| 10:51 | Seção 43 escrita no ALLY-BLUEPRINT.md (43A-43N) | ALLY-BLUEPRINT.md | ~300 linhas, corrects sessão 3 hypothesis sobre autoSave:false | 8000 |
+| 10:51 | anatomy.md + memory.md atualizados | anatomy.md, memory.md | Seções 1-43, ~1700+ lines, ~30k tok | 300 |
+
+## Session: 2026-06-16 (AllyHub — Quote 2.0 Teste Técnico Profundo / Sessão 3)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 03:xx | Interceptou network requests GET /draft + GET /quote/1644823 revelando arquitetura ephemeral do playground | api-responses/*.network-response | Prova definitiva: draft retorna só metadados; bill só existe pós-Finish | ~2k |
+| 03:xx | Tentou PUT /quote/1644823 com autoSave:false via evaluate_script no quote2.allyhub.co (CORS-allowed origin) | — | error:true (preço OSHC Single id 306366 expirou 2025-12-31); converted_value zerado para 0 | ~1k |
+| 03:xx | Confirmou token JWT válido (iat 2026-06-15T12:56Z, exp +12h); problema não é autenticação | — | WAF ou rate-limit server-side bloqueando PUT após Finish falho | ~0.5k |
+| 03:xx | Testou PUT em Q500, nova aba, reload completo — todos ERR_FAILED; OPTIONS preflight 200 (CORS OK) | — | WAF confirmado: bloqueia PUTs da sessão após primeiro Finish inválido | ~1k |
+| 03:xx | Escreveu seções 38-40 no ALLY-BLUEPRINT.md (arquitetura ephemeral, CORS assimetria, JWT, endpoints, payload PUT, fee IDs, WAF, acomodações vazias, bug OSHC expirado, status final) | ALLY-BLUEPRINT.md | blueprint completo com deep dive técnico | ~4k |
+| 03:xx | Atualizou anatomy.md (nova seção api-responses/ + ALLY-BLUEPRINT.md revisado); appended memory.md; atualizou AI-HANDOVER.md | .wolf/anatomy.md, .wolf/memory.md, docs/AI-HANDOVER.md | OpenWolf protocol completo | ~1k |
+
 | 2026-06-15 | SPLIT 4 slice 3: wizard shell (5 steps + EditorWizardNav) | editor-wizard-steps.ts, EditorWizardNav.tsx, StudyPlanEditor.tsx | type-check + build ✓ | ~2k |
 | 2026-06-15 | SPLIT 4 slice 2: EditorStickyBar + autosave (2.5s debounce) | EditorStickyBar.tsx, StudyPlanEditor.tsx | type-check + 37 tests + build ✓ | ~1.2k |
 | 2026-06-15 | SPLIT 4 slice 1: wired CoursePortfolioPicker into StudyPlanEditor + page passes contactNationality | StudyPlanEditor.tsx, [id]/page.tsx | commits 1e783b0 + 04d8468, type-check + build ✓ | ~1.5k |
@@ -15,6 +111,48 @@
 | 2026-06-15 | Task 5: searchContacts + searchContactsAction + createProposalForContact (passo-0 backend) | lib/crm/contacts.ts, app/[locale]/(protected)/study-plans/actions.ts | type-check clean, build clean, committed ee7b285 | ~3k |
 | 2026-06-15 | Task 4: listActivePriceVersions query + CourseSource.listPrices + interface extension | lib/portfolio/queries.ts, lib/portfolio/types.ts, lib/portfolio/course-source.ts | type-check clean, 11/11 tests pass, committed 1fd60a6 | ~2k |
 | 2026-06-15 | Task 3: appended priceVersionLabel + toPricedOptions tests + impl | lib/portfolio/types.ts, tests/portfolio.test.mjs | 11/11 tests pass, type-check clean, committed 6597bc5 | ~2k |
+
+## Session: 2026-06-16 (AllyHub — Simulação Completa Perth / Sessão 4)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 10:xx | Retomou quote #Q502 (id 1645489); tela mostrava 2 programas Lexis Perth encontrados | — | estado salvo da sessão 3 reconhecido | ~0.5k |
+| 10:xx | Clicou "+" (info modal) por engano → fechou e clicou botão "+" correto → modal "Add Item to Quotes" com breakdown Tuition AU$550 + Enrol AU$265 + Material AU$195 = AU$1,010 | — | preços completos do Lexis Perth visíveis | ~1k |
+| 10:xx | Marcou "Option 1" + clicou "Add with Ally Plus" → programa adicionado; Insurances (2 added) + Add-ons (2 added) auto-populados pelo Ally+ | — | upsell automático: 4 fees injetados | ~1k |
+| 10:xx | Clicou "View Quotes" → cart completo: Programs AU$1,010 + 4 fees AU$308 = Total AU$1,318 | — | breakdown completo visível | ~2k |
+| 10:xx | Interceptou GET /mandatoryrule → 3 mandatory fees (id=266546 AU$150, id=425150 AU$30, id=306366 AU$70 expirado) | — | source dos fees mapeado | ~3k |
+| 10:xx | Interceptou PUT /quote/1645489 → autoSave:true HTTP 200, converted_value:1318, dueDate:2026-06-26, FX rate 3.8403 | — | PUT autoSave:true funciona mesmo com fee expirado | ~3k |
+| 10:xx | Descoberto 4º fee: Lexis English OSHC Single AU$58/mês (school-specific, não do mandatoryrule) | — | novo fee não documentado anteriormente | ~1k |
+| 10:xx | Confirmou catálogo accommodations Perth = vazio (Search Accommodations button clickado via UI) | — | confirma achado sessão 2 | ~0.5k |
+| 10:xx | Escreveu seções 41-42 no ALLY-BLUEPRINT.md (simulação completa, fee table atualizada, mandatoryrule endpoint, PUT payload, campos editáveis) | .wolf/allyhub-research/ALLY-BLUEPRINT.md | blueprint atualizado sessão 4 | ~4k |
+
+## Session: 2026-06-16 (AllyHub — Quote 2.0 Teste AU Completo)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 02:xx | Retomou sessão anterior; navegou para /quote-2/edit/1644804 | — | página Q2.0 carregada | ~0.5k |
+| 02:xx | Screenshot revelou 27 programas AU pré-filtrados (nationality Lucas Andrade = AU) | — | catálogo AU completo visível | ~2k |
+| 02:xx | DevTools CDP snapshot + agente extrator → todos os 27 programas documentados com nome/escola/cidade/preço/categoria | ALLY-BLUEPRINT.md 26L | catálogo completo | ~3k |
+| 02:xx | Interagiu com datepicker via DevTools uid click → mudou start date para 04/08/2026 (50 dias, acima do mínimo 45d) | — | datepicker funcionou via calendar option click | ~1k |
+| 02:xx | Clicou "+" no General English AU$400/sem → modal "Add Item to Quotes" (tuition AU$400 + enrol AU$250 + material AU$75 = AU$725) | — | modal de adição mapeado | ~1k |
+| 02:xx | Selecionou Option 1 + clicou "Add with Ally Plus" → modal "We found some suggestions" apareceu automaticamente com Insurance EP Brisbane AU$30 | — | upsell engine descoberto | ~1k |
+| 02:xx | Adicionou insurance → toast "Item added successfully" + 3 fees Medibank auto-adicionados | — | OSHC obrigatório integrado | ~0.5k |
+| 02:xx | API GET /quote/1644823 → bill completo revelou Taxa de consultoria Ally Hub AU$150 auto-adicionada | — | revenue model Ally Hub exposto: AU$150/quote | ~1k |
+| 02:xx | Navegou para "View Quotes" → cart view completo: #Q501, Programs+Fees, Total A$1,005 | — | estrutura completa do cart mapeada | ~1k |
+| 02:xx | Escreveu seção 26L completa no ALLY-BLUEPRINT.md (catálogo AU, filtros, flow, fees, achados críticos, comparativo) | .wolf/allyhub-research/ALLY-BLUEPRINT.md | blueprint atualizado | ~3k |
+
+## Session: 2026-06-15 (AllyHub — Espionagem Industrial / Blueprint Competitivo)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 01:xx | Leu cerebrum + anatomy; navegou para app.allyhub.co e fez login (movyeducation@gmail.com / Ally+ Starter gratuito) | — | login OK, alert "Login in another PC" fechado | ~1k |
+| 01:xx | Confirmou aluno Lucas Andrade já criado (session anterior); pipeline Kanban, 5 abas do perfil do aluno documentadas | — | 1 aluno, Code 500, WARM | ~2k |
+| 01:xx | Explorou Quote 2.0 via AngularJS scope manipulation; Opportunity #OP500 auto-criado | — | fluxo quote + oportunidade mapeados | ~3k |
+| 01:xx | Varreu sidebar completa: Dashboard, Financial, Relatórios, Calendário, Configurações (16 sub-seções), Automações, Comissões, módulos extras | — | todos os módulos documentados | ~5k |
+| 01:xx | Confirmou AngularJS 1.x via `angular.element().scope().$apply()` | — | tech stack confirmado (EOL — vantagem competitiva Movy) | ~0.5k |
+| 01:xx | Escreveu seções 22–37 no ALLY-BLUEPRINT.md (mapa de rotas, pipeline, perfil, formulário, Quote, Opportunity, dashboards, relatórios, settings, automações, comissões, extras, análise estratégica) | .wolf/allyhub-research/ALLY-BLUEPRINT.md | blueprint completo ~900 linhas | ~8k |
+| 01:xx | Atualizou anatomy.md + memory.md + cerebrum.md + AI-HANDOVER.md per OpenWolf protocol | .wolf/anatomy.md, .wolf/memory.md, .wolf/cerebrum.md, docs/AI-HANDOVER.md | session encerrada | ~1k |
+| 02:xx | Deep dive Quote 2.0: descobriu arquitetura AngularJS+React iframe+Firebase Firestore+api.sellead.com (AllyHub=white-label Sellead). Documentou modelo de dados completo, config toggles, status, itens, moedas, pagamentos (PagBank/PIX/AllyCheckout). Adicionou Seção 26 expandida no ALLY-BLUEPRINT.md | .wolf/allyhub-research/ALLY-BLUEPRINT.md | blueprint quote 2.0 completo | ~5k |
 
 ## Session: 2026-06-15 (Task 1 — Contact custom-attribute helpers, woofed-shaped)
 
@@ -182,3 +320,14 @@
 | 18:55 | Salvou referencia do concorrente: docs/competitor-allyhub-blueprint.md (videos 1-9 do AllyHub, mapa AllyHub->Movy por split; so "multiplas opcoes" = fatia B em execucao, resto backlog); linkou no PRODUCT-ROADMAP | competitor-allyhub-blueprint.md, PRODUCT-ROADMAP.md | doc salvo, sem codigo tocado | ~8k |
 | 19:30 | SPLIT 4 fatia B1: comparador de opcoes. Extraiu editor-ui.tsx (primitivos) + CourseListEditor + ExtraCostsEditor de StudyPlanEditor (refactor hot file, primario reusa); OptionsManager (abas Opcao 1..5, renomear/duplicar/remover/recomendada + comparacao lado a lado) no passo Revisao; lib/study-plans/options.ts (puro: createOption/duplicateOption/withRecomputed/setRecommended/canAddOption) + tests/options.test.mjs (6 casos) | editor-ui.tsx, CourseListEditor.tsx, ExtraCostsEditor.tsx, OptionsManager.tsx, options.ts, StudyPlanEditor.tsx, options.test.mjs | type-check+test(47)+build green | ~40k |
 | 19:45 | SPLIT 4 fatia B2: StudyPlanProposal renderiza OptionsComparison (opcoes lado a lado, recomendada destacada) quando data.options.length, apos o SummaryStrip; reusa plan* helpers (AUD) + formatBrl opcional; sem opcoes = render single-mix inalterado | StudyPlanProposal.tsx, anatomy | type-check+test(47)+build green | ~7k |
+
+---
+
+**Session: 2026-06-16 (HR & Time Management — Brainstorming + Design Spec)**
+
+| HH:MM | description | file(s) | outcome | ~tokens |
+|-------|-------------|---------|---------|---------|
+| 10:00 | Brainstorming HR module — approaches A/B/C shown via visual companion | .superpowers/brainstorm/.../approaches.html | User chose A (Time Tracker + Invoice Generator) | ~3k |
+| 10:30 | Schema design (4 tables) shown in visual companion | .superpowers/brainstorm/.../design-schema.html | User approved ("sim ]") | ~2k |
+| 11:00 | UI mockup v1, v2, v3 (woofed shell) created iteratively | ui-mockup-hr*.html | v3 with Agency Hub sidebar + ABN Tax Invoice preview | ~8k |
+| 11:30 | Wrote full design spec | docs/superpowers/specs/2026-06-16-hr-time-management-design.md | Created; ready for writing-plans | ~4k |
