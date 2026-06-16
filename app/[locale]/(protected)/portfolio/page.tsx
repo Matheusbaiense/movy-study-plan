@@ -8,16 +8,14 @@ interface Props {
   params: Promise<{ locale: string }>
 }
 
-export default async function PortfolioIndexPage({ params }: Props) {
-  const { locale } = await params
-  await getUser(locale)
-
-  let institutions: Institution[] = []
-  let courseCountMap: Record<string, number> = {}
+async function fetchPortfolio(): Promise<{ institutions: Institution[]; courseCountMap: Record<string, number> }> {
+  const institutions: Institution[] = []
+  const courseCountMap: Record<string, number> = {}
 
   try {
     const db = await createClient()
-    institutions = await listInstitutions(db)
+    const list = await listInstitutions(db)
+    institutions.push(...list)
 
     if (institutions.length > 0) {
       const ids = institutions.map((i) => i.id)
@@ -36,6 +34,18 @@ export default async function PortfolioIndexPage({ params }: Props) {
   } catch {
     // renders empty on error
   }
+
+  return { institutions, courseCountMap }
+}
+
+export default async function PortfolioIndexPage({ params }: Props) {
+  const { locale } = await params
+
+  // RLS scopes the portfolio reads, so they overlap with auth validation.
+  const [, { institutions, courseCountMap }] = await Promise.all([
+    getUser(locale),
+    fetchPortfolio(),
+  ])
 
   return <PortfolioPage institutions={institutions} courseCountMap={courseCountMap} />
 }

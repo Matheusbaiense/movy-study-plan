@@ -9,27 +9,32 @@ interface Props {
   params: Promise<{ locale: string; institutionId: string }>
 }
 
-export default async function InstitutionPage({ params }: Props) {
-  const { locale, institutionId } = await params
-  await getUser(locale)
+interface InstitutionData {
+  institution: Institution | null
+  courses: Course[]
+  priceVersionsByCourse: Record<string, CoursePriceVersion[]>
+  rules: PricingRuleRow[]
+}
 
+async function fetchInstitutionData(institutionId: string): Promise<InstitutionData> {
   let institution: Institution | null = null
   let courses: Course[] = []
-  let priceVersionsByCourse: Record<string, CoursePriceVersion[]> = {}
+  const priceVersionsByCourse: Record<string, CoursePriceVersion[]> = {}
   let rules: PricingRuleRow[] = []
 
   try {
     const db = await createClient()
 
-    const { data } = await db
-      .from('institutions')
-      .select('*')
-      .eq('id', institutionId)
-      .is('deleted_at', null)
-      .maybeSingle()
-    institution = data
+    // The org-wide pricing rules are independent of this institution, so fetch
+    // them in parallel with the institution lookup.
+    const [{ data: instData }, { data: rulesData }] = await Promise.all([
+      db.from('institutions').select('*').eq('id', institutionId).is('deleted_at', null).maybeSingle(),
+      db.from('pricing_rules').select('*').is('deleted_at', null).order('priority', { ascending: false }),
+    ])
+    institution = instData
+    rules = rulesData ?? []
 
-    if (!institution) return notFound()
+    if (!institution) return { institution: null, courses, priceVersionsByCourse, rules }
 
     courses = await listCourses(db, { institutionId, activeOnly: false })
 
@@ -50,16 +55,24 @@ export default async function InstitutionPage({ params }: Props) {
         priceVersionsByCourse[cid].push(v as CoursePriceVersion)
       }
     }
-
-    const { data: rulesData } = await db
-      .from('pricing_rules')
-      .select('*')
-      .is('deleted_at', null)
-      .order('priority', { ascending: false })
-    rules = rulesData ?? []
   } catch {
-    if (!institution) return notFound()
+    // institution stays null → caller renders notFound()
   }
+
+  return { institution, courses, priceVersionsByCourse, rules }
+}
+
+export default async function InstitutionPage({ params }: Props) {
+  const { locale, institutionId } = await params
+
+  // RLS scopes the reads, so the data fetch overlaps with auth validation.
+  const [, data] = await Promise.all([
+    getUser(locale),
+    fetchInstitutionData(institutionId),
+  ])
+
+  const { institution, courses, priceVersionsByCourse, rules } = data
+  if (!institution) return notFound()
 
   return (
     <InstitutionDetail

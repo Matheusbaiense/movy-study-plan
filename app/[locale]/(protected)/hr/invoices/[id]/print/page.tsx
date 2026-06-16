@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect, notFound } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { getUser } from '@/lib/auth/get-user'
 import { TaxInvoice } from '@/components/hr/TaxInvoice'
 import { getInvoicePrintData, listRateRules } from '@/lib/hr'
 
@@ -9,17 +10,10 @@ interface Props {
 
 export default async function InvoicePrintPage({ params }: Props) {
   const { locale, id } = await params
-  const supabase = await createClient()
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) redirect(`/${locale}/login`)
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, org_id, role')
-    .eq('id', user.id)
-    .single()
-  if (profileError || !profile) redirect(`/${locale}/login`)
+  const [{ profile }, supabase] = await Promise.all([
+    getUser(locale),
+    createClient(),
+  ])
 
   const rules = await listRateRules(supabase, profile.org_id)
   const data = await getInvoicePrintData(supabase, id, rules)

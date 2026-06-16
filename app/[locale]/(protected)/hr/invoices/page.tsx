@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { getUser } from '@/lib/auth/get-user'
 import Link from 'next/link'
 import { listInvoicesWithEmployeeName, listEmployeesWithNames, isHrAdmin } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
@@ -22,17 +22,10 @@ const STATUS_BADGE: Record<string, { label: string; color: string; bg: string }>
 export default async function InvoicesPage({ params, searchParams }: Props) {
   const { locale } = await params
   const { employee: employeeFilter } = await searchParams
-  const supabase = await createClient()
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) redirect(`/${locale}/login`)
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, org_id, role')
-    .eq('id', user.id)
-    .single()
-  if (profileError || !profile) redirect(`/${locale}/login`)
+  const [{ profile }, supabase] = await Promise.all([
+    getUser(locale),
+    createClient(),
+  ])
 
   const isAdmin = isHrAdmin(profile.role)
 

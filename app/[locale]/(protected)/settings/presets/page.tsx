@@ -7,12 +7,7 @@ interface Props {
   params: Promise<{ locale: string }>
 }
 
-export default async function PresetsPage({ params }: Props) {
-  const { locale } = await params
-  await getUser(locale)
-
-  let presets: DbPreset[] = []
-  let serviceConfigured = true
+async function fetchPresets(): Promise<{ presets: DbPreset[]; serviceConfigured: boolean }> {
   try {
     const svc = createServiceClient()
     const { data } = await svc
@@ -20,10 +15,21 @@ export default async function PresetsPage({ params }: Props) {
       .select('*')
       .order('type', { ascending: true })
       .order('sort_order', { ascending: true })
-    presets = (data ?? []) as unknown as DbPreset[]
+    return { presets: (data ?? []) as unknown as DbPreset[], serviceConfigured: true }
   } catch {
-    serviceConfigured = false
+    return { presets: [], serviceConfigured: false }
   }
+}
+
+export default async function PresetsPage({ params }: Props) {
+  const { locale } = await params
+
+  // The service-client catalog read is independent of the actor's profile,
+  // so it overlaps with auth validation.
+  const [, { presets, serviceConfigured }] = await Promise.all([
+    getUser(locale),
+    fetchPresets(),
+  ])
 
   return (
     <>

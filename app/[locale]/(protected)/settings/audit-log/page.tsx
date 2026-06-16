@@ -30,18 +30,23 @@ const ACTION_LABELS: Record<string, string> = {
   'domain.add': 'Adicionou domínio',
 }
 
-export default async function AuditLogPage({ params }: Props) {
-  const { locale } = await params
-  await getUser(locale)
+async function fetchAuditLogs() {
   const supabase = await createClient()
-
-  const { data: logs } = await supabase
+  return supabase
     .from('audit_logs')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(100)
+}
 
-  const rows = logs ?? []
+export default async function AuditLogPage({ params }: Props) {
+  const { locale } = await params
+
+  // RLS scopes the logs to the actor's org, so the fetch can run in parallel
+  // with the auth/profile validation instead of waiting for it.
+  const [, logsResult] = await Promise.all([getUser(locale), fetchAuditLogs()])
+
+  const rows = logsResult.data ?? []
 
   return (
     <div className="movy-card" style={{ overflow: 'hidden' }}>

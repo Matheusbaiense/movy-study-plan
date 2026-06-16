@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Users, Clock, FileText, TrendingUp } from 'lucide-react'
+import { getUser } from '@/lib/auth/get-user'
 import { EditRateButton } from '@/components/hr/EditRateButton'
 import { listEmployeesWithStats } from '@/lib/hr/queries'
 import { isHrAdmin } from '@/lib/hr'
@@ -49,17 +50,10 @@ function StatPill({ icon: Icon, value, label, color: c }: { icon: typeof Clock; 
 
 export default async function TeamPage({ params }: Props) {
   const { locale } = await params
-  const supabase = await createClient()
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) redirect(`/${locale}/login`)
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, org_id, role')
-    .eq('id', user.id)
-    .single()
-  if (profileError || !profile) redirect(`/${locale}/login`)
+  const [{ profile }, supabase] = await Promise.all([
+    getUser(locale),
+    createClient(),
+  ])
 
   if (!isHrAdmin(profile.role)) redirect(`/${locale}/hr`)
 
