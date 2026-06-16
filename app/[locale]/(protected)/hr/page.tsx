@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/get-user'
 import { ClockWidget } from '@/components/hr/ClockWidget'
 import { WeekSummary } from '@/components/hr/WeekSummary'
 import { RateCard } from '@/components/hr/RateCard'
+import { SelfInvoiceButton } from '@/components/hr/SelfInvoiceButton'
 import { HrDashboard } from '@/components/hr/HrDashboard'
 import {
   getEmployeeByProfileId, getActiveClockEntry,
@@ -100,6 +101,9 @@ export default async function HrPage({ params }: Props) {
           )}
           {employee && !isAdmin && (
             <RateCard rateCents={employee.hourly_rate_in_cents} locale={locale} />
+          )}
+          {employee && !isAdmin && (
+            <SelfInvoiceButton locale={locale} />
           )}
         </div>
 

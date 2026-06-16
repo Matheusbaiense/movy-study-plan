@@ -196,6 +196,68 @@ export async function generateInvoiceAction(
   return invoice
 }
 
+export async function generateOwnInvoiceAction(
+  periodStart: string,
+  periodEnd: string,
+) {
+  const { supabase, profile } = await getActor()
+
+  const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
+  if (!employee) throw new Error('Você não tem um perfil de funcionário. Fale com o administrador.')
+
+  if (employee.hourly_rate_in_cents === 0) {
+    throw new Error('Seu rate não está configurado. Fale com o administrador para definir seu rate antes de gerar uma invoice.')
+  }
+
+  const rules = await listRateRules(supabase, profile.org_id)
+  const entries = await listTimeEntries(supabase, profile.org_id, {
+    employeeId: employee.id,
+    status: 'approved',
+    from: periodStart,
+    to: periodEnd + 'T23:59:59Z',
+    uninvoicedOnly: true,
+  })
+
+  if (entries.length === 0) throw new Error('Nenhuma entrada aprovada e não faturada para este período.')
+
+  const centValues = entries.map((e) => {
+    if (!e.clock_out) return 0
+    const hours = calculateHours(new Date(e.clock_in), new Date(e.clock_out))
+    const dateIso = e.clock_in.slice(0, 10)
+    const multiplier = getMultiplier(e.day_type as Parameters<typeof getMultiplier>[0], rules, dateIso)
+    return calculateLineItemCents(hours, employee.hourly_rate_in_cents, multiplier)
+  })
+  const totalCents = computeTotalCents(centValues)
+
+  const { count } = await supabase
+    .from('hr_invoices')
+    .select('*', { count: 'exact', head: true })
+    .eq('employee_id', employee.id)
+  const seq = String((count ?? 0) + 1).padStart(3, '0')
+  const yyyymm = periodStart.slice(0, 7).replace('-', '')
+  const invoiceNumber = `INV-${employee.id.slice(0, 6).toUpperCase()}-${yyyymm}-${seq}`
+
+  const invoice = await createInvoice(supabase, {
+    org_id: profile.org_id,
+    employee_id: employee.id,
+    invoice_number: invoiceNumber,
+    period_start: periodStart,
+    period_end: periodEnd,
+    total_cents: totalCents,
+    status: 'draft',
+  })
+
+  await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id))
+  await logAudit({
+    actorId: profile.id, actorEmail: profile.email,
+    action: 'hr.invoice.generate_own', entityType: 'hr_invoices', entityId: invoice.id,
+    metadata: { periodStart, periodEnd },
+  })
+
+  revalidatePath('/', 'layout')
+  return invoice
+}
+
 export async function updateEmployeeRateAction(employeeId: string, ratePerHour: number) {
   const { supabase, profile } = await getActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
