@@ -197,6 +197,7 @@ export interface EmployeeWithStats {
   pending_count: number
   approved_count: number
   is_clocked_in: boolean
+  estimated_cost_cents: number
 }
 
 export async function listEmployeesWithStats(
@@ -258,6 +259,7 @@ export async function listEmployeesWithStats(
       pending_count: s.pending,
       approved_count: s.approved,
       is_clocked_in: s.hasClockedIn,
+      estimated_cost_cents: Math.round(s.hours * emp.hourly_rate_in_cents),
     }
   })
 }
