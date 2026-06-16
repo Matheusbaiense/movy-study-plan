@@ -116,6 +116,8 @@ export async function listTimeEntries(
     from?: string
     to?: string
     uninvoicedOnly?: boolean
+    limit?: number
+    offset?: number
   } = {},
 ): Promise<TimeEntry[]> {
   let q = supabase
@@ -130,6 +132,8 @@ export async function listTimeEntries(
   if (options.from) q = q.gte('clock_in', options.from)
   if (options.to) q = q.lte('clock_in', options.to)
   if (options.uninvoicedOnly) q = q.is('invoice_id', null)
+  if (options.limit) q = q.limit(options.limit)
+  if (options.offset) q = q.range(options.offset, options.offset + (options.limit ?? 50) - 1)
 
   const { data, error } = await q
   if (error) throw new Error(error.message)

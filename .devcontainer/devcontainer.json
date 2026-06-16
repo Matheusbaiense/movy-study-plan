@@ -1,6 +1,6 @@
 {
   "name": "movy-study-plan",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": { "label": "Next.js dev", "onAutoForward": "openPreview" }

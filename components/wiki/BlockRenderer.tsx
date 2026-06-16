@@ -5,6 +5,7 @@ import { ChecklistBlock } from './blocks/ChecklistBlock'
 import { InfoBox } from './blocks/InfoBox'
 import { EmailTemplate } from './blocks/EmailTemplate'
 import { TableBlock } from './blocks/TableBlock'
+import { sanitizeHtml } from '@/lib/security/sanitize-html'
 import type { Block } from '@/types/blocks'
 
 interface Props {
@@ -23,7 +24,7 @@ export function BlockRenderer({ blocks, contentId, initialChecked = {} }: Props)
               <div
                 key={i}
                 style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text)' }}
-                dangerouslySetInnerHTML={{ __html: block.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
               />
             )
           case 'steps':

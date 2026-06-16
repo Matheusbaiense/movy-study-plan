@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, BookOpen, DollarSign, Zap, Plus, Archive, ToggleLeft, ToggleRight, Globe, MapPin } from 'lucide-react'
 import { font, ink, t } from '@/lib/ui/theme'
 import type { Json } from '@/types/supabase'
@@ -128,6 +128,7 @@ function CoursesTab({ institution, courses: initial, onError }: {
   courses: Course[]
   onError: (e: string) => void
 }) {
+  const router = useRouter()
   const [courses, setCourses] = useState(initial)
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Course | null>(null)
@@ -144,6 +145,7 @@ function CoursesTab({ institution, courses: initial, onError }: {
           setCourses((prev) => [...prev, { ...input, id: r.id, institution_id: institution.id, is_active: true, org_id: institution.org_id, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), campus_id: null, confidence: 0, currency_code: 'AUD', default_intake: null, deleted_at: null, external_id: null, metadata: {}, source: 'manual', updated_by: null, created_by: null } as Course])
         }
         setShowModal(false); setEditing(null)
+        router.refresh()
       } catch (e) { onError(e instanceof Error ? e.message : 'Erro ao salvar curso') }
     })
   }
@@ -153,6 +155,7 @@ function CoursesTab({ institution, courses: initial, onError }: {
       try {
         await toggleCourseActiveAction(course.id, institution.id, !course.is_active)
         setCourses((prev) => prev.map((c) => c.id === course.id ? { ...c, is_active: !c.is_active } : c))
+        router.refresh()
       } catch (e) { onError(e instanceof Error ? e.message : 'Erro') }
     })
   }
@@ -162,6 +165,7 @@ function CoursesTab({ institution, courses: initial, onError }: {
       try {
         await archiveCourseAction(id, institution.id)
         setCourses((prev) => prev.filter((c) => c.id !== id))
+        router.refresh()
       } catch (e) { onError(e instanceof Error ? e.message : 'Erro ao arquivar') }
     })
   }

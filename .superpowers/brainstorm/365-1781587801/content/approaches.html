@@ -1,0 +1,86 @@
+<h2>Como estruturar o módulo de HR?</h2>
+<p class="subtitle">Três abordagens — escolha a que melhor equilibra velocidade de entrega e funcionalidade</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Time Tracker + Invoice Generator <span style="font-size:11px;background:#4B1A77;color:#fff;padding:2px 7px;border-radius:10px;margin-left:6px">Recomendado</span></h3>
+      <p>Funcionário faz clock-in/out via hub → sistema calcula horas × taxa → admin aprova → PDF de Tax Invoice gerado com ABN, BSB/ACC, tabela de turnos e total.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros">
+          <h4>Prós</h4>
+          <ul>
+            <li>Cobre todo o fluxo real (ponto → aprovação → invoice)</li>
+            <li>Invoice 100% fiel ao formato ABN mostrado</li>
+            <li>Período livre (semanal/quinzenal/mensal/customizado)</li>
+            <li>Encaixa no hub existente como nova seção</li>
+            <li>Multi-tenant pronto (org_id em tudo)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Contras</h4>
+          <ul>
+            <li>2–3 semanas de desenvolvimento</li>
+            <li>Requer tratamento de fuso horário (Perth = AWST)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Admin-Only Timesheet</h3>
+      <p>Sem clock-in/out. Admin lança as horas manualmente em uma planilha interna. Funcionário não acessa o sistema. Invoice gerada pelo admin e enviada por email.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros">
+          <h4>Prós</h4>
+          <ul>
+            <li>Mais simples e rápido de construir (1 semana)</li>
+            <li>Zero mudança de hábito para os funcionários</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Contras</h4>
+          <ul>
+            <li>Admin vira gargalo para tudo</li>
+            <li>Sem registro em tempo real → mais erros</li>
+            <li>Não resolve o "relógio de ponto" que você mencionou</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>HR Full Suite (agendamento + payroll)</h3>
+      <p>Além do ponto e invoice, inclui escala de trabalho (quem trabalha quando), gestão de folgas, cálculo automático de award rates australianos completos (casual loading 25%, penalty rates por dia).</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros">
+          <h4>Prós</h4>
+          <ul>
+            <li>Solução completa de RH para uma equipe AU</li>
+            <li>Automação máxima dos cálculos legais</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Contras</h4>
+          <ul>
+            <li>5–8 semanas de desenvolvimento</li>
+            <li>Complexidade alta para equipe pequena</li>
+            <li>Award rates mudam — precisa manutenção constante</li>
+            <li>YAGNI — muito além do problema atual</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px">💡 Minha recomendação é <strong>A</strong> — resolve o problema real hoje sem over-engineering. Clique para selecionar ou responda no terminal.</p>

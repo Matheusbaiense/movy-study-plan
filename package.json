@@ -20,7 +20,8 @@
     "next": "^14.2.29",
     "next-intl": "^3.26.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",

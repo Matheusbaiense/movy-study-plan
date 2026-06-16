@@ -64,6 +64,10 @@
 ## .claude/
 
 
+## .claude/plan/
+
+- **mega-audit.md** — Plano de auditoria pré-produção em 21 dimensões (segurança, qualidade, testes, observabilidade, performance, deps, infra, DR, repo). 47 issues (11 CRITICAL, 27 HIGH, 14 MEDIUM, 8 LOW) priorizados em 4 fases com estimativa de esforço e ordem de execução. ~300 linhas.
+
 ## .claude/rules/
 
 
@@ -153,12 +157,20 @@
 
 - **AppShell.tsx** — Root layout shell: desktop sidebar (collapsible, localStorage-persisted), mobile drawer, topbar with breadcrumb + avatar account menu. NavEntry interface, mainNav array (now includes Portfólio/Building2), operationsNav array (HR & Time), SidebarContent inner component, NavItem/Avatar/MenuLink/BreadcrumbFromPath helpers. Uses Lucide icons incl. Clock, Building2. ~384 lines.
 
+## app/[locale]/p/[token]/
+
+- **page.tsx** — Public RSC proposal page. No auth. Service client lookup `study_plans WHERE share_token = token AND deleted_at IS NULL`. Renders `PublicProposalPage`. ~30 lines.
+- **actions.ts** — `acceptProposalAction(token, signerName)`: validates, inserts `proposal_events(kind='signed')`, sets `study_plans.accepted_at + status='accepted'`. Captures IP from headers. ~60 lines.
+
 ## components/portfolio/
 
 - **PortfolioPage.tsx** — Client component for `/portfolio` index. Institution grid with search, countryFlag emoji, course count, expiry badge (PriceExpiryBadge). Create/edit institution modal (InstitutionModal). Calls createInstitutionAction/updateInstitutionAction. ~220 lines.
 - **InstitutionDetail.tsx** — Client component for `/portfolio/[id]`. 3-tab UI: Cursos (CoursesTab), Vigências (PricesTab), Regras (RulesTab). Each tab has inline modals and optimistic state updates. Calls all portfolio server actions. ~520 lines.
 
 ## components/study-plans/
+
+- **PublicProposalPage.tsx** — `'use client'` public proposal wrapper. Renders `StudyPlanProposal` + sticky AcceptBar (name input + checkbox + button) or AcceptedBanner (green). Calls `acceptProposalAction`. Props: token, data, reference, updatedAt, acceptedAt, studentName. ~160 lines.
+- **ShareProposalButton.tsx** — `'use client'` floating gold button (fixed bottom-right). Opens modal with public URL (lazy-loaded via `getShareUrlAction`) + copy button. ~120 lines.
 
 
 ## components/wiki/

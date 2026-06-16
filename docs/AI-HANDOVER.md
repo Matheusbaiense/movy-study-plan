@@ -302,6 +302,53 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ---
 
+### 2026-06-16 - SPLIT 5: Link público / aceite de proposta (assinatura eletrônica simples)
+
+> **Estado:** SPLIT 5 **entregue**. type-check ✅ · `node --test` 64/64 ✅.
+> Migration 014 (`share_token`) já estava aplicada. **Próximo = SPLIT 7 (IA import portfólio) ou SPLIT 8 (contact/CRM light).**
+
+**O que foi entregue:**
+
+- **`types/supabase.ts`** — regenerado com `study_plans.share_token: string` (Row) / `share_token?: string` (Insert/Update).
+
+- **`middleware.ts`** — exemption adicionada para rotas `/{locale}/p/*`: `isPublicProposal` check antes do gate de autenticação. Proposta pública não exige sessão.
+
+- **`supabase/migrations/014_share_token.sql`** (já aplicado na sessão anterior):
+  - `study_plans.share_token uuid NOT NULL DEFAULT gen_random_uuid()`
+  - Índice único `study_plans_share_token_idx`.
+
+- **`app/[locale]/p/[token]/page.tsx`** (RSC público): busca `study_plans WHERE share_token = token AND deleted_at IS NULL` via service client (sem auth); 404 se não encontra; renderiza `PublicProposalPage`.
+
+- **`app/[locale]/p/[token]/actions.ts`** — `acceptProposalAction(token, signerName)`:
+  - Lookup por `share_token` via service client.
+  - Guards: not found, deleted, already accepted.
+  - Insere `proposal_events(kind='signed', metadata={signed_by, ip, user_agent, terms_version})`.
+  - Atualiza `study_plans.accepted_at` + `status='accepted'`.
+  - Captura IP de `x-forwarded-for` / `x-real-ip` via `headers()`.
+
+- **`components/study-plans/PublicProposalPage.tsx`** (`'use client'`):
+  - Renderiza `StudyPlanProposal` (read-only, backHref="#").
+  - AcceptBar sticky no bottom: input nome completo + checkbox termos + botão "Aceitar Proposta".
+  - Botão desabilitado até nome ≥ 3 chars + checkbox marcado.
+  - Após aceite: troca bar por `AcceptedBanner` (verde).
+  - Erros exibidos abaixo do bar.
+
+- **`app/[locale]/(protected)/study-plans/actions.ts`** — nova action `getShareUrlAction(id)`:
+  - Busca `share_token` do plano via user client (auth required).
+  - Monta URL pública com `NEXT_PUBLIC_SITE_URL` / `VERCEL_URL` / fallback localhost.
+  - Retorna `{ url: string }`.
+
+- **`app/[locale]/(protected)/study-plans/[id]/proposal/page.tsx`** — adicionado `<ShareProposalButton planId={row.id} locale={locale} />` abaixo do `StudyPlanProposal`.
+
+- **`components/study-plans/ShareProposalButton.tsx`** (`'use client'`):
+  - Botão dourado flutuante `position:fixed bottom:24 right:24` com ícone de compartilhar.
+  - Ao clicar: abre modal, chama `getShareUrlAction` (lazy, 1 só vez), exibe URL + botão "Copiar".
+  - Feedback "Copiado!" por 2,5 s após `navigator.clipboard.writeText`.
+
+**Nota de URL:** O link gerado usa locale `pt` hardcoded (`/pt/p/{token}`). Se o produto expandir para EN/ES, adaptar `getShareUrlAction` para receber o locale do caller.
+
+---
+
 ### 2026-06-16 - SPLIT 6B: Portfólio UI (gestão de escolas/cursos/preços/regras)
 
 > **Estado:** SPLIT 6B **entregue**. type-check ✅ · `node --test` 64/64 ✅.

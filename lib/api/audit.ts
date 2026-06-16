@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/service'
-import type { Json } from '@/types/supabase'
+import type { Json, Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 interface AuditParams {
@@ -22,14 +22,13 @@ export async function logAudit(params: AuditParams): Promise<void> {
       entity_id: params.entityId ?? null,
       metadata: params.metadata ?? null,
     })
-  } catch {
-    // Audit failures must not break the primary operation
+  } catch (err) {
+    console.error('[AUDIT_FAILED]', params.action, err)
   }
 }
 
 export async function logAuditWithClient(
-  // Accepts a typed or untyped Supabase client (server, service, or test double).
-  supabase: SupabaseClient<any, any, any>,
+  supabase: SupabaseClient<Database>,
   params: AuditParams
 ): Promise<void> {
   try {
@@ -40,7 +39,7 @@ export async function logAuditWithClient(
       entity_type: params.entityType ?? null,
       entity_id: params.entityId ?? null,
       metadata: params.metadata ?? null,
-    } as never)
+    })
   } catch {
     await logAudit(params)
   }

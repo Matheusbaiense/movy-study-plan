@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { listInstitutions } from '@/lib/portfolio/queries'
 import { PortfolioPage } from '@/components/portfolio/PortfolioPage'
@@ -16,7 +16,7 @@ export default async function PortfolioIndexPage({ params }: Props) {
   let courseCountMap: Record<string, number> = {}
 
   try {
-    const db = createServiceClient()
+    const db = await createClient()
     institutions = await listInstitutions(db)
 
     if (institutions.length > 0) {
@@ -34,7 +34,7 @@ export default async function PortfolioIndexPage({ params }: Props) {
       }
     }
   } catch {
-    // service key not configured — page renders empty
+    // renders empty on error
   }
 
   return <PortfolioPage institutions={institutions} courseCountMap={courseCountMap} />

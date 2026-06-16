@@ -2,8 +2,8 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { logAuditWithClient } from '@/lib/api/audit'
+import { getActorSession } from '@/lib/actions/auth'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
@@ -31,24 +31,9 @@ function isStudyPlanStatus(value: string): value is StudyPlanStatus {
 }
 
 async function getActor() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email, org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isEditorOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
-
-  return { supabase, user, profile }
+  const session = await getActorSession()
+  if (!isEditorOrAbove(session.profile.role)) throw new Error('Insufficient permissions')
+  return session
 }
 
 interface ProposalEventInput {
@@ -346,22 +331,8 @@ export async function restoreStudyPlan(id: string, locale = 'pt') {
  * log. Does not redirect — callable from a trash/list view.
  */
 export async function hardDeleteStudyPlan(id: string, locale = 'pt') {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email, org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isAdminOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
+  const { supabase, user, profile } = await getActorSession()
+  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
 
   const { error } = await supabase.from('study_plans').delete().eq('id', id).eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
@@ -833,11 +804,7 @@ export async function saveAsTemplateAction(
 export async function getShareUrlAction(
   id: string
 ): Promise<{ url: string }> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
+  const { supabase } = await getActor()
 
   const { data: plan } = await supabase
     .from('study_plans')
@@ -855,37 +822,4 @@ export async function getShareUrlAction(
 
   const base = origin.startsWith('http') ? origin : `https://${origin}`
   return { url: `${base}/pt/p/${plan.share_token}` }
-}
-
-export async function deleteStudyPlan(id: string, locale = 'pt') {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email, org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isAdminOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
-
-  const { error } = await supabase.from('study_plans').delete().eq('id', id).eq('org_id', profile.org_id)
-  if (error) throw new Error(error.message)
-
-  await logAuditWithClient(supabase, {
-    actorId: user.id,
-    actorEmail: profile.email,
-    action: 'study_plan.delete',
-    entityType: 'study_plans',
-    entityId: id,
-  })
-
-  revalidatePath(`/${locale}/study-plans`)
-  redirect(`/${locale}/study-plans`)
 }

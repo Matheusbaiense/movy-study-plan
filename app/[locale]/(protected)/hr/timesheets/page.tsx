@@ -4,14 +4,17 @@ import { TimesheetTable } from '@/components/hr/TimesheetTable'
 import { listTimeEntries, listEmployees } from '@/lib/hr'
 import { t, font, ink } from '@/lib/ui/theme'
 
+const PAGE_SIZE = 100
+
 interface Props {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ status?: string; employeeId?: string }>
+  searchParams: Promise<{ status?: string; employeeId?: string; page?: string }>
 }
 
 export default async function TimesheetsPage({ params, searchParams }: Props) {
   const { locale } = await params
-  const { status, employeeId } = await searchParams
+  const { status, employeeId, page: pageStr } = await searchParams
+  const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -28,6 +31,8 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
     listTimeEntries(supabase, profile.org_id, {
       status: status || undefined,
       employeeId: employeeId || undefined,
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
     }),
     listEmployees(supabase, profile.org_id),
   ])
@@ -97,6 +102,31 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
           showEmployeeName
         />
       </div>
+
+      {/* Pagination */}
+      {(page > 1 || entries.length === PAGE_SIZE) && (
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 20 }}>
+          {page > 1 && (
+            <a
+              href={`/${locale}/hr/timesheets?page=${page - 1}${status ? `&status=${status}` : ''}${employeeId ? `&employeeId=${employeeId}` : ''}`}
+              style={{ padding: '6px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: 'var(--surface)', color: t.textMuted, border: `1px solid ${ink(0.1)}`, textDecoration: 'none' }}
+            >
+              ← {locale === 'pt' ? 'Anterior' : 'Previous'}
+            </a>
+          )}
+          <span style={{ padding: '6px 16px', fontSize: 13, color: t.textMuted }}>
+            {locale === 'pt' ? `Página ${page}` : `Page ${page}`}
+          </span>
+          {entries.length === PAGE_SIZE && (
+            <a
+              href={`/${locale}/hr/timesheets?page=${page + 1}${status ? `&status=${status}` : ''}${employeeId ? `&employeeId=${employeeId}` : ''}`}
+              style={{ padding: '6px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: 'var(--surface)', color: t.textMuted, border: `1px solid ${ink(0.1)}`, textDecoration: 'none' }}
+            >
+              {locale === 'pt' ? 'Próxima' : 'Next'} →
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '@/lib/security/sanitize-html'
 import type { InfoBoxBlock } from '@/types/blocks'
 
 const VARIANTS = {
@@ -19,7 +20,7 @@ export function InfoBox({ block }: { block: InfoBoxBlock }) {
       </div>
       <div
         style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6 }}
-        dangerouslySetInnerHTML={{ __html: block.content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
       />
     </div>
   )

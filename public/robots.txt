@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api/
+Disallow: /en/(protected)/
+Disallow: /pt/(protected)/

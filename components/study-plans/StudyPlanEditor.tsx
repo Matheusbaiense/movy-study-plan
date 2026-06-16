@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { updateStudyPlan } from '@/app/[locale]/(protected)/study-plans/actions'
 import { computeProposal } from '@/lib/study-plans/calculations'
@@ -55,6 +56,7 @@ interface Props {
 const applicantTypes: ApplicantType[] = ['Individual', 'Casal', 'Familia', 'Single Parent']
 
 export function StudyPlanEditor({ id, locale, initialData, status, presets: _presets, contactNationality }: Props) {
+  const router = useRouter()
   const [plan, setPlan] = useState(initialData)
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('saved')
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(() => Date.now())
@@ -98,9 +100,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     })
   }, [id, plan])
 
-  function save() {
-    persist()
-  }
+  const save = useCallback(() => persist(), [persist])
 
   useEffect(() => {
     if (JSON.stringify(plan) === lastPersistedRef.current) return
@@ -172,7 +172,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
           <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--surface)' }}>
             <VersionHistory
               planId={id}
-              onRestored={() => { window.location.reload() }}
+              onRestored={router.refresh}
             />
           </div>
         )}

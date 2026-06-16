@@ -45,8 +45,6 @@ function daysToExpiry(expiresAt: string | null | undefined): { days: number | nu
 export default async function StudyPlansPage({ params, searchParams }: Props) {
   const { locale } = await params
   const sp = await searchParams
-  const { profile } = await getUser(locale)
-  const supabase = await createClient()
 
   const view = pick(sp.view) === 'trash' ? 'trash' : 'active'
   const query = pick(sp.q)
@@ -55,27 +53,38 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
   const sort = ['updated', 'created', 'student'].includes(pick(sp.sort)) ? pick(sp.sort) : 'updated'
   const page = Math.max(1, Number.parseInt(pick(sp.page) || '1', 10) || 1)
 
-  let q = supabase
-    .from('study_plans')
-    .select(
-      'id, title, student_name, applicant_type, status, data, currency_code, expires_at, updated_at, created_at',
-      { count: 'exact' }
-    )
+  // Build and fire the DB query in parallel with getUser — RLS scopes it automatically
+  async function fetchPlans() {
+    const supabase = await createClient()
+    let q = supabase
+      .from('study_plans')
+      .select(
+        'id, title, student_name, applicant_type, status, data, currency_code, expires_at, updated_at, created_at',
+        { count: 'exact' }
+      )
 
-  q = view === 'trash' ? q.not('deleted_at', 'is', null) : q.is('deleted_at', null)
-  if (statusFilter) q = q.eq('status', statusFilter as StudyPlanStatus)
-  if (typeFilter) q = q.eq('applicant_type', typeFilter)
-  const safeSearch = sanitizeSearch(query)
-  if (safeSearch) q = q.or(`student_name.ilike.%${safeSearch}%,title.ilike.%${safeSearch}%`)
+    q = view === 'trash' ? q.not('deleted_at', 'is', null) : q.is('deleted_at', null)
+    if (statusFilter) q = q.eq('status', statusFilter as StudyPlanStatus)
+    if (typeFilter) q = q.eq('applicant_type', typeFilter)
+    const safeSearch = sanitizeSearch(query)
+    if (safeSearch) q = q.or(`student_name.ilike.%${safeSearch}%,title.ilike.%${safeSearch}%`)
 
-  if (sort === 'student') q = q.order('student_name', { ascending: true })
-  else if (sort === 'created') q = q.order('created_at', { ascending: false })
-  else q = q.order('updated_at', { ascending: false })
+    if (sort === 'student') q = q.order('student_name', { ascending: true })
+    else if (sort === 'created') q = q.order('created_at', { ascending: false })
+    else q = q.order('updated_at', { ascending: false })
 
-  const from = (page - 1) * PAGE_SIZE
-  q = q.range(from, from + PAGE_SIZE - 1)
+    const from = (page - 1) * PAGE_SIZE
+    q = q.range(from, from + PAGE_SIZE - 1)
 
-  const { data: plans, count } = await q
+    return q
+  }
+
+  const [{ profile }, plansResult] = await Promise.all([
+    getUser(locale),
+    fetchPlans().then(q => q),
+  ])
+
+  const { data: plans, count } = await plansResult
   const rows = (plans ?? []) as unknown as StudyPlanRow[]
 
   const items: ProposalItem[] = rows.map((row) => {

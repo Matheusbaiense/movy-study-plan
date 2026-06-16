@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { listInvoices, listEmployees } from '@/lib/hr'
+import { listInvoices, listEmployeesWithNames } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, font, ink } from '@/lib/ui/theme'
@@ -30,7 +30,7 @@ export default async function InvoicesPage({ params }: Props) {
 
   const [invoices, employees] = await Promise.all([
     listInvoices(supabase, profile.org_id),
-    listEmployees(supabase, profile.org_id),
+    listEmployeesWithNames(supabase, profile.org_id),
   ])
 
   return (

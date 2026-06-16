@@ -1,11 +1,10 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/service'
 import { logAudit } from '@/lib/api/audit'
 import { isAdminOrAbove, isSuperAdmin } from '@/lib/permissions/can'
+import { getActorSession, svc as serviceClient } from '@/lib/actions/auth'
+import type { createServiceClient } from '@/lib/supabase/service'
 import type { Enums } from '@/types/supabase'
 
 type Role = Enums<'app_role'>
@@ -18,41 +17,15 @@ export interface ActionResult {
   error?: string
 }
 
-interface Actor {
-  id: string
-  email: string
-  role: Role
-}
+type Actor = { id: string; email: string; role: Role }
 
 const SERVICE_MISSING =
   'Configuração ausente no servidor: defina SUPABASE_SERVICE_ROLE_KEY (Vercel → Settings → Environment Variables).'
 
-/** Returns the service-role client, or null if the env var is not configured. */
-function serviceClient() {
-  try {
-    return createServiceClient()
-  } catch {
-    return null
-  }
-}
-
 async function requireAdmin(): Promise<Actor> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, email, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !isAdminOrAbove(profile.role)) {
-    throw new Error('Insufficient permissions')
-  }
-  return { id: profile.id, email: profile.email, role: profile.role }
+  const { profile } = await getActorSession()
+  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
+  return { id: profile.id, email: profile.email, role: profile.role as Role }
 }
 
 function validateRole(role: string, actor: Actor): Role | null {

@@ -1,35 +1,42 @@
 'use server'
 
+import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/service'
 import { logAudit } from '@/lib/api/audit'
 import { isAdminOrAbove, isEditorOrAbove } from '@/lib/permissions/can'
+import { getActorSession, svc } from '@/lib/actions/auth'
 import type { Json } from '@/types/supabase'
 
-interface Actor { id: string; email: string; org_id: string }
+const institutionSchema = z.object({
+  name: z.string().min(1, 'Nome obrigatório').max(200),
+  country: z.string().max(10).optional(),
+  city: z.string().max(100).optional(),
+  website: z.string().url().optional().or(z.literal('')),
+  notes: z.string().max(2000).optional(),
+  partnership_status: z.string().optional(),
+})
+
+const courseSchema = z.object({
+  name: z.string().min(1, 'Nome obrigatório').max(300),
+  type: z.enum(['elicos', 'vet', 'he']),
+  institution_id: z.string().uuid(),
+  duration_weeks: z.number().int().min(1).optional(),
+  rate_per_week_cents: z.number().int().min(0).optional(),
+  currency_code: z.string().length(3).optional(),
+})
+
+type Actor = { id: string; email: string; org_id: string }
 
 async function requireAdmin(): Promise<Actor> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-  const { data: profile } = await supabase.from('profiles').select('id, email, role, org_id').eq('id', user.id).single()
-  if (!profile || !isAdminOrAbove(profile.role)) throw new Error('Permissão insuficiente')
+  const { profile } = await getActorSession()
+  if (!isAdminOrAbove(profile.role)) throw new Error('Permissão insuficiente')
   return { id: profile.id, email: profile.email, org_id: profile.org_id }
 }
 
 async function requireEditor(): Promise<Actor> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-  const { data: profile } = await supabase.from('profiles').select('id, email, role, org_id').eq('id', user.id).single()
-  if (!profile || !isEditorOrAbove(profile.role)) throw new Error('Permissão insuficiente')
+  const { profile } = await getActorSession()
+  if (!isEditorOrAbove(profile.role)) throw new Error('Permissão insuficiente')
   return { id: profile.id, email: profile.email, org_id: profile.org_id }
-}
-
-function svc() {
-  try { return createServiceClient() } catch { return null }
 }
 
 const cents = (v: unknown) => {
@@ -49,6 +56,7 @@ export interface InstitutionInput {
 }
 
 export async function createInstitutionAction(input: InstitutionInput): Promise<{ id: string }> {
+  institutionSchema.parse(input)
   const actor = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
@@ -136,6 +144,7 @@ export interface CourseInput {
 }
 
 export async function createCourseAction(input: CourseInput): Promise<{ id: string }> {
+  z.object({ institution_id: z.string().uuid(), name: z.string().min(1).max(300), type: z.string().min(1) }).parse(input)
   const actor = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')

@@ -1,5 +1,6 @@
 'use client'
 
+import { sanitizeHtml } from '@/lib/security/sanitize-html'
 import type { StepsBlock as StepsBlockType } from '@/types/blocks'
 
 export function StepsBlock({ block }: { block: StepsBlockType }) {
@@ -39,7 +40,7 @@ export function StepsBlock({ block }: { block: StepsBlockType }) {
               {step.body && (
                 <div
                   style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}
-                  dangerouslySetInnerHTML={{ __html: step.body }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(step.body) }}
                 />
               )}
               {step.note && (

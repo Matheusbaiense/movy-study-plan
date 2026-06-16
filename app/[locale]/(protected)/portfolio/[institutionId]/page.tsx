@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { listCourses } from '@/lib/portfolio/queries'
 import { InstitutionDetail } from '@/components/portfolio/InstitutionDetail'
@@ -19,7 +19,7 @@ export default async function InstitutionPage({ params }: Props) {
   let rules: PricingRuleRow[] = []
 
   try {
-    const db = createServiceClient()
+    const db = await createClient()
 
     const { data } = await db
       .from('institutions')

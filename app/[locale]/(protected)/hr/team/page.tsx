@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, Clock, FileText, TrendingUp, ChevronRight } from 'lucide-react'
+import { Users, Clock, FileText, TrendingUp } from 'lucide-react'
+import { EditRateButton } from '@/components/hr/EditRateButton'
 import { listEmployeesWithStats } from '@/lib/hr/queries'
 import { isHrAdmin } from '@/lib/hr'
 import { t, ink, font, color } from '@/lib/ui/theme'
@@ -188,11 +189,14 @@ export default async function TeamPage({ params }: Props) {
                 </div>
 
                 {/* Role + rate */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                   <RoleBadge role={emp.role} locale={locale} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>
-                    AU${rate}<span style={{ fontWeight: 400, color: t.textMuted, fontSize: 11 }}>/hr</span>
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>
+                      AU${rate}<span style={{ fontWeight: 400, color: t.textMuted, fontSize: 11 }}>/hr</span>
+                    </span>
+                    <EditRateButton employeeId={emp.id} currentRateCents={emp.hourly_rate_in_cents} />
+                  </div>
                 </div>
 
                 {/* Divider */}

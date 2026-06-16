@@ -8,7 +8,13 @@
       "file": "app/[locale]/(protected)/hr/page.tsx, app/[locale]/(protected)/hr/actions.ts, components/hr/CreateEmployeeProfileButton.tsx",
       "root_cause": "page.tsx não renderizava ClockWidget quando employee === null, mesmo para admins; não havia mecanismo para criar o próprio employee_profile",
       "fix": "Adicionado createOwnEmployeeProfileAction (chama upsertEmployee idempotente + revalidatePath) e CreateEmployeeProfileButton client component exibido no card 'Modo Administrador'",
-      "tags": ["hr", "admin", "employee-profile", "clock-widget", "server-action"],
+      "tags": [
+        "hr",
+        "admin",
+        "employee-profile",
+        "clock-widget",
+        "server-action"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-16T00:00:00.000Z"
@@ -383,6 +389,43 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-16T06:45:49.505Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-06-16T22:10:00.000Z",
+      "error_message": "Mega-audit (C1-C11 + H1-H5): XSS in wiki blocks via dangerouslySetInnerHTML without sanitizeHtml; silent audit failures; SupabaseClient<any>; service-role client bypasses RLS in portfolio pages; no role checks on HR approve/reject/generateInvoice; no audit logging in HR mutations; dead deleteStudyPlan; inline auth in getShareUrlAction missing role check; FX returns 200 with rate=0 on all-provider-failure; preset update/delete without org_id; no rate limiting on proposal accept",
+      "file": "components/wiki/BlockRenderer.tsx, components/wiki/blocks/StepsBlock.tsx, components/wiki/blocks/InfoBox.tsx, lib/api/audit.ts, app/[locale]/(protected)/portfolio/page.tsx, app/[locale]/(protected)/portfolio/[institutionId]/page.tsx, app/[locale]/(protected)/hr/actions.ts, app/[locale]/(protected)/study-plans/actions.ts, app/api/fx/route.ts, app/[locale]/(protected)/settings/presets/actions.ts, app/[locale]/p/[token]/actions.ts, .github/workflows/ci.yml, tests/permissions.test.mjs",
+      "root_cause": "Multiple gaps in security hardening: (1) wiki blocks rendered HTML without sanitization, (2) audit.ts swallowed DB failures silently and used SupabaseClient<any>, (3) portfolio pages used service client bypassing RLS for multi-tenant data, (4) HR actions lacked role enforcement and audit trail for sensitive mutations, (5) deleteStudyPlan was unreachable dead code with duplicate auth, (6) FX returning HTTP 200 even when no rate could be fetched is misleading for callers, (7) preset mutations used service client without org_id filter allowing cross-tenant writes, (8) proposal accept had no rate limiting.",
+      "fix": "C1: sanitizeHtml() wrapped around all dangerouslySetInnerHTML values; C2: isomorphic-dompurify upgraded to 3.17.0 (dompurify 3.4.10); C3: in-process rate limiter on acceptProposalAction; C4: portfolio pages switched to authenticated createClient() so RLS scopes by org; C5: .github/workflows/ci.yml created; C6: catch {} → catch(err) console.error([AUDIT_FAILED]); C7: logAudit added to approve/reject/generateInvoice; C8: tests/permissions.test.mjs 33/33 pass; C11: deleted deleteStudyPlan dead code; H1: isHrAdmin() gate added to approve/reject/generateInvoice; H2: org_id added to requireAdmin() return, applied to create/update/delete presets; H3: getShareUrlAction replaced inline auth with getActor(); H4: FX returns 503 when rate===0; H5: SupabaseClient<Database> replaces <any,any,any>, removed as never cast.",
+      "tags": [
+        "security",
+        "xss",
+        "sanitize",
+        "rls",
+        "multi-tenancy",
+        "audit",
+        "rate-limit",
+        "permissions",
+        "dead-code",
+        "ci"
+      ],
+      "related_bugs": [
+        "bug-022"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T22:10:00.000Z"
+    }
+  ,{
+      "id": "bug-024",
+      "timestamp": "2026-06-16T22:30:00.000Z",
+      "error_message": "Sistema extremamente lento — toda página demora 1.1s–2s para carregar",
+      "file": "middleware.ts, app/[locale]/(protected)/hr/page.tsx, app/[locale]/(protected)/study-plans/page.tsx",
+      "root_cause": "Waterfall de 3+ chamadas sequenciais ao Supabase em cada request: (1) middleware.ts chamava auth.getUser() — round-trip HTTP ao Supabase Auth (~300ms); (2) getUser() helper na página chamava auth.getUser() novamente — outro round-trip; (3) hr/page.tsx fazia auth manual duplicada, bypassando o cache() do React; (4) queries no HR eram todas sequenciais (getEmployee → getActiveClock → listEntries → listEmployees).",
+      "fix": "middleware.ts: trocado auth.getUser() por auth.getSession() (lê cookie localmente, sem rede). hr/page.tsx: substituído auth manual pelo helper getUser() com cache React; queries paralelas via Promise.all([getActiveClockEntry, listTimeEntries, listEmployeesWithNames]). study-plans/page.tsx: getUser() + query study_plans executados em parallel via Promise.all.",
+      "tags": ["performance", "ttfb", "supabase", "auth", "ssr", "middleware", "waterfall", "parallel"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T22:30:00.000Z"
     }
   ]
 }

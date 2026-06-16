@@ -91,10 +91,13 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session — IMPORTANT: must be getUser(), not getSession()
+  // Use getSession() here for the redirect-only check — avoids a remote JWT validation
+  // round-trip on every page load. Full validation (getUser()) still happens in each
+  // server component before any data is accessed.
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
+  const user = session?.user
 
   if (!user) {
     const locale =

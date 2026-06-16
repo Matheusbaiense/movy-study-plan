@@ -2,9 +2,34 @@ import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/service'
 import { PublicProposalPage } from '@/components/study-plans/PublicProposalPage'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
+import type { Metadata } from 'next'
 
 interface Props {
   params: Promise<{ locale: string; token: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { token } = await params
+  try {
+    const db = createServiceClient()
+    const { data } = await db
+      .from('study_plans')
+      .select('student_name')
+      .eq('share_token', token)
+      .is('deleted_at', null)
+      .maybeSingle()
+    const name = data?.student_name ?? 'Aluno'
+    const title = `Proposta de Estudo para ${name}`
+    const description = 'Visualize sua proposta de estudo personalizada.'
+    return {
+      title,
+      description,
+      openGraph: { title, description, type: 'website' },
+      twitter: { card: 'summary', title, description },
+    }
+  } catch {
+    return { title: 'Proposta de Estudo' }
+  }
 }
 
 export default async function PublicProposalTokenPage({ params }: Props) {

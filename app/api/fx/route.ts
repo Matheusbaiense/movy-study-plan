@@ -147,6 +147,9 @@ export async function GET() {
     return NextResponse.json(cache.data)
   }
   const data = await resolveRate()
-  if (data.rate > 0) cache = { data, ts: Date.now() }
-  return NextResponse.json(data)
+  if (data.rate > 0) {
+    cache = { data, ts: Date.now() }
+    return NextResponse.json(data)
+  }
+  return NextResponse.json(data, { status: 503 })
 }

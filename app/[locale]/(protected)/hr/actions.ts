@@ -1,8 +1,16 @@
 'use server'
 
+import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { logAudit } from '@/lib/api/audit'
+import { getActorSession } from '@/lib/actions/auth'
+
+const logHoursSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Start time must be HH:MM'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'End time must be HH:MM'),
+  description: z.string().max(500).optional(),
+})
 import {
   getEmployeeByProfileId, getActiveClockEntry, upsertEmployee,
   clockIn as insertEntry, clockOut, updateEntryStatus, listRateRules,
@@ -15,20 +23,7 @@ import {
   calculateLineItemCents, computeTotalCents,
 } from '@/lib/hr/calculations'
 
-async function getActor() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/unauthorized')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, org_id, role, email')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) throw new Error('Unauthenticated')
-  return { supabase, profile }
-}
+const getActor = getActorSession
 
 export async function createOwnEmployeeProfileAction() {
   const { supabase, profile } = await getActor()
@@ -89,6 +84,7 @@ export async function logHoursAction(
   endTime: string,    // 'HH:MM'
   description?: string,
 ) {
+  logHoursSchema.parse({ date, startTime, endTime, description })
   const { supabase, profile } = await getActor()
 
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
@@ -124,14 +120,18 @@ export async function logHoursAction(
 
 export async function approveEntryAction(entryId: string) {
   const { supabase, profile } = await getActor()
+  if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'approved', profile.id)
+  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.approve', entityType: 'hr_time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
 }
 
 export async function rejectEntryAction(entryId: string) {
   const { supabase, profile } = await getActor()
+  if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'rejected', profile.id)
+  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.reject', entityType: 'hr_time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
 }
@@ -142,6 +142,7 @@ export async function generateInvoiceAction(
   periodEnd: string,
 ) {
   const { supabase, profile } = await getActor()
+  if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
 
   const rules = await listRateRules(supabase, profile.org_id)
   const entries = await listTimeEntries(supabase, profile.org_id, {
@@ -189,9 +190,25 @@ export async function generateInvoiceAction(
   })
 
   await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id))
+  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.generate', entityType: 'hr_invoices', entityId: invoice.id, metadata: { employeeId, periodStart, periodEnd } })
 
   revalidatePath('/', 'layout')
   return invoice
+}
+
+export async function updateEmployeeRateAction(employeeId: string, ratePerHour: number) {
+  const { supabase, profile } = await getActor()
+  if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
+  if (ratePerHour < 0) throw new Error('Rate cannot be negative')
+
+  const { error } = await supabase
+    .from('employee_profiles')
+    .update({ hourly_rate_in_cents: Math.round(ratePerHour * 100) })
+    .eq('id', employeeId)
+    .eq('org_id', profile.org_id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/', 'layout')
 }
 
 export async function issueInvoiceAction(invoiceId: string) {

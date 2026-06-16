@@ -1,0 +1,121 @@
+<h2>Design — Seção 1: Schema & Arquitetura</h2>
+<p class="subtitle">Módulo HR · Time Tracker + Invoice Generator</p>
+
+<div class="section">
+  <h3>Onde vive no app</h3>
+  <div class="mockup">
+    <div class="mockup-header">app/[locale]/(protected)/</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2">
+      <div style="color:#4B1A77;font-weight:bold">hr/                          ← nova seção</div>
+      <div style="padding-left:20px">page.tsx                     ← dashboard de ponto (entradas recentes)</div>
+      <div style="padding-left:20px">clock/</div>
+      <div style="padding-left:40px">page.tsx                     ← clock in/out do funcionário</div>
+      <div style="padding-left:20px">timesheets/</div>
+      <div style="padding-left:40px">page.tsx                     ← lista de entradas (admin aprova)</div>
+      <div style="padding-left:20px">invoices/</div>
+      <div style="padding-left:40px">page.tsx                     ← lista de invoices geradas</div>
+      <div style="padding-left:40px">[id]/print/page.tsx          ← Tax Invoice PDF (window.print)</div>
+      <div style="color:#888;padding-left:0px;font-size:11px;margin-top:4px">components/hr/               ← componentes do módulo</div>
+      <div style="color:#888;padding-left:20px;font-size:11px">TaxInvoice.tsx               ← espelho do StudyPlanProposal.tsx</div>
+      <div style="color:#888;padding-left:20px;font-size:11px">ClockWidget.tsx              ← botão in/out com timer</div>
+      <div style="color:#888;padding-left:20px;font-size:11px">TimesheetTable.tsx           ← tabela de entradas + aprovação</div>
+      <div style="color:#888;padding-left:0px;font-size:11px">lib/hr/                      ← lógica pura</div>
+      <div style="color:#888;padding-left:20px;font-size:11px">calculations.ts              ← horas × taxa + multiplicadores</div>
+      <div style="color:#888;padding-left:20px;font-size:11px">queries.ts                   ← queries org-scoped</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Tabelas — 4 novas, todas org_id + RLS</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-weight:700;color:#4B1A77;font-size:13px;margin-bottom:8px">employee_profiles</div>
+      <div style="font-size:12px;font-family:monospace;line-height:1.8;color:var(--text-muted)">
+        id uuid PK<br>
+        org_id uuid FK<br>
+        profile_id uuid FK → profiles<br>
+        abn text<br>
+        bank_name text<br>
+        bsb text<br>
+        account_number text<br>
+        account_name text<br>
+        hourly_rate_in_cents bigint<br>
+        currency_code text default 'AUD'<br>
+        metadata jsonb<br>
+        external_id text
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-weight:700;color:#4B1A77;font-size:13px;margin-bottom:8px">time_entries</div>
+      <div style="font-size:12px;font-family:monospace;line-height:1.8;color:var(--text-muted)">
+        id uuid PK<br>
+        org_id uuid FK<br>
+        employee_id uuid FK → employee_profiles<br>
+        clock_in timestamptz NOT NULL<br>
+        clock_out timestamptz<br>
+        description text<br>
+        day_type text (weekday/saturday/sunday/public_holiday)<br>
+        status text (pending/approved/rejected)<br>
+        approved_by uuid FK → profiles<br>
+        invoice_id uuid FK → hr_invoices (nullable)<br>
+        metadata jsonb
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-weight:700;color:#4B1A77;font-size:13px;margin-bottom:8px">hr_rate_rules</div>
+      <div style="font-size:12px;font-family:monospace;line-height:1.8;color:var(--text-muted)">
+        id uuid PK<br>
+        org_id uuid FK<br>
+        name text (ex: "Saturday Penalty")<br>
+        day_type text (weekday/saturday/sunday/public_holiday)<br>
+        multiplier numeric (ex: 1.5, 2.0)<br>
+        applies_from date<br>
+        applies_until date (nullable)<br>
+        metadata jsonb
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-weight:700;color:#FBB615;font-size:13px;margin-bottom:8px">hr_invoices</div>
+      <div style="font-size:12px;font-family:monospace;line-height:1.8;color:var(--text-muted)">
+        id uuid PK<br>
+        org_id uuid FK<br>
+        employee_id uuid FK → employee_profiles<br>
+        invoice_number text (auto: INV-{employee}-{seq})<br>
+        period_start date<br>
+        period_end date<br>
+        total_cents bigint (snapshot)<br>
+        currency_code text default 'AUD'<br>
+        status text (draft/issued/paid)<br>
+        issued_at timestamptz<br>
+        paid_at timestamptz<br>
+        metadata jsonb<br>
+        external_id text
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h3>Fluxo principal</h3>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;margin-top:8px">
+    <div style="background:#4B1A77;color:#fff;padding:6px 12px;border-radius:6px">Clock In/Out</div>
+    <div>→</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px">time_entry criado<br><span style="font-size:11px;color:var(--text-muted)">status: pending</span></div>
+    <div>→</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px">Admin aprova<br><span style="font-size:11px;color:var(--text-muted)">status: approved</span></div>
+    <div>→</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px">Seleciona período<br><span style="font-size:11px;color:var(--text-muted)">weekly/fort/monthly/custom</span></div>
+    <div>→</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px">hr_invoice gerada<br><span style="font-size:11px;color:var(--text-muted)">total snapshot</span></div>
+    <div>→</div>
+    <div style="background:#FBB615;color:#000;padding:6px 12px;border-radius:6px;font-weight:bold">Tax Invoice PDF<br><span style="font-size:11px">window.print()</span></div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:24px">Essa seção parece correta? Responde no terminal — depois mostro os mockups de UI.</p>
