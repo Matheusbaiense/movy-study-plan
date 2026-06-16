@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { createServiceClient } from '@/lib/supabase/service'
 import type { Json, Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -9,6 +10,7 @@ interface AuditParams {
   entityType?: string
   entityId?: string
   metadata?: Json
+  orgId?: string
 }
 
 export async function logAudit(params: AuditParams): Promise<void> {
@@ -21,9 +23,10 @@ export async function logAudit(params: AuditParams): Promise<void> {
       entity_type: params.entityType ?? null,
       entity_id: params.entityId ?? null,
       metadata: params.metadata ?? null,
+      org_id: params.orgId ?? null,
     })
   } catch (err) {
-    console.error('[AUDIT_FAILED]', params.action, err)
+    Sentry.captureException(err, { extra: { action: params.action } })
   }
 }
 
@@ -39,6 +42,7 @@ export async function logAuditWithClient(
       entity_type: params.entityType ?? null,
       entity_id: params.entityId ?? null,
       metadata: params.metadata ?? null,
+      org_id: params.orgId ?? null,
     })
   } catch {
     await logAudit(params)
