@@ -17,6 +17,7 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  Clock,
   type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -139,6 +140,10 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     { href: `/${locale}/departments`, icon: LayoutGrid, label: locale === 'en' ? 'Departments' : 'Departamentos' },
   ]
 
+  const operationsNav: NavEntry[] = [
+    { href: `/${locale}/hr`, icon: Clock, label: locale === 'pt' ? 'RH & Horas' : 'HR & Time' },
+  ]
+
   const settingsEntry: NavEntry | null = isAdminOrAbove(profile.role)
     ? { href: `/${locale}/settings`, icon: Settings, label: locale === 'pt' ? 'Configurações' : 'Settings' }
     : null
@@ -172,6 +177,17 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
         {/* Nav */}
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           {mainNav.map((item) => (
+            <NavItem key={item.href} item={item} active={isActive(item.href)} collapsed={isCollapsed} onClick={() => setMobileOpen(false)} />
+          ))}
+
+          {/* Operations section */}
+          {!isCollapsed && (
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--text-muted)', padding: '12px 8px 4px', textTransform: 'uppercase' }}>
+              {locale === 'pt' ? 'Operações' : 'Operations'}
+            </div>
+          )}
+          {isCollapsed && <div style={{ height: 12 }} />}
+          {operationsNav.map((item) => (
             <NavItem key={item.href} item={item} active={isActive(item.href)} collapsed={isCollapsed} onClick={() => setMobileOpen(false)} />
           ))}
         </nav>
