@@ -2,8 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/api/audit'
-import { isAdminOrAbove } from '@/lib/permissions/can'
-import { getActorSession, svc as serviceClient } from '@/lib/actions/auth'
+import { requireAdmin, svc as serviceClient } from '@/lib/actions/auth'
 import type { TablesInsert, TablesUpdate } from '@/types/supabase'
 
 export interface PresetResult {
@@ -11,17 +10,9 @@ export interface PresetResult {
   error?: string
 }
 
-type Actor = { id: string; email: string; orgId: string }
-
 const TYPES = ['elicos', 'vet', 'he']
 const SERVICE_MISSING =
   'Configuração ausente no servidor: defina SUPABASE_SERVICE_ROLE_KEY (Vercel → Settings → Environment Variables).'
-
-async function requireAdmin(): Promise<Actor> {
-  const { profile } = await getActorSession()
-  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
-  return { id: profile.id, email: profile.email, orgId: profile.org_id }
-}
 
 const num = (v: unknown) => {
   const n = Number(v)
@@ -62,7 +53,7 @@ function sanitize(input: Partial<PresetInput>) {
 }
 
 export async function createPreset(input: PresetInput): Promise<PresetResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   if (!input.provider?.trim() || !input.name?.trim()) return { ok: false, error: 'Escola e curso são obrigatórios.' }
   const row = sanitize(input)
   if (!row || !row.type) return { ok: false, error: 'Tipo de curso inválido.' }
@@ -72,7 +63,7 @@ export async function createPreset(input: PresetInput): Promise<PresetResult> {
 
   const { error } = await svc
     .from('course_presets')
-    .insert({ ...row, org_id: actor.orgId } as unknown as TablesInsert<'course_presets'>)
+    .insert({ ...row, org_id: actor.org_id } as unknown as TablesInsert<'course_presets'>)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.create', entityType: 'course_presets', metadata: { provider: String(row.provider ?? ''), name: String(row.name ?? '') } })
@@ -81,7 +72,7 @@ export async function createPreset(input: PresetInput): Promise<PresetResult> {
 }
 
 export async function updatePreset(id: string, patch: Partial<PresetInput>): Promise<PresetResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const row = sanitize(patch)
   if (!row) return { ok: false, error: 'Dados inválidos.' }
   if (Object.keys(row).length === 0) return { ok: true }
@@ -93,7 +84,7 @@ export async function updatePreset(id: string, patch: Partial<PresetInput>): Pro
     .from('course_presets')
     .update(row as unknown as TablesUpdate<'course_presets'>)
     .eq('id', id)
-    .eq('org_id', actor.orgId)
+    .eq('org_id', actor.org_id)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.update', entityType: 'course_presets', entityId: id, metadata: row as Record<string, string | number | boolean> })
@@ -102,11 +93,11 @@ export async function updatePreset(id: string, patch: Partial<PresetInput>): Pro
 }
 
 export async function deletePreset(id: string): Promise<PresetResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const svc = serviceClient()
   if (!svc) return { ok: false, error: SERVICE_MISSING }
 
-  const { error } = await svc.from('course_presets').delete().eq('id', id).eq('org_id', actor.orgId)
+  const { error } = await svc.from('course_presets').delete().eq('id', id).eq('org_id', actor.org_id)
   if (error) return { ok: false, error: error.message }
 
   await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'preset.delete', entityType: 'course_presets', entityId: id })

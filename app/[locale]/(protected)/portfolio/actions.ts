@@ -3,8 +3,7 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/api/audit'
-import { isAdminOrAbove, isEditorOrAbove } from '@/lib/permissions/can'
-import { getActorSession, svc } from '@/lib/actions/auth'
+import { requireAdmin, requireEditor, svc } from '@/lib/actions/auth'
 import type { Json } from '@/types/supabase'
 
 const institutionSchema = z.object({
@@ -25,20 +24,6 @@ const courseSchema = z.object({
   currency_code: z.string().length(3).optional(),
 })
 
-type Actor = { id: string; email: string; org_id: string }
-
-async function requireAdmin(): Promise<Actor> {
-  const { profile } = await getActorSession()
-  if (!isAdminOrAbove(profile.role)) throw new Error('Permissão insuficiente')
-  return { id: profile.id, email: profile.email, org_id: profile.org_id }
-}
-
-async function requireEditor(): Promise<Actor> {
-  const { profile } = await getActorSession()
-  if (!isEditorOrAbove(profile.role)) throw new Error('Permissão insuficiente')
-  return { id: profile.id, email: profile.email, org_id: profile.org_id }
-}
-
 const cents = (v: unknown) => {
   const n = Number(v)
   return Number.isFinite(n) && n >= 0 ? Math.round(n) : 0
@@ -57,7 +42,7 @@ export interface InstitutionInput {
 
 export async function createInstitutionAction(input: InstitutionInput): Promise<{ id: string }> {
   institutionSchema.parse(input)
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -87,7 +72,7 @@ export async function createInstitutionAction(input: InstitutionInput): Promise<
 }
 
 export async function updateInstitutionAction(id: string, input: InstitutionInput): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -116,7 +101,7 @@ export async function updateInstitutionAction(id: string, input: InstitutionInpu
 }
 
 export async function archiveInstitutionAction(id: string): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -145,7 +130,7 @@ export interface CourseInput {
 
 export async function createCourseAction(input: CourseInput): Promise<{ id: string }> {
   z.object({ institution_id: z.string().uuid(), name: z.string().min(1).max(300), type: z.string().min(1) }).parse(input)
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -179,7 +164,7 @@ export async function createCourseAction(input: CourseInput): Promise<{ id: stri
 }
 
 export async function updateCourseAction(id: string, institutionId: string, input: Omit<CourseInput, 'institution_id'>): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -207,7 +192,7 @@ export async function updateCourseAction(id: string, institutionId: string, inpu
 }
 
 export async function toggleCourseActiveAction(id: string, institutionId: string, isActive: boolean): Promise<void> {
-  const actor = await requireEditor()
+  const { profile: actor } = await requireEditor()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -222,7 +207,7 @@ export async function toggleCourseActiveAction(id: string, institutionId: string
 }
 
 export async function archiveCourseAction(id: string, institutionId: string): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -253,7 +238,7 @@ export interface PriceVersionInput {
 }
 
 export async function createPriceVersionAction(input: PriceVersionInput): Promise<{ id: string }> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -299,7 +284,7 @@ export interface PricingRuleInput {
 }
 
 export async function createPricingRuleAction(input: PricingRuleInput): Promise<{ id: string }> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -332,7 +317,7 @@ export async function createPricingRuleAction(input: PricingRuleInput): Promise<
 }
 
 export async function togglePricingRuleAction(id: string, isActive: boolean): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 
@@ -347,7 +332,7 @@ export async function togglePricingRuleAction(id: string, isActive: boolean): Pr
 }
 
 export async function deletePricingRuleAction(id: string): Promise<void> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const db = svc()
   if (!db) throw new Error('Serviço não configurado')
 

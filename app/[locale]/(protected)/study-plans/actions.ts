@@ -3,8 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { logAuditWithClient } from '@/lib/api/audit'
-import { getActorSession } from '@/lib/actions/auth'
-import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
+import { requireEditor, requireAdmin } from '@/lib/actions/auth'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
 import { upsertContact as upsertContactRecord, searchContacts } from '@/lib/crm/contacts'
@@ -30,11 +29,6 @@ function isStudyPlanStatus(value: string): value is StudyPlanStatus {
   return (Constants.public.Enums.study_plan_status as readonly string[]).includes(value)
 }
 
-async function getActor() {
-  const session = await getActorSession()
-  if (!isEditorOrAbove(session.profile.role)) throw new Error('Insufficient permissions')
-  return session
-}
 
 interface ProposalEventInput {
   orgId: string
@@ -75,7 +69,7 @@ function revalidateStudyPlans(locale?: string) {
 }
 
 export async function createStudyPlan(locale = 'pt') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
   const data = withComputed(createBlankStudyPlan())
 
   const { data: plan, error } = await supabase
@@ -117,7 +111,7 @@ export async function createStudyPlan(locale = 'pt') {
 }
 
 export async function updateStudyPlan(id: string, data: StudyPlanData, status = 'draft') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
   const title = data.student ? `Cotação - ${data.student}` : 'Cotação sem estudante'
   // Server-side recompute: ignore any client-sent `computed` and persist the
   // authoritative snapshot derived from the submitted plan inputs.
@@ -159,7 +153,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
  * the new proposal. Returns the new id. Editor+ only.
  */
 export async function duplicateStudyPlan(id: string, locale = 'pt'): Promise<{ id: string }> {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { data: source, error: srcErr } = await supabase
     .from('study_plans')
@@ -219,7 +213,7 @@ export async function duplicateStudyPlan(id: string, locale = 'pt'): Promise<{ i
  * timeline event. Editor+ only.
  */
 export async function changeStudyPlanStatus(id: string, status: string, locale = 'pt') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
   if (!isStudyPlanStatus(status)) throw new Error(`Invalid status: ${status}`)
 
   const patch: {
@@ -267,7 +261,7 @@ export async function archiveStudyPlan(id: string, locale = 'pt') {
  * `restoreStudyPlan`. Editor+ only.
  */
 export async function softDeleteStudyPlan(id: string, locale = 'pt') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { error } = await supabase
     .from('study_plans')
@@ -297,7 +291,7 @@ export async function softDeleteStudyPlan(id: string, locale = 'pt') {
 
 /** Restore a soft-deleted proposal (clears `deleted_at`). Editor+ only. */
 export async function restoreStudyPlan(id: string, locale = 'pt') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { error } = await supabase
     .from('study_plans')
@@ -331,8 +325,7 @@ export async function restoreStudyPlan(id: string, locale = 'pt') {
  * log. Does not redirect — callable from a trash/list view.
  */
 export async function hardDeleteStudyPlan(id: string, locale = 'pt') {
-  const { supabase, user, profile } = await getActorSession()
-  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
+  const { supabase, user, profile } = await requireAdmin()
 
   const { error } = await supabase.from('study_plans').delete().eq('id', id).eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
@@ -371,7 +364,7 @@ export async function bulkStudyPlanAction(
   if (unique.length === 0) return { ok: true, count: 0 }
 
   try {
-    const { supabase, user, profile } = await getActor()
+    const { supabase, user, profile } = await requireEditor()
     const stamp = new Date().toISOString()
 
     for (const id of unique) {
@@ -431,7 +424,7 @@ export async function upsertContact(
   input: UpsertContactActionInput,
   locale = 'pt'
 ): Promise<{ id: string }> {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const contact = await upsertContactRecord(supabase, {
     id: input.id,
@@ -495,7 +488,7 @@ function toContactPick(contact: Contact): ContactPick {
 
 /** Typeahead for the "passo 0" modal. Editor+ only; org-scoped via RLS. */
 export async function searchContactsAction(query: string): Promise<ContactPick[]> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   const rows = await searchContacts(supabase, query)
   return rows.map(toContactPick)
 }
@@ -507,7 +500,7 @@ export async function searchContactsAction(query: string): Promise<ContactPick[]
  * the editor. Editor+ only.
  */
 export async function createProposalForContact(contactId: string, locale = 'pt') {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { data: contact, error: contactErr } = await supabase
     .from('contacts')
@@ -567,7 +560,7 @@ export async function createProposalForContact(contactId: string, locale = 'pt')
 
 /** Search the portfolio catalog for courses (picker typeahead). Editor+ only. */
 export async function searchCoursesAction(query: string): Promise<CourseOption[]> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   if (!query.trim()) return []
   return createPortfolioCourseSource(supabase).search(query)
 }
@@ -577,7 +570,7 @@ export async function resolveCourseAction(
   courseId: string,
   opts: { nationality?: string | null; location?: StudentLocation } = {},
 ): Promise<PortfolioCourseRef | null> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   return createPortfolioCourseSource(supabase).resolve(courseId, {
     nationality: opts.nationality ?? undefined,
     location: opts.location,
@@ -586,7 +579,7 @@ export async function resolveCourseAction(
 
 /** List the available prices for a catalog course (Normal/Mercado/País) for the override selector. */
 export async function listCoursePricesAction(courseId: string): Promise<PricedOption[]> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   return createPortfolioCourseSource(supabase).listPrices(courseId)
 }
 
@@ -607,7 +600,7 @@ export interface VersionSummary {
  * reads from the DB so it always reflects the last auto-saved state. Editor+.
  */
 export async function saveVersionAction(planId: string, label?: string): Promise<{ version_number: number }> {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { data: plan, error: planErr } = await supabase
     .from('study_plans')
@@ -650,7 +643,7 @@ export async function saveVersionAction(planId: string, label?: string): Promise
 
 /** Return the last 20 versions for a plan (read-only). */
 export async function listVersionsAction(planId: string): Promise<VersionSummary[]> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   const { data, error } = await supabase
     .from('proposal_versions')
     .select('id, version_number, label, reason, status, created_at, created_by')
@@ -667,7 +660,7 @@ export async function listVersionsAction(planId: string): Promise<VersionSummary
  * Revalidates so the editor server-renders fresh initial data. Editor+.
  */
 export async function restoreVersionAction(planId: string, versionId: string): Promise<void> {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { data: version, error: vErr } = await supabase
     .from('proposal_versions')
@@ -730,7 +723,7 @@ export interface TemplateSummary {
 
 /** Return all active templates for the org. */
 export async function listTemplatesAction(): Promise<TemplateSummary[]> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
   const { data, error } = await supabase
     .from('proposal_templates')
     .select('id, name, description, applicant_type, created_at')
@@ -751,7 +744,7 @@ export async function saveAsTemplateAction(
   name: string,
   description?: string,
 ): Promise<{ id: string }> {
-  const { supabase, user, profile } = await getActor()
+  const { supabase, user, profile } = await requireEditor()
 
   const { data: plan, error: planErr } = await supabase
     .from('study_plans')
@@ -804,7 +797,7 @@ export async function saveAsTemplateAction(
 export async function getShareUrlAction(
   id: string
 ): Promise<{ url: string }> {
-  const { supabase } = await getActor()
+  const { supabase } = await requireEditor()
 
   const { data: plan } = await supabase
     .from('study_plans')

@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/api/audit'
-import { getActorSession } from '@/lib/actions/auth'
+import { requireActor } from '@/lib/actions/auth'
 
 const logHoursSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
@@ -23,10 +23,8 @@ import {
   calculateLineItemCents, computeTotalCents,
 } from '@/lib/hr/calculations'
 
-const getActor = getActorSession
-
 export async function createOwnEmployeeProfileAction() {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
 
   const existing = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (existing) {
@@ -45,7 +43,7 @@ export async function createOwnEmployeeProfileAction() {
 }
 
 export async function clockInAction(description?: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
 
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (!employee) throw new Error('Employee profile not found for this account')
@@ -73,7 +71,7 @@ export async function clockInAction(description?: string) {
 }
 
 export async function clockOutAction(entryId: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (!employee) throw new Error('Employee profile not found')
   const entry = await clockOut(supabase, entryId, profile.org_id, employee.id, new Date().toISOString())
@@ -90,7 +88,7 @@ export async function logHoursAction(
   description?: string,
 ) {
   logHoursSchema.parse({ date, startTime, endTime, description })
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
 
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (!employee) throw new Error('Employee profile not found for this account')
@@ -126,7 +124,7 @@ export async function logHoursAction(
 }
 
 export async function approveEntryAction(entryId: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'approved', profile.id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.approve', entityType: 'hr_time_entries', entityId: entryId })
@@ -135,7 +133,7 @@ export async function approveEntryAction(entryId: string) {
 }
 
 export async function rejectEntryAction(entryId: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'rejected', profile.id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.reject', entityType: 'hr_time_entries', entityId: entryId })
@@ -148,7 +146,7 @@ export async function generateInvoiceAction(
   periodStart: string,
   periodEnd: string,
 ) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
 
   const rules = await listRateRules(supabase, profile.org_id)
@@ -211,7 +209,7 @@ export async function generateOwnInvoiceAction(
   periodStart: string,
   periodEnd: string,
 ) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
 
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (!employee) throw new Error('Você não tem um perfil de funcionário. Fale com o administrador.')
@@ -270,7 +268,7 @@ export async function generateOwnInvoiceAction(
 }
 
 export async function updateEmployeeRateAction(employeeId: string, ratePerHour: number) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   if (ratePerHour < 0) throw new Error('Rate cannot be negative')
 
@@ -287,7 +285,7 @@ export async function updateEmployeeRateAction(employeeId: string, ratePerHour: 
 }
 
 export async function issueInvoiceAction(invoiceId: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'issued', profile.org_id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.issued', entityType: 'hr_invoices', entityId: invoiceId })
@@ -296,7 +294,7 @@ export async function issueInvoiceAction(invoiceId: string) {
 }
 
 export async function markInvoicePaidAction(invoiceId: string) {
-  const { supabase, profile } = await getActor()
+  const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'paid', profile.org_id)
   await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.paid', entityType: 'hr_invoices', entityId: invoiceId })

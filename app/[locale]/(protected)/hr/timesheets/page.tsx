@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { getUser } from '@/lib/auth/get-user'
 import { TimesheetTable } from '@/components/hr/TimesheetTable'
 import { listTimeEntries, listEmployeesWithNames, getEmployeeByProfileId, isHrAdmin } from '@/lib/hr'
 import { t, font, ink } from '@/lib/ui/theme'
@@ -15,17 +15,11 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
   const { locale } = await params
   const { status, employeeId, page: pageStr } = await searchParams
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
-  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) redirect(`/${locale}/login`)
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, org_id, role')
-    .eq('id', user.id)
-    .single()
-  if (profileError || !profile) redirect(`/${locale}/login`)
+  const [{ profile }, supabase] = await Promise.all([
+    getUser(locale),
+    createClient(),
+  ])
 
   const isAdmin = isHrAdmin(profile.role)
 

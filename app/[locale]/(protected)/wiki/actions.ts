@@ -3,15 +3,13 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { logAuditWithClient } from '@/lib/api/audit'
-import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
 import { slugify } from '@/lib/slug'
 import { sanitizeHtml } from '@/lib/security/sanitize-html'
-import { getActorSession } from '@/lib/actions/auth'
+import { requireEditor, requireAdmin } from '@/lib/actions/auth'
 import type { Enums } from '@/types/supabase'
 
 export async function createContent(locale: string, formData: FormData) {
-  const { supabase, profile } = await getActorSession()
-  if (!isEditorOrAbove(profile.role)) throw new Error('Insufficient permissions')
+  const { supabase, profile } = await requireEditor()
 
   const titlePt = formData.get('title_pt') as string
   const titleEn = (formData.get('title_en') as string) || null
@@ -92,8 +90,7 @@ export async function createContent(locale: string, formData: FormData) {
 }
 
 export async function updateContent(id: string, formData: FormData) {
-  const { supabase, profile } = await getActorSession()
-  if (!isEditorOrAbove(profile.role)) throw new Error('Insufficient permissions')
+  const { supabase, profile } = await requireEditor()
 
   const titlePt = formData.get('title_pt') as string
   const titleEn = (formData.get('title_en') as string) || null
@@ -153,8 +150,7 @@ export async function updateContent(id: string, formData: FormData) {
 }
 
 export async function deleteContent(id: string, locale = 'pt') {
-  const { supabase, profile } = await getActorSession()
-  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
+  const { supabase, profile } = await requireAdmin()
 
   const { error } = await supabase
     .from('contents')

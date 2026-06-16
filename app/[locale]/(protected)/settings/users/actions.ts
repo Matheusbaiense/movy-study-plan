@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/api/audit'
-import { isAdminOrAbove, isSuperAdmin } from '@/lib/permissions/can'
-import { getActorSession, svc as serviceClient } from '@/lib/actions/auth'
+import { isSuperAdmin } from '@/lib/permissions/can'
+import { requireAdmin, svc as serviceClient, type ActorProfile } from '@/lib/actions/auth'
 import type { createServiceClient } from '@/lib/supabase/service'
 import type { Enums } from '@/types/supabase'
 
@@ -17,18 +17,10 @@ export interface ActionResult {
   error?: string
 }
 
-type Actor = { id: string; email: string; role: Role }
-
 const SERVICE_MISSING =
   'Configuração ausente no servidor: defina SUPABASE_SERVICE_ROLE_KEY (Vercel → Settings → Environment Variables).'
 
-async function requireAdmin(): Promise<Actor> {
-  const { profile } = await getActorSession()
-  if (!isAdminOrAbove(profile.role)) throw new Error('Insufficient permissions')
-  return { id: profile.id, email: profile.email, role: profile.role as Role }
-}
-
-function validateRole(role: string, actor: Actor): Role | null {
+function validateRole(role: string, actor: ActorProfile): Role | null {
   if (!ASSIGNABLE_ROLES.includes(role as Role)) return null
   // Only a super_admin can grant the super_admin role.
   if (role === 'super_admin' && !isSuperAdmin(actor.role)) return null
@@ -38,7 +30,7 @@ function validateRole(role: string, actor: Actor): Role | null {
 /** Guard: an admin cannot touch a super_admin account. */
 async function assertCanManageTarget(
   svc: ReturnType<typeof createServiceClient>,
-  actor: Actor,
+  actor: ActorProfile,
   targetEmail: string
 ): Promise<void> {
   if (isSuperAdmin(actor.role)) return
@@ -62,7 +54,7 @@ export async function createUser(input: {
   fullName: string
   role: string
 }): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
 
   const email = input.email.trim().toLowerCase()
   const fullName = input.fullName.trim()
@@ -114,7 +106,7 @@ export async function createUser(input: {
 }
 
 export async function updateUserRole(userId: string, newRole: string): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   if (userId === actor.id) return { ok: false, error: 'Você não pode alterar a sua própria permissão.' }
 
   const role = validateRole(newRole, actor)
@@ -152,7 +144,7 @@ export async function updateUserRole(userId: string, newRole: string): Promise<A
 }
 
 export async function setUserActive(userId: string, isActive: boolean): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   if (userId === actor.id) return { ok: false, error: 'Você não pode desativar a si mesmo.' }
 
   const svc = serviceClient()
@@ -185,7 +177,7 @@ export async function setUserActive(userId: string, isActive: boolean): Promise<
 
 /** Hard-delete the auth user (cascades the profile). Super admin only. */
 export async function removeUser(userId: string): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   if (!isSuperAdmin(actor.role)) return { ok: false, error: 'Apenas super admin pode excluir usuários.' }
   if (userId === actor.id) return { ok: false, error: 'Você não pode excluir a si mesmo.' }
 
@@ -222,7 +214,7 @@ export async function removeUser(userId: string): Promise<ActionResult> {
 // ---------------------------------------------------------------------------
 
 export async function addAllowedEmail(rawEmail: string, rawRole: string): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const email = rawEmail.trim().toLowerCase()
   if (!EMAIL_RE.test(email)) return { ok: false, error: 'Email inválido.' }
   const role = validateRole(rawRole, actor)
@@ -254,7 +246,7 @@ export async function addAllowedEmail(rawEmail: string, rawRole: string): Promis
 }
 
 export async function removeAllowedEmail(rawEmail: string): Promise<ActionResult> {
-  const actor = await requireAdmin()
+  const { profile: actor } = await requireAdmin()
   const email = rawEmail.trim().toLowerCase()
 
   const svc = serviceClient()
