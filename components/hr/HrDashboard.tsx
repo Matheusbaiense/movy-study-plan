@@ -10,6 +10,7 @@ import {
   logHoursAction,
 } from '@/app/[locale]/(protected)/hr/actions'
 import { t, ink, color, font } from '@/lib/ui/theme'
+import { DateInputPT } from '@/components/hr/DateInputPT'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -79,12 +80,7 @@ interface AddEntryModalProps {
 function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
   const [isPending, startTransition] = useTransition()
 
-  // Date stored as three parts to guarantee DD/MM/YYYY display cross-browser
-  const _today = new Date()
-  const [dd, setDd] = useState(String(_today.getDate()).padStart(2, '0'))
-  const [mm, setMm] = useState(String(_today.getMonth() + 1).padStart(2, '0'))
-  const [yyyy, setYyyy] = useState(String(_today.getFullYear()))
-  const date = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`
+  const [date, setDate] = useState(todayISO())
 
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('17:00')
@@ -97,10 +93,6 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
     border: `1px solid ${ink(0.14)}`,
     background: 'var(--bg)',
     color: t.text, fontSize: 14, outline: 'none', boxSizing: 'border-box',
-  }
-  const numInputStyle: React.CSSProperties = {
-    ...inputStyle, width: '100%', textAlign: 'center', padding: '9px 6px',
-    MozAppearance: 'textfield',
   }
   const labelStyle: React.CSSProperties = {
     fontSize: 11, fontWeight: 700, color: t.textMuted,
@@ -147,25 +139,12 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={labelStyle}>{pt ? 'Data' : 'Date'}</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 1fr 12px 1.6fr', alignItems: 'center', gap: 4 }}>
-              <input
-                type="number" min={1} max={31} value={dd}
-                onChange={e => setDd(e.target.value.padStart(2, '0'))}
-                style={numInputStyle} placeholder="DD"
-              />
-              <span style={{ color: t.textMuted, textAlign: 'center', fontSize: 16 }}>/</span>
-              <input
-                type="number" min={1} max={12} value={mm}
-                onChange={e => setMm(e.target.value.padStart(2, '0'))}
-                style={numInputStyle} placeholder="MM"
-              />
-              <span style={{ color: t.textMuted, textAlign: 'center', fontSize: 16 }}>/</span>
-              <input
-                type="number" min={2024} max={2099} value={yyyy}
-                onChange={e => setYyyy(e.target.value)}
-                style={numInputStyle} placeholder="AAAA"
-              />
-            </div>
+            <DateInputPT
+              value={date}
+              onChange={setDate}
+              min={minDateISO()}
+              max={todayISO()}
+            />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
@@ -360,8 +339,8 @@ export function HrDashboard({
                     pt ? 'Valor AU$' : 'Amount AU$',
                     'Status',
                     '',
-                  ].map((h, i) => (
-                    <th key={i} style={{
+                  ].map((h) => (
+                    <th key={h || '_actions'} style={{
                       padding: '6px 12px 10px', textAlign: 'left',
                       fontWeight: 600, color: t.textMuted,
                       fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
