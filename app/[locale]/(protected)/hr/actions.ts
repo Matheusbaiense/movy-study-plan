@@ -35,7 +35,7 @@ export async function createOwnEmployeeProfileAction() {
 
   const existing = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (existing) {
-    revalidatePath('/hr')
+    revalidatePath('/', 'layout')
     return existing
   }
 
@@ -45,7 +45,7 @@ export async function createOwnEmployeeProfileAction() {
     hourly_rate_in_cents: 0,
   })
 
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return employee
 }
 
@@ -71,14 +71,14 @@ export async function clockInAction(description?: string) {
     status: isHrAdmin(profile.role) ? 'approved' : 'pending',
   })
 
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return entry
 }
 
 export async function clockOutAction(entryId: string) {
   const { supabase } = await getActor()
   const entry = await clockOut(supabase, entryId, new Date().toISOString())
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return entry
 }
 
@@ -112,21 +112,21 @@ export async function logHoursAction(
     status: isHrAdmin(profile.role) ? 'approved' : 'pending',
   })
 
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return entry
 }
 
 export async function approveEntryAction(entryId: string) {
   const { supabase, profile } = await getActor()
   const entry = await updateEntryStatus(supabase, entryId, 'approved', profile.id)
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return entry
 }
 
 export async function rejectEntryAction(entryId: string) {
   const { supabase, profile } = await getActor()
   const entry = await updateEntryStatus(supabase, entryId, 'rejected', profile.id)
-  revalidatePath('/hr')
+  revalidatePath('/', 'layout')
   return entry
 }
 
@@ -184,20 +184,20 @@ export async function generateInvoiceAction(
 
   await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id))
 
-  revalidatePath('/hr/invoices')
+  revalidatePath('/', 'layout')
   return invoice
 }
 
 export async function issueInvoiceAction(invoiceId: string) {
   const { supabase } = await getActor()
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'issued')
-  revalidatePath('/hr/invoices')
+  revalidatePath('/', 'layout')
   return invoice
 }
 
 export async function markInvoicePaidAction(invoiceId: string) {
   const { supabase } = await getActor()
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'paid')
-  revalidatePath('/hr/invoices')
+  revalidatePath('/', 'layout')
   return invoice
 }
