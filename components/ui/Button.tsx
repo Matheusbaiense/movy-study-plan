@@ -16,6 +16,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const cls = [buttonClass(variant), className].filter(Boolean).join(' ')
   return (
     <button ref={ref} className={cls} disabled={disabled || loading} aria-busy={loading || undefined} {...rest}>
+      {/* FIX 4 — sr-only loading label so AT announces the loading state */}
+      {loading && <span className="sr-only">Loading…</span>}
       {children}
     </button>
   )

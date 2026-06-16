@@ -11,10 +11,11 @@ export interface TabItem {
   href: string
 }
 
-export function Tabs({ items }: { items: TabItem[] }) {
+// FIX 5 — ariaLabel prop gives the nav an accessible name
+export function Tabs({ items, ariaLabel = 'Section navigation' }: { items: TabItem[]; ariaLabel?: string }) {
   const pathname = usePathname()
   return (
-    <nav style={{ borderBottom: `1px solid ${t.border}`, marginBottom: 24 }}>
+    <nav aria-label={ariaLabel} style={{ borderBottom: `1px solid ${t.border}`, marginBottom: 24 }}>
       <ul style={{ display: 'flex', gap: 4, listStyle: 'none', margin: 0, padding: 0, overflowX: 'auto' }}>
         {items.map((tab) => {
           const active = isTabActive(pathname, tab.href)

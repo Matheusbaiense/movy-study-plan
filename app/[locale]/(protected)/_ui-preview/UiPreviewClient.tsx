@@ -3,7 +3,12 @@
 
 import { useState } from 'react'
 import { Inbox } from 'lucide-react'
-import { Button, Field, Input, Select, Textarea, PageHeader, EmptyState, Skeleton, SkeletonText, Modal, Drawer } from '@/components/ui'
+import { Button, Field, Input, Select, Textarea, PageHeader, EmptyState, Skeleton, SkeletonText, Modal, Drawer, Tabs, type TabItem } from '@/components/ui'
+
+const PREVIEW_TABS: TabItem[] = [
+  { label: 'Overview', href: '#overview' },
+  { label: 'Settings', href: '#settings' },
+]
 
 export function UiPreviewClient() {
   const [modal, setModal] = useState(false)
@@ -42,6 +47,8 @@ export function UiPreviewClient() {
         <Skeleton width={180} height={20} />
         <SkeletonText lines={3} />
       </section>
+
+      <Tabs items={PREVIEW_TABS} ariaLabel="Preview tabs" />
 
       <Modal open={modal} onClose={() => setModal(false)} title="Example modal">
         <p style={{ margin: 0 }}>Modal body content.</p>
