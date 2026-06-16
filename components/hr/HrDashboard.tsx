@@ -320,13 +320,7 @@ export function HrDashboard({
         </div>
 
         {/* Table */}
-        {entries.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '52px 0', color: t.textMuted, fontSize: 14 }}>
-            <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
-            {pt ? 'Nenhum registro esta semana.' : 'No entries this week.'}
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
@@ -352,6 +346,36 @@ export function HrDashboard({
                 </tr>
               </thead>
               <tbody>
+                {entries.length === 0 ? (
+                  <tr>
+                    <td colSpan={99}>
+                      <div style={{ textAlign: 'center', padding: '52px 0', color: t.textMuted, fontSize: 14 }}>
+                        <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
+                        {isAdmin
+                          ? (pt ? 'Nenhuma entrada esta semana. Aguarde seus funcionários lançarem horas.' : 'No entries this week. Wait for employees to log hours.')
+                          : (
+                            <div>
+                              <div style={{ marginBottom: 10 }}>
+                                {pt ? 'Você ainda não lançou horas esta semana.' : 'No entries logged this week.'}
+                              </div>
+                              {employee && (
+                                <button
+                                  onClick={() => setShowAdd(true)}
+                                  style={{
+                                    padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                                    background: color.purple, color: '#fff', border: 'none', cursor: 'pointer',
+                                  }}
+                                >
+                                  {pt ? '+ Lançar Horas' : '+ Add Entry'}
+                                </button>
+                              )}
+                            </div>
+                          )
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                ) : null}
                 {entries.map((e) => {
                   const isLive = !e.clock_out
                   const hours = isLive
@@ -429,8 +453,7 @@ export function HrDashboard({
                 })}
               </tbody>
             </table>
-          </div>
-        )}
+        </div>
 
         {/* Summary footer */}
         {entries.length > 0 && (

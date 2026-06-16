@@ -44,8 +44,16 @@ export default async function InvoicesPage({ params }: Props) {
 
       <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, overflow: 'hidden' }}>
         {invoices.length === 0 ? (
-          <div style={{ padding: '48px 32px', textAlign: 'center', color: t.textMuted, fontSize: 14 }}>
-            {locale === 'pt' ? 'Nenhuma invoice gerada ainda.' : 'No invoices generated yet.'}
+          <div style={{ padding: '56px 32px', textAlign: 'center', color: t.textMuted, fontSize: 14 }}>
+            <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>🧾</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: t.text, marginBottom: 6 }}>
+              {locale === 'pt' ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
+            </div>
+            <div style={{ fontSize: 13 }}>
+              {locale === 'pt'
+                ? 'Clique em "Gerar Invoice" acima para criar a primeira.'
+                : 'Click "Generate Invoice" above to create the first one.'}
+            </div>
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
