@@ -298,6 +298,55 @@ export async function listInvoices(
   return data ?? []
 }
 
+export interface InvoiceWithEmployee extends HrInvoice {
+  full_name: string
+  email: string
+}
+
+export async function listInvoicesWithEmployeeName(
+  supabase: HrClient,
+  orgId: string,
+  options: { employeeId?: string; status?: string } = {},
+): Promise<InvoiceWithEmployee[]> {
+  let q = supabase
+    .from('hr_invoices')
+    .select('*')
+    .eq('org_id', orgId)
+    .order('created_at', { ascending: false })
+
+  if (options.employeeId) q = q.eq('employee_id', options.employeeId)
+  if (options.status) q = q.eq('status', options.status)
+
+  const { data: invoices, error } = await q
+  if (error) throw new Error(error.message)
+  if (!invoices || invoices.length === 0) return []
+
+  const employeeIds = [...new Set(invoices.map(i => i.employee_id))]
+  const { data: employees } = await supabase
+    .from('employee_profiles')
+    .select('id, profile_id')
+    .in('id', employeeIds)
+
+  const profileIds = (employees ?? []).map(e => e.profile_id).filter(Boolean) as string[]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .in('id', profileIds)
+
+  const empMap = Object.fromEntries((employees ?? []).map(e => [e.id, e.profile_id]))
+  const profMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]))
+
+  return invoices.map(inv => {
+    const profileId = empMap[inv.employee_id]
+    const prof = profileId ? profMap[profileId] : null
+    return {
+      ...inv,
+      full_name: prof?.full_name ?? '',
+      email: prof?.email ?? '',
+    }
+  })
+}
+
 export async function getInvoiceById(
   supabase: HrClient,
   id: string,

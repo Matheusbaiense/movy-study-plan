@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { listInvoices, listEmployeesWithNames } from '@/lib/hr'
+import { listInvoicesWithEmployeeName, listEmployeesWithNames } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, font, ink } from '@/lib/ui/theme'
@@ -29,7 +29,7 @@ export default async function InvoicesPage({ params }: Props) {
   if (profileError || !profile) redirect(`/${locale}/login`)
 
   const [invoices, employees] = await Promise.all([
-    listInvoices(supabase, profile.org_id),
+    listInvoicesWithEmployeeName(supabase, profile.org_id),
     listEmployeesWithNames(supabase, profile.org_id),
   ])
 
@@ -59,7 +59,7 @@ export default async function InvoicesPage({ params }: Props) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${ink(0.1)}` }}>
-                {['Invoice #', 'Period', 'Total', 'Status', 'Issued', ''].map((h) => (
+                {['Invoice #', locale === 'pt' ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', ''].map((h) => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: t.textMuted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                     {h}
                   </th>
@@ -72,6 +72,7 @@ export default async function InvoicesPage({ params }: Props) {
                 return (
                   <tr key={inv.id} style={{ borderBottom: `1px solid ${ink(0.06)}` }}>
                     <td style={{ padding: '12px 16px', fontWeight: 600, color: t.text, fontFamily: 'monospace' }}>{inv.invoice_number}</td>
+                    <td style={{ padding: '12px 16px', color: t.text }}>{inv.full_name || inv.email || '—'}</td>
                     <td style={{ padding: '12px 16px', color: t.textMuted }}>{inv.period_start} → {inv.period_end}</td>
                     <td style={{ padding: '12px 16px', fontWeight: 700, color: t.text, fontVariantNumeric: 'tabular-nums' }}>{formatAUD(inv.total_cents)}</td>
                     <td style={{ padding: '12px 16px' }}>
