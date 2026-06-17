@@ -18,6 +18,8 @@ interface PillTabBarProps {
   items: PillTabItem[]
   /** Optional extra element rendered after the last tab (e.g. "+ Opção" button). */
   trailing?: React.ReactNode
+  /** Value for aria-current on the active tab. 'step' for wizard navs, 'true' for tab bars. @default 'true' */
+  ariaCurrent?: 'step' | 'true'
 }
 
 const dotStyle: React.CSSProperties = {
@@ -46,7 +48,7 @@ function pillStyle(active: boolean): React.CSSProperties {
   }
 }
 
-export function PillTabBar({ value, onValueChange, items, trailing }: PillTabBarProps) {
+export function PillTabBar({ value, onValueChange, items, trailing, ariaCurrent = 'true' }: PillTabBarProps) {
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
       {items.map((item) => (
@@ -55,7 +57,7 @@ export function PillTabBar({ value, onValueChange, items, trailing }: PillTabBar
           type="button"
           onClick={() => onValueChange(item.value)}
           style={pillStyle(value === item.value)}
-          aria-current={value === item.value ? 'true' : undefined}
+          aria-current={value === item.value ? ariaCurrent : undefined}
         >
           {item.label}
           {item.dot && <span style={dotStyle} title="Recomendada" />}

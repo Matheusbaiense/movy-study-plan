@@ -93,7 +93,7 @@ export function CoursePortfolioPicker({ nationality, location, onApply, onPriceV
         onFocus={() => results.length > 0 && setOpenList(true)}
         onKeyDown={(e) => { if (e.key === 'Escape') setOpenList(false) }}
       />
-      {pending && (
+      {pending && openList && (
         <div style={{ padding: '8px 0' }}>
           <SkeletonText lines={3} />
         </div>

@@ -38,6 +38,7 @@ export function EditorWizardNav({ step, onStepChange }: EditorWizardNavProps) {
         value={step}
         onValueChange={(v) => onStepChange(v as EditorWizardStep)}
         items={pillItems}
+        ariaCurrent="step"
       />
       <div className="sp-wizard-footer">
         <button type="button" style={ghostBtn} disabled={!prev} onClick={() => prev && onStepChange(prev)}>
