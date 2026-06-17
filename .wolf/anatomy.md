@@ -145,11 +145,18 @@
 
 ## app/[locale]/(protected)/wiki/
 
+- **page.tsx** — Wiki list server page. Uses `<PageHeader>` (eyebrow + title + description + canWrite CTA in actions slot). `<EmptyState>` with BookOpen/Search icon for empty list/search. Filter bar: search input (movy-field-control), dept select, status select (editors only), submit. Item list via WikiListItem. ~160 lines.
+- **loading.tsx** — Hand-rolled pulse skeleton for wiki list (header + filter bar + 6 item rows). ~43 lines.
+- **new/page.tsx** — Create article server page. Auth guard (editor+). Uses `<PageHeader>` + `<WikiForm>`. ~35 lines.
+
 
 ## app/[locale]/(protected)/wiki/[slug]/
 
+- **page.tsx** — Article detail server page. Breadcrumb + 2-col responsive grid (repeat auto-fit). Main card: dept chip, status badge, h1 title, date/tags meta, BlockRenderer or WikiContent. Edit (aria-label) + DeleteContentButton actions (editor+/admin+). Sidebar: related articles + back link. ~257 lines.
 
 ## app/[locale]/(protected)/wiki/[slug]/edit/
+
+- **page.tsx** — Edit article server page. Auth guard (editor+). Uses `<PageHeader>` + `<WikiForm mode=edit>`. ~66 lines.
 
 
 ## app/[locale]/(protected)/wiki/new/
@@ -216,8 +223,19 @@
 
 ## components/wiki/
 
+- **WikiListItem.tsx** — `'use client'` article list row: dept icon, dept chip, status badge, title (display font), excerpt, date+tag footer, chevron arrow. Uses STATUS_STYLES from lib/constants/content. ~93 lines.
+- **WikiContent.tsx** — Client component rendering sanitized HTML body of an article. DOMPurify-safe. ~? lines.
+- **WikiForm.tsx** — `'use client'` create/edit form for wiki articles. Migrated (2026-06-17 rubric) to use `<Field>+<Input>/<Textarea>/<Select>` from ui/form and `<Button variant=primary loading>` / `<Button variant=secondary>`. Language tabs (pt/en/es), dept+status selectors, tags, featured toggle. ~130 lines.
+- **BlockRenderer.tsx** — `'use client'` recursive block renderer: text/steps/checklist/infobox/email/table/section. Dispatches to block sub-components. ~70 lines.
+- **DeleteContentButton.tsx** — `'use client'` delete action button. Migrated (2026-06-17 rubric) from native confirm() to `<Modal>` confirmation dialog with danger button. Bilingual (pt/en/es). ~60 lines.
 
 ## components/wiki/blocks/
+
+- **StepsBlock.tsx** — Numbered steps block with title + step cards (step.title, step.body, step.note). Orange (#F36B1C) step counters. ~58 lines.
+- **InfoBox.tsx** — Info/warning/alert/tip callout with left border accent. Variants: tip/warn/alert/info. ~27 lines.
+- **TableBlock.tsx** — Table block renderer. ~? lines.
+- **EmailTemplate.tsx** — Email template block renderer. ~? lines.
+- **ChecklistBlock.tsx** — Interactive checklist block with Supabase-persisted progress. ~? lines.
 
 
 ## data/
