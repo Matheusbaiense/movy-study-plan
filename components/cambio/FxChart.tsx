@@ -58,6 +58,7 @@ function buildAriaLabel(pts: Point[], days: number, changePct: number): string {
 
 export function FxChart() {
   const [days, setDays] = useState(90)
+  const [retryKey, setRetryKey] = useState(0)
   const [hist, setHist] = useState<History | null>(null)
   const [current, setCurrent] = useState<Current | null>(null)
   const [loading, setLoading] = useState(true)
@@ -93,6 +94,7 @@ export function FxChart() {
     let active = true
     setLoading(true)
     setError(false)
+    setHist(null)
     setHover(null)
     fetch(`/api/fx/history?days=${days}`, { cache: 'no-store' })
       .then((r) => r.json())
@@ -100,7 +102,7 @@ export function FxChart() {
       .catch(() => { if (active) setError(true) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [days])
+  }, [days, retryKey])
 
   const pts = useMemo(() => hist?.points ?? [], [hist])
   const n = pts.length
@@ -221,7 +223,7 @@ export function FxChart() {
               description="Não foi possível carregar a cotação histórica para este período. Tente novamente."
               action={
                 <button
-                  onClick={() => { setError(false); setLoading(true); setHist(null) }}
+                  onClick={() => setRetryKey((k) => k + 1)}
                   style={{ padding: '8px 18px', borderRadius: 8, border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer', fontFamily: font.ui, fontSize: 13, fontWeight: 600, color: t.text }}
                 >
                   Tentar novamente

@@ -466,7 +466,6 @@ const planningCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderR
 const pill: React.CSSProperties = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800 }
 const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 11, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
 const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 11, color: MUTED }
-const primaryButton: React.CSSProperties = { border: 0, borderRadius: 10, padding: '11px 16px', background: INK, color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
 const ghostButton: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 10, padding: '10px 14px', background: '#fff', color: INK, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontSize: 13 }
 
 const printStyles = `
@@ -491,5 +490,6 @@ const printStyles = `
   }
   .proposal-toolbar { display: none !important; }
   .proposal-block { break-inside: avoid; page-break-inside: avoid; }
+  #movy-proposal .movy-skeleton { display: none !important; }
 }
 `

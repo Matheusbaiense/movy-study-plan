@@ -61,11 +61,30 @@ export function InstitutionDetail({ institution, courses: initialCourses, priceV
         description={[
           institution.city ? `${institution.city}, ${institution.country}` : institution.country,
           institution.website ? institution.website.replace(/^https?:\/\//, '') : null,
-          institution.prices_valid_until ? (() => {
-            const d = Math.ceil((new Date(institution.prices_valid_until!).getTime() - Date.now()) / 86400000)
-            return d <= 0 ? `Preços vencidos` : `Preços vencem em ${d}d`
-          })() : null,
         ].filter(Boolean).join(' · ') || undefined}
+        actions={institution.prices_valid_until ? (() => {
+          const daysLeft = Math.ceil((new Date(institution.prices_valid_until!).getTime() - Date.now()) / 86400000)
+          const expired = daysLeft <= 0
+          const bg = expired ? 'rgba(210,59,43,0.12)' : 'rgba(217,119,6,0.12)'
+          const fg = expired ? '#D23B2B' : '#92400E'
+          return (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: 999,
+              background: bg,
+              color: fg,
+              border: `1px solid ${expired ? 'rgba(210,59,43,0.25)' : 'rgba(217,119,6,0.25)'}`,
+              whiteSpace: 'nowrap',
+            }}>
+              {expired ? 'Preços vencidos' : `Preços vencem em ${daysLeft}d`}
+            </span>
+          )
+        })() : undefined}
       />
 
       {/* Error */}
