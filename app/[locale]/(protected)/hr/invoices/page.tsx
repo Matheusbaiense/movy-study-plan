@@ -6,6 +6,7 @@ import { listInvoicesWithEmployeeName, listEmployeesWithNames, isHrAdmin } from 
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
 import { InvoiceEmployeeFilter } from '@/components/hr/InvoiceEmployeeFilter'
 import { IssueInvoiceButton } from '@/components/hr/IssueInvoiceButton'
+import { SelfInvoiceButton } from '@/components/hr/SelfInvoiceButton'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, ink } from '@/lib/ui/theme'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -54,6 +55,13 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
   const draftCount = invoices.filter(i => i.status === 'draft').length
   const pt = locale === 'pt'
 
+  // Non-admins generate their own invoice (same action available on the HR
+  // dashboard); surface it here so the page isn't a dead-end. Wrapped in an
+  // inline-flex so the button's dashboard full-width style stays contained.
+  const generateAction = isAdmin
+    ? <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} />
+    : <span style={{ display: 'inline-flex' }}><SelfInvoiceButton locale={locale} /></span>
+
   const tableHeaders = isAdmin
     ? ['Invoice #', pt ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', '', '']
     : ['Invoice #', pt ? 'Funcionário' : 'Employee', 'Period', 'Total', 'Status', 'Issued', '']
@@ -63,7 +71,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
       <PageHeader
         eyebrow={`${pt ? 'Operações' : 'Operations'} › HR`}
         title="Tax Invoices"
-        actions={isAdmin ? <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} /> : undefined}
+        actions={generateAction}
       />
 
       {isAdmin && employees.length > 0 && (
@@ -94,9 +102,10 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
           <EmptyState
             icon={FileText}
             title={pt ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
-            description={pt
-              ? 'Clique em "Gerar Invoice" acima para criar a primeira.'
-              : 'Click "Generate Invoice" above to create the first one.'}
+            description={isAdmin
+              ? (pt ? 'Clique em "Gerar Invoice" acima para criar a primeira.' : 'Click "Generate Invoice" above to create the first one.')
+              : (pt ? 'Emita sua primeira invoice a partir das suas horas aprovadas.' : 'Generate your first invoice from your approved hours.')}
+            action={generateAction}
           />
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
