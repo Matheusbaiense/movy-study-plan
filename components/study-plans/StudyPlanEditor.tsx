@@ -43,6 +43,7 @@ import { VersionHistory } from './VersionHistory'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
 import { color, ink, font, t } from '@/lib/ui/theme'
+import { Drawer } from '@/components/ui/Drawer'
 
 interface Props {
   id: string
@@ -176,14 +177,12 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
           <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
         )}
 
-        {showVersions && (
-          <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--surface)' }}>
-            <VersionHistory
-              planId={id}
-              onRestored={router.refresh}
-            />
-          </div>
-        )}
+        <Drawer open={showVersions} onClose={() => setShowVersions(false)} title="Histórico de versões" width={480}>
+          <VersionHistory
+            planId={id}
+            onRestored={router.refresh}
+          />
+        </Drawer>
 
         <EditorWizardNav step={wizardStep} onStepChange={setWizardStep} />
 
