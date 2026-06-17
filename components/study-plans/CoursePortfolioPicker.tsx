@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useRef } from 'react'
+import { useState, useTransition, useRef, useEffect } from 'react'
 import { searchCoursesAction, resolveCourseAction, listCoursePricesAction } from '@/app/[locale]/(protected)/study-plans/actions'
 import type { CourseOption, PriceSnapshot, PricedOption } from '@/lib/portfolio/types'
 import type { StudentLocation, StudyCourse } from '@/lib/study-plans/types'
@@ -30,6 +30,18 @@ export function CoursePortfolioPicker({ nationality, location, onApply, onPriceV
   const [openList, setOpenList] = useState(false)
   const [pending, startTransition] = useTransition()
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on click-outside.
+  useEffect(() => {
+    function handleMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpenList(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [])
 
   const onSearch = (q: string) => {
     if (debounce.current) clearTimeout(debounce.current)
@@ -72,13 +84,14 @@ export function CoursePortfolioPicker({ nationality, location, onApply, onPriceV
   }
 
   return (
-    <div style={{ display: 'grid', gap: 8, position: 'relative' }}>
+    <div ref={containerRef} style={{ display: 'grid', gap: 8, position: 'relative' }}>
       <input
         type="text"
         placeholder="Buscar curso do portfólio…"
         style={box}
         onChange={(e) => onSearch(e.target.value)}
         onFocus={() => results.length > 0 && setOpenList(true)}
+        onKeyDown={(e) => { if (e.key === 'Escape') setOpenList(false) }}
       />
       {pending && (
         <div style={{ padding: '8px 0' }}>
