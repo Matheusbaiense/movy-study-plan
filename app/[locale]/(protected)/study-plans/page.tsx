@@ -1,19 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
+import { Suspense } from 'react'
 import { getUser } from '@/lib/auth/get-user'
 import NewProposalModal from './NewProposalModal'
-import { ProposalsList, type ProposalItem } from './ProposalsList'
-import { money, planGrandTotal } from '@/lib/study-plans/calculations'
-import { formatMoney } from '@/lib/calc/money'
-import { isAdminOrAbove } from '@/lib/permissions/can'
-import { t } from '@/lib/ui/theme'
 import { PageHeader } from '@/components/ui'
+import { ProposalsData } from './ProposalsData'
+import { ProposalsListSkeleton } from './ProposalsListSkeleton'
 import { Constants } from '@/types/supabase'
-import type { StudyPlanData, StudyPlanRow, StudyPlanStatus } from '@/lib/study-plans/types'
 
-const PAGE_SIZE = 25
 const APPLICANT_TYPES = ['Individual', 'Casal', 'Familia', 'Single Parent']
 const VALID_STATUS = Constants.public.Enums.study_plan_status as readonly string[]
-const DAY_MS = 86_400_000
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -22,25 +16,6 @@ interface Props {
 
 function pick(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value ?? '').trim()
-}
-
-/** Sanitize free-text before embedding it in a PostgREST `or()` filter. */
-function sanitizeSearch(raw: string): string {
-  return raw.replace(/[,%()*:\\]/g, '').slice(0, 80).trim()
-}
-
-function buildTotalLabel(row: StudyPlanRow, data: StudyPlanData): string {
-  const cents = data.computed?.grandTotalCents
-  if (typeof cents === 'number') return formatMoney(cents, row.currency_code ?? 'AUD')
-  return money(planGrandTotal(data))
-}
-
-function daysToExpiry(expiresAt: string | null | undefined): { days: number | null; expired: boolean } {
-  if (!expiresAt) return { days: null, expired: false }
-  const diff = new Date(expiresAt).getTime() - Date.now()
-  if (Number.isNaN(diff)) return { days: null, expired: false }
-  if (diff < 0) return { days: 0, expired: true }
-  return { days: Math.ceil(diff / DAY_MS), expired: false }
 }
 
 export default async function StudyPlansPage({ params, searchParams }: Props) {
@@ -54,61 +29,13 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
   const sort = ['updated', 'created', 'student'].includes(pick(sp.sort)) ? pick(sp.sort) : 'updated'
   const page = Math.max(1, Number.parseInt(pick(sp.page) || '1', 10) || 1)
 
-  // Build and fire the DB query in parallel with getUser — RLS scopes it automatically
-  async function fetchPlans() {
-    const supabase = await createClient()
-    let q = supabase
-      .from('study_plans')
-      .select(
-        'id, title, student_name, applicant_type, status, data, currency_code, expires_at, updated_at, created_at',
-        { count: 'exact' }
-      )
-
-    q = view === 'trash' ? q.not('deleted_at', 'is', null) : q.is('deleted_at', null)
-    if (statusFilter) q = q.eq('status', statusFilter as StudyPlanStatus)
-    if (typeFilter) q = q.eq('applicant_type', typeFilter)
-    const safeSearch = sanitizeSearch(query)
-    if (safeSearch) q = q.or(`student_name.ilike.%${safeSearch}%,title.ilike.%${safeSearch}%`)
-
-    if (sort === 'student') q = q.order('student_name', { ascending: true })
-    else if (sort === 'created') q = q.order('created_at', { ascending: false })
-    else q = q.order('updated_at', { ascending: false })
-
-    const from = (page - 1) * PAGE_SIZE
-    q = q.range(from, from + PAGE_SIZE - 1)
-
-    return q
-  }
-
-  const [{ profile }, plansResult] = await Promise.all([
-    getUser(locale),
-    fetchPlans(),
-  ])
-
-  const { data: plans, count } = await plansResult
-  const rows = (plans ?? []) as unknown as StudyPlanRow[]
-
-  const items: ProposalItem[] = rows.map((row) => {
-    const data = row.data as StudyPlanData
-    const exp = daysToExpiry(row.expires_at)
-    return {
-      id: row.id,
-      student: row.student_name || data.student || 'Sem estudante',
-      title: row.title,
-      applicantType: row.applicant_type,
-      status: row.status as StudyPlanStatus,
-      totalLabel: buildTotalLabel(row, data),
-      updatedLabel: row.updated_at
-        ? new Date(row.updated_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
-        : '—',
-      daysToExpiry: exp.days,
-      expired: exp.expired,
-    }
-  })
+  // Auth must happen before the Suspense boundary — a redirect from getUser
+  // can only fire in the server-rendering phase, not inside a suspended child.
+  const { profile } = await getUser(locale)
 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
-      {/* [A-H2] PageHeader primitive replaces hand-built eyebrow+h1+description+action block */}
+      {/* [A-H2] PageHeader primitive */}
       <PageHeader
         eyebrow={locale === 'en' ? 'Proposals' : 'Propostas'}
         title="Cotações & Study Plans"
@@ -116,19 +43,19 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
         actions={<NewProposalModal locale={locale} />}
       />
 
-      <ProposalsList
-        locale={locale}
-        items={items}
-        total={count ?? items.length}
-        page={page}
-        pageSize={PAGE_SIZE}
-        view={view}
-        query={query}
-        statusFilter={statusFilter}
-        typeFilter={typeFilter}
-        sort={sort}
-        isAdmin={isAdminOrAbove(profile.role)}
-      />
+      {/* [A-H1] Suspense wraps the DB round-trip; ProposalsListSkeleton mirrors the table shape */}
+      <Suspense fallback={<ProposalsListSkeleton />}>
+        <ProposalsData
+          locale={locale}
+          view={view}
+          query={query}
+          statusFilter={statusFilter}
+          typeFilter={typeFilter}
+          sort={sort}
+          page={page}
+          userRole={profile.role}
+        />
+      </Suspense>
     </div>
   )
 }
