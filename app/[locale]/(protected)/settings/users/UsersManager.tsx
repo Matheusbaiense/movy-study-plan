@@ -126,7 +126,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
   }
 
   return (
-    <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
+    <div className="movy-stagger" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 24 }}>
       <ConfirmModal
         open={confirmModal.open}
         onClose={() => setConfirmModal((s) => ({ ...s, open: false }))}
@@ -415,7 +415,7 @@ function AddUserForm({
           onSubmit(() => createUser({ email, fullName, password, role }), 'Usuário criado.')
           setPassword('')
         }}
-        style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', alignItems: 'end' }}
+        style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', alignItems: 'end', minWidth: 0 }}
       >
         <Field label="Nome">
           <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nome completo" />
