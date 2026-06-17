@@ -121,6 +121,17 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     return () => window.clearTimeout(timer)
   }, [plan, persist, isPending])
 
+  // Warn on navigation when there are unsaved changes (autosave takes 2.5s)
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (JSON.stringify(plan) !== lastPersistedRef.current) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [plan])
+
   function suggestPayments() {
     const payments = []
     const upfront = planUpfrontSchools(plan)
