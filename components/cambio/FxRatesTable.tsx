@@ -30,7 +30,7 @@ export function FxRatesTable() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { load() }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [])  // load is intentionally called once on mount
 
   return (
     <div className="movy-card" style={{ padding: '20px 22px' }}>
