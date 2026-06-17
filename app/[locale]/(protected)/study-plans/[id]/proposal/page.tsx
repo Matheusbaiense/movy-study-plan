@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { StudyPlanProposal } from '@/components/study-plans/StudyPlanProposal'
 import { ShareProposalButton } from '@/components/study-plans/ShareProposalButton'
+import { NewQuoteFromPlanButton } from '@/components/study-plans/NewQuoteFromPlanButton'
 import { PageHeader } from '@/components/ui/PageHeader'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 
@@ -34,7 +35,12 @@ export default async function StudyPlanProposalPage({ params }: Props) {
         title="Proposta de Estudos"
         eyebrow={reference}
         description={studentName}
-        actions={<ShareProposalButton planId={row.id} />}
+        actions={
+          <>
+            <NewQuoteFromPlanButton planId={row.id} locale={locale} variant="outline" />
+            <ShareProposalButton planId={row.id} />
+          </>
+        }
       />
 
       <StudyPlanProposal
