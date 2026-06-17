@@ -28,8 +28,8 @@ export function Field({ label, children }: { label: string; children: React.Reac
   )
 }
 
-export function NumberInput({ value, onChange }: { value: number; onChange: (value: number) => void }) {
-  return <input style={{ ...input, textAlign: 'right' }} type="number" step="0.01" value={value} onChange={(e) => onChange(number(e.target.value))} />
+export function NumberInput({ value, onChange, 'aria-label': ariaLabel }: { value: number; onChange: (value: number) => void; 'aria-label'?: string }) {
+  return <input style={{ ...input, textAlign: 'right' }} type="number" step="0.01" value={value} aria-label={ariaLabel} onChange={(e) => onChange(number(e.target.value))} />
 }
 
 export function MiniStat({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {

@@ -288,11 +288,19 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
             })}
           </div>
           <div style={{ display: 'grid', gap: 10 }}>
+            {plan.payments.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 130px auto', gap: 10 }} aria-hidden="true">
+                <span style={paymentColHeader}>Parcela / item</span>
+                <span style={paymentColHeader}>Vencimento</span>
+                <span style={paymentColHeader}>Valor</span>
+                <span />
+              </div>
+            )}
             {plan.payments.map((payment) => (
               <div key={payment.id} style={{ display: 'grid', gridTemplateColumns: '1fr 180px 130px auto', gap: 10 }}>
-                <input style={input} value={payment.item} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, item: e.target.value } : item) })} />
-                <input style={input} value={payment.due} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, due: e.target.value } : item) })} />
-                <NumberInput value={payment.amount} onChange={(value) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, amount: value } : item) })} />
+                <input aria-label="Parcela / item" style={input} value={payment.item} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, item: e.target.value } : item) })} />
+                <input aria-label="Vencimento" style={input} value={payment.due} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, due: e.target.value } : item) })} />
+                <NumberInput aria-label="Valor" value={payment.amount} onChange={(value) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, amount: value } : item) })} />
                 <button style={dangerButton} onClick={() => patchPlan({ payments: plan.payments.filter((item) => item.id !== payment.id) })}>Remover</button>
               </div>
             ))}
@@ -513,6 +521,7 @@ function Dot({ color, border = false }: { color: string; border?: boolean }) {
 
 const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
 const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#D23B2B', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
+const paymentColHeader: React.CSSProperties = { fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }
 
 const editorStyles = `
 .sp-editor-layout {

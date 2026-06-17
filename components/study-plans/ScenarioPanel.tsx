@@ -86,6 +86,7 @@ export function ScenarioPanel({ plan }: ScenarioPanelProps) {
                     min={1}
                     step={1}
                     value={weeks[index]}
+                    aria-label={`Semanas — Cenário ${index + 1}`}
                     onChange={(e) => setWeek(index, Number(e.target.value))}
                     style={weekInput}
                   />
