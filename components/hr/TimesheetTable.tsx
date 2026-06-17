@@ -6,6 +6,7 @@ import type { TimeEntry, EmployeeProfile } from '@/lib/hr/types'
 import { calculateHours, formatDateAU, formatAUD } from '@/lib/hr/calculations'
 import { approveEntryAction, rejectEntryAction } from '@/app/[locale]/(protected)/hr/actions'
 import { t, ink } from '@/lib/ui/theme'
+import { EmptyState } from '@/components/ui'
 
 interface TimesheetTableProps {
   entries: TimeEntry[]
@@ -42,9 +43,10 @@ export function TimesheetTable({ entries, employees, hourlyRateCents, locale, sh
 
   if (entries.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '48px 0', color: t.textMuted, fontSize: 14 }}>
-        {locale === 'pt' ? 'Nenhum registro encontrado.' : 'No entries found.'}
-      </div>
+      <EmptyState
+        icon={Clock}
+        title={locale === 'pt' ? 'Nenhum registro encontrado' : 'No entries found'}
+      />
     )
   }
 

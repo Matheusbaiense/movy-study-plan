@@ -1,8 +1,11 @@
+import type { CSSProperties } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { TimesheetTable } from '@/components/hr/TimesheetTable'
 import { listTimeEntries, listEmployeesWithNames, getEmployeeByProfileId, isHrAdmin } from '@/lib/hr'
-import { t, font, ink } from '@/lib/ui/theme'
+import { ink, color, t } from '@/lib/ui/theme'
+import { PageHeader, EmptyState } from '@/components/ui'
+import { ClockIcon } from 'lucide-react'
 
 const PAGE_SIZE = 100
 
@@ -37,73 +40,60 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
 
   const statuses = ['pending', 'approved', 'rejected']
 
+  const filterPillStyle = (active: boolean): CSSProperties => ({
+    padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+    background: active ? color.purple : 'var(--surface)',
+    color: active ? '#fff' : 'var(--text-muted)',
+    border: `1px solid ${active ? color.purple : ink(0.1)}`,
+    textDecoration: 'none',
+    textTransform: 'capitalize' as const,
+  })
+
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 6 }}>
-          {locale === 'pt' ? 'Operações' : 'Operations'} › {locale === 'pt' ? 'RH & Horas' : 'HR & Time'}
-        </div>
-        <h1 style={{ fontFamily: font.display, fontSize: 28, fontWeight: 700, color: t.text, margin: 0, letterSpacing: '-0.02em' }}>
-          {locale === 'pt' ? 'Registros de Ponto' : 'Timesheets'}
-        </h1>
-        <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
-          {isAdmin
-            ? `${employees.length} ${locale === 'pt' ? 'funcionário(s)' : 'employee(s)'} · ${entries.length} ${locale === 'pt' ? 'registro(s)' : 'entr(ies)'}`
-            : `${entries.length} ${locale === 'pt' ? 'registro(s) pessoais' : 'personal entr(ies)'}`}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow={`${locale === 'pt' ? 'Operações' : 'Operations'} › ${locale === 'pt' ? 'RH & Horas' : 'HR & Time'}`}
+        title={locale === 'pt' ? 'Registros de Ponto' : 'Timesheets'}
+        description={isAdmin
+          ? `${employees.length} ${locale === 'pt' ? 'funcionário(s)' : 'employee(s)'} · ${entries.length} ${locale === 'pt' ? 'registro(s)' : 'entr(ies)'}`
+          : `${entries.length} ${locale === 'pt' ? 'registro(s) pessoais' : 'personal entr(ies)'}`}
+      />
 
-      {/* Status filters */}
+      {/* Status filter pills */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        <a href={`/${locale}/hr/timesheets`} style={{
-          padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-          background: !status ? '#4B1A77' : 'var(--surface)',
-          color: !status ? '#fff' : t.textMuted,
-          border: `1px solid ${ink(0.1)}`, textDecoration: 'none',
-        }}>
+        <a href={`/${locale}/hr/timesheets`} style={filterPillStyle(!status)}>
           {locale === 'pt' ? 'Todos' : 'All'}
         </a>
         {statuses.map((s) => (
           <a
             key={s}
             href={`/${locale}/hr/timesheets?status=${s}${employeeId ? `&employeeId=${employeeId}` : ''}`}
-            style={{
-              padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-              background: status === s ? '#4B1A77' : 'var(--surface)',
-              color: status === s ? '#fff' : t.textMuted,
-              border: `1px solid ${ink(0.1)}`, textDecoration: 'none', textTransform: 'capitalize',
-            }}
+            style={filterPillStyle(status === s)}
           >
             {s}
           </a>
         ))}
 
-        {/* Employee filter (if active, show a clear link) */}
+        {/* Employee filter clear link */}
         {employeeId && (
           <a
             href={`/${locale}/hr/timesheets${status ? `?status=${status}` : ''}`}
-            style={{
-              padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-              background: 'var(--surface)', color: t.textMuted,
-              border: `1px solid ${ink(0.15)}`, textDecoration: 'none',
-            }}
+            style={filterPillStyle(false)}
           >
             {locale === 'pt' ? '× Limpar filtro' : '× Clear employee filter'}
           </a>
         )}
       </div>
 
-      {/* Table */}
+      {/* Table / empty state */}
       {entries.length === 0 ? (
-        <div style={{
-          background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24,
-          textAlign: 'center', color: t.textMuted, fontSize: 14,
-        }}>
-          <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
-          {isAdmin
-            ? (locale === 'pt' ? 'Nenhuma entrada ainda. Aguarde seus funcionários lançarem horas.' : 'No entries yet. Wait for employees to log hours.')
-            : (locale === 'pt' ? 'Você ainda não lançou horas. Use o botão \'Lançar Horas\' no dashboard para começar.' : "No entries yet. Use the 'Add Entry' button on the dashboard to get started.")}
-        </div>
+        <EmptyState
+          icon={ClockIcon}
+          title={locale === 'pt' ? 'Nenhum registro encontrado' : 'No entries found'}
+          description={isAdmin
+            ? (locale === 'pt' ? 'Aguarde seus funcionários lançarem horas.' : 'Wait for employees to log hours.')
+            : (locale === 'pt' ? "Use o botão 'Lançar Horas' no dashboard para começar." : "Use the 'Add Entry' button on the dashboard to get started.")}
+        />
       ) : (
         <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24 }}>
           <TimesheetTable

@@ -187,6 +187,8 @@ export function ClockWidget({ activeEntry, locale }: ClockWidgetProps) {
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleClockIn() }}
             placeholder={pt ? 'Descrição (opcional)' : 'Description (optional)'}
+            aria-label={pt ? 'Descrição do turno (opcional)' : 'Shift description (optional)'}
+            className="movy-field-control"
             style={{
               width: '100%', padding: '9px 12px', borderRadius: 8,
               background: 'rgba(255,255,255,0.07)',
