@@ -25,6 +25,23 @@ export function Drawer({ open, onClose, title, children, width = 420, side = 'ri
 
   useEffect(() => setMounted(true), [])
 
+  // Scroll-lock counter: mirrors Modal's approach so stacked Drawer+Modal don't race
+  useEffect(() => {
+    if (!open) return
+    const count = parseInt(document.body.dataset.scrollLocked ?? '0', 10)
+    document.body.dataset.scrollLocked = String(count + 1)
+    if (count === 0) document.body.style.overflow = 'hidden'
+    return () => {
+      const next = parseInt(document.body.dataset.scrollLocked ?? '1', 10) - 1
+      if (next <= 0) {
+        document.body.style.overflow = ''
+        delete document.body.dataset.scrollLocked
+      } else {
+        document.body.dataset.scrollLocked = String(next)
+      }
+    }
+  }, [open])
+
   // FIX 1 — focus management: capture trigger, focus first focusable, trap Tab
   useEffect(() => {
     if (!open) return

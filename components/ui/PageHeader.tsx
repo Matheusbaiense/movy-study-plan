@@ -1,5 +1,4 @@
 // components/ui/PageHeader.tsx
-'use client'
 
 import { font, t } from '@/lib/ui/theme'
 
