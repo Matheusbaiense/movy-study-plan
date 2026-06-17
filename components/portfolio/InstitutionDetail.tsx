@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, BookOpen, DollarSign, Zap, Plus, Archive, ToggleLeft, ToggleRight, Globe, MapPin } from 'lucide-react'
-import { font, ink, t } from '@/lib/ui/theme'
+import { ink, t } from '@/lib/ui/theme'
 import { toJson } from '@/lib/db/json'
 import type { Institution, Course, CoursePriceVersion, PricingRuleRow } from '@/lib/portfolio/types'
 import {
@@ -12,6 +12,11 @@ import {
   createPriceVersionAction, createPricingRuleAction, togglePricingRuleAction, deletePricingRuleAction,
   type CourseInput, type PriceVersionInput, type PricingRuleInput,
 } from '@/app/[locale]/(protected)/portfolio/actions'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Modal } from '@/components/ui/Modal'
+import { Field, Input, Select, Textarea } from '@/components/ui/form'
 
 interface Props {
   institution: Institution
@@ -46,33 +51,22 @@ export function InstitutionDetail({ institution, courses: initialCourses, priceV
 
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1040, margin: '0 auto' }}>
-      {/* Back + header */}
+      {/* Back breadcrumb */}
       <Link href={`/${locale}/portfolio`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: ink(0.55), textDecoration: 'none', marginBottom: 20 }}>
         <ArrowLeft size={13} /> Portfólio
       </Link>
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontFamily: font.display, fontWeight: 800, color: t.text, margin: 0, letterSpacing: '-0.03em' }}>
-            {institution.name}
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6, flexWrap: 'wrap' }}>
-            {institution.city && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: ink(0.5) }}>
-                <MapPin size={11} /> {institution.city}, {institution.country}
-              </span>
-            )}
-            {institution.website && (
-              <a href={institution.website} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: ink(0.5), textDecoration: 'none' }}>
-                <Globe size={11} /> {institution.website.replace(/^https?:\/\//, '')}
-              </a>
-            )}
-            {institution.prices_valid_until && (
-              <ExpiryChip until={institution.prices_valid_until} />
-            )}
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={institution.name}
+        description={[
+          institution.city ? `${institution.city}, ${institution.country}` : institution.country,
+          institution.website ? institution.website.replace(/^https?:\/\//, '') : null,
+          institution.prices_valid_until ? (() => {
+            const d = Math.ceil((new Date(institution.prices_valid_until!).getTime() - Date.now()) / 86400000)
+            return d <= 0 ? `Preços vencidos` : `Preços vencem em ${d}d`
+          })() : null,
+        ].filter(Boolean).join(' · ') || undefined}
+      />
 
       {/* Error */}
       {error && (
@@ -176,13 +170,13 @@ function CoursesTab({ institution, courses: initial, onError }: {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button type="button" onClick={() => { setEditing(null); setShowModal(true) }} style={primaryBtn} disabled={isPending}>
+        <Button type="button" variant="primary" onClick={() => { setEditing(null); setShowModal(true) }} disabled={isPending}>
           <Plus size={14} strokeWidth={2.5} /> Novo curso
-        </button>
+        </Button>
       </div>
 
       {courses.length === 0 ? (
-        <EmptyState icon={<BookOpen size={28} />} text="Nenhum curso cadastrado." />
+        <EmptyState icon={BookOpen} title="Nenhum curso cadastrado." description="Adicione o primeiro curso desta instituição." action={<Button variant="primary" type="button" onClick={() => { setEditing(null); setShowModal(true) }}><Plus size={14} />Novo curso</Button>} />
       ) : (
         <div style={{ display: 'grid', gap: 8 }}>
           {[...active, ...inactive].map((course) => (
@@ -198,14 +192,13 @@ function CoursesTab({ institution, courses: initial, onError }: {
         </div>
       )}
 
-      {showModal && (
-        <CourseModal
-          initial={editing}
-          isPending={isPending}
-          onSave={handleSave}
-          onClose={() => { setShowModal(false); setEditing(null) }}
-        />
-      )}
+      <CourseModal
+        open={showModal}
+        initial={editing}
+        isPending={isPending}
+        onSave={handleSave}
+        onClose={() => { setShowModal(false); setEditing(null) }}
+      />
     </div>
   )
 }
@@ -234,16 +227,28 @@ function CourseRow({ course, isPending, onEdit, onToggle, onArchive }: {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
-        <button type="button" onClick={onEdit} disabled={isPending} style={ghostBtn}>Editar</button>
-        <button type="button" onClick={onToggle} disabled={isPending} title={course.is_active ? 'Desativar' : 'Ativar'} style={{ ...ghostBtn, padding: '4px 6px' }}>
+        <Button type="button" variant="secondary" onClick={onEdit} disabled={isPending}>Editar</Button>
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={isPending}
+          aria-label={course.is_active ? 'Desativar curso' : 'Ativar curso'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center' }}
+        >
           {course.is_active ? <ToggleRight size={15} style={{ color: '#16a34a' }} /> : <ToggleLeft size={15} style={{ color: ink(0.4) }} />}
         </button>
         {confirmArchive ? (
-          <button type="button" onClick={() => { onArchive(); setConfirmArchive(false) }} disabled={isPending} style={{ ...ghostBtn, color: '#dc2626', borderColor: '#dc2626' }}>
+          <Button type="button" variant="secondary" onClick={() => { onArchive(); setConfirmArchive(false) }} disabled={isPending} style={{ color: '#dc2626', borderColor: '#dc2626' }}>
             Confirmar?
-          </button>
+          </Button>
         ) : (
-          <button type="button" onClick={() => setConfirmArchive(true)} disabled={isPending} style={{ ...ghostBtn, padding: '4px 6px' }} title="Arquivar">
+          <button
+            type="button"
+            onClick={() => setConfirmArchive(true)}
+            disabled={isPending}
+            aria-label="Arquivar curso"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center' }}
+          >
             <Archive size={13} style={{ color: ink(0.4) }} />
           </button>
         )}
@@ -252,7 +257,8 @@ function CourseRow({ course, isPending, onEdit, onToggle, onArchive }: {
   )
 }
 
-function CourseModal({ initial, isPending, onSave, onClose }: {
+function CourseModal({ open, initial, isPending, onSave, onClose }: {
+  open: boolean
   initial: Course | null
   isPending: boolean
   onSave: (input: Omit<CourseInput, 'institution_id'>) => void
@@ -266,34 +272,34 @@ function CourseModal({ initial, isPending, onSave, onClose }: {
   const [intake, setIntake] = useState(initial?.default_intake ?? '')
 
   return (
-    <Modal title={initial ? 'Editar curso' : 'Novo curso'} onClose={onClose}>
+    <Modal open={open} onClose={onClose} title={initial ? 'Editar curso' : 'Novo curso'}>
       <form onSubmit={(e) => { e.preventDefault(); onSave({ name, type, cricos, english_level: english, timetable, default_intake: intake }) }}
         style={{ display: 'grid', gap: 12 }}>
         <Field label="Nome *">
-          <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="General English Classic" style={inputStyle} />
+          <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="General English Classic" />
         </Field>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="Tipo">
-            <select value={type} onChange={(e) => setType(e.target.value)} style={inputStyle}>
+            <Select value={type} onChange={(e) => setType(e.target.value)}>
               <option value="elicos">ELICOS</option>
               <option value="vet">VET</option>
               <option value="he">HE</option>
-            </select>
+            </Select>
           </Field>
           <Field label="Turno">
-            <input value={timetable} onChange={(e) => setTimetable(e.target.value)} placeholder="Integral" style={inputStyle} />
+            <Input value={timetable} onChange={(e) => setTimetable(e.target.value)} placeholder="Integral" />
           </Field>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="CRICOS">
-            <input value={cricos} onChange={(e) => setCricos(e.target.value)} placeholder="12345A" style={inputStyle} />
+            <Input value={cricos} onChange={(e) => setCricos(e.target.value)} placeholder="12345A" />
           </Field>
           <Field label="Nível de inglês">
-            <input value={english} onChange={(e) => setEnglish(e.target.value)} placeholder="Elementary+" style={inputStyle} />
+            <Input value={english} onChange={(e) => setEnglish(e.target.value)} placeholder="Elementary+" />
           </Field>
         </div>
         <Field label="Intake padrão">
-          <input value={intake} onChange={(e) => setIntake(e.target.value)} placeholder="Ex: Segunda-feira" style={inputStyle} />
+          <Input value={intake} onChange={(e) => setIntake(e.target.value)} placeholder="Ex: Segunda-feira" />
         </Field>
         <ModalFooter onClose={onClose} isPending={isPending} label={initial ? 'Salvar' : 'Criar curso'} />
       </form>
@@ -345,7 +351,7 @@ function PricesTab({ institution, courses, priceVersionsByCourse: initial, onErr
   const activeCourses = courses.filter((c) => c.is_active)
 
   if (activeCourses.length === 0) {
-    return <EmptyState icon={<DollarSign size={28} />} text="Nenhum curso ativo. Cadastre cursos primeiro." />
+    return <EmptyState icon={DollarSign} title="Nenhum curso ativo." description="Cadastre cursos primeiro para gerenciar vigências de preço." />
   }
 
   return (
@@ -360,9 +366,9 @@ function PricesTab({ institution, courses, priceVersionsByCourse: initial, onErr
                 <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, background: tc.bg, color: tc.text, textTransform: 'uppercase' }}>{course.type}</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{course.name}</span>
               </div>
-              <button type="button" onClick={() => openAdd(course.id)} disabled={isPending} style={{ ...ghostBtn, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Button type="button" variant="secondary" onClick={() => openAdd(course.id)} disabled={isPending}>
                 <Plus size={12} /> Vigência
-              </button>
+              </Button>
             </div>
             {versions.length === 0 ? (
               <div style={{ padding: '14px 16px', fontSize: 12, color: ink(0.45) }}>Nenhuma vigência cadastrada.</div>
@@ -386,15 +392,14 @@ function PricesTab({ institution, courses, priceVersionsByCourse: initial, onErr
         )
       })}
 
-      {showModal && modalCourseId && (
-        <PriceVersionModal
-          courseId={modalCourseId}
-          institutionId={institution.id}
-          isPending={isPending}
-          onSave={handleSave}
-          onClose={() => { setShowModal(false); setModalCourseId(null) }}
-        />
-      )}
+      <PriceVersionModal
+        open={showModal && !!modalCourseId}
+        courseId={modalCourseId ?? ''}
+        institutionId={institution.id}
+        isPending={isPending}
+        onSave={handleSave}
+        onClose={() => { setShowModal(false); setModalCourseId(null) }}
+      />
     </div>
   )
 }
@@ -404,23 +409,25 @@ function PriceVersionRow({ pv }: { pv: CoursePriceVersion }) {
   const expired = pv.valid_until && pv.valid_until < today
   const expiring = pv.valid_until && !expired && Math.ceil((new Date(pv.valid_until).getTime() - Date.now()) / 86400000) <= 30
 
+  const numCell: React.CSSProperties = { padding: '7px 12px', fontVariantNumeric: 'tabular-nums' }
   return (
     <tr style={{ borderTop: '1px solid var(--border)', color: expired ? ink(0.4) : t.text }}>
-      <td style={{ padding: '7px 12px' }}>{fmtDate(pv.valid_from)}</td>
-      <td style={{ padding: '7px 12px' }}>
+      <td style={numCell}>{fmtDate(pv.valid_from)}</td>
+      <td style={numCell}>
         {fmtDate(pv.valid_until)}
         {expired && <span style={{ marginLeft: 4, fontSize: 10, color: '#dc2626', fontWeight: 700 }}>VENCIDA</span>}
         {expiring && <span style={{ marginLeft: 4, fontSize: 10, color: '#d97706', fontWeight: 700 }}>VENCENDO</span>}
       </td>
-      <td style={{ padding: '7px 12px' }}>{aud(pv.enrolment_fee_in_cents)}</td>
-      <td style={{ padding: '7px 12px' }}>{aud(pv.rate_per_week_in_cents)}</td>
-      <td style={{ padding: '7px 12px' }}>{pv.has_material ? aud(pv.material_fee_in_cents) : '—'}</td>
-      <td style={{ padding: '7px 12px' }}>{pv.deposit_weeks ? `${pv.deposit_weeks} sem` : '—'}</td>
+      <td style={numCell}>{aud(pv.enrolment_fee_in_cents)}</td>
+      <td style={numCell}>{aud(pv.rate_per_week_in_cents)}</td>
+      <td style={numCell}>{pv.has_material ? aud(pv.material_fee_in_cents) : '—'}</td>
+      <td style={numCell}>{pv.deposit_weeks ? `${pv.deposit_weeks} sem` : '—'}</td>
     </tr>
   )
 }
 
-function PriceVersionModal({ courseId, institutionId, isPending, onSave, onClose }: {
+function PriceVersionModal({ open, courseId, institutionId, isPending, onSave, onClose }: {
+  open: boolean
   courseId: string
   institutionId: string
   isPending: boolean
@@ -454,30 +461,30 @@ function PriceVersionModal({ courseId, institutionId, isPending, onSave, onClose
   }
 
   return (
-    <Modal title="Nova vigência de preço" onClose={onClose}>
+    <Modal open={open} onClose={onClose} title="Nova vigência de preço">
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="Válido de *">
-            <input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} required style={inputStyle} />
+            <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} required />
           </Field>
           <Field label="Válido até">
-            <input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} style={inputStyle} />
+            <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
           </Field>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="Matrícula (AUD)">
-            <input type="number" value={enrolment} onChange={(e) => setEnrolment(e.target.value)} placeholder="250.00" min={0} step={0.01} style={inputStyle} />
+            <Input type="number" value={enrolment} onChange={(e) => setEnrolment(e.target.value)} placeholder="250.00" min={0} step={0.01} />
           </Field>
           <Field label="Taxa/semana (AUD) *">
-            <input type="number" value={ratePerWeek} onChange={(e) => setRatePerWeek(e.target.value)} placeholder="400.00" min={0} step={0.01} required style={inputStyle} />
+            <Input type="number" value={ratePerWeek} onChange={(e) => setRatePerWeek(e.target.value)} placeholder="400.00" min={0} step={0.01} required />
           </Field>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="Material (AUD)">
-            <input type="number" value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="75.00" min={0} step={0.01} style={inputStyle} />
+            <Input type="number" value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="75.00" min={0} step={0.01} />
           </Field>
           <Field label="Semanas de depósito">
-            <input type="number" value={depositWeeks} onChange={(e) => setDepositWeeks(e.target.value)} placeholder="0" min={0} step={1} style={inputStyle} />
+            <Input type="number" value={depositWeeks} onChange={(e) => setDepositWeeks(e.target.value)} placeholder="0" min={0} step={1} />
           </Field>
         </div>
         <p style={{ fontSize: 11, color: ink(0.45), margin: 0 }}>Valores em dólares australianos. Serão convertidos para centavos internamente.</p>
@@ -556,13 +563,13 @@ function RulesTab({ institution, rules: initial, onError }: {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button type="button" onClick={() => setShowModal(true)} style={primaryBtn} disabled={isPending}>
+        <Button type="button" variant="primary" onClick={() => setShowModal(true)} disabled={isPending}>
           <Plus size={14} strokeWidth={2.5} /> Nova regra
-        </button>
+        </Button>
       </div>
 
       {rules.length === 0 ? (
-        <EmptyState icon={<Zap size={28} />} text="Nenhuma regra de preço cadastrada." />
+        <EmptyState icon={Zap} title="Nenhuma regra de preço cadastrada." description="Regras de preço permitem aplicar taxas, descontos e ajustes automaticamente." />
       ) : (
         <div style={{ display: 'grid', gap: 8 }}>
           {rules.map((rule) => {
@@ -583,7 +590,13 @@ function RulesTab({ institution, rules: initial, onError }: {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                  <button type="button" onClick={() => handleToggle(rule)} disabled={isPending} style={{ ...ghostBtn, padding: '4px 6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(rule)}
+                    disabled={isPending}
+                    aria-label={rule.is_active ? 'Desativar regra' : 'Ativar regra'}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center' }}
+                  >
                     {rule.is_active ? <ToggleRight size={15} style={{ color: '#16a34a' }} /> : <ToggleLeft size={15} style={{ color: ink(0.4) }} />}
                   </button>
                   <RuleDeleteBtn onDelete={() => handleDelete(rule.id)} isPending={isPending} />
@@ -594,9 +607,7 @@ function RulesTab({ institution, rules: initial, onError }: {
         </div>
       )}
 
-      {showModal && (
-        <RuleModal isPending={isPending} onSave={handleCreate} onClose={() => setShowModal(false)} />
-      )}
+      <RuleModal open={showModal} isPending={isPending} onSave={handleCreate} onClose={() => setShowModal(false)} />
     </div>
   )
 }
@@ -604,18 +615,19 @@ function RulesTab({ institution, rules: initial, onError }: {
 function RuleDeleteBtn({ onDelete, isPending }: { onDelete: () => void; isPending: boolean }) {
   const [confirm, setConfirm] = useState(false)
   if (confirm) return (
-    <button type="button" onClick={() => { onDelete(); setConfirm(false) }} disabled={isPending} style={{ ...ghostBtn, color: '#dc2626', borderColor: '#dc2626', fontSize: 11 }}>
+    <Button type="button" variant="secondary" onClick={() => { onDelete(); setConfirm(false) }} disabled={isPending} style={{ color: '#dc2626', borderColor: '#dc2626', fontSize: 11 }}>
       Confirmar?
-    </button>
+    </Button>
   )
   return (
-    <button type="button" onClick={() => setConfirm(true)} disabled={isPending} style={{ ...ghostBtn, padding: '4px 6px' }}>
+    <button type="button" onClick={() => setConfirm(true)} disabled={isPending} aria-label="Excluir regra" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center' }}>
       <Archive size={13} style={{ color: ink(0.4) }} />
     </button>
   )
 }
 
-function RuleModal({ isPending, onSave, onClose }: {
+function RuleModal({ open, isPending, onSave, onClose }: {
+  open: boolean
   isPending: boolean
   onSave: (input: PricingRuleInput) => void
   onClose: () => void
@@ -640,36 +652,36 @@ function RuleModal({ isPending, onSave, onClose }: {
   }
 
   return (
-    <Modal title="Nova regra de preço" onClose={onClose}>
+    <Modal open={open} onClose={onClose} title="Nova regra de preço">
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
         <Field label="Rótulo">
-          <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Ex: Taxa de agência AU" style={inputStyle} />
+          <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Ex: Taxa de agência AU" />
         </Field>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Field label="Escopo">
-            <select value={scope} onChange={(e) => setScope(e.target.value)} style={inputStyle}>
+            <Select value={scope} onChange={(e) => setScope(e.target.value)}>
               {Object.entries(SCOPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
+            </Select>
           </Field>
           <Field label="Efeito">
-            <select value={effectType} onChange={(e) => setEffectType(e.target.value)} style={inputStyle}>
+            <Select value={effectType} onChange={(e) => setEffectType(e.target.value)}>
               {Object.entries(EFFECT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
+            </Select>
           </Field>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10 }}>
           <Field label="Valor">
-            <input type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder="150" min={0} step={0.01} style={inputStyle} />
+            <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder="150" min={0} step={0.01} />
           </Field>
           <Field label="Moeda">
-            <input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="AUD" maxLength={3} style={inputStyle} />
+            <Input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="AUD" maxLength={3} />
           </Field>
           <Field label="Prioridade">
-            <input type="number" value={priority} onChange={(e) => setPriority(e.target.value)} min={0} step={1} style={inputStyle} />
+            <Input type="number" value={priority} onChange={(e) => setPriority(e.target.value)} min={0} step={1} />
           </Field>
         </div>
         <Field label="Válido até">
-          <input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} style={inputStyle} />
+          <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
         </Field>
         <ModalFooter onClose={onClose} isPending={isPending} label="Criar regra" />
       </form>
@@ -705,74 +717,12 @@ function CountBadge({ n }: { n: number }) {
   )
 }
 
-function ExpiryChip({ until }: { until: string }) {
-  const daysLeft = Math.ceil((new Date(until).getTime() - Date.now()) / 86400000)
-  const color = daysLeft <= 0 ? '#dc2626' : '#d97706'
-  return (
-    <span style={{ fontSize: 11, fontWeight: 700, color, background: `${color}14`, padding: '2px 8px', borderRadius: 5 }}>
-      {daysLeft <= 0 ? `Preços vencidos em ${fmtDate(until)}` : `Preços vencem em ${daysLeft}d (${fmtDate(until)})`}
-    </span>
-  )
-}
-
-function EmptyState({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div style={{ textAlign: 'center', padding: '48px 0', color: ink(0.4) }}>
-      <div style={{ opacity: 0.3, marginBottom: 12 }}>{icon}</div>
-      <p style={{ fontSize: 13 }}>{text}</p>
-    </div>
-  )
-}
-
-function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, width: '100%', maxWidth: 460, overflow: 'hidden' }}>
-        <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 15, fontFamily: font.display, fontWeight: 800, color: t.text }}>{title}</span>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: ink(0.5), fontSize: 18, lineHeight: 1, padding: 2 }}>✕</button>
-        </div>
-        <div style={{ padding: '16px 20px 20px' }}>{children}</div>
-      </div>
-    </div>
-  )
-}
 
 function ModalFooter({ onClose, isPending, label }: { onClose: () => void; isPending: boolean; label: string }) {
   return (
     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
-      <button type="button" onClick={onClose} style={cancelBtn}>Cancelar</button>
-      <button type="submit" disabled={isPending} style={primaryBtn}>{isPending ? 'Salvando…' : label}</button>
+      <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
+      <Button type="submit" variant="primary" loading={isPending}>{isPending ? 'Salvando…' : label}</Button>
     </div>
   )
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'grid', gap: 4 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: ink(0.55), textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
-      {children}
-    </label>
-  )
-}
-
-const inputStyle: React.CSSProperties = {
-  fontSize: 13, padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8,
-  background: 'var(--surface)', color: 'var(--text)', fontFamily: 'Satoshi, Outfit, sans-serif',
-  outline: 'none', width: '100%', boxSizing: 'border-box',
-}
-const primaryBtn: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700,
-  padding: '7px 16px', border: 'none', borderRadius: 8, background: '#F36B1C', color: '#fff',
-  cursor: 'pointer', fontFamily: 'Satoshi, Outfit, sans-serif',
-}
-const cancelBtn: React.CSSProperties = {
-  fontSize: 12, fontWeight: 600, padding: '7px 14px', border: '1px solid var(--border)',
-  borderRadius: 8, background: 'transparent', color: ink(0.6), cursor: 'pointer',
-  fontFamily: 'Satoshi, Outfit, sans-serif',
-}
-const ghostBtn: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, padding: '4px 10px', border: '1px solid var(--border)',
-  borderRadius: 7, background: 'transparent', color: ink(0.6), cursor: 'pointer',
-  fontFamily: 'Satoshi, Outfit, sans-serif',
 }
