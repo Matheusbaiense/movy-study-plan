@@ -319,7 +319,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
         title="Emails autorizados (Google)"
         subtitle="Apenas estes emails conseguem entrar com o Google. Adicionar um email aqui também libera o acesso."
       >
-        <AddAllowedForm canAssign={canAssign} pending={pending} onSubmit={run} onConfirm={confirm} />
+        <AddAllowedForm canAssign={canAssign} pending={pending} onSubmit={run} />
         <div style={{ display: 'grid', gap: 6, marginTop: 14 }}>
           {allowed.length === 0 ? (
             <div style={{ fontSize: 13, color: 'var(--text-subtle)' }}>Nenhum email autorizado ainda.</div>
@@ -391,8 +391,6 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
   )
 }
 
-type ConfirmFn = (opts: { title: string; message: string; confirmLabel?: string; onConfirm: () => void }) => void
-
 function AddUserForm({
   canAssign,
   pending,
@@ -460,12 +458,10 @@ function AddAllowedForm({
   canAssign,
   pending,
   onSubmit,
-  onConfirm: _onConfirm,
 }: {
   canAssign: Role[]
   pending: boolean
   onSubmit: (fn: () => Promise<ActionResult>, okMsg: string) => void
-  onConfirm: ConfirmFn
 }) {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>('editor')

@@ -122,16 +122,22 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     return () => window.clearTimeout(timer)
   }, [plan, persist, isPending])
 
-  // Warn on navigation when there are unsaved changes (autosave takes 2.5s)
+  // Keep a ref that always reflects the latest plan so the beforeunload handler
+  // can read it without being included in the effect deps (registered once).
+  const planRef = useRef(plan)
+  useEffect(() => { planRef.current = plan }, [plan])
+
+  // Warn on navigation when there are unsaved changes (autosave takes 2.5s).
+  // Registered once ([]) so it doesn't re-register on every keystroke.
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
-      if (JSON.stringify(plan) !== lastPersistedRef.current) {
+      if (JSON.stringify(planRef.current) !== lastPersistedRef.current) {
         e.preventDefault()
       }
     }
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [plan])
+  }, [])
 
   function suggestPayments() {
     const payments = []

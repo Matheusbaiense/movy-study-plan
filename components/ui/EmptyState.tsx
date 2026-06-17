@@ -1,5 +1,4 @@
 // components/ui/EmptyState.tsx
-'use client'
 
 import type { LucideIcon } from 'lucide-react'
 import { ink, t, font } from '@/lib/ui/theme'
