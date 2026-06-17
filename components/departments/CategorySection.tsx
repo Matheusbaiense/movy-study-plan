@@ -36,6 +36,8 @@ export function CategorySection({ category, items, locale, deptColor, typeLabels
     <div style={{ marginBottom: 18 }}>
       <button
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label={`${open ? 'Recolher' : 'Expandir'} categoria ${category}`}
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', marginBottom: 8 }}
       >
         <span className="movy-kicker" style={{ color: deptColor, fontSize: 11 }}>{category}</span>
