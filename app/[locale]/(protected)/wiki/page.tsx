@@ -1,9 +1,12 @@
 import Link from 'next/link'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
 import { WikiListItem } from '@/components/wiki/WikiListItem'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
 import { DEPARTMENTS, DEPT_ACCENT, getDeptNameBySlug } from '@/lib/constants/departments'
 import { font } from '@/lib/ui/theme'
 import type { Tables } from '@/types/supabase'
@@ -77,26 +80,24 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
     return c.departments.name_pt
   }
 
+  const pageTitle = locale === 'en' ? 'Knowledge Base' : 'Informações'
+  const pageDescription = `${items.length} ${locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}`
+
   return (
     <div className="movy-stagger">
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
-        <div>
-          <div className="movy-kicker">Movy Internal Hub</div>
-          <h1 style={{ margin: '8px 0 4px', fontFamily: font.display, fontSize: 'clamp(30px, 3.8vw, 46px)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 0.98, color: 'var(--text)' }}>
-            {locale === 'en' ? 'Knowledge Base' : 'Informações'}
-          </h1>
-          <p className="color-fg-soft" style={{ margin: 0, fontFamily: font.mono, fontSize: 12 }}>
-            {items.length} {locale === 'pt' ? 'processos' : locale === 'es' ? 'procesos' : 'processes'}
-          </p>
-        </div>
-        {canWrite && (
-          <Link href={`/${locale}/wiki/new`} prefetch={false} className="button-fill-primary-md">
-            <Plus size={16} strokeWidth={2.4} aria-hidden />
-            {locale === 'pt' ? 'Novo conteudo' : locale === 'es' ? 'Nuevo contenido' : 'New content'}
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        title={pageTitle}
+        eyebrow="Movy Internal Hub"
+        description={pageDescription}
+        actions={
+          canWrite ? (
+            <Link href={`/${locale}/wiki/new`} prefetch={false} className="button-fill-primary-md">
+              <Plus size={16} strokeWidth={2.4} aria-hidden />
+              {locale === 'pt' ? 'Novo conteudo' : locale === 'es' ? 'Nuevo contenido' : 'New content'}
+            </Link>
+          ) : undefined
+        }
+      />
 
       {/* Search + filters */}
       <div className="movy-card" style={{ padding: 14, marginBottom: 18 }}>
@@ -107,6 +108,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               name="search"
               defaultValue={search}
               placeholder={locale === 'pt' ? 'Pesquisar informacoes...' : locale === 'es' ? 'Buscar informacion...' : 'Search knowledge...'}
+              className="movy-field-control"
               style={{
                 flex: 1, border: 'none', outline: 'none', fontSize: 15,
                 color: 'var(--text)', background: 'transparent', fontFamily: 'var(--font-body)',
@@ -118,6 +120,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
             <select
               name="dept"
               defaultValue={dept ?? ''}
+              className="movy-field-control"
               style={{
                 padding: '7px 12px', borderRadius: 10, border: '1px solid var(--border)',
                 background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
@@ -136,6 +139,7 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
               <select
                 name="status"
                 defaultValue={status ?? ''}
+                className="movy-field-control"
                 style={{
                   padding: '7px 12px', borderRadius: 10, border: '1px solid var(--border)',
                   background: 'var(--surface)', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-body)',
@@ -159,25 +163,31 @@ export default async function WikiPage({ params, searchParams }: WikiPageProps) 
       {/* List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.length === 0 ? (
-          <div style={{
-            padding: 60, textAlign: 'center', color: 'var(--text-subtle)',
-            background: 'var(--surface)', borderRadius: 18, border: '1px solid var(--border)',
-          }}>
-            <Search size={28} strokeWidth={1.6} aria-hidden className="color-fg-extra-soft" style={{ display: 'inline-block' }} />
-            <div style={{ marginTop: 10, fontSize: 14 }}>
-              {locale === 'pt' ? 'Nenhum resultado.' : locale === 'es' ? 'Sin resultados.' : 'No matches.'}
-            </div>
-            {canWrite && (
-              <Link
-                href={`/${locale}/wiki/new`}
-                prefetch={false}
-                className="color-fg-highlight"
-                style={{ marginTop: 12, display: 'inline-block', fontSize: 13, textDecoration: 'underline' }}
-              >
-                {locale === 'pt' ? 'Criar o primeiro artigo' : 'Create the first article'}
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            icon={search ? Search : BookOpen}
+            title={
+              search
+                ? (locale === 'pt' ? 'Nenhum resultado.' : locale === 'es' ? 'Sin resultados.' : 'No matches.')
+                : (locale === 'pt' ? 'Nenhum artigo ainda.' : locale === 'es' ? 'Sin artículos aún.' : 'No articles yet.')
+            }
+            description={
+              search
+                ? (locale === 'pt' ? `Nenhum artigo encontrado para "${search}".` : `No articles found for "${search}".`)
+                : undefined
+            }
+            action={
+              canWrite ? (
+                <Link
+                  href={`/${locale}/wiki/new`}
+                  prefetch={false}
+                  className="button-fill-primary-md"
+                >
+                  <Plus size={14} strokeWidth={2.4} aria-hidden />
+                  {locale === 'pt' ? 'Criar o primeiro artigo' : 'Create the first article'}
+                </Link>
+              ) : undefined
+            }
+          />
         ) : (
           items.map((content) => {
             const deptSlug = content.departments?.slug ?? ''

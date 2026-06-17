@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, Pencil, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove, isAdminOrAbove } from '@/lib/permissions/can'
@@ -116,7 +117,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
         <span style={{ color: 'var(--text)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>{title}</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'flex-start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 560px), 1fr))', gap: 24, alignItems: 'flex-start' }}>
         {/* Main article */}
         <div className="movy-card" style={{ padding: '32px 36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
@@ -189,6 +190,8 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
               <Link
                 href={`/${locale}/wiki/${slug}/edit`}
                 prefetch={false}
+                aria-label={locale === 'pt' ? 'Editar artigo' : 'Edit article'}
+                className="button-blank-secondary-md"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '8px 14px', borderRadius: 10, fontWeight: 600, fontSize: 13,
