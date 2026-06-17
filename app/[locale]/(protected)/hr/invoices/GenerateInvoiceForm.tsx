@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { PlusCircle } from 'lucide-react'
 import type { EmployeeProfile } from '@/lib/hr/types'
 import { generateInvoiceAction } from '../actions'
-import { t, ink } from '@/lib/ui/theme'
+import { t, ink, color } from '@/lib/ui/theme'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { Field, Input, Select } from '@/components/ui/form'
 
 type EmployeeWithName = EmployeeProfile & { full_name: string; email: string }
 
@@ -95,6 +98,10 @@ export function GenerateInvoiceForm({ employees, locale, orgId: _orgId }: Props)
     setOpen(true)
   }
 
+  function handleClose() {
+    if (!isPending) setOpen(false)
+  }
+
   function handleSubmit() {
     const { start, end } = getPeriod()
     if (!employeeId) { setError(pt ? 'Selecione um funcionário' : 'Select an employee'); return }
@@ -114,156 +121,111 @@ export function GenerateInvoiceForm({ employees, locale, orgId: _orgId }: Props)
 
   const { start: previewStart, end: previewEnd } = preset !== 'custom' ? computePeriod(preset) : { start: customStart, end: customEnd }
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
-    textTransform: 'uppercase', color: t.textMuted, display: 'block', marginBottom: 8,
-  }
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: `1px solid ${ink(0.15)}`, background: 'var(--surface)',
-    color: t.text, fontSize: 14, boxSizing: 'border-box',
-  }
-
   return (
     <>
-      <button
-        onClick={handleOpen}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: '#4B1A77', color: '#fff',
-          border: 'none', borderRadius: 8, padding: '10px 18px',
-          fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        }}
-      >
-        <PlusCircle size={16} />
+      <Button variant="primary" onClick={handleOpen}>
+        <PlusCircle size={16} aria-hidden="true" />
         {pt ? 'Gerar Invoice' : 'Generate Invoice'}
-      </button>
+      </Button>
 
-      {open && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 1000,
-          }}
-          onClick={() => setOpen(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--surface)', borderRadius: 16, padding: 32,
-              width: 460, boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
-              display: 'flex', flexDirection: 'column', gap: 20,
-            }}
-          >
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: t.text, margin: 0 }}>
-              {pt ? 'Gerar Tax Invoice' : 'Generate Tax Invoice'}
-            </h2>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        title={pt ? 'Gerar Tax Invoice' : 'Generate Tax Invoice'}
+        width={460}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-            {/* Employee */}
-            <div>
-              <label htmlFor="emp-select" style={labelStyle}>
-                {pt ? 'Funcionário' : 'Employee'}
-              </label>
-              <select
-                id="emp-select"
-                value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
-                style={inputStyle}
-              >
-                <option value="">{pt ? 'Selecionar…' : 'Select…'}</option>
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {displayName(emp)} — AU${(emp.hourly_rate_in_cents / 100).toFixed(2)}/hr
-                  </option>
-                ))}
-              </select>
+          {/* Employee */}
+          <Field label={pt ? 'Funcionário' : 'Employee'}>
+            <Select
+              id="emp-select"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+            >
+              <option value="">{pt ? 'Selecionar…' : 'Select…'}</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {displayName(emp)} — AU${(emp.hourly_rate_in_cents / 100).toFixed(2)}/hr
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          {/* Period preset */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: t.textMuted, marginBottom: 8 }}>
+              {pt ? 'Período' : 'Period'}
             </div>
-
-            {/* Period preset */}
-            <div>
-              <span style={labelStyle}>{pt ? 'Período' : 'Period'}</span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-                {PRESETS.map((p) => {
-                  const active = preset === p.id
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setPreset(p.id)}
-                      style={{
-                        padding: '8px 6px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                        border: `1.5px solid ${active ? '#7C3AED' : ink(0.15)}`,
-                        background: active ? 'rgba(124,58,237,0.1)' : 'transparent',
-                        color: active ? '#7C3AED' : t.textMuted,
-                        cursor: 'pointer', transition: 'all 0.15s',
-                      }}
-                    >
-                      {pt ? p.pt : p.en}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Custom date pickers */}
-            {preset === 'custom' ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label htmlFor="period-start" style={labelStyle}>{pt ? 'De' : 'From'}</label>
-                  <input id="period-start" type="date" value={customStart}
-                    onChange={(e) => setCustomStart(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label htmlFor="period-end" style={labelStyle}>{pt ? 'Até' : 'To'}</label>
-                  <input id="period-end" type="date" value={customEnd}
-                    onChange={(e) => setCustomEnd(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-            ) : (
-              /* Preview of computed dates */
-              previewStart && (
-                <div style={{
-                  background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)',
-                  borderRadius: 8, padding: '10px 14px',
-                  fontSize: 13, color: t.text,
-                }}>
-                  <span style={{ color: t.textMuted, fontSize: 11, fontWeight: 600, marginRight: 8 }}>
-                    {pt ? 'PERÍODO' : 'PERIOD'}
-                  </span>
-                  {new Date(previewStart + 'T12:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-                  {' → '}
-                  {new Date(previewEnd + 'T12:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </div>
-              )
-            )}
-
-            {error && (
-              <div role="alert" style={{ fontSize: 12, color: '#dc2626', background: 'rgba(220,38,38,0.06)', padding: '8px 12px', borderRadius: 6 }}>
-                {error}
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setOpen(false)}
-                style={{ padding: '9px 18px', borderRadius: 8, border: `1px solid ${ink(0.15)}`, background: 'none', color: t.text, cursor: 'pointer', fontSize: 14 }}
-              >
-                {pt ? 'Cancelar' : 'Cancel'}
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isPending}
-                style={{ padding: '9px 22px', borderRadius: 8, background: '#4B1A77', color: '#fff', border: 'none', cursor: isPending ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600, opacity: isPending ? 0.7 : 1 }}
-              >
-                {isPending ? (pt ? 'Gerando…' : 'Generating…') : (pt ? 'Gerar' : 'Generate')}
-              </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+              {PRESETS.map((p) => {
+                const active = preset === p.id
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPreset(p.id)}
+                    style={{
+                      padding: '8px 6px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      border: `1.5px solid ${active ? color.purple : ink(0.15)}`,
+                      background: active ? `${color.purple}1a` : 'transparent',
+                      color: active ? color.purple : t.textMuted,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}
+                  >
+                    {pt ? p.pt : p.en}
+                  </button>
+                )
+              })}
             </div>
           </div>
+
+          {/* Custom date pickers */}
+          {preset === 'custom' ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label={pt ? 'De' : 'From'}>
+                <Input id="period-start" type="date" value={customStart}
+                  onChange={(e) => setCustomStart(e.target.value)} />
+              </Field>
+              <Field label={pt ? 'Até' : 'To'}>
+                <Input id="period-end" type="date" value={customEnd}
+                  onChange={(e) => setCustomEnd(e.target.value)} />
+              </Field>
+            </div>
+          ) : (
+            /* Preview of computed dates */
+            previewStart && (
+              <div style={{
+                background: `${color.purple}0d`, border: `1px solid ${color.purple}25`,
+                borderRadius: 8, padding: '10px 14px',
+                fontSize: 13, color: t.text,
+              }}>
+                <span style={{ color: t.textMuted, fontSize: 11, fontWeight: 600, marginRight: 8 }}>
+                  {pt ? 'PERÍODO' : 'PERIOD'}
+                </span>
+                {new Date(previewStart + 'T12:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                {' → '}
+                {new Date(previewEnd + 'T12:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </div>
+            )
+          )}
+
+          {error && (
+            <div role="alert" style={{ fontSize: 12, color: '#dc2626', background: 'rgba(220,38,38,0.06)', padding: '8px 12px', borderRadius: 6 }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <Button variant="secondary" onClick={handleClose}>
+              {pt ? 'Cancelar' : 'Cancel'}
+            </Button>
+            <Button variant="primary" onClick={handleSubmit} loading={isPending}>
+              {pt ? 'Gerar' : 'Generate'}
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
     </>
   )
 }
