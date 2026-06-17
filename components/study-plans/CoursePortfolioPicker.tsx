@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react'
 import { searchCoursesAction, resolveCourseAction, listCoursePricesAction } from '@/app/[locale]/(protected)/study-plans/actions'
 import type { CourseOption, PriceSnapshot, PricedOption } from '@/lib/portfolio/types'
 import type { StudentLocation, StudyCourse } from '@/lib/study-plans/types'
+import { SkeletonText } from '@/components/ui/Skeleton'
 
 interface AppliedCourse {
   course: StudyCourse
@@ -79,7 +80,12 @@ export function CoursePortfolioPicker({ nationality, location, onApply, onPriceV
         onChange={(e) => onSearch(e.target.value)}
         onFocus={() => results.length > 0 && setOpenList(true)}
       />
-      {openList && results.length > 0 && (
+      {pending && (
+        <div style={{ padding: '8px 0' }}>
+          <SkeletonText lines={3} />
+        </div>
+      )}
+      {!pending && openList && results.length > 0 && (
         <div style={{ position: 'absolute', top: 44, left: 0, right: 0, zIndex: 30, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, maxHeight: 240, overflowY: 'auto', boxShadow: 'var(--shadow-lift, 0 10px 30px rgba(20,11,48,0.12))' }}>
           {results.map((option) => (
             <button key={option.id} type="button" disabled={pending} onClick={() => pick(option)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 11px', border: 'none', borderBottom: '1px solid var(--border)', background: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 13, color: 'var(--text)' }}>
