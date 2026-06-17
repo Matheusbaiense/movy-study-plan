@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
+import { ClipboardList } from 'lucide-react'
 import { color, ink, font, purpleA, t } from '@/lib/ui/theme'
+import { EmptyState } from '@/components/ui'
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -64,8 +66,12 @@ export default async function AuditLogPage({ params }: Props) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} style={{ padding: '48px 24px', textAlign: 'center', color: ink(0.5), fontSize: 13.5 }}>
-                  Nenhum registro de auditoria ainda.
+                <td colSpan={4} style={{ padding: '8px 0' }}>
+                  <EmptyState
+                    icon={ClipboardList}
+                    title="Nenhum registro de auditoria"
+                    description="As ações dos administradores aparecerão aqui."
+                  />
                 </td>
               </tr>
             ) : (
@@ -82,7 +88,7 @@ export default async function AuditLogPage({ params }: Props) {
                   <td style={{ padding: '12px 16px', color: ink(0.55), fontFamily: font.mono, fontSize: 11 }}>
                     {log.entity_type ? `${log.entity_type}/${(log.entity_id ?? '').slice(0, 8)}` : '—'}
                   </td>
-                  <td style={{ padding: '12px 16px', color: ink(0.55), fontFamily: font.mono, fontSize: 11 }}>
+                  <td style={{ padding: '12px 16px', color: ink(0.55), fontFamily: font.mono, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
                     {log.created_at
                       ? new Date(log.created_at).toLocaleString('en-AU', { timeZone: 'Australia/Perth', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                       : '—'}
