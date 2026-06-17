@@ -44,6 +44,7 @@ import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
 import { color, ink, font, t } from '@/lib/ui/theme'
 import { Drawer } from '@/components/ui/Drawer'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 interface Props {
   id: string
@@ -149,29 +150,25 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     <div className="sp-editor-layout">
       <style dangerouslySetInnerHTML={{ __html: editorStyles }} />
       <div style={{ display: 'grid', gap: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
-          <div>
-            <span className="movy-kicker">Proposta</span>
-            <h1 style={{ margin: '8px 0 0', fontFamily: font.display, fontSize: 'clamp(26px, 3.2vw, 38px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: t.text }}>
-              {plan.student || 'Cotação sem estudante'}
-            </h1>
-            <p style={{ margin: '10px 0 0', fontFamily: font.mono, fontSize: 12, color: ink(0.5), letterSpacing: '0.02em' }}>
-              {plan.courses.length} curso(s) · {planStudyWeeks(plan)} sem de estudo · {money(planGrandTotal(plan))}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => setShowVersions((v) => !v)}
-              style={{ ...proposalButton, background: showVersions ? 'color-mix(in srgb, #5B238E 10%, var(--surface))' : 'var(--surface)', borderColor: showVersions ? '#5B238E' : '#2A1153' }}
-            >
-              {showVersions ? 'Fechar versões' : 'Versões'}
-            </button>
-            <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
-              Proposta / PDF
-            </Link>
-          </div>
-        </div>
+        <PageHeader
+          eyebrow="Proposta"
+          title={plan.student || 'Cotação sem estudante'}
+          description={`${plan.courses.length} curso(s) · ${planStudyWeeks(plan)} sem de estudo · ${money(planGrandTotal(plan))}`}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowVersions((v) => !v)}
+                style={{ ...proposalButton, background: showVersions ? 'color-mix(in srgb, #5B238E 10%, var(--surface))' : 'var(--surface)', borderColor: showVersions ? '#5B238E' : '#2A1153' }}
+              >
+                {showVersions ? 'Fechar versões' : 'Versões'}
+              </button>
+              <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
+                Proposta / PDF
+              </Link>
+            </>
+          }
+        />
 
         {saveState === 'error' && (
           <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
