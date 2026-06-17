@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, ArrowRight, FolderOpen } from 'lucide-react'
+import { Plus, ArrowRight, FolderOpen, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
@@ -53,6 +53,19 @@ export default async function DepartmentPage({ params }: Props) {
 
   return (
     <div>
+      {/* Breadcrumbs — wayfinding back to the Áreas list (no longer a dead-end) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+        <Link href={`/${locale}/home`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
+          {locale === 'en' ? 'Home' : 'Início'}
+        </Link>
+        <ChevronRight size={12} strokeWidth={1.8} aria-hidden />
+        <Link href={`/${locale}/departments`} prefetch={false} style={{ color: 'inherit', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
+          {locale === 'en' ? 'Areas' : 'Áreas'}
+        </Link>
+        <ChevronRight size={12} strokeWidth={1.8} aria-hidden />
+        <span style={{ color: 'var(--text)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>{deptName}</span>
+      </div>
+
       {/* Hero */}
       <div style={{
         borderRadius: 14, padding: '30px 34px 30px 38px', marginBottom: 32,
