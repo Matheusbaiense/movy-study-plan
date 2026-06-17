@@ -20,6 +20,7 @@ import type { ComputedTotals } from '@/lib/calc/types'
 import type { ExtraCost, ProposalOption, StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
 import { CourseListEditor } from './CourseListEditor'
 import { ExtraCostsEditor } from './ExtraCostsEditor'
+import { PillTabBar } from './PillTabBar'
 import { color, font, ink, t } from '@/lib/ui/theme'
 
 const PRIMARY_KEY = 'primary'
@@ -101,22 +102,16 @@ export function OptionsManager({ plan, nationality, onChange }: OptionsManagerPr
   return (
     <div style={{ display: 'grid', gap: 16 }}>
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-        {columns.map((column) => (
-          <button
-            key={column.key}
-            type="button"
-            onClick={() => setActiveKey(column.key)}
-            style={tab(activeKey === column.key)}
-          >
-            {column.label}
-            {column.recommended && <span style={recommendedDot} title="Recomendada" />}
-          </button>
-        ))}
-        {canAddOption(options.length) && (
-          <button type="button" style={addTab} onClick={addOption}>+ Opção</button>
-        )}
-      </div>
+      <PillTabBar
+        value={activeKey}
+        onValueChange={setActiveKey}
+        items={columns.map((column) => ({ value: column.key, label: column.label, dot: column.recommended }))}
+        trailing={
+          canAddOption(options.length) ? (
+            <button type="button" style={addTab} onClick={addOption}>+ Opção</button>
+          ) : undefined
+        }
+      />
 
       {/* Active editor */}
       <div style={{ border: `1px solid ${t.border}`, borderRadius: 14, padding: 16, display: 'grid', gap: 16 }}>
@@ -228,22 +223,6 @@ function Row({ label, value, strong = false }: { label: string; value: string; s
   )
 }
 
-function tab(active: boolean): React.CSSProperties {
-  return {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 7,
-    border: `1px solid ${active ? color.purple : t.border}`,
-    borderRadius: 999,
-    padding: '7px 14px',
-    background: active ? `color-mix(in srgb, ${color.purple} 8%, var(--surface))` : 'var(--surface)',
-    color: active ? t.text : 'var(--text-muted)',
-    fontSize: 12.5,
-    fontWeight: 700,
-    cursor: 'pointer',
-    fontFamily: 'Outfit, sans-serif',
-  }
-}
 
 const addTab: React.CSSProperties = {
   border: '1px dashed var(--border-strong)',
@@ -261,5 +240,4 @@ const ghost: React.CSSProperties = { border: `1px solid ${t.border}`, borderRadi
 const danger: React.CSSProperties = { ...ghost, color: '#D23B2B' }
 const renameInput: React.CSSProperties = { border: `1px solid ${t.border}`, borderRadius: 9, padding: '8px 11px', fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--text)', background: 'var(--surface)', outline: 'none', minWidth: 180 }
 const blockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }
-const recommendedDot: React.CSSProperties = { width: 7, height: 7, borderRadius: 999, background: color.purple, display: 'inline-block' }
 const recommendedPill: React.CSSProperties = { color: color.gold, fontSize: 13 }

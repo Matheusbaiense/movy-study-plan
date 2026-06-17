@@ -6,6 +6,7 @@ import {
   wizardPrev,
   type EditorWizardStep,
 } from './editor-wizard-steps'
+import { PillTabBar } from './PillTabBar'
 import { color, font, ink } from '@/lib/ui/theme'
 
 interface EditorWizardNavProps {
@@ -19,29 +20,25 @@ export function EditorWizardNav({ step, onStepChange }: EditorWizardNavProps) {
   const next = wizardNext(step)
   const progress = ((currentIndex + 1) / EDITOR_WIZARD_STEPS.length) * 100
 
+  // Build PillTabBar items: prefix step number and checkmark for done steps.
+  const pillItems = EDITOR_WIZARD_STEPS.map((item, index) => {
+    const done = index < currentIndex
+    return {
+      value: item.id,
+      label: `${done ? '✓' : index + 1}  ${item.label}`,
+    }
+  })
+
   return (
     <div className="sp-wizard-nav" role="navigation" aria-label="Etapas da proposta">
       <div className="sp-wizard-progress" aria-hidden>
         <div className="sp-wizard-progress-fill" style={{ width: `${progress}%` }} />
       </div>
-      <div className="sp-wizard-steps">
-        {EDITOR_WIZARD_STEPS.map((item, index) => {
-          const active = item.id === step
-          const done = index < currentIndex
-          return (
-            <button
-              key={item.id}
-              type="button"
-              className={active ? 'sp-wizard-step active' : done ? 'sp-wizard-step done' : 'sp-wizard-step'}
-              onClick={() => onStepChange(item.id)}
-              aria-current={active ? 'step' : undefined}
-            >
-              <span className="sp-wizard-step-num">{index + 1}</span>
-              {item.label}
-            </button>
-          )
-        })}
-      </div>
+      <PillTabBar
+        value={step}
+        onValueChange={(v) => onStepChange(v as EditorWizardStep)}
+        items={pillItems}
+      />
       <div className="sp-wizard-footer">
         <button type="button" style={ghostBtn} disabled={!prev} onClick={() => prev && onStepChange(prev)}>
           Anterior
