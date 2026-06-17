@@ -1,6 +1,7 @@
 'use client'
 
 import { sanitizeHtml } from '@/lib/security/sanitize-html'
+import { t } from '@/lib/ui/theme'
 import type { StepsBlock as StepsBlockType } from '@/types/blocks'
 
 export function StepsBlock({ block }: { block: StepsBlockType }) {
@@ -44,7 +45,7 @@ export function StepsBlock({ block }: { block: StepsBlockType }) {
                 />
               )}
               {step.note && (
-                <div style={{ fontSize: 12, color: '#4B1A77', marginTop: 6, fontStyle: 'italic' }}>
+                <div style={{ fontSize: 12, color: t.accent, marginTop: 6, fontStyle: 'italic' }}>
                   {step.note}
                 </div>
               )}

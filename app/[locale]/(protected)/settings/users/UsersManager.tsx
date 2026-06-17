@@ -405,7 +405,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span style={{ fontSize: 10, fontWeight: 700, color: '#4B1A77', background: 'rgba(75,26,119,0.1)', padding: '1px 6px', borderRadius: 5, marginLeft: 4 }}>
+    <span style={{ fontSize: 10, fontWeight: 700, color: t.accent, background: 'rgba(75,26,119,0.1)', padding: '1px 6px', borderRadius: 5, marginLeft: 4 }}>
       {children}
     </span>
   )

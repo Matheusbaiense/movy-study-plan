@@ -85,7 +85,7 @@ export function SelfInvoiceButton({ locale }: SelfInvoiceButtonProps) {
           display: 'flex', alignItems: 'center', gap: 6,
           width: '100%', padding: '9px 14px', borderRadius: 9,
           background: `${color.purple}12`, border: `1px solid ${color.purple}30`,
-          color: color.purple, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+          color: t.accent, cursor: 'pointer', fontSize: 13, fontWeight: 600,
           justifyContent: 'center',
         }}
       >

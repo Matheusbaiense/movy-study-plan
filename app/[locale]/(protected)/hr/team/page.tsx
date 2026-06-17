@@ -252,7 +252,7 @@ export default async function TeamPage({ params }: Props) {
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       padding: '8px 12px', borderRadius: 8,
                       background: `${color.purple}10`, border: `1px solid ${color.purple}25`,
-                      fontSize: 12, fontWeight: 600, color: color.purple, textDecoration: 'none',
+                      fontSize: 12, fontWeight: 600, color: t.accent, textDecoration: 'none',
                     }}
                   >
                     <FileText size={13} />

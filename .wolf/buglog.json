@@ -511,5 +511,17 @@
     "occurrences": 1,
     "last_seen": "2026-06-17"
   }
+  ,{
+    "id": "bug-033",
+    "timestamp": "2026-06-17T00:00:00Z",
+    "error_message": "Code-quality review (H-1..H-4, L-3): Modal/Drawer had no focus trap or focus restore; aria-label on dialog root instead of aria-labelledby+id; scroll-lock clobbered on nested overlays; Button loading state silent to AT; Tabs nav had no accessible name",
+    "file": "components/ui/Modal.tsx, components/ui/Drawer.tsx, components/ui/Button.tsx, components/ui/Tabs.tsx",
+    "root_cause": "Phase 0 primitives were written for structural correctness but accessibility details (focus management, ARIA patterns, scroll-lock counter, AT announcements) were deferred and caught in subsequent review.",
+    "fix": "FIX1: focus trap in Modal+Drawer (RAF first-focus, Tab/Shift+Tab wrap, trigger capture/restore on close). FIX2: useId+aria-labelledby+h2 id in Modal+Drawer. FIX3: scroll-lock counter via data-scroll-locked on body. FIX4: sr-only Loading span in Button. FIX5: ariaLabel prop on Tabs nav.",
+    "tags": ["accessibility", "a11y", "focus-trap", "aria", "modal", "drawer", "button", "tabs"],
+    "related_bugs": [],
+    "occurrences": 1,
+    "last_seen": "2026-06-17"
+  }
   ]}
 

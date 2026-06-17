@@ -152,6 +152,6 @@ const currentPill: React.CSSProperties = {
   fontWeight: 800,
   letterSpacing: '0.04em',
   background: `color-mix(in srgb, ${color.purple} 14%, transparent)`,
-  color: color.purple,
+  color: t.accent,
   whiteSpace: 'nowrap',
 }

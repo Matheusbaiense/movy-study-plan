@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { logAuditWithClient } from '@/lib/api/audit'
 import { requireEditor, requireAdmin } from '@/lib/actions/auth'
+import { toJson, fromJson } from '@/lib/db/json'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
 import { upsertContact as upsertContactRecord, searchContacts } from '@/lib/crm/contacts'
@@ -79,7 +80,7 @@ export async function createStudyPlan(locale = 'pt') {
       student_name: data.student,
       applicant_type: data.applicantType,
       status: 'draft',
-      data: data as unknown as Json,
+      data: toJson(data),
       created_by: user.id,
       updated_by: user.id,
     })
@@ -125,7 +126,7 @@ export async function updateStudyPlan(id: string, data: StudyPlanData, status = 
       student_name: data.student,
       applicant_type: data.applicantType,
       status: nextStatus,
-      data: persisted as unknown as Json,
+      data: toJson(persisted),
       updated_by: user.id,
       updated_at: new Date().toISOString(),
     })
@@ -164,7 +165,7 @@ export async function duplicateStudyPlan(id: string, locale = 'pt'): Promise<{ i
   if (srcErr) throw new Error(srcErr.message)
   if (!source) throw new Error('Study plan not found')
 
-  const persisted = withComputed(source.data as unknown as StudyPlanData)
+  const persisted = withComputed(fromJson<StudyPlanData>(source.data))
 
   const { data: plan, error } = await supabase
     .from('study_plans')
@@ -173,7 +174,7 @@ export async function duplicateStudyPlan(id: string, locale = 'pt'): Promise<{ i
       student_name: source.student_name,
       applicant_type: source.applicant_type,
       status: 'draft',
-      data: persisted as unknown as Json,
+      data: toJson(persisted),
       contact_id: source.contact_id,
       currency_code: source.currency_code,
       created_by: user.id,
@@ -525,7 +526,7 @@ export async function createProposalForContact(contactId: string, locale = 'pt')
       student_name: contact.full_name,
       applicant_type: data.applicantType,
       status: 'draft',
-      data: data as unknown as Json,
+      data: toJson(data),
       contact_id: contact.id,
       created_by: user.id,
       updated_by: user.id,
@@ -620,7 +621,7 @@ export async function saveVersionAction(planId: string, label?: string): Promise
       reason: 'manual',
       status: plan.status,
       data: plan.data,
-      computed: (plan.data as unknown as StudyPlanData)?.computed as unknown as Json ?? null,
+      computed: toJson(fromJson<StudyPlanData>(plan.data)?.computed) ?? null,
       created_by: user.id,
     })
     .select('version_number')
@@ -686,15 +687,15 @@ export async function restoreVersionAction(planId: string, versionId: string): P
       reason: 'restore',
       status: current.status,
       data: current.data,
-      computed: (current.data as unknown as StudyPlanData)?.computed as unknown as Json ?? null,
+      computed: toJson(fromJson<StudyPlanData>(current.data)?.computed) ?? null,
       created_by: user.id,
     })
   }
 
-  const restoredData = withComputed(version.data as unknown as StudyPlanData)
+  const restoredData = withComputed(fromJson<StudyPlanData>(version.data))
   const { error: updateErr } = await supabase
     .from('study_plans')
-    .update({ data: restoredData as unknown as Json, updated_by: user.id })
+    .update({ data: toJson(restoredData), updated_by: user.id })
     .eq('id', planId)
     .eq('org_id', profile.org_id)
   if (updateErr) throw new Error(updateErr.message)
@@ -755,7 +756,7 @@ export async function saveAsTemplateAction(
   if (!plan) throw new Error('Plan not found')
 
   // Strip PII: keep only structural data (courses, extras, settings).
-  const source = plan.data as unknown as StudyPlanData
+  const source = fromJson<StudyPlanData>(plan.data)
   const templateData: Partial<StudyPlanData> = {
     applicantType: source.applicantType,
     studentLocation: source.studentLocation,
@@ -771,7 +772,7 @@ export async function saveAsTemplateAction(
       name: name.trim(),
       description: description?.trim() || null,
       applicant_type: plan.applicant_type || null,
-      data: templateData as unknown as Json,
+      data: toJson(templateData),
       is_active: true,
       created_by: user.id,
       updated_by: user.id,

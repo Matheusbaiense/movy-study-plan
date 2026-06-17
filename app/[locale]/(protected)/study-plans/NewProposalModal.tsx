@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { countryOptions } from '@/lib/constants/countries'
 import { buildContactAttributes } from '@/lib/crm/contacts'
 import { createProposalForContact, searchContactsAction, upsertContact, type ContactPick } from './actions'
+import { t } from '@/lib/ui/theme'
 
 interface NewProposalModalProps {
   locale: string
@@ -162,7 +163,7 @@ export default function NewProposalModal({ locale }: NewProposalModalProps) {
                   </div>
                 </div>
 
-                <button type="button" onClick={() => setMoreFields((v) => !v)} style={{ background: 'none', border: 'none', color: '#4B1A77', cursor: 'pointer', fontSize: 13, padding: '8px 0' }}>
+                <button type="button" onClick={() => setMoreFields((v) => !v)} style={{ background: 'none', border: 'none', color: t.accent, cursor: 'pointer', fontSize: 13, padding: '8px 0' }}>
                   {moreFields ? '− Menos campos' : '+ Mais campos'}
                 </button>
                 {moreFields && (

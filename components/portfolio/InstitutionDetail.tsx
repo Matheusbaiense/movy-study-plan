@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, BookOpen, DollarSign, Zap, Plus, Archive, ToggleLeft, ToggleRight, Globe, MapPin } from 'lucide-react'
 import { font, ink, t } from '@/lib/ui/theme'
-import type { Json } from '@/types/supabase'
+import { toJson } from '@/lib/db/json'
 import type { Institution, Course, CoursePriceVersion, PricingRuleRow } from '@/lib/portfolio/types'
 import {
   createCourseAction, updateCourseAction, toggleCourseActiveAction, archiveCourseAction,
@@ -524,8 +524,8 @@ function RulesTab({ institution, rules: initial, onError }: {
         const r = await createPricingRuleAction(input)
         setRules((prev) => [{
           id: r.id, label: input.label ?? null, scope: input.scope, scope_id: input.scope_id ?? null,
-          conditions: (input.conditions ?? {}) as unknown as Json,
-          effect: input.effect as unknown as Json,
+          conditions: toJson(input.conditions ?? {}),
+          effect: toJson(input.effect),
           priority: input.priority ?? 0, is_active: true, valid_from: input.valid_from ?? null,
           valid_until: input.valid_until ?? null, org_id: institution.org_id, deleted_at: null,
           metadata: {}, created_by: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), updated_by: null,

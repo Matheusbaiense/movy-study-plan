@@ -2,7 +2,7 @@
 
 import { headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/service'
-import type { Json } from '@/types/supabase'
+import { toJson } from '@/lib/db/json'
 
 export interface AcceptResult {
   ok: boolean
@@ -81,12 +81,12 @@ export async function acceptProposalAction(
     kind: 'signed',
     from_me: false,
     title: 'Proposta aceita pelo aluno',
-    metadata: {
+    metadata: toJson({
       signed_by: name,
       ip,
       user_agent: userAgent,
       terms_version: '1.0',
-    } as unknown as Json,
+    }),
   })
 
   return { ok: true }

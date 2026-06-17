@@ -116,7 +116,7 @@ function AddPreset({ type, pending, onRun }: { type: string; pending: boolean; o
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} style={{ ...btn, marginTop: 12, background: 'var(--surface)', color: color.purple, border: `1px dashed ${color.line}` }}>
+      <button type="button" onClick={() => setOpen(true)} style={{ ...btn, marginTop: 12, background: 'var(--surface)', color: t.accent, border: `1px dashed ${color.line}` }}>
         + Adicionar preset
       </button>
     )

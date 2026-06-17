@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
-import { color, ink, font, purpleA } from '@/lib/ui/theme'
+import { color, ink, font, purpleA, t } from '@/lib/ui/theme'
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -72,7 +72,7 @@ export default async function AuditLogPage({ params }: Props) {
               rows.map((log) => (
                 <tr key={log.id} style={{ borderBottom: `1px solid ${ink(0.05)}` }}>
                   <td style={{ padding: '12px 16px' }}>
-                    <span style={{ fontFamily: font.ui, fontSize: 12, fontWeight: 700, background: purpleA(0.08), color: color.purple, padding: '3px 10px', borderRadius: 999 }}>
+                    <span style={{ fontFamily: font.ui, fontSize: 12, fontWeight: 700, background: purpleA(0.08), color: t.accent, padding: '3px 10px', borderRadius: 999 }}>
                       {ACTION_LABELS[log.action] ?? log.action}
                     </span>
                   </td>

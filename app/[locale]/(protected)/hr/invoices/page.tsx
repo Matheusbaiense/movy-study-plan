@@ -130,7 +130,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <Link href={`/${locale}/hr/invoices/${inv.id}/print`} prefetch={false} style={{
-                        fontSize: 12, color: '#4B1A77', fontWeight: 600, textDecoration: 'none',
+                        fontSize: 12, color: t.accent, fontWeight: 600, textDecoration: 'none',
                       }}>
                         {pt ? 'Ver / Imprimir →' : 'View / Print →'}
                       </Link>

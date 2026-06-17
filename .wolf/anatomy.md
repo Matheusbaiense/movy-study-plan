@@ -25,7 +25,7 @@
 - **team/page.tsx** — Employee Directory server page (admin-only, redirects non-admin to /hr). Calls listEmployeesWithStats. KPI summary bar: 4 tiles (employee count, clocked in now, hours this month, pending approvals). 3-column card grid: initials avatar (purple gradient), name+email, RoleBadge (super_admin/admin/employee), AU$/hr rate, stats row (hours, pending, working-now indicator), Timesheets + Invoices action links with ?employee= param. Empty state with Users icon. Bilingual pt/en. ~263 lines.
 - **clock/page.tsx** â€” Employee clock self-service page (server component). Auth via supabase.auth.getUser() + profiles query. Fetches employee record via getEmployeeByProfileId; falls back to bilingual "no active profile" message. Fetches active clock entry via getActiveClockEntry. Renders ClockWidget. ~49 lines.
 - **page.tsx** â€” HR dashboard server component. Auth via supabase.auth.getUser() + profiles query. Fetches employee record, active clock entry, current-week entries (Monâ€“Sun), and recent entries. Layout: left sidebar (ClockWidget + WeekSummary + nav links) + right panel (TimesheetTable last 20). Bilingual (pt/en). ~99 lines.
-- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, logHoursAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, generateOwnInvoiceAction (employee self-invoice), updateEmployeeRateAction, issueInvoiceAction, markInvoicePaidAction. Uses getActor() helper (createClient + profiles query with org_id). ~260 lines.
+- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, logHoursAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, generateOwnInvoiceAction (employee self-invoice), updateEmployeeRateAction, issueInvoiceAction, markInvoicePaidAction. Uses `requireActor()` from lib/actions/auth (role checks via isHrAdmin inline); audit via logAuditWithClient. ~260 lines.
 - **timesheets/page.tsx** — Timesheet list server page. Role-scoped: admins see all org entries + employee count; non-admins see only their own entries (fetches employee via getEmployeeByProfileId; falls back to '__none__' if no employee profile). Imports isHrAdmin + getEmployeeByProfileId from lib/hr. Status filter pills (All/pending/approved/rejected). Empty-state message varies by role. TimesheetTable rendered with showEmployeeName={isAdmin}. Bilingual (pt/en). ~137 lines.
 - **invoices/[id]/print/page.tsx** â€” Invoice print/PDF server page. Auth via supabase.auth.getUser() + profiles. Fetches listRateRules + getInvoicePrintData in sequence; 404s if data null. Renders TaxInvoice in a white padded container. ~32 lines.
 
@@ -64,15 +64,20 @@
 
 ## ./
 
-- **next.config.mjs** — Next.js config: CSP (enforcing, built from NEXT_PUBLIC_SUPABASE_URL env var), security headers, Sentry via withSentryConfig, next-intl plugin. `outputFileTracingIncludes` at top-level (moved from `experimental` for Next.js 15). ~65 lines.
+- **next.config.mjs** — Next.js config: CSP (enforcing, built from NEXT_PUBLIC_SUPABASE_URL env var), security headers, Sentry via withSentryConfig (deprecated opts moved under `webpack.*` 2026-06-17), next-intl plugin. `outputFileTracingIncludes` at top-level (Next 15). ~70 lines.
+- **eslint.config.mjs** — ESLint 9 flat config (replaced `.eslintrc.json` + `next lint`, 2026-06-17). Bridges `next/core-web-vitals` eslintrc preset via `FlatCompat` (`@eslint/eslintrc`). `lint` script = `eslint .`. Ignores `.next`/`node_modules`/`out`/`.claude`. ~25 lines.
 - **instrumentation.ts** — Next.js 15 / Sentry v10 instrumentation hook. `register()` function imports `sentry.server.config` (nodejs runtime) or `sentry.edge.config` (edge runtime). Required to avoid Sentry falling back to Pages Router `_document` patching. ~9 lines.
-- **.env.example** — Documented env vars: Supabase (URL + anon key + service role), Wise API, Sentry DSN, MOVY_PREVIEW flag. ~40 lines.
+- **.env.example** — Documented env vars: Supabase (URL + anon key + service role), Wise API, Sentry DSN, site URL, Upstash Redis (rate-limit), `MOVY_PREVIEW` (dev-only; unlocks `/_ui-preview`, NOT an auth bypass). ~45 lines.
 - **public/robots.txt** — Disallows /api/ and /(protected)/ paths for all bots.
 - **sentry.client.config.ts** / **sentry.server.config.ts** / **sentry.edge.config.ts** — Sentry init: DSN from env, tracesSampleRate 0.1, enabled only in production.
 
 ## lib/actions/
 
-- **auth.ts** — CANONICAL server-action auth layer (2026-06-17 audit). `requireActor()` (authenticated + **is_active** checked → `{supabase,user,profile:ActorProfile}`), `requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`), `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the single actor shape. `getActorSession` kept as a deprecated alias (vestigial — nobody imports it). ALL 6 action files use these; never reinvent a local `getActor`/`requireAdmin`/`Actor`. ~80 lines.
+- **auth.ts** — CANONICAL server-action auth layer (2026-06-17 audit). `requireActor()` (authenticated + **is_active** checked → `{supabase,user,profile:ActorProfile}`), `requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`), `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the single actor shape. ALL 6 action files use these; never reinvent a local `getActor`/`requireAdmin`/`Actor`. ~75 lines.
+
+## lib/db/
+
+- **json.ts** — jsonb serialization boundary (2026-06-17 audit). `toJson(value)` (domain→jsonb, writes) + `fromJson<T>(value)` (jsonb→domain, reads). Single documented home for the `as unknown as Json` cast; ~20 call sites migrated. Test-traversed `lib/*` import as `'../db/json.ts'` (.ts ext). ~25 lines.
 
 ## app/api/health/
 
@@ -173,6 +178,21 @@
 
 ## components/financial/
 
+
+## components/ui/ (Phase 0 primitives — 2026-06-17)
+
+- **variants.ts** — Pure helper: `buttonClass(variant: ButtonVariant) → className`. Maps 'primary'/'secondary'/'icon' to existing global CSS classes (button-fill-primary-md, etc.). ~10 lines.
+- **Button.tsx** — `'use client'` forwardRef button wrapping existing button-* CSS classes via `buttonClass`. Props: variant, loading, disabled, className + all native button attrs. When loading=true renders a `<span class="sr-only">Loading…</span>` for AT. ~22 lines.
+- **form.tsx** — `'use client'` form primitives: `Field` (label+hint wrapper), `Input`, `Textarea`, `Select` (all forwardRef). Inline styles from `t.*` theme tokens. ~50 lines.
+- **PageHeader.tsx** — `'use client'` per-screen header: optional eyebrow (kicker), h1 title (Clash Display), description, right-aligned actions slot. ~28 lines.
+- **tabs-logic.ts** — Pure helper: `isTabActive(pathname, href) → boolean`. Exact match OR startsWith(href+'/'). ~3 lines.
+- **Tabs.tsx** — `'use client'` underline tab bar using next/link + usePathname. Props: items: TabItem[], ariaLabel?: string (default 'Section navigation'). aria-label on nav. Underline accent on active tab. ~50 lines.
+- **EmptyState.tsx** — `'use client'` centered icon+title+description+optional action card. Props: icon: LucideIcon, title, description?, action?. ~28 lines.
+- **skeleton-logic.ts** — Pure helper: `skeletonRows(count) → number[]`. Clamps to min 1. ~4 lines.
+- **Skeleton.tsx** — `'use client'` shimmer skeleton primitives: `Skeleton` (single bar, uses .movy-skeleton CSS class) + `SkeletonText` (grid of rows, last at 60%). ~18 lines.
+- **Modal.tsx** — `'use client'` portal overlay modal. SSR-safe (mounted guard), Escape+outside-click close, scroll-lock counter (data-scroll-locked), focus trap (Tab/Shift+Tab wrap), trigger capture/restore, useId aria-labelledby. Props: open, onClose, title?, children, width. ~105 lines.
+- **Drawer.tsx** — `'use client'` slide-in side panel portal. SSR-safe, Escape+outside-click close, focus trap (Tab/Shift+Tab wrap), trigger capture/restore, useId aria-labelledby, header always rendered (close button present even without title), side='right'|'left'. Props: open, onClose, title?, children, width, side. ~100 lines.
+- **index.ts** — Barrel re-exporting all 10 primitives + helpers. ThemeToggle deliberately excluded. ~12 lines.
 
 ## components/layout/
 
@@ -299,8 +319,16 @@
 - `portfolio.test.mts` — Portfolio action tests. ~100 lines.
 - `sanitize-html.test.mts` — HTML sanitisation tests. ~100 lines.
 - `crm-contacts.test.mts` — CRM contact tests. ~80 lines.
+- `ui-variants.test.mts` — 4 tests for buttonClass helper (primary/secondary/icon/unknown fallback). ~18 lines.
+- `ui-tabs-logic.test.mts` — 4 tests for isTabActive (exact/sub-route/sibling/partial-segment). ~18 lines.
+- `ui-skeleton-logic.test.mts` — 3 tests for skeletonRows (length/clamp-0/clamp-negative). ~14 lines.
 
 Run with: `npm test` → `node --experimental-strip-types --test 'tests/*.test.mts'`
+
+## app/[locale]/(protected)/_ui-preview/
+
+- **page.tsx** — Server component: 404s unless `MOVY_PREVIEW=1`. Renders UiPreviewClient. ~7 lines.
+- **UiPreviewClient.tsx** — `'use client'` primitives gallery showing all Phase-0 components. TEMP — for screenshot verification only, not shipped to production. ~55 lines.
 
 ## Root docs
 

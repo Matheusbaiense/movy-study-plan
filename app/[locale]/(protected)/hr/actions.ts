@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { logAudit } from '@/lib/api/audit'
+import { logAuditWithClient } from '@/lib/api/audit'
 import { requireActor } from '@/lib/actions/auth'
 
 const logHoursSchema = z.object({
@@ -64,7 +64,7 @@ export async function clockInAction(description?: string) {
     status: isHrAdmin(profile.role) ? 'approved' : 'pending',
   })
 
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.clock_in', entityType: 'time_entries', entityId: entry.id, metadata: { dayType, description: description ?? null } })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.clock_in', entityType: 'time_entries', entityId: entry.id, metadata: { dayType, description: description ?? null } })
 
   revalidatePath('/', 'layout')
   return entry
@@ -75,7 +75,7 @@ export async function clockOutAction(entryId: string) {
   const employee = await getEmployeeByProfileId(supabase, profile.org_id, profile.id)
   if (!employee) throw new Error('Employee profile not found')
   const entry = await clockOut(supabase, entryId, profile.org_id, employee.id, new Date().toISOString())
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.clock_out', entityType: 'time_entries', entityId: entryId })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.clock_out', entityType: 'time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
 }
@@ -117,7 +117,7 @@ export async function logHoursAction(
     status: isHrAdmin(profile.role) ? 'approved' : 'pending',
   })
 
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.log_hours', entityType: 'time_entries', entityId: entry.id, metadata: { date, startTime, endTime } })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.log_hours', entityType: 'time_entries', entityId: entry.id, metadata: { date, startTime, endTime } })
 
   revalidatePath('/', 'layout')
   return entry
@@ -127,7 +127,7 @@ export async function approveEntryAction(entryId: string) {
   const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'approved', profile.id)
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.approve', entityType: 'hr_time_entries', entityId: entryId })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.approve', entityType: 'hr_time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
 }
@@ -136,7 +136,7 @@ export async function rejectEntryAction(entryId: string) {
   const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const entry = await updateEntryStatus(supabase, entryId, 'rejected', profile.id)
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.reject', entityType: 'hr_time_entries', entityId: entryId })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.entry.reject', entityType: 'hr_time_entries', entityId: entryId })
   revalidatePath('/', 'layout')
   return entry
 }
@@ -199,7 +199,7 @@ export async function generateInvoiceAction(
   })
 
   await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id), profile.org_id)
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.generate', entityType: 'hr_invoices', entityId: invoice.id, metadata: { employeeId, periodStart, periodEnd } })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.generate', entityType: 'hr_invoices', entityId: invoice.id, metadata: { employeeId, periodStart, periodEnd } })
 
   revalidatePath('/', 'layout')
   return invoice
@@ -257,7 +257,7 @@ export async function generateOwnInvoiceAction(
   })
 
   await linkEntriesToInvoice(supabase, invoice.id, entries.map((e) => e.id), profile.org_id)
-  await logAudit({
+  await logAuditWithClient(supabase, {
     actorId: profile.id, actorEmail: profile.email,
     action: 'hr.invoice.generate_own', entityType: 'hr_invoices', entityId: invoice.id,
     metadata: { periodStart, periodEnd },
@@ -279,7 +279,7 @@ export async function updateEmployeeRateAction(employeeId: string, ratePerHour: 
     .eq('org_id', profile.org_id)
   if (error) throw new Error(error.message)
 
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.employee.rate_updated', entityType: 'employee_profiles', entityId: employeeId, metadata: { ratePerHour } })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.employee.rate_updated', entityType: 'employee_profiles', entityId: employeeId, metadata: { ratePerHour } })
 
   revalidatePath('/', 'layout')
 }
@@ -288,7 +288,7 @@ export async function issueInvoiceAction(invoiceId: string) {
   const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'issued', profile.org_id)
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.issued', entityType: 'hr_invoices', entityId: invoiceId })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.issued', entityType: 'hr_invoices', entityId: invoiceId })
   revalidatePath('/', 'layout')
   return invoice
 }
@@ -297,7 +297,7 @@ export async function markInvoicePaidAction(invoiceId: string) {
   const { supabase, profile } = await requireActor()
   if (!isHrAdmin(profile.role)) throw new Error('Insufficient permissions')
   const invoice = await updateInvoiceStatus(supabase, invoiceId, 'paid', profile.org_id)
-  await logAudit({ actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.paid', entityType: 'hr_invoices', entityId: invoiceId })
+  await logAuditWithClient(supabase, { actorId: profile.id, actorEmail: profile.email, action: 'hr.invoice.paid', entityType: 'hr_invoices', entityId: invoiceId })
   revalidatePath('/', 'layout')
   return invoice
 }

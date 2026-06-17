@@ -8,6 +8,7 @@ import { WikiContent } from '@/components/wiki/WikiContent'
 import { BlockRenderer } from '@/components/wiki/BlockRenderer'
 import { DeleteContentButton } from '@/components/wiki/DeleteContentButton'
 import type { Block } from '@/types/blocks'
+import { fromJson } from '@/lib/db/json'
 
 interface WikiSlugPageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -82,7 +83,7 @@ export default async function WikiSlugPage({ params }: WikiSlugPageProps) {
     .eq('user_id', profile.id)
     .single()
 
-  const blocks: Block[] = Array.isArray(content.blocks) ? content.blocks as unknown as Block[] : []
+  const blocks: Block[] = Array.isArray(content.blocks) ? fromJson<Block[]>(content.blocks) : []
   const hasBlocks = blocks.length > 0
   const initialChecked: Record<string, string[]> = {}
   if (progress?.checked_items && hasBlocks) {
