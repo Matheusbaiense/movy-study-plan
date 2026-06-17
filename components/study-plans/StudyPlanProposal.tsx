@@ -427,7 +427,7 @@ function Stat({ label, value, accent = false }: { label: string; value: string; 
 function CostLine({ label, value, muted = false, accent = false }: { label: string; value: string; muted?: boolean; accent?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-      <span style={{ color: muted ? MUTED : 'rgba(28,18,51,0.78)' }}>{label}</span>
+      <span style={{ color: muted ? MUTED : 'rgba(28,18,51,0.88)' }}>{label}</span>
       <span style={{ fontWeight: 700, color: accent ? ACCENT : muted ? MUTED : INK, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
     </div>
   )
@@ -454,7 +454,7 @@ const page: React.CSSProperties = {
   color: INK,
 }
 const toolbar: React.CSSProperties = { width: '210mm', maxWidth: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }
-const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
+const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
 const courseCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const totalsPanel: React.CSSProperties = { marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: 'rgba(28,18,51,0.04)', border: `1px solid ${HAIR}`, borderRadius: 14, padding: '18px 20px' }
 const totalsLabel: React.CSSProperties = { display: 'block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: MUTED, fontWeight: 700, marginBottom: 4 }
