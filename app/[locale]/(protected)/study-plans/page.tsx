@@ -5,7 +5,8 @@ import { ProposalsList, type ProposalItem } from './ProposalsList'
 import { money, planGrandTotal } from '@/lib/study-plans/calculations'
 import { formatMoney } from '@/lib/calc/money'
 import { isAdminOrAbove } from '@/lib/permissions/can'
-import { font, ink, t } from '@/lib/ui/theme'
+import { t } from '@/lib/ui/theme'
+import { PageHeader } from '@/components/ui'
 import { Constants } from '@/types/supabase'
 import type { StudyPlanData, StudyPlanRow, StudyPlanStatus } from '@/lib/study-plans/types'
 
@@ -107,18 +108,13 @@ export default async function StudyPlansPage({ params, searchParams }: Props) {
 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-        <div>
-          <div className="movy-kicker">{locale === 'en' ? 'Proposals' : 'Propostas'}</div>
-          <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: t.text }}>
-            Cotações &amp; Study Plans
-          </h1>
-          <p style={{ margin: 0, color: ink(0.62), fontSize: 14 }}>
-            Crie, simule e acompanhe propostas — filtre, selecione em lote e restaure da lixeira.
-          </p>
-        </div>
-        <NewProposalModal locale={locale} />
-      </div>
+      {/* [A-H2] PageHeader primitive replaces hand-built eyebrow+h1+description+action block */}
+      <PageHeader
+        eyebrow={locale === 'en' ? 'Proposals' : 'Propostas'}
+        title="Cotações & Study Plans"
+        description="Crie, simule e acompanhe propostas — filtre, selecione em lote e restaure da lixeira."
+        actions={<NewProposalModal locale={locale} />}
+      />
 
       <ProposalsList
         locale={locale}
