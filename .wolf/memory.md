@@ -3,6 +3,8 @@
 > Chronological action log. Hooks and AI append to this file automatically.
 > Old sessions are consolidated by the daemon weekly.
 
+| 03:24 | woofed-ux-alignment: hr people/invoicing audit + CRIT+HIGH fixes (PageHeader, EmptyState, Modal, Button, Field/Select, aria-labels, responsive grids, tabular-nums) | team/page, invoices/page, GenerateInvoiceForm, SelfInvoiceButton, CreateEmployeeProfileButton, EditRateButton, IssueInvoiceButton, TaxInvoice, InvoiceEmployeeFilter | 3 commits (b433aad, c9f3b9b, eb7ffaa), 179/0 tests, type-check clean | ~4500 |
+
 | 2026-06-16 | MEGA-AUDIT SESSION: análise ponta-a-ponta com 4 agentes paralelos. Fixes aplicados: (1) NOVO-1 issueInvoiceAction/markInvoicePaidAction sem role check → adicionado isHrAdmin guard + logAudit; (2) C7 clockIn/clockOut/logHours/updateEmployeeRate sem audit log → logAudit adicionado; (3) H8 sem error.tsx/not-found.tsx → criados; (4) C5 sem CI/CD → .github/workflows/ci.yml criado. type-check ✅ 139/139 tests ✅. Achados pendentes documentados abaixo. | hr/actions.ts, app/error.tsx, app/not-found.tsx, .github/workflows/ci.yml | done | ~40k tok |
 
 | 2026-06-16 | Next.js 14→15 upgrade: updated params to async (page.tsx + route.ts), fixed useMemo-after-return in StudyPlanEditor, moved outputFileTracingIncludes to top-level, created instrumentation.ts for Sentry; npm run type-check ✅ · npm run build ✅ · 139/139 tests ✅ | app/[locale]/page.tsx, app/api/imported/[name]/route.ts, components/study-plans/StudyPlanEditor.tsx, next.config.mjs, instrumentation.ts, package.json | done — Next.js 15.5.19, React 18 kept | ~6k tok |
