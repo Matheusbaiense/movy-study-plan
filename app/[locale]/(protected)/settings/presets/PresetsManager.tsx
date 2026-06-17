@@ -101,7 +101,7 @@ export function PresetsManager({ presets, serviceConfigured = true }: { presets:
   const totalPresets = presets.length
 
   return (
-    <div className="movy-stagger" style={{ display: 'grid', gap: 22 }}>
+    <div className="movy-stagger" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 22 }}>
       <ConfirmModal
         open={confirmModal.open}
         onClose={() => setConfirmModal((s) => ({ ...s, open: false }))}

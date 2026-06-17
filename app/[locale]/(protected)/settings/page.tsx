@@ -23,7 +23,7 @@ export default async function SettingsPage({ params }: Props) {
   const isPt = locale === 'pt'
 
   return (
-    <div className="movy-stagger" style={{ maxWidth: 640, display: 'grid', gap: 18 }}>
+    <div className="movy-stagger" style={{ maxWidth: 640, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 18 }}>
       {/* Profile card */}
       <div className="movy-card" style={{ padding: '20px 22px' }}>
         <div className="movy-kicker" style={{ color: ink(0.4), marginBottom: 14 }}>
