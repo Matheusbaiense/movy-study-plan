@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Users } from 'lucide-react'
 import {
   createUser,
   updateUserRole,
@@ -12,6 +13,7 @@ import {
   type ActionResult,
 } from './actions'
 import { color, ink, font, roleColor, t } from '@/lib/ui/theme'
+import { Button, Field, Input, Select, EmptyState, Modal } from '@/components/ui'
 
 type Role = 'reader' | 'editor' | 'admin' | 'super_admin'
 
@@ -45,10 +47,62 @@ const ROLE_LABELS: Record<Role, string> = {
   reader: 'Leitor',
 }
 
+// ConfirmModal — shared danger-confirm pattern
+function ConfirmModal({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmLabel = 'Confirmar',
+  pending,
+}: {
+  open: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title: string
+  message: string
+  confirmLabel?: string
+  pending?: boolean
+}) {
+  return (
+    <Modal open={open} onClose={onClose} title={title} width={400}>
+      <p style={{ margin: '0 0 20px', fontSize: 13.5, color: t.textMuted, lineHeight: 1.55 }}>{message}</p>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <Button variant="secondary" type="button" onClick={onClose}>
+          Cancelar
+        </Button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={pending}
+          style={{
+            padding: '9px 16px', borderRadius: 10, border: 'none',
+            background: color.red, color: '#fff',
+            fontSize: 13, fontWeight: 700, fontFamily: font.ui,
+            cursor: pending ? 'wait' : 'pointer', opacity: pending ? 0.7 : 1,
+          }}
+        >
+          {pending ? 'Aguarde…' : confirmLabel}
+        </button>
+      </div>
+    </Modal>
+  )
+}
+
 export function UsersManager({ users, allowed, actorRole, actorId, serviceConfigured = true }: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [flash, setFlash] = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null)
+
+  // Confirm-modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean
+    title: string
+    message: string
+    confirmLabel: string
+    onConfirm: () => void
+  }>({ open: false, title: '', message: '', confirmLabel: 'Confirmar', onConfirm: () => {} })
 
   const canAssign: Role[] =
     actorRole === 'super_admin' ? ['reader', 'editor', 'admin', 'super_admin'] : ['reader', 'editor', 'admin']
@@ -67,8 +121,25 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
     })
   }
 
+  function confirm(opts: { title: string; message: string; confirmLabel?: string; onConfirm: () => void }) {
+    setConfirmModal({ open: true, confirmLabel: 'Confirmar', ...opts })
+  }
+
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
+      <ConfirmModal
+        open={confirmModal.open}
+        onClose={() => setConfirmModal((s) => ({ ...s, open: false }))}
+        onConfirm={() => {
+          setConfirmModal((s) => ({ ...s, open: false }))
+          confirmModal.onConfirm()
+        }}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        pending={pending}
+      />
+
       {!serviceConfigured && (
         <div
           style={{
@@ -108,107 +179,139 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
 
       {/* Users table */}
       <Card title="Usuários" subtitle={`${users.length} no total`}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                {['Nome', 'Email', 'Permissão', 'Status', 'Ações'].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                      color: 'var(--text-subtle)',
-                      borderBottom: '1px solid var(--border)',
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => {
-                const self = u.id === actorId
-                const lockedTarget = u.role === 'super_admin' && !isSuper
-                return (
-                  <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 12px', color: 'var(--text)', fontWeight: 500 }}>
-                      {u.full_name ?? '—'} {self && <Tag>você</Tag>}
-                    </td>
-                    <td style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>{u.email}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <select
-                        value={u.role}
-                        disabled={pending || self || lockedTarget}
-                        onChange={(e) =>
-                          run(() => updateUserRole(u.id, e.target.value), 'Permissão atualizada.')
-                        }
-                        style={{
-                          padding: '5px 8px',
-                          borderRadius: 8,
-                          border: '1px solid var(--border)',
-                          background: 'var(--surface)',
-                          color: ROLE_COLORS[u.role],
-                          fontWeight: 700,
-                          fontSize: 12,
-                          fontFamily: 'var(--font-body)',
-                          cursor: self || lockedTarget ? 'not-allowed' : 'pointer',
-                        }}
-                      >
-                        {/* keep current value selectable even if not normally assignable */}
-                        {Array.from(new Set([u.role, ...canAssign])).map((r) => (
-                          <option key={r} value={r}>
-                            {ROLE_LABELS[r as Role]}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: u.is_active ? '#4B1A77' : '#D23B2B' }}>
-                        {u.is_active ? '● Ativo' : '○ Inativo'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                      {!self && !lockedTarget && (
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
-                          <SmallBtn
-                            disabled={pending}
-                            onClick={() =>
-                              run(
-                                () => setUserActive(u.id, !u.is_active),
-                                u.is_active ? 'Acesso revogado.' : 'Acesso liberado.'
-                              )
-                            }
-                          >
-                            {u.is_active ? 'Desativar' : 'Ativar'}
-                          </SmallBtn>
-                          {isSuper && (
-                            <SmallBtn
-                              danger
+        {users.length === 0 ? (
+          <EmptyState icon={Users} title="Nenhum usuário ainda" description="Adicione o primeiro usuário acima." />
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr>
+                  {['Nome', 'Email', 'Permissão', 'Status', 'Ações'].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        textAlign: 'left',
+                        padding: '8px 12px',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                        color: 'var(--text-subtle)',
+                        borderBottom: '1px solid var(--border)',
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => {
+                  const self = u.id === actorId
+                  const lockedTarget = u.role === 'super_admin' && !isSuper
+                  return (
+                    <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--text)', fontWeight: 500 }}>
+                        {u.full_name ?? '—'} {self && <Tag>você</Tag>}
+                      </td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>{u.email}</td>
+                      <td style={{ padding: '10px 12px' }}>
+                        <select
+                          aria-label={`Permissão de ${u.full_name ?? u.email}`}
+                          value={u.role}
+                          disabled={pending || self || lockedTarget}
+                          onChange={(e) =>
+                            run(() => updateUserRole(u.id, e.target.value), 'Permissão atualizada.')
+                          }
+                          className="movy-field-control"
+                          style={{
+                            padding: '5px 8px',
+                            borderRadius: 8,
+                            border: '1px solid var(--border)',
+                            background: 'var(--surface)',
+                            color: ROLE_COLORS[u.role],
+                            fontWeight: 700,
+                            fontSize: 12,
+                            fontFamily: 'var(--font-body)',
+                            cursor: self || lockedTarget ? 'not-allowed' : 'pointer',
+                            outline: 'none',
+                          }}
+                        >
+                          {Array.from(new Set([u.role, ...canAssign])).map((r) => (
+                            <option key={r} value={r}>
+                              {ROLE_LABELS[r as Role]}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td style={{ padding: '10px 12px' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: u.is_active ? '#4B1A77' : '#D23B2B' }}>
+                          {u.is_active ? '● Ativo' : '○ Inativo'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                        {!self && !lockedTarget && (
+                          <div style={{ display: 'inline-flex', gap: 6 }}>
+                            <Button
+                              variant="secondary"
+                              type="button"
                               disabled={pending}
-                              onClick={() => {
-                                if (confirm(`Excluir ${u.email}? Esta ação não pode ser desfeita.`)) {
-                                  run(() => removeUser(u.id), 'Usuário excluído.')
-                                }
-                              }}
+                              onClick={() =>
+                                confirm({
+                                  title: u.is_active ? 'Desativar usuário' : 'Ativar usuário',
+                                  message: u.is_active
+                                    ? `Revogar acesso de ${u.email}?`
+                                    : `Liberar acesso para ${u.email}?`,
+                                  confirmLabel: u.is_active ? 'Desativar' : 'Ativar',
+                                  onConfirm: () =>
+                                    run(
+                                      () => setUserActive(u.id, !u.is_active),
+                                      u.is_active ? 'Acesso revogado.' : 'Acesso liberado.'
+                                    ),
+                                })
+                              }
                             >
-                              Excluir
-                            </SmallBtn>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                              {u.is_active ? 'Desativar' : 'Ativar'}
+                            </Button>
+                            {isSuper && (
+                              <button
+                                type="button"
+                                aria-label={`Excluir ${u.email}`}
+                                disabled={pending}
+                                onClick={() =>
+                                  confirm({
+                                    title: 'Excluir usuário',
+                                    message: `Excluir ${u.email}? Esta ação não pode ser desfeita.`,
+                                    confirmLabel: 'Excluir',
+                                    onConfirm: () => run(() => removeUser(u.id), 'Usuário excluído.'),
+                                  })
+                                }
+                                style={{
+                                  padding: '5px 10px',
+                                  borderRadius: 8,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  fontFamily: 'var(--font-body)',
+                                  cursor: pending ? 'not-allowed' : 'pointer',
+                                  border: 'none',
+                                  background: `${color.red}10`,
+                                  color: color.red,
+                                  opacity: pending ? 0.5 : 1,
+                                }}
+                              >
+                                Excluir
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
 
       {/* Allowlist */}
@@ -216,7 +319,7 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
         title="Emails autorizados (Google)"
         subtitle="Apenas estes emails conseguem entrar com o Google. Adicionar um email aqui também libera o acesso."
       >
-        <AddAllowedForm canAssign={canAssign} pending={pending} onSubmit={run} />
+        <AddAllowedForm canAssign={canAssign} pending={pending} onSubmit={run} onConfirm={confirm} />
         <div style={{ display: 'grid', gap: 6, marginTop: 14 }}>
           {allowed.length === 0 ? (
             <div style={{ fontSize: 13, color: 'var(--text-subtle)' }}>Nenhum email autorizado ainda.</div>
@@ -252,17 +355,33 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
                     {ROLE_LABELS[a.role]}
                   </span>
                 </div>
-                <SmallBtn
-                  danger
+                <button
+                  type="button"
+                  aria-label={`Remover ${a.email} da lista de autorizados`}
                   disabled={pending}
-                  onClick={() => {
-                    if (confirm(`Remover ${a.email} da lista de autorizados? O acesso será revogado.`)) {
-                      run(() => removeAllowedEmail(a.email), 'Email removido da lista.')
-                    }
+                  onClick={() =>
+                    confirm({
+                      title: 'Remover email autorizado',
+                      message: `Remover ${a.email} da lista de autorizados? O acesso será revogado.`,
+                      confirmLabel: 'Remover',
+                      onConfirm: () => run(() => removeAllowedEmail(a.email), 'Email removido da lista.'),
+                    })
+                  }
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-body)',
+                    cursor: pending ? 'not-allowed' : 'pointer',
+                    border: `1px solid rgba(210,59,43,0.3)`,
+                    background: 'rgba(210,59,43,0.06)',
+                    color: '#D23B2B',
+                    opacity: pending ? 0.5 : 1,
                   }}
                 >
                   Remover
-                </SmallBtn>
+                </button>
               </div>
             ))
           )}
@@ -271,6 +390,8 @@ export function UsersManager({ users, allowed, actorRole, actorId, serviceConfig
     </div>
   )
 }
+
+type ConfirmFn = (opts: { title: string; message: string; confirmLabel?: string; onConfirm: () => void }) => void
 
 function AddUserForm({
   canAssign,
@@ -297,41 +418,39 @@ function AddUserForm({
         style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', alignItems: 'end' }}
       >
         <Field label="Nome">
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} placeholder="Nome completo" />
+          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nome completo" />
         </Field>
         <Field label="Email">
-          <input
+          <Input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
             placeholder="pessoa@movyeducation.com"
           />
         </Field>
         <Field label="Senha inicial">
-          <input
+          <Input
             type="text"
             required
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
             placeholder="mín. 8 caracteres"
           />
         </Field>
         <Field label="Permissão">
-          <select value={role} onChange={(e) => setRole(e.target.value as Role)} style={inputStyle}>
+          <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
             {canAssign.map((r) => (
               <option key={r} value={r}>
                 {ROLE_LABELS[r]}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
-        <button type="submit" disabled={pending} style={primaryBtn(pending)}>
-          {pending ? 'Salvando…' : 'Adicionar'}
-        </button>
+        <Button type="submit" variant="primary" loading={pending}>
+          Adicionar
+        </Button>
       </form>
     </Card>
   )
@@ -341,10 +460,12 @@ function AddAllowedForm({
   canAssign,
   pending,
   onSubmit,
+  onConfirm: _onConfirm,
 }: {
   canAssign: Role[]
   pending: boolean
   onSubmit: (fn: () => Promise<ActionResult>, okMsg: string) => void
+  onConfirm: ConfirmFn
 }) {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>('editor')
@@ -356,26 +477,33 @@ function AddAllowedForm({
         onSubmit(() => addAllowedEmail(email, role), 'Email autorizado.')
         setEmail('')
       }}
-      style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}
+      style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}
     >
-      <input
-        type="email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ ...inputStyle, flex: '1 1 220px' }}
-        placeholder="pessoa@movyeducation.com"
-      />
-      <select value={role} onChange={(e) => setRole(e.target.value as Role)} style={inputStyle}>
+      <div style={{ flex: '1 1 220px' }}>
+        <Input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="pessoa@movyeducation.com"
+          aria-label="Email a autorizar"
+        />
+      </div>
+      <Select
+        value={role}
+        onChange={(e) => setRole(e.target.value as Role)}
+        aria-label="Permissão do email autorizado"
+        style={{ width: 'auto' }}
+      >
         {canAssign.map((r) => (
           <option key={r} value={r}>
             {ROLE_LABELS[r]}
           </option>
         ))}
-      </select>
-      <button type="submit" disabled={pending} style={primaryBtn(pending)}>
-        {pending ? '…' : 'Autorizar'}
-      </button>
+      </Select>
+      <Button type="submit" variant="primary" loading={pending}>
+        Autorizar
+      </Button>
     </form>
   )
 }
@@ -392,81 +520,10 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'grid', gap: 5 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-subtle)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-        {label}
-      </span>
-      {children}
-    </label>
-  )
-}
-
 function Tag({ children }: { children: React.ReactNode }) {
   return (
     <span style={{ fontSize: 10, fontWeight: 700, color: t.accent, background: 'rgba(75,26,119,0.1)', padding: '1px 6px', borderRadius: 5, marginLeft: 4 }}>
       {children}
     </span>
   )
-}
-
-function SmallBtn({
-  children,
-  onClick,
-  disabled,
-  danger,
-}: {
-  children: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-  danger?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        padding: '5px 10px',
-        borderRadius: 8,
-        fontSize: 12,
-        fontWeight: 600,
-        fontFamily: 'var(--font-body)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        border: `1px solid ${danger ? 'rgba(210,59,43,0.3)' : 'var(--border)'}`,
-        background: danger ? 'rgba(210,59,43,0.06)' : 'var(--surface)',
-        color: danger ? '#D23B2B' : 'var(--text)',
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-const inputStyle: React.CSSProperties = {
-  padding: '9px 11px',
-  borderRadius: 10,
-  border: `1px solid ${ink(0.15)}`,
-  background: 'var(--surface)',
-  fontSize: 13,
-  color: t.text,
-  fontFamily: font.display,
-  outline: 'none',
-}
-
-function primaryBtn(pending: boolean): React.CSSProperties {
-  return {
-    padding: '10px 16px',
-    borderRadius: 10,
-    border: 'none',
-    background: color.purpleDeep,
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: 800,
-    fontFamily: font.display,
-    cursor: pending ? 'wait' : 'pointer',
-    opacity: pending ? 0.7 : 1,
-  }
 }
