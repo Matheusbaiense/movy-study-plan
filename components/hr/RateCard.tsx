@@ -1,6 +1,6 @@
 'use client'
 
-import { t, ink, color, font } from '@/lib/ui/theme'
+import { t, ink, font } from '@/lib/ui/theme'
 
 interface RateCardProps {
   rateCents: number
@@ -33,7 +33,7 @@ export function RateCard({ rateCents, locale }: RateCardProps) {
         </div>
       ) : (
         <div style={{
-          fontSize: 24, fontWeight: 800, color: color.purple,
+          fontSize: 24, fontWeight: 800, color: t.accent,
           fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em',
           fontFamily: font.display,
         }}>

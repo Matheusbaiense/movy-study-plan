@@ -55,9 +55,16 @@ const nextConfig = {
 
 export default withSentryConfig(withNextIntl(nextConfig), {
   silent: true,
-  disableLogger: true,
   widenClientFileUpload: true,
   hideSourceMaps: true,
   tunnelRoute: '/monitoring',
-  autoInstrumentServerFunctions: false,
+  // Moved out of the deprecated top-level options (removed in a future Sentry major):
+  //   disableLogger → webpack.treeshake.removeDebugLogging
+  //   autoInstrumentServerFunctions → webpack.autoInstrumentServerFunctions
+  webpack: {
+    autoInstrumentServerFunctions: false,
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 })

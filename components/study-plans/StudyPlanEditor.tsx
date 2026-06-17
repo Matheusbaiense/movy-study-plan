@@ -42,7 +42,10 @@ import { EditorWizardNav } from './EditorWizardNav'
 import { VersionHistory } from './VersionHistory'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
+import { Input, Select } from '@/components/ui/form'
 import { color, ink, font, t } from '@/lib/ui/theme'
+import { Drawer } from '@/components/ui/Drawer'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 interface Props {
   id: string
@@ -119,6 +122,17 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     return () => window.clearTimeout(timer)
   }, [plan, persist, isPending])
 
+  // Warn on navigation when there are unsaved changes (autosave takes 2.5s)
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (JSON.stringify(plan) !== lastPersistedRef.current) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [plan])
+
   function suggestPayments() {
     const payments = []
     const upfront = planUpfrontSchools(plan)
@@ -148,42 +162,36 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
     <div className="sp-editor-layout">
       <style dangerouslySetInnerHTML={{ __html: editorStyles }} />
       <div style={{ display: 'grid', gap: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
-          <div>
-            <span className="movy-kicker">Proposta</span>
-            <h1 style={{ margin: '8px 0 0', fontFamily: font.display, fontSize: 'clamp(26px, 3.2vw, 38px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 0.98, color: t.text }}>
-              {plan.student || 'Cotação sem estudante'}
-            </h1>
-            <p style={{ margin: '10px 0 0', fontFamily: font.mono, fontSize: 12, color: ink(0.5), letterSpacing: '0.02em' }}>
-              {plan.courses.length} curso(s) · {planStudyWeeks(plan)} sem de estudo · {money(planGrandTotal(plan))}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => setShowVersions((v) => !v)}
-              style={{ ...proposalButton, background: showVersions ? 'color-mix(in srgb, #5B238E 10%, var(--surface))' : 'var(--surface)', borderColor: showVersions ? '#5B238E' : '#2A1153' }}
-            >
-              {showVersions ? 'Fechar versões' : 'Versões'}
-            </button>
-            <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
-              Proposta / PDF
-            </Link>
-          </div>
-        </div>
+        <PageHeader
+          eyebrow="Proposta"
+          title={plan.student || 'Cotação sem estudante'}
+          description={`${plan.courses.length} curso(s) · ${planStudyWeeks(plan)} sem de estudo · ${money(planGrandTotal(plan))}`}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowVersions((v) => !v)}
+                style={{ ...proposalButton, background: showVersions ? 'color-mix(in srgb, #5B238E 10%, var(--surface))' : 'var(--surface)', borderColor: showVersions ? '#5B238E' : '#2A1153' }}
+              >
+                {showVersions ? 'Fechar versões' : 'Versões'}
+              </button>
+              <Link href={`/${locale}/study-plans/${id}/proposal`} prefetch={false} style={proposalButton}>
+                Proposta / PDF
+              </Link>
+            </>
+          }
+        />
 
         {saveState === 'error' && (
           <div style={noticeDanger}>Não consegui salvar. Verifique sua sessão e tente novamente.</div>
         )}
 
-        {showVersions && (
-          <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--surface)' }}>
-            <VersionHistory
-              planId={id}
-              onRestored={router.refresh}
-            />
-          </div>
-        )}
+        <Drawer open={showVersions} onClose={() => setShowVersions(false)} title="Histórico de versões" width={480}>
+          <VersionHistory
+            planId={id}
+            onRestored={router.refresh}
+          />
+        </Drawer>
 
         <EditorWizardNav step={wizardStep} onStepChange={setWizardStep} />
 
@@ -191,13 +199,13 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         <Section title="Cliente">
           <div style={grid2}>
             <Field label="Nome do estudante ou casal">
-              <input style={input} value={plan.student} onChange={(e) => patchPlan({ student: e.target.value })} />
+              <Input value={plan.student} onChange={(e) => patchPlan({ student: e.target.value })} />
             </Field>
             <Field label="E-mail">
-              <input style={input} type="email" value={plan.email} onChange={(e) => patchPlan({ email: e.target.value })} />
+              <Input type="email" value={plan.email} onChange={(e) => patchPlan({ email: e.target.value })} />
             </Field>
             <Field label="Telefone">
-              <input style={input} value={plan.phone} onChange={(e) => patchPlan({ phone: e.target.value })} />
+              <Input value={plan.phone} onChange={(e) => patchPlan({ phone: e.target.value })} />
             </Field>
           </div>
         </Section>
@@ -207,8 +215,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         <Section title="Preferências">
           <div style={grid2}>
             <Field label="Tipo de visto / aplicante">
-              <select
-                style={input}
+              <Select
                 value={plan.applicantType}
                 onChange={(e) => {
                   const applicantType = e.target.value as ApplicantType
@@ -216,19 +223,19 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
                 }}
               >
                 {applicantTypes.map((type) => <option key={type}>{type}</option>)}
-              </select>
+              </Select>
             </Field>
             <Field label="Situação do estudante">
-              <select style={input} value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
+              <Select value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
                 <option value="offshore">Offshore (fora da Austrália)</option>
                 <option value="onshore">Onshore (na Austrália)</option>
-              </select>
+              </Select>
             </Field>
             <Field label="Vencimento do visto atual">
-              <input style={input} type="date" value={plan.currentVisaExpiry} onChange={(e) => patchPlan({ currentVisaExpiry: e.target.value })} />
+              <Input type="date" value={plan.currentVisaExpiry} onChange={(e) => patchPlan({ currentVisaExpiry: e.target.value })} />
             </Field>
             <Field label="Consultor">
-              <input style={input} value={plan.consultant} onChange={(e) => patchPlan({ consultant: e.target.value })} />
+              <Input value={plan.consultant} onChange={(e) => patchPlan({ consultant: e.target.value })} />
             </Field>
           </div>
         </Section>
@@ -270,9 +277,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
                       )}
                       <Field label="Parcelas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
                       <Field label="Cadência das parcelas">
-                        <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
+                        <Select value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
                           {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
-                        </select>
+                        </Select>
                       </Field>
                     </div>
                   )}
@@ -281,11 +288,19 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
             })}
           </div>
           <div style={{ display: 'grid', gap: 10 }}>
+            {plan.payments.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 130px auto', gap: 10 }} aria-hidden="true">
+                <span style={paymentColHeader}>Parcela / item</span>
+                <span style={paymentColHeader}>Vencimento</span>
+                <span style={paymentColHeader}>Valor</span>
+                <span />
+              </div>
+            )}
             {plan.payments.map((payment) => (
               <div key={payment.id} style={{ display: 'grid', gridTemplateColumns: '1fr 180px 130px auto', gap: 10 }}>
-                <input style={input} value={payment.item} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, item: e.target.value } : item) })} />
-                <input style={input} value={payment.due} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, due: e.target.value } : item) })} />
-                <NumberInput value={payment.amount} onChange={(value) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, amount: value } : item) })} />
+                <input aria-label="Parcela / item" style={input} value={payment.item} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, item: e.target.value } : item) })} />
+                <input aria-label="Vencimento" style={input} value={payment.due} onChange={(e) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, due: e.target.value } : item) })} />
+                <NumberInput aria-label="Valor" value={payment.amount} onChange={(value) => patchPlan({ payments: plan.payments.map((item) => item.id === payment.id ? { ...item, amount: value } : item) })} />
                 <button style={dangerButton} onClick={() => patchPlan({ payments: plan.payments.filter((item) => item.id !== payment.id) })}>Remover</button>
               </div>
             ))}
@@ -506,6 +521,7 @@ function Dot({ color, border = false }: { color: string; border?: boolean }) {
 
 const proposalButton: React.CSSProperties = { border: '1px solid #2A1153', borderRadius: 10, padding: '10px 16px', background: 'var(--surface)', color: 'var(--text)', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
 const noticeDanger = { background: 'rgba(210,59,43,0.08)', border: '1px solid rgba(210,59,43,0.16)', color: '#D23B2B', borderRadius: 12, padding: '10px 12px', fontSize: 13 }
+const paymentColHeader: React.CSSProperties = { fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }
 
 const editorStyles = `
 .sp-editor-layout {

@@ -8,10 +8,13 @@
 
 ## Local setup
 
+This project uses **Yarn (classic v1)** — same as woofed-crm, for forward
+compatibility. Do not use npm/pnpm (no `package-lock.json`/`pnpm-lock.yaml`).
+
 ```bash
-npm install
+yarn install
 cp .env.example .env.local   # fill in the values
-npm run dev
+yarn dev
 ```
 
 ## Development workflow
@@ -20,9 +23,9 @@ npm run dev
 2. **Write tests first** — see `tests/` for the `node:test` pattern.
 3. **Run checks** before pushing:
    ```bash
-   npm test          # unit tests
-   npm run type-check
-   npm run lint
+   yarn test          # unit tests
+   yarn type-check
+   yarn lint
    ```
 4. **Migrations** — add a new numbered SQL file under `supabase/migrations/`. See `docs/MIGRATIONS.md`.
 5. **Open a PR** against `develop`. CI must be green.

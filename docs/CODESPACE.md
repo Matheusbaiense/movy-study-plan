@@ -1,14 +1,14 @@
 # Desenvolvendo no GitHub Codespaces
 
-Este repo já vem pronto pra Codespaces (`.devcontainer/devcontainer.json`: Node 20,
-`npm install` automático e porta 3000 encaminhada). Assim você desenvolve no navegador,
+Este repo já vem pronto pra Codespaces (`.devcontainer/devcontainer.json`: Node 24,
+`yarn install` automático e porta 3000 encaminhada). Assim você desenvolve no navegador,
 sem peso no PC local e **sem o Google Drive no meio do caminho**.
 
 ## 1. Criar o Codespace
 
 1. Abra **https://github.com/Matheusbaiense/movy-study-plan**
 2. Botão verde **`< > Code`** → aba **Codespaces** → **Create codespace on main**
-3. Espere o build (~2 min). O devcontainer roda `npm install` sozinho.
+3. Espere o build (~2 min). O devcontainer roda `yarn install` sozinho.
 
 > Conta de estudante (GitHub Student Pack) dá mais horas de Codespaces grátis.
 
@@ -42,7 +42,7 @@ Codespace novo — aí nem precisa do `.env.local` (o Next lê de `process.env`)
 ## 3. Rodar
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 A porta 3000 abre em preview automaticamente. Rotas úteis: `/pt/cambio`, `/pt/financial`,
@@ -58,8 +58,9 @@ A porta 3000 abre em preview automaticamente. Rotas úteis: `/pt/cambio`, `/pt/f
 
 - **OAuth do Google (login real):** o callback do Supabase usa allowlist de domínios. A
   URL do Codespace (`*.app.github.dev`) muda a cada criação, então pra testar o login de
-  verdade ou você adiciona a URL na config de Auth do Supabase, ou usa `MOVY_PREVIEW=1`.
-- **Validação rápida:** `npx tsc --noEmit` e `npm run build` rodam direto no Codespace
+  verdade adicione a URL na config de Auth do Supabase. (Obs.: `MOVY_PREVIEW=1` **não**
+  burla login — ele só desbloqueia a página de preview do design-system em `/_ui-preview`.)
+- **Validação rápida:** `yarn type-check` e `yarn build` rodam direto no Codespace
   (no PC local o Drive corrompe o `node_modules` — esse problema some no Codespace).
 - **Segredos:** nunca comite `.env.local`. Os tokens da Wise e a service-role key são
   secretos — só na Vercel e/ou Codespaces Secrets.

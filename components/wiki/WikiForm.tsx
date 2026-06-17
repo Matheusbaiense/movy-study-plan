@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createContent, updateContent } from '@/app/[locale]/(protected)/wiki/actions'
+import { Field, Input, Textarea, Select } from '@/components/ui/form'
+import { Button } from '@/components/ui/Button'
 import type { Tables } from '@/types/supabase'
 
 interface WikiFormProps {
@@ -56,147 +58,123 @@ export function WikiForm({ departments, locale, mode = 'create', contentId, defa
   }
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div style={{ borderRadius: 10, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.22)', padding: '10px 14px', fontSize: 13, color: 'var(--color-danger, #c0392b)' }}>
           {error}
         </div>
       )}
 
       {/* Department + Status row */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Departamento
-          </label>
-          <select
-            name="department_id"
-            defaultValue={defaultValues?.department_id ?? ''}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100"
-          >
+      <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+        <Field label="Departamento">
+          <Select name="department_id" defaultValue={defaultValues?.department_id ?? ''}>
             <option value="">Sem departamento</option>
             {departments.map((dept) => (
               <option key={dept.id} value={dept.id}>
                 {dept.icon ? `${dept.icon} ` : ''}{dept.name_pt}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Status
-          </label>
-          <select
-            name="status"
-            defaultValue={defaultValues?.status ?? 'draft'}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100"
-          >
+        <Field label="Status">
+          <Select name="status" defaultValue={defaultValues?.status ?? 'draft'}>
             {STATUS_OPTIONS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
       </div>
 
       {/* Tags */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">
-          Tags <span className="font-normal text-slate-400">(separadas por vírgula)</span>
-        </label>
-        <input
+      <Field label="Tags" hint="Separadas por vírgula — ex: visto, estudante, coe">
+        <Input
           name="tags"
           type="text"
           defaultValue={defaultValues?.tags?.join(', ') ?? ''}
           placeholder="ex: visto, estudante, coe"
-          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100"
         />
-      </div>
+      </Field>
 
       {/* Featured toggle */}
-      <div className="flex items-center gap-3">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <input
           type="checkbox"
           id="is_featured"
           name="is_featured"
           value="true"
           defaultChecked={defaultValues?.is_featured ?? false}
-          className="h-4 w-4 rounded border-slate-300 accent-slate-900"
+          style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer' }}
         />
-        <label htmlFor="is_featured" className="text-sm font-medium text-slate-700">
+        <label htmlFor="is_featured" style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', cursor: 'pointer' }}>
           Artigo em destaque
         </label>
       </div>
 
       {/* Language tabs */}
       <div>
-        <div className="flex border-b border-slate-200 mb-4">
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
           {(['pt', 'en', 'es'] as Locale[]).map((l) => (
             <button
               key={l}
               type="button"
               onClick={() => setActiveTab(l)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
-                activeTab === l
-                  ? 'border-slate-900 text-slate-900'
-                  : 'border-transparent text-slate-400 hover:text-slate-600'
-              }`}
+              style={{
+                padding: '8px 16px', fontSize: 13, fontWeight: 600,
+                background: 'none', border: 'none', cursor: 'pointer',
+                borderBottom: activeTab === l ? '2px solid var(--accent)' : '2px solid transparent',
+                color: activeTab === l ? 'var(--text)' : 'var(--text-muted)',
+                marginBottom: -1, transition: 'color 0.15s',
+              }}
             >
               {LOCALE_LABELS[l]}
-              {l === 'pt' && <span className="ml-1 text-xs text-red-500">*</span>}
+              {l === 'pt' && <span style={{ marginLeft: 4, fontSize: 11, color: 'var(--color-danger, #c0392b)' }}>*</span>}
             </button>
           ))}
         </div>
 
         {(['pt', 'en', 'es'] as Locale[]).map((l) => (
-          <div key={l} className={`space-y-4 ${activeTab === l ? 'block' : 'hidden'}`}>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Título {l === 'pt' && <span className="text-red-500">*</span>}
-              </label>
-              <input
+          <div key={l} style={{ display: activeTab === l ? 'flex' : 'none', flexDirection: 'column', gap: 16 }}>
+            <Field label={l === 'pt' ? 'Título *' : 'Título'}>
+              <Input
                 name={`title_${l}`}
                 type="text"
                 required={l === 'pt'}
                 defaultValue={(defaultValues as Record<string, string | undefined>)?.[`title_${l}`] ?? ''}
                 placeholder={l === 'pt' ? 'Ex: Como emitir um COE' : l === 'en' ? 'Ex: How to issue a COE' : 'Ex: Cómo emitir un COE'}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Conteúdo {l === 'pt' && <span className="text-red-500">*</span>}
-                <span className="ml-2 font-normal text-slate-400 text-xs">(suporta HTML)</span>
-              </label>
-              <textarea
+            </Field>
+            <Field label={l === 'pt' ? 'Conteúdo *' : 'Conteúdo'} hint="Suporta HTML">
+              <Textarea
                 name={`body_${l}`}
                 required={l === 'pt'}
                 defaultValue={(defaultValues as Record<string, string | undefined>)?.[`body_${l}`] ?? ''}
                 rows={16}
                 placeholder={l === 'pt' ? 'Escreva o conteúdo aqui…' : 'Write content here…'}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100 font-mono resize-y"
+                style={{ fontFamily: 'var(--font-mono, monospace)', minHeight: 320 }}
               />
-            </div>
+            </Field>
           </div>
         ))}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between gap-4 border-t border-slate-200 pt-6">
-        <button
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => router.back()}
-          className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
         >
           Cancelar
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          disabled={isPending}
-          className="rounded-xl bg-movy-dark px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          variant="primary"
+          loading={isPending}
         >
           {isPending ? 'Salvando…' : mode === 'edit' ? 'Atualizar artigo' : 'Salvar artigo'}
-        </button>
+        </Button>
       </div>
     </form>
   )

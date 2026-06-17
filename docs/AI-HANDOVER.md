@@ -302,6 +302,53 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ---
 
+### 2026-06-17 - AUDIT de arquitetura: camada de auth/actor unificada
+
+> **Estado:** bloco #1+#2 da mega-audit de qualidade entregue. type-check ✅ · `node --test` 168/168 ✅ · lint ✅.
+> Escopo travado pelo dono = SÓ unificar auth/actor/permissão. Audit-log/toJson, cores hardcoded e tooling (ESLint CLI/Sentry) ficaram **fora** (não solicitados). Aposentar `course_presets` é trabalho de SPLIT, não entrou.
+
+**Problema (colcha de retalhos):** o mesmo "pegar o actor + checar permissão" estava resolvido de **5 jeitos diferentes** em 6 action files — `getActor()` local (study-plans), alias `getActor = getActorSession` (hr), e **três tipos `Actor` flattened incompatíveis** (`{id,email,org_id}` portfolio, `{id,email,orgId}` presets ← camelCase, `{id,email,role}` users). Além disso `getActorSession` **não checava `is_active`** (gap: usuário desativado conseguia chamar server actions, embora bloqueado nas páginas via `get-user.ts`).
+
+**O que foi feito:**
+
+- **`lib/actions/auth.ts`** virou a camada canônica única:
+  - `requireActor()` — auth + **`is_active`** (fecha o gap de segurança; espelha `get-user.ts`), retorna `{supabase,user,profile:ActorProfile}`.
+  - `requireEditor()` / `requireAdmin()` — role-gated sobre `requireActor`, lançam `Permissão insuficiente` (PT, padronizado — antes metade era `Insufficient permissions`).
+  - `ActorProfile = {id,email,role,org_id}` = shape único. Flatten com `const { profile: actor } = await requireAdmin()`.
+  - `svc()` mantido. `getActorSession` mantido como **alias deprecado** (hoje vestigial — ninguém importa; pode ser removido).
+- **6 action files migrados:** study-plans (`getActor` local→`requireEditor`; hardDelete→`requireAdmin`), hr (alias removido→`requireActor`), portfolio + presets + users (tipos `Actor` locais e `requireAdmin`/`requireEditor` duplicados removidos), wiki (`getActorSession`+check manual→`requireEditor`/`requireAdmin`).
+- Imports órfãos (`isAdminOrAbove`/`isEditorOrAbove`) removidos onde deixaram de ser usados.
+
+**Resultado:** 1 shape, 1 gate, 1 mensagem. Um novo dev aprende um padrão, não cinco. Ver `.wolf/cerebrum.md` (Key Learning + Do-Not-Repeat 2026-06-17). O alias deprecado `getActorSession` foi **removido** (a pedido do dono) — `requireActor` é a única entrada.
+
+**Bloco #3 — audit log com regra única.** `lib/api/audit.ts` agora documenta QUAL usar: `logAuditWithClient(supabase, …)` quando se tem o client do usuário (RLS-atribuído + fallback p/ service) — usado por study-plans, wiki e agora **hr** (era a única inconsistência: mutava via user client mas logava via service); `logAudit(…)` só em contexto service-puro (portfolio/presets/users via `svc()`). Payload duplicado extraído p/ `auditRow()`.
+
+**Bloco #4 — fim do `as unknown as Json`.** Novo `lib/db/json.ts` com `toJson(value)` (domínio→jsonb) e `fromJson<T>(value)` (jsonb→domínio). Substituídos ~20 casts duplos em portfolio/study-plans/wiki/p[token]/InstitutionDetail/lib·portfolio·types. **Importante:** `lib/portfolio/types.ts` é traversado pelo runner `node --test`, então importa de `'../db/json.ts'` (com extensão .ts) — regra do projeto. Casts de **shape de linha/tabela** (`as unknown as StudyPlanRow`, `TablesInsert`) foram **mantidos** — são outro problema (divergência `types/supabase.ts` hand-maintained), não a fronteira JSON.
+
+**Bloco #6 (parcial) — Sentry config.** `next.config.mjs`: `disableLogger`/`autoInstrumentServerFunctions` (deprecados) movidos p/ `webpack.treeshake.removeDebugLogging` / `webpack.autoInstrumentServerFunctions`. Warnings de build zerados.
+
+**Bloco #5 — cor de marca como TEXTO → `t.accent` (value-driven, anti-churn).** Inventário: ~300 hex em ~40 arquivos, MAS a maioria intencional (papel/PDF, SVGs de marca, login branded, badges semânticos verde/azul/âmbar, branco-sobre-marca). O bug **real** de dark mode é o documentado no cerebrum: roxo de marca como TEXTO some no escuro. Migrados **10 sites** (`color: '#4B1A77'`/`color.purple` como texto → `t.accent` = `var(--accent)`, que vira roxo no claro / dourado no escuro): hr/invoices, hr/team, audit-log, PresetsManager, UsersManager, NewProposalModal, RateCard, SelfInvoiceButton, ScenarioPanel, StepsBlock. **Deixados de propósito:** unauthorized (página branded), home (SVG decorativo 8% sobre hero roxo), ProposalsList status palette (paleta semântica coesa de 10 cores), e todos os badges/alertas/papel. NÃO foi feita varredura cosmética hex→token (decisão anti-churn de 2026-06-15 vale). QC visual no browser ficou bloqueado: não há bypass de auth (o `MOVY_PREVIEW` só desbloqueia a página `/_ui-preview`, não as rotas protegidas do app), e os elementos alterados estão todos em rotas protegidas. Token validado em `globals.css` (`--accent` flip claro/escuro confirmado) + type-check/lint/tests verdes.
+
+**Achados (corrigidos durante a revisão):**
+- **`MOVY_PREVIEW` — descrição estava ERRADA, não é cruft.** O `.env.example` dizia "bypass de auth / fake super_admin", mas na verdade `MOVY_PREVIEW=1` só desbloqueia a página de preview do design-system em `app/[locale]/(protected)/_ui-preview/page.tsx` (404 caso contrário; CI builda com ela vazia). **Corrigi a descrição** no `.env.example` (NÃO removi — a var é usada). ⚠️ Lição: `grep -r` do bash deu **falso-negativo** nesse var por causa do path com `(protected)`/`[locale]` (parênteses/colchetes quebram o globbing do MSYS bash no Windows) — usar SEMPRE o Grep tool (ripgrep) nesses paths.
+- ~~Runner de teste não-determinístico~~ **falso alarme:** 168/172/179 foi artefato de medição (grep no meio do buffer dos subprocessos paralelos do `node --test`). Estável em **179/0-fail** 3× seguidas.
+
+**Bloco #6 (resto) — `next lint` → ESLint CLI (flat config).** ESLint bumpado 8.57→**9.39.4** + `@eslint/eslintrc` (FlatCompat). Novo `eslint.config.mjs` (bridge do preset eslintrc `next/core-web-vitals` via FlatCompat — saída equivalente ao codemod oficial `next-lint-to-eslint-cli`); `.eslintrc.json` removido; script `"lint": "eslint ."`. Verificado: 52 rules ativas, regras `@next/next` presentes, lint limpo (exit 0).
+
+**✅ Package manager unificado → Yarn (classic v1), compat com woofed.** O repo tinha `package-lock.json` **E** `pnpm-lock.yaml`, com CI=`npm ci` e hooks de dev=`pnpm` (footgun). O dono pediu unificar **seguindo compatibilidade com o woofed** — e o **woofed-crm usa Yarn classic v1** (`yarn.lock` lockfile v1, sem `.yarnrc.yml`, scripts `yarn install`). Então padronizei o Movy em **Yarn v1**:
+- `yarn.lock` gerado (via `corepack yarn@1.22.22 install`); `package-lock.json` + `pnpm-lock.yaml` **removidos** (só `yarn.lock` resta).
+- **CI** (`ci.yml`): `cache: 'yarn'`, `yarn install --frozen-lockfile`, `yarn lint/type-check/test/build` (runners ubuntu já trazem yarn v1).
+- **devcontainer**: `postCreateCommand: yarn install --frozen-lockfile`.
+- **Docs** atualizados: README, CONTRIBUTING (nota "use Yarn, não npm/pnpm"), CODESPACE. `npm install -g supabase` (BACKUP-RECOVERY) mantido — é a CLI global do Supabase, não o manager do projeto.
+- **Não** adicionei campo `packageManager` no package.json (woofed também não tem — mantém paridade; yarn v1 puro).
+- **Re-verificado com deps resolvidas pelo yarn:** type-check ✅ · ESLint 9 ✅ · 179/179 testes ✅ · `next build` ✅ — zero drift de resolução.
+
+**Verificação final (ponta a ponta, deps yarn):** type-check ✅ · ESLint 9 flat ✅ · `node --test` 179/179 ✅ · `next build` ✅ (todas as rotas compilam).
+
+**100% feito — nenhuma decisão em aberto.** Nota Vercel: a Vercel auto-detecta o `yarn.lock` e passa a usar `yarn install`/`yarn build` no deploy (se houver Build Command pinado p/ npm no painel da Vercel, trocar p/ yarn ou deixar em auto).
+
+---
+
 ### 2026-06-17 - MEGA-AUDIT (continuação): H-3, L-6, H14, migrations 020–023
 
 > **Estado:** todos os itens do mega-audit concluídos. type-check ✅ · `node --test` 29/29 ✅.

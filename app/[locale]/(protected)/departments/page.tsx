@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getUser } from '@/lib/auth/get-user'
 import { DEPARTMENTS, getDeptDesc, getDeptName } from '@/lib/constants/departments'
 import { ink, font, accentRamp, t } from '@/lib/ui/theme'
+import { PageHeader } from '@/components/ui'
 
 interface DepartmentsPageProps {
   params: Promise<{ locale: string }>
@@ -14,21 +15,17 @@ export default async function DepartmentsPage({ params }: DepartmentsPageProps) 
 
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 24 }}>
-      <div>
-        <div className="movy-kicker">
-          Movy Internal Hub
-        </div>
-        <h1 style={{ margin: '8px 0 6px', fontFamily: font.display, fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 800, letterSpacing: '-0.04em', color: t.text }}>
-          {isEn ? 'Areas' : 'Áreas'}
-        </h1>
-        <p style={{ margin: 0, fontSize: 14.5, color: ink(0.62), maxWidth: 620, lineHeight: 1.55 }}>
-          {locale === 'pt'
+      <PageHeader
+        eyebrow="Movy Internal Hub"
+        title={isEn ? 'Areas' : 'Áreas'}
+        description={
+          locale === 'pt'
             ? 'Processos, documentos e conhecimento operacional da Movy, organizados por área.'
             : locale === 'es'
               ? 'Procesos, documentos y conocimiento operativo de Movy, organizados por área.'
-              : 'Movy processes, documents and operational knowledge, organised by area.'}
-        </p>
-      </div>
+              : 'Movy processes, documents and operational knowledge, organised by area.'
+        }
+      />
 
       <div style={{ display: 'grid', gap: 12 }} className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {DEPARTMENTS.map((dept, i) => {

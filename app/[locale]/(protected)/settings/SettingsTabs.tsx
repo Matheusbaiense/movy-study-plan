@@ -15,7 +15,8 @@ export function SettingsTabs({ tabs }: { tabs: Tab[] }) {
   return (
     <div style={{ display: 'flex', gap: 4, marginBottom: 28, borderBottom: `1px solid ${color.line}` }}>
       {tabs.map((tab) => {
-        const active = pathname === tab.href || pathname.startsWith(tab.href + '/')
+        // EXACT match: the root /settings tab must NOT match /settings/users etc.
+        const active = pathname === tab.href
         return (
           <Link
             key={tab.href}

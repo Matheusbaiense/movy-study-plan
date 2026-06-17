@@ -1,12 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import Link from 'next/link'
+import { FileText } from 'lucide-react'
 import { listInvoicesWithEmployeeName, listEmployeesWithNames, isHrAdmin } from '@/lib/hr'
 import { GenerateInvoiceForm } from './GenerateInvoiceForm'
 import { InvoiceEmployeeFilter } from '@/components/hr/InvoiceEmployeeFilter'
 import { IssueInvoiceButton } from '@/components/hr/IssueInvoiceButton'
 import { formatAUD } from '@/lib/hr/calculations'
-import { t, font, ink } from '@/lib/ui/theme'
+import { t, ink } from '@/lib/ui/theme'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -57,12 +60,11 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-        <h1 style={{ fontFamily: font.display, fontSize: 28, fontWeight: 700, color: t.text, margin: 0 }}>
-          Tax Invoices
-        </h1>
-        {isAdmin && <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} />}
-      </div>
+      <PageHeader
+        eyebrow={`${pt ? 'Operações' : 'Operations'} › HR`}
+        title="Tax Invoices"
+        actions={isAdmin ? <GenerateInvoiceForm employees={employees} locale={locale} orgId={profile.org_id} /> : undefined}
+      />
 
       {isAdmin && employees.length > 0 && (
         <InvoiceEmployeeFilter
@@ -89,17 +91,13 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
 
       <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, overflow: 'hidden' }}>
         {invoices.length === 0 ? (
-          <div style={{ padding: '56px 32px', textAlign: 'center', color: t.textMuted, fontSize: 14 }}>
-            <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>🧾</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: t.text, marginBottom: 6 }}>
-              {pt ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
-            </div>
-            <div style={{ fontSize: 13 }}>
-              {pt
-                ? 'Clique em "Gerar Invoice" acima para criar a primeira.'
-                : 'Click "Generate Invoice" above to create the first one.'}
-            </div>
-          </div>
+          <EmptyState
+            icon={FileText}
+            title={pt ? 'Nenhuma invoice gerada ainda' : 'No invoices yet'}
+            description={pt
+              ? 'Clique em "Gerar Invoice" acima para criar a primeira.'
+              : 'Click "Generate Invoice" above to create the first one.'}
+          />
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
@@ -130,7 +128,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <Link href={`/${locale}/hr/invoices/${inv.id}/print`} prefetch={false} style={{
-                        fontSize: 12, color: '#4B1A77', fontWeight: 600, textDecoration: 'none',
+                        fontSize: 12, color: t.accent, fontWeight: 600, textDecoration: 'none',
                       }}>
                         {pt ? 'Ver / Imprimir →' : 'View / Print →'}
                       </Link>

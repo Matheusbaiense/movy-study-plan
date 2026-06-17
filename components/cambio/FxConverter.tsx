@@ -47,7 +47,7 @@ export function FxConverter() {
     <div className="movy-card" style={{ padding: '22px 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
         <span className="movy-kicker">Conversor</span>
-        {rate && <span style={{ fontFamily: font.mono, fontSize: 11, color: ink(0.62) }}>1 AUD = R$ {rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 })}</span>}
+        {rate && <span style={{ fontFamily: font.mono, fontSize: 11, color: ink(0.62), fontVariantNumeric: 'tabular-nums' }}>1 AUD = R$ {rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 })}</span>}
       </div>
 
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'end' }}>
@@ -75,12 +75,13 @@ function Money({ label, code, value, onChange, accent }: { label: string; code: 
         <input
           type="number"
           inputMode="decimal"
+          className="movy-field-control"
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => {
             const n = Number.parseFloat(e.target.value)
             onChange(Number.isFinite(n) ? n : 0)
           }}
-          style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.display, fontWeight: 800, fontSize: 'clamp(22px, 3.2vw, 30px)', letterSpacing: '-0.02em', color: t.text, padding: '10px 0' }}
+          style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: font.display, fontWeight: 800, fontSize: 'clamp(22px, 3.2vw, 30px)', letterSpacing: '-0.02em', color: t.text, padding: '10px 0', fontVariantNumeric: 'tabular-nums' }}
         />
       </div>
     </label>

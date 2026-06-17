@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
 import { WikiForm } from '@/components/wiki/WikiForm'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { Tables } from '@/types/supabase'
 
 interface WikiEditPageProps {
@@ -35,13 +36,15 @@ export default async function WikiEditPage({ params }: WikiEditPageProps) {
   if (!content) notFound()
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Editar informacao</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Atualize o conteudo desta informacao.
-        </p>
-      </div>
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <PageHeader
+        title={locale === 'en' ? 'Edit article' : 'Editar informação'}
+        description={
+          locale === 'en'
+            ? 'Update the content of this article.'
+            : 'Atualize o conteudo desta informação.'
+        }
+      />
 
       <WikiForm
         departments={(departments ?? []) as Tables<'departments'>[]}

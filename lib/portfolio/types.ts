@@ -10,11 +10,12 @@
 // contract (§4 of the roadmap), and the DB↔domain mappers — all PURE so they are
 // unit-testable without a Supabase client.
 
-import type { Json, Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
 import type { CourseType, ExtraCost, StudentLocation, StudyCourse } from '../study-plans/types'
 import type { AppliedAdjustment, PricingRule, RuleCondition, RuleEffect, RuleScope } from '../calc/rules'
 import { centsToNumber } from '../calc/money.ts'
 import { createCourse } from '../study-plans/defaults.ts'
+import { toJson, fromJson } from '../db/json.ts'
 
 // --- Table row/insert/update aliases (single source = generated types) ---------
 
@@ -190,8 +191,8 @@ export function rowToPricingRule(row: PricingRuleRow): PricingRule {
     id: row.id,
     scope: asRuleScope(row.scope),
     scopeId: row.scope_id,
-    when: (row.conditions ?? {}) as unknown as RuleCondition,
-    effect: row.effect as unknown as RuleEffect,
+    when: fromJson<RuleCondition>(row.conditions ?? {}),
+    effect: fromJson<RuleEffect>(row.effect),
     priority: row.priority,
     isActive: row.is_active,
   }
@@ -232,8 +233,8 @@ export function draftToInsert(orgId: string, draft: PricingRuleDraft, actorId?: 
     org_id: orgId,
     scope: draft.scope,
     scope_id: draft.scopeId ?? null,
-    conditions: (draft.when ?? {}) as unknown as Json,
-    effect: draft.effect as unknown as Json,
+    conditions: toJson(draft.when ?? {}),
+    effect: toJson(draft.effect),
     priority: draft.priority ?? 0,
     is_active: draft.isActive ?? true,
     label: draft.label ?? null,
@@ -249,8 +250,8 @@ export function draftToUpdate(patch: Partial<PricingRuleDraft>, actorId?: string
   const update: PricingRuleUpdate = { updated_by: actorId ?? null }
   if (patch.scope !== undefined) update.scope = patch.scope
   if (patch.scopeId !== undefined) update.scope_id = patch.scopeId
-  if (patch.when !== undefined) update.conditions = patch.when as unknown as Json
-  if (patch.effect !== undefined) update.effect = patch.effect as unknown as Json
+  if (patch.when !== undefined) update.conditions = toJson(patch.when)
+  if (patch.effect !== undefined) update.effect = toJson(patch.effect)
   if (patch.priority !== undefined) update.priority = patch.priority
   if (patch.isActive !== undefined) update.is_active = patch.isActive
   if (patch.label !== undefined) update.label = patch.label

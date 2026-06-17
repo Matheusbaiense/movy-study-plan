@@ -23,6 +23,8 @@ import {
   planUpfrontSchools,
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
+import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 import type { StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
 
 interface Props {
@@ -30,6 +32,7 @@ interface Props {
   reference: string
   updatedAt: string | null
   backHref: string
+  isPublic?: boolean
 }
 
 const INK = '#2A1153'
@@ -47,7 +50,7 @@ const CATEGORY_LABEL: Record<StudyPlanData['extraCosts'][number]['category'], st
   other: 'Outro',
 }
 
-export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Props) {
+export function StudyPlanProposal({ data, reference, updatedAt, backHref, isPublic = false }: Props) {
   const schedule = useMemo(() => buildSchedule(data), [data])
   const visa = useMemo(() => planNewVisaDate(data), [data])
   const issued = updatedAt ? new Date(updatedAt) : new Date()
@@ -76,14 +79,16 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
       <style>{printStyles}</style>
 
-      <div className="proposal-toolbar" style={toolbar}>
-        <Link href={backHref} prefetch={false} style={ghostButton}>← Voltar ao editor</Link>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={() => window.print()} style={primaryButton}>
-            Salvar PDF / Imprimir
-          </button>
+      {!isPublic && (
+        <div className="proposal-toolbar" style={toolbar}>
+          <Link href={backHref} prefetch={false} className="button-outline-secondary-md" style={ghostButton}>← Voltar ao editor</Link>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button variant="primary" type="button" onClick={() => window.print()}>
+              Salvar PDF / Imprimir
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <article id="movy-proposal" style={page}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
@@ -142,13 +147,17 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                       <span style={categoryTag}>{CATEGORY_LABEL[extra.category]}</span>
                     </td>
                     <td style={tdAmount}>{money(extra.amount)}</td>
-                    {fxRate && <td style={{ ...tdAmount, color: PURPLE, fontWeight: 700 }}>{formatBrl(extra.amount * fxRate)}</td>}
+                    <td style={{ ...tdAmount, color: PURPLE, fontWeight: 700 }}>
+                      {fxRate != null ? formatBrl(extra.amount * fxRate) : <Skeleton width={60} height={14} />}
+                    </td>
                   </tr>
                 ))}
                 <tr>
                   <td style={{ ...tdLabel, fontWeight: 800, color: INK }}>Subtotal adicionais</td>
                   <td style={{ ...tdAmount, fontWeight: 800, color: INK }}>{money(planExtrasTotal(data))}</td>
-                  {fxRate && <td style={{ ...tdAmount, fontWeight: 800, color: PURPLE }}>{formatBrl(planExtrasTotal(data) * fxRate)}</td>}
+                  <td style={{ ...tdAmount, fontWeight: 800, color: PURPLE }}>
+                    {fxRate != null ? formatBrl(planExtrasTotal(data) * fxRate) : <Skeleton width={60} height={14} />}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -164,7 +173,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                   <th style={th}>Parcela</th>
                   <th style={{ ...th, textAlign: 'left' }}>Vencimento</th>
                   <th style={{ ...th, textAlign: 'right' }}>Valor (AUD)</th>
-                  {fxRate && <th style={{ ...th, textAlign: 'right' }}>Valor (BRL)</th>}
+                  <th style={{ ...th, textAlign: 'right' }}>Valor (BRL)</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +182,9 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                     <td style={tdLabel}>{payment.item}</td>
                     <td style={{ ...tdLabel, color: MUTED }}>{payment.due || '—'}</td>
                     <td style={tdAmount}>{money(payment.amount)}</td>
-                    {fxRate && <td style={{ ...tdAmount, color: PURPLE }}>{formatBrl(payment.amount * fxRate)}</td>}
+                    <td style={{ ...tdAmount, color: PURPLE }}>
+                      {fxRate != null ? formatBrl(payment.amount * fxRate) : <Skeleton width={60} height={14} />}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -184,12 +195,12 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
         <section style={totalsPanel}>
           <div>
             <span style={totalsLabel}>Investimento total estimado</span>
-            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block' }}>{money(planGrandTotal(data))}</strong>
-            {fxRate && (
-              <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
-                ≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span>
-              </div>
-            )}
+            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block', fontVariantNumeric: 'tabular-nums' }}>{money(planGrandTotal(data))}</strong>
+            <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
+              {fxRate != null
+                ? <>≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span></>
+                : <Skeleton width={100} height={18} />}
+            </div>
           </div>
           <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
             <TotalLine label="Pagamento no fechamento" value={money(planUpfrontSchools(data) + planExtrasTotal(data))} />
@@ -222,7 +233,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
 
 function SummaryStrip({ data, showHolidays }: { data: StudyPlanData; showHolidays: boolean }) {
   return (
-    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, margin: '6px 0 24px' }}>
+    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, margin: '6px 0 24px' }}>
       <Stat label="Semanas de estudo" value={`${planStudyWeeks(data)}`} />
       {showHolidays
         ? <Stat label="Semanas de férias" value={`${planHolidayWeeks(data)}`} />
@@ -249,7 +260,7 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
   return (
     <>
       <SectionTitle>Opções da proposta</SectionTitle>
-      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 12, marginBottom: 8 }}>
+      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(220px, 1fr))`, gap: 12, marginBottom: 8 }}>
         {columns.map((col) => (
           <div
             key={col.key}
@@ -268,8 +279,10 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: PURPLE, borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>Recomendada</span>
               )}
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>{money(planGrandTotal(col.plan))}</div>
-            {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(planGrandTotal(col.plan) * fxRate)}</div>}
+            <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{money(planGrandTotal(col.plan))}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>
+              {fxRate != null ? `≈ ${formatBrl(planGrandTotal(col.plan) * fxRate)}` : <Skeleton width={60} height={14} />}
+            </div>
             <div style={{ display: 'grid', gap: 4, borderTop: `1px solid ${HAIR}`, paddingTop: 8 }}>
               <CostLine label="Fechamento" value={money(planUpfrontSchools(col.plan) + planExtrasTotal(col.plan))} />
               <CostLine label="Saldo a parcelar" value={money(planInstallmentBalance(col.plan))} muted />
@@ -364,7 +377,9 @@ function CourseBlock({ course, index, fxRate }: { course: StudyCourse; index: nu
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: 11, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total do curso</span>
           <div style={{ fontSize: 18, fontWeight: 800, color: INK }}>{money(courseTotal(course))}</div>
-          {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(courseTotal(course) * fxRate)}</div>}
+          <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE, marginTop: 2 }}>
+            {fxRate != null ? `≈ ${formatBrl(courseTotal(course) * fxRate)}` : <Skeleton width={60} height={14} />}
+          </div>
         </div>
       </div>
 
@@ -394,7 +409,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function Detail({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div style={{ display: 'grid', gap: 3 }}>
-      <span style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.07em', color: MUTED, fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', color: MUTED, fontWeight: 700 }}>{label}</span>
       <span style={{ fontSize: strong ? 16 : 14, fontWeight: strong ? 800 : 600, color: INK }}>{value}</span>
     </div>
   )
@@ -403,7 +418,7 @@ function Detail({ label, value, strong = false }: { label: string; value: string
 function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
   return (
     <div style={{ background: accent ? INK : '#fff', border: `1px solid ${accent ? INK : HAIR}`, borderRadius: 12, padding: '12px 14px' }}>
-      <span style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent ? 'rgba(255,255,255,0.7)' : MUTED, fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent ? 'rgba(255,255,255,0.7)' : MUTED, fontWeight: 700 }}>{label}</span>
       <div style={{ fontSize: accent ? 17 : 20, fontWeight: 800, color: accent ? '#fff' : INK, letterSpacing: '-0.02em', marginTop: 4 }}>{value}</div>
     </div>
   )
@@ -412,8 +427,8 @@ function Stat({ label, value, accent = false }: { label: string; value: string; 
 function CostLine({ label, value, muted = false, accent = false }: { label: string; value: string; muted?: boolean; accent?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-      <span style={{ color: muted ? MUTED : 'rgba(28,18,51,0.78)' }}>{label}</span>
-      <span style={{ fontWeight: 700, color: accent ? ACCENT : muted ? MUTED : INK }}>{value}</span>
+      <span style={{ color: muted ? MUTED : 'rgba(28,18,51,0.88)' }}>{label}</span>
+      <span style={{ fontWeight: 700, color: accent ? ACCENT : muted ? MUTED : INK, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
     </div>
   )
 }
@@ -422,7 +437,7 @@ function TotalLine({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}>
       <span style={{ color: MUTED }}>{label}</span>
-      <strong style={{ color: INK }}>{value}</strong>
+      <strong style={{ color: INK, fontVariantNumeric: 'tabular-nums' }}>{value}</strong>
     </div>
   )
 }
@@ -439,18 +454,18 @@ const page: React.CSSProperties = {
   color: INK,
 }
 const toolbar: React.CSSProperties = { width: '210mm', maxWidth: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }
-const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
+const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
 const courseCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const totalsPanel: React.CSSProperties = { marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: 'rgba(28,18,51,0.04)', border: `1px solid ${HAIR}`, borderRadius: 14, padding: '18px 20px' }
 const totalsLabel: React.CSSProperties = { display: 'block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: MUTED, fontWeight: 700, marginBottom: 4 }
 const table: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: 13 }
-const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
+const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
 const tdLabel: React.CSSProperties = { padding: '9px 0', color: 'rgba(28,18,51,0.82)' }
-const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap' }
+const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }
 const planningCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const pill: React.CSSProperties = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800 }
-const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 10, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
-const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 10.5, color: MUTED }
+const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 11, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
+const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 11, color: MUTED }
 const primaryButton: React.CSSProperties = { border: 0, borderRadius: 10, padding: '11px 16px', background: INK, color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
 const ghostButton: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 10, padding: '10px 14px', background: '#fff', color: INK, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontSize: 13 }
 

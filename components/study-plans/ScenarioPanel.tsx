@@ -86,6 +86,7 @@ export function ScenarioPanel({ plan }: ScenarioPanelProps) {
                     min={1}
                     step={1}
                     value={weeks[index]}
+                    aria-label={`Semanas — Cenário ${index + 1}`}
                     onChange={(e) => setWeek(index, Number(e.target.value))}
                     style={weekInput}
                   />
@@ -152,6 +153,6 @@ const currentPill: React.CSSProperties = {
   fontWeight: 800,
   letterSpacing: '0.04em',
   background: `color-mix(in srgb, ${color.purple} 14%, transparent)`,
-  color: color.purple,
+  color: t.accent,
   whiteSpace: 'nowrap',
 }

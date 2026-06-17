@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/api/audit'
 import { requireAdmin, requireEditor, svc } from '@/lib/actions/auth'
-import type { Json } from '@/types/supabase'
+import { toJson } from '@/lib/db/json'
 
 const institutionSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório').max(200),
@@ -66,7 +66,7 @@ export async function createInstitutionAction(input: InstitutionInput): Promise<
     .single()
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'institution.created', entityType: 'institution', entityId: data.id, metadata: { name } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'institution.created', entityType: 'institution', entityId: data.id, metadata: toJson({ name }) })
   revalidatePath('/[locale]/(protected)/portfolio', 'page')
   return { id: data.id }
 }
@@ -95,7 +95,7 @@ export async function updateInstitutionAction(id: string, input: InstitutionInpu
     .eq('org_id', actor.org_id)
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'institution.updated', entityType: 'institution', entityId: id, metadata: { name } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'institution.updated', entityType: 'institution', entityId: id, metadata: toJson({ name }) })
   revalidatePath('/[locale]/(protected)/portfolio', 'page')
   revalidatePath(`/[locale]/(protected)/portfolio/${id}`, 'page')
 }
@@ -158,7 +158,7 @@ export async function createCourseAction(input: CourseInput): Promise<{ id: stri
     .single()
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'course.created', entityType: 'course', entityId: data.id, metadata: { name } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'course.created', entityType: 'course', entityId: data.id, metadata: toJson({ name }) })
   revalidatePath(`/[locale]/(protected)/portfolio/${input.institution_id}`, 'page')
   return { id: data.id }
 }
@@ -187,7 +187,7 @@ export async function updateCourseAction(id: string, institutionId: string, inpu
     .eq('org_id', actor.org_id)
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'course.updated', entityType: 'course', entityId: id, metadata: { name } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'course.updated', entityType: 'course', entityId: id, metadata: toJson({ name }) })
   revalidatePath(`/[locale]/(protected)/portfolio/${institutionId}`, 'page')
 }
 
@@ -265,7 +265,7 @@ export async function createPriceVersionAction(input: PriceVersionInput): Promis
     .single()
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'price_version.created', entityType: 'course_price_version', entityId: data.id, metadata: { course_id: input.course_id } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'price_version.created', entityType: 'course_price_version', entityId: data.id, metadata: toJson({ course_id: input.course_id }) })
   revalidatePath(`/[locale]/(protected)/portfolio/${input.institution_id}`, 'page')
   return { id: data.id }
 }
@@ -298,8 +298,8 @@ export async function createPricingRuleAction(input: PricingRuleInput): Promise<
       label: input.label?.trim() || null,
       scope: input.scope,
       scope_id: input.scope_id || null,
-      conditions: (input.conditions ?? {}) as unknown as Json,
-      effect: input.effect as unknown as Json,
+      conditions: toJson(input.conditions ?? {}),
+      effect: toJson(input.effect),
       priority: Number(input.priority) || 0,
       valid_from: input.valid_from || null,
       valid_until: input.valid_until || null,
@@ -311,7 +311,7 @@ export async function createPricingRuleAction(input: PricingRuleInput): Promise<
     .single()
 
   if (error) throw new Error(error.message)
-  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'pricing_rule.created', entityType: 'pricing_rule', entityId: data.id, metadata: { scope: input.scope } as unknown as Json })
+  await logAudit({ actorId: actor.id, actorEmail: actor.email, action: 'pricing_rule.created', entityType: 'pricing_rule', entityId: data.id, metadata: toJson({ scope: input.scope }) })
   revalidatePath('/[locale]/(protected)/portfolio', 'page')
   return { id: data.id }
 }

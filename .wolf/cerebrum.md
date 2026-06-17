@@ -328,8 +328,8 @@ Qualquer nova action de HR que muda status de invoice DEVE ter `isHrAdmin` guard
 `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the
 single actor shape — flatten with `const { profile: actor } = await requireAdmin()`.
 The 2026-06-17 audit removed 5 divergent patterns (local `getActor`, hr alias, and
-three `Actor` types with `org_id`/`orgId`/`role` mismatches). `getActorSession` is a
-deprecated alias, now vestigial.
+three `Actor` types with `org_id`/`orgId`/`role` mismatches). The old `getActorSession`
+alias was removed — `requireActor` is the only entry point.
 
 ### 2026-06-17 — NEVER reinvent the actor/permission helper per action file
 
@@ -337,6 +337,57 @@ When adding a server action, import `requireActor`/`requireEditor`/`requireAdmin
 from `lib/actions/auth.ts`. Do NOT define a local `getActor`, `requireAdmin`, or an
 `Actor = {...}` type — that exact sprawl (5 copies, inconsistent shapes/messages) was
 the maintenance "colcha de retalhos" cleaned up in this audit. One shape, one gate, one message.
+
+### 2026-06-17 — jsonb boundary goes through `lib/db/json.ts`
+
+NEVER write `x as unknown as Json` or `row.col as unknown as SomeType` for a `jsonb`
+column. Use `toJson(value)` (domain → jsonb, writes) and `fromJson<T>(value)` (jsonb →
+domain, reads). Test-traversed `lib/*` files must import it as `'../db/json.ts'` WITH the
+.ts extension (node --test runner). Row/table-shape casts (`as unknown as StudyPlanRow`,
+`TablesInsert<...>`) are a DIFFERENT concern (hand-maintained `types/supabase.ts`
+divergence) — leave those alone.
+
+### 2026-06-17 — Lint = ESLint 9 flat config (NOT `next lint`)
+
+Linting is `eslint .` against `eslint.config.mjs` (flat config, ESLint 9.39.4). The config
+bridges the eslintrc-style `next/core-web-vitals` preset via `FlatCompat` (`@eslint/eslintrc`),
+since `eslint-config-next` 15 ships no native flat config. `.eslintrc.json` and `next lint`
+are gone. When adding rules, edit `eslint.config.mjs`. Don't reintroduce `next lint`.
+
+### 2026-06-17 — Package manager is split: CI=npm, dev hooks=pnpm (FOOTGUN)
+
+The repo has BOTH `package-lock.json` and `pnpm-lock.yaml`. CI (`.github/workflows/ci.yml`)
+runs `npm ci`; the PostToolUse dev hooks run `pnpm`. If you install a dep with one manager,
+the OTHER lockfile goes stale and that path breaks (e.g. `npm ci` fails when package.json
+diverges from package-lock). **After ANY dependency change, sync BOTH lockfiles** (`pnpm add`
+then `npm install`, or vice-versa) until the team picks one manager. Unresolved decision —
+flagged in handover.
+
+### 2026-06-17 — `MOVY_PREVIEW=1` gates the `/_ui-preview` design page (NOT an auth bypass)
+
+`process.env.MOVY_PREVIEW === '1'` unlocks `app/[locale]/(protected)/_ui-preview/page.tsx`
+(design-system preview); it 404s otherwise. CI builds with `MOVY_PREVIEW: ''` so the route
+stays dev-only. The old `.env.example` text calling it a "fake super_admin auth bypass" was
+WRONG — it does NOT touch auth. Fixed the description (2026-06-17). To QC other protected
+pages you still must log in (`testemovy@movy.com.br`/`teste123!`).
+
+**Do-Not-Repeat:** bash `grep -r ... app/` gave FALSE NEGATIVES on this var because the path
+contains `(protected)`/`[locale]` (parens/brackets break MSYS bash globbing on Windows). ALWAYS
+use the Grep tool (ripgrep) for this repo's bracketed paths — it found `_ui-preview` instantly.
+
+### 2026-06-17 — test count is stable at 179 (earlier "flakiness" was a measurement artifact)
+
+`npm test` (`node --experimental-strip-types --test tests/*.test.mts`, Node 24) reports a
+STABLE 179 tests / 0 fail (verified 3× consecutively). Earlier in the session it appeared to
+vary (168/172/179) — that was piping `2>&1 | grep` racing with the buffered stdout of
+`node --test`'s parallel subprocesses, NOT a real collection race. To read counts reliably,
+let the run finish (don't grep mid-stream). No harness bug.
+
+### 2026-06-17 — audit log: one rule
+
+`logAuditWithClient(supabase, params)` when you hold the actor's user client (RLS-attributed
++ service fallback) — study-plans, wiki, hr. `logAudit(params)` only in pure service-role
+contexts (portfolio/presets/users via `svc()`). Both best-effort; never break the mutation.
 
 ## Key Learnings — Performance & Dev Server (2026-06-17)
 

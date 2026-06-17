@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { TrendingUp } from 'lucide-react'
 import { color, ink, font, t } from '@/lib/ui/theme'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Point { date: string; rate: number }
 interface History { points: Point[]; source: string }
@@ -38,12 +41,33 @@ function niceTicks(lo: number, hi: number, count = 4): number[] {
   return out
 }
 
+/** Build a plain-text summary for screen readers describing the visible trend. */
+function buildAriaLabel(pts: Point[], days: number, changePct: number): string {
+  if (pts.length < 2) return 'Gráfico AUD→BRL sem dados suficientes.'
+  const first = pts[0]
+  const last = pts[pts.length - 1]
+  const direction = changePct >= 0 ? 'alta' : 'baixa'
+  const period = days === 30 ? '30 dias' : days === 90 ? '90 dias' : '12 meses'
+  return (
+    `Gráfico de cotação AUD→BRL nos últimos ${period}. ` +
+    `Em ${fmtFull(first.date)} a cotação era R$ ${fmtRate(first.rate)}. ` +
+    `Em ${fmtFull(last.date)} era R$ ${fmtRate(last.rate)}. ` +
+    `Variação de ${Math.abs(changePct).toFixed(2)}% de ${direction}.`
+  )
+}
+
 export function FxChart() {
   const [days, setDays] = useState(90)
   const [hist, setHist] = useState<History | null>(null)
   const [current, setCurrent] = useState<Current | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [hover, setHover] = useState<number | null>(null)
+
+  // Respect prefers-reduced-motion for any entrance/transition effects
+  const prefersReducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
   // Measure the real pixel width so the SVG renders 1:1 (no non-uniform scaling,
   // which was causing a raster hang / white screen).
@@ -68,11 +92,12 @@ export function FxChart() {
   useEffect(() => {
     let active = true
     setLoading(true)
+    setError(false)
     setHover(null)
     fetch(`/api/fx/history?days=${days}`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((j) => { if (active) setHist(j) })
-      .catch(() => {})
+      .catch(() => { if (active) setError(true) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [days])
@@ -116,6 +141,25 @@ export function FxChart() {
     setHover(idx)
   }
 
+  // Keyboard navigation: left/right arrows move the hover position
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!geo || n < 2) return
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      setHover((h) => Math.min(n - 1, (h ?? n - 1) + 1))
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      setHover((h) => Math.max(0, (h ?? 0) - 1))
+    } else if (e.key === 'Escape') {
+      setHover(null)
+    }
+  }
+
+  const chartAriaLabel = useMemo(
+    () => buildAriaLabel(pts, days, changePct),
+    [pts, days, changePct]
+  )
+
   return (
     <div className="movy-stagger" style={{ display: 'grid', gap: 18 }}>
       {/* Rate header (hover-aware) */}
@@ -123,11 +167,11 @@ export function FxChart() {
         <div>
           <span className="movy-kicker">1 AUD em Real {active ? '· no dia' : ''}</span>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 8 }}>
-            <span style={{ fontFamily: font.display, fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 600, letterSpacing: '-0.03em', color: t.text, lineHeight: 1 }}>
+            <span style={{ fontFamily: font.display, fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 600, letterSpacing: '-0.03em', color: t.text, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
               R$ {headRate ? fmtRate(headRate) : '—'}
             </span>
             {!active && current?.feePct != null && current.mid != null && (
-              <span style={{ fontFamily: font.mono, fontSize: 12, color: ink(0.5) }}>mid {fmtRate(current.mid)} + {current.feePct}% Wise</span>
+              <span style={{ fontFamily: font.mono, fontSize: 12, color: ink(0.5), fontVariantNumeric: 'tabular-nums' }}>mid {fmtRate(current.mid)} + {current.feePct}% Wise</span>
             )}
           </div>
           <div style={{ marginTop: 8, fontFamily: font.mono, fontSize: 11, color: ink(0.45) }}>
@@ -136,7 +180,7 @@ export function FxChart() {
         </div>
         <div style={{ textAlign: 'right' }}>
           <div className="movy-kicker" style={{ color: ink(0.4) }}>Variação · {RANGES.find((r) => r.days === days)?.label}</div>
-          <div style={{ marginTop: 6, fontFamily: font.display, fontSize: 24, fontWeight: 800, color: up ? '#1F8A4C' : color.red }}>
+          <div style={{ marginTop: 6, fontFamily: font.display, fontSize: 24, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: up ? '#1F8A4C' : color.red }}>
             {up ? '▲' : '▼'} {Math.abs(changePct).toFixed(2)}%
           </div>
         </div>
@@ -146,11 +190,12 @@ export function FxChart() {
       <div className="movy-card" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
           <span className="movy-kicker">Cotação AUD → BRL</span>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6 }} role="group" aria-label="Selecionar período">
             {RANGES.map((r) => (
               <button
                 key={r.days}
                 onClick={() => setDays(r.days)}
+                aria-pressed={days === r.days}
                 style={{
                   padding: '6px 13px', borderRadius: 999, fontSize: 12, fontWeight: 700, fontFamily: font.ui, cursor: 'pointer',
                   border: `1px solid ${days === r.days ? color.purpleDeep : t.border}`,
@@ -165,20 +210,49 @@ export function FxChart() {
         </div>
 
         <div ref={wrapRef} style={{ position: 'relative' }}>
-          {loading || !geo ? (
-            <div style={{ height: H, display: 'grid', placeItems: 'center', color: ink(0.4), fontSize: 13 }}>
-              {loading ? 'Carregando cotação…' : 'Sem dados de cotação para este período.'}
-            </div>
+          {loading ? (
+            /* Skeleton placeholder while fetching — avoids empty axis frame */
+            <Skeleton height={H} style={{ borderRadius: 8 }} />
+          ) : error || !geo ? (
+            /* Meaningful empty/error state */
+            <EmptyState
+              icon={TrendingUp}
+              title="Dados indisponíveis"
+              description="Não foi possível carregar a cotação histórica para este período. Tente novamente."
+              action={
+                <button
+                  onClick={() => { setError(false); setLoading(true); setHist(null) }}
+                  style={{ padding: '8px 18px', borderRadius: 8, border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer', fontFamily: font.ui, fontSize: 13, fontWeight: 600, color: t.text }}
+                >
+                  Tentar novamente
+                </button>
+              }
+            />
           ) : (
             <>
+              {/* SVG chart — role="img" with descriptive aria-label for screen readers.
+                  tabIndex=0 + onKeyDown enables keyboard scrubbing (← / →). */}
               <svg
+                role="img"
+                aria-label={chartAriaLabel}
+                tabIndex={0}
                 viewBox={`0 0 ${w} ${H}`}
                 width="100%"
                 height={H}
-                style={{ display: 'block', touchAction: 'none', cursor: 'crosshair' }}
+                style={{
+                  display: 'block',
+                  touchAction: 'none',
+                  cursor: 'crosshair',
+                  outline: 'none',
+                  /* Respect prefers-reduced-motion: disable any CSS transitions on this element */
+                  transition: prefersReducedMotion.current ? 'none' : undefined,
+                }}
                 onPointerMove={(e) => onMove(e.clientX, e.currentTarget)}
                 onPointerDown={(e) => onMove(e.clientX, e.currentTarget)}
                 onPointerLeave={() => setHover(null)}
+                onFocus={() => { /* keep current hover or set to last point */ }}
+                onBlur={() => setHover(null)}
+                onKeyDown={onKeyDown}
               >
                 <defs>
                   <linearGradient id="fxArea" x1="0" y1="0" x2="0" y2="1">
@@ -190,8 +264,10 @@ export function FxChart() {
                   <line key={tick} x1={0} y1={geo.y(tick)} x2={w} y2={geo.y(tick)} stroke={ink(0.08)} strokeWidth="1" />
                 ))}
                 <polygon points={geo.area} fill="url(#fxArea)" />
-                <polyline points={geo.line} fill="none" stroke={color.purple} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-                <circle cx={geo.x(n - 1)} cy={geo.y(last)} r="3.5" fill={color.gold} stroke="#fff" strokeWidth="1.5" />
+                {/* Stroke width slightly increased so data line isn't conveyed by color alone */}
+                <polyline points={geo.line} fill="none" stroke={color.purple} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+                {/* Gold dot marks the latest rate — labelled via parent aria-label */}
+                <circle cx={geo.x(n - 1)} cy={geo.y(last)} r="4" fill={color.gold} stroke="#fff" strokeWidth="2" />
                 {active && hover != null && (
                   <>
                     <line x1={geo.x(hover)} y1={0} x2={geo.x(hover)} y2={H} stroke={color.purple} strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
@@ -201,14 +277,14 @@ export function FxChart() {
               </svg>
 
               {geo.ticks.map((tick) => (
-                <span key={tick} style={{ position: 'absolute', right: 0, top: geo.y(tick), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, color: ink(0.55), background: t.surface, padding: '1px 4px', borderRadius: 3, pointerEvents: 'none' }}>
+                <span key={tick} aria-hidden="true" style={{ position: 'absolute', right: 0, top: geo.y(tick), transform: 'translateY(-50%)', fontFamily: font.mono, fontSize: 10.5, fontVariantNumeric: 'tabular-nums', color: ink(0.55), background: t.surface, padding: '1px 4px', borderRadius: 3, pointerEvents: 'none' }}>
                   {fmtRate(tick)}
                 </span>
               ))}
 
               {active && hover != null && (
-                <div style={{ position: 'absolute', top: -4, left: `${(geo.x(hover) / w) * 100}%`, transform: `translateX(${hover > n / 2 ? '-105%' : '8px'})`, pointerEvents: 'none', background: color.purpleDeep, color: '#fff', borderRadius: 8, padding: '6px 10px', fontFamily: font.mono, fontSize: 11, whiteSpace: 'nowrap', boxShadow: '0 8px 20px -8px rgba(42,17,83,0.5)', zIndex: 2 }}>
-                  <div style={{ color: color.gold, fontWeight: 700 }}>R$ {fmtRate(active.rate)}</div>
+                <div aria-hidden="true" style={{ position: 'absolute', top: -4, left: `${(geo.x(hover) / w) * 100}%`, transform: `translateX(${hover > n / 2 ? '-105%' : '8px'})`, pointerEvents: 'none', background: color.purpleDeep, color: '#fff', borderRadius: 8, padding: '6px 10px', fontFamily: font.mono, fontSize: 11, whiteSpace: 'nowrap', boxShadow: '0 8px 20px -8px rgba(42,17,83,0.5)', zIndex: 2 }}>
+                  <div style={{ color: color.gold, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>R$ {fmtRate(active.rate)}</div>
                   <div style={{ opacity: 0.75 }}>{fmtFull(active.date)}</div>
                 </div>
               )}
@@ -223,7 +299,7 @@ export function FxChart() {
         </div>
 
         <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 10.5, color: ink(0.4), lineHeight: 1.5 }}>
-          Série mid-market{hist?.source ? ` · fonte ${hist.source}` : ''}. Passe o mouse (ou toque) no gráfico para ver a cotação de cada dia. A taxa usada nas propostas/calculadora inclui a taxa da Wise.
+          Série mid-market{hist?.source ? ` · fonte ${hist.source}` : ''}. Passe o mouse (ou toque) no gráfico para ver a cotação de cada dia. Use ← / → para navegar pelo teclado. A taxa usada nas propostas/calculadora inclui a taxa da Wise.
         </div>
       </div>
     </div>

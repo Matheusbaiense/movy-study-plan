@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { listVersionsAction, restoreVersionAction, saveVersionAction } from '@/app/[locale]/(protected)/study-plans/actions'
 import type { VersionSummary } from '@/app/[locale]/(protected)/study-plans/actions'
 import { font, ink, t } from '@/lib/ui/theme'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 interface VersionHistoryProps {
   planId: string
@@ -36,6 +37,7 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [confirmingRestore, setConfirmingRestore] = useState<string | null>(null)
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [saveLabel, setSaveLabel] = useState('')
   const [showSaveForm, setShowSaveForm] = useState(false)
   const labelRef = useRef<HTMLInputElement>(null)
@@ -67,7 +69,14 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
   function handleRestore(versionId: string) {
     if (confirmingRestore !== versionId) {
       setConfirmingRestore(versionId)
+      // Auto-clear the confirm state after 4 s if user doesn't confirm.
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
+      confirmTimerRef.current = setTimeout(() => setConfirmingRestore(null), 4000)
       return
+    }
+    if (confirmTimerRef.current) {
+      clearTimeout(confirmTimerRef.current)
+      confirmTimerRef.current = null
     }
     startTransition(async () => {
       try {
@@ -126,7 +135,11 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
       {/* Version list */}
       <div style={{ maxHeight: 340, overflowY: 'auto' }}>
         {loading && (
-          <div style={{ padding: '16px', fontSize: 12, color: ink(0.45), textAlign: 'center' }}>Carregando…</div>
+          <div style={{ padding: '12px 16px', display: 'grid', gap: 8 }}>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} height={52} />
+            ))}
+          </div>
         )}
         {!loading && versions.length === 0 && (
           <div style={{ padding: '16px', fontSize: 12, color: ink(0.45), textAlign: 'center' }}>

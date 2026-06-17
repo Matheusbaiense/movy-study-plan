@@ -57,14 +57,6 @@ export async function requireActor(): Promise<ActorSession> {
   }
 }
 
-/**
- * Backwards-compatible alias for {@link requireActor}. Older action files import
- * `getActorSession` and apply their own role gate afterwards; both names return
- * the identical `{ supabase, user, profile }` shape. New code should call
- * `requireActor`/`requireEditor`/`requireAdmin` directly.
- */
-export const getActorSession = requireActor
-
 /** Actor with editor role or above; throws otherwise. */
 export async function requireEditor(): Promise<ActorSession> {
   const session = await requireActor()

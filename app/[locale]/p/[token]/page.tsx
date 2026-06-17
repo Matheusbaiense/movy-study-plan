@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/service'
 import { PublicProposalPage } from '@/components/study-plans/PublicProposalPage'
+import { ExpiredProposal } from './ExpiredProposal'
 import type { StudyPlanData, StudyPlanRow } from '@/lib/study-plans/types'
 import type { Metadata } from 'next'
 
@@ -51,7 +52,8 @@ export default async function PublicProposalTokenPage({ params }: Props) {
 
   if (!plan) notFound()
   const expiresAt = plan.share_token_expires_at
-  if (expiresAt && new Date(expiresAt) < new Date()) notFound()
+  // C-H2: expired link → branded dead-end, not a bare 404 (bad token still 404s above).
+  if (expiresAt && new Date(expiresAt) < new Date()) return <ExpiredProposal />
 
   const row = plan as unknown as StudyPlanRow
   const reference = `MV-${row.id.slice(0, 8).toUpperCase()}`

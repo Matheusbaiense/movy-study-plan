@@ -1,7 +1,8 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import { useState, useTransition } from 'react'
-import { CheckCircle, XCircle, Plus, FileText, X } from 'lucide-react'
+import { CheckCircle, XCircle, Plus, FileText, Clock } from 'lucide-react'
 import type { TimeEntry, EmployeeProfile } from '@/lib/hr/types'
 import { calculateHours, formatAUD } from '@/lib/hr/calculations'
 import {
@@ -11,6 +12,8 @@ import {
 } from '@/app/[locale]/(protected)/hr/actions'
 import { t, ink, color, font } from '@/lib/ui/theme'
 import { DateInputPT } from '@/components/hr/DateInputPT'
+import { usePathname } from 'next/navigation'
+import { Modal, EmptyState, Button, Field, Input } from '@/components/ui'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -70,34 +73,21 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-// ── AddEntryModal ─────────────────────────────────────────────────────────────
+// ── AddEntryModal (body for shared Modal) ─────────────────────────────────────
 
-interface AddEntryModalProps {
+interface AddEntryBodyProps {
   locale: string
   onClose: () => void
 }
 
-function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
+function AddEntryBody({ locale, onClose }: AddEntryBodyProps) {
   const [isPending, startTransition] = useTransition()
-
   const [date, setDate] = useState(todayISO())
-
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('17:00')
   const [desc, setDesc] = useState('')
   const [error, setError] = useState<string | null>(null)
   const pt = locale === 'pt'
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: `1px solid ${ink(0.14)}`,
-    background: 'var(--bg)',
-    color: t.text, fontSize: 14, outline: 'none', boxSizing: 'border-box',
-  }
-  const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 700, color: t.textMuted,
-    letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 5,
-  }
 
   function submit() {
     setError(null)
@@ -112,87 +102,48 @@ function AddEntryModal({ locale, onClose }: AddEntryModalProps) {
   }
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div style={{
-        background: 'var(--surface)', borderRadius: 18, padding: 28,
-        width: 420, maxWidth: '90vw',
-        boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
-        border: `1px solid ${ink(0.1)}`,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-          <div>
-            <h2 style={{ fontFamily: font.display, fontSize: 18, fontWeight: 700, color: t.text, margin: 0 }}>
-              {pt ? 'Lançar Horas' : 'Log Hours'}
-            </h2>
-            <p style={{ fontSize: 12, color: t.textMuted, margin: '3px 0 0' }}>
-              {pt ? 'Registro de ponto manual' : 'Manual time entry'}
-            </p>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 6, borderRadius: 8, lineHeight: 0 }}>
-            <X size={16} />
-          </button>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div>
+        <Field label={pt ? 'Data' : 'Date'}>
+          <DateInputPT
+            value={date}
+            onChange={setDate}
+            min={minDateISO()}
+            max={todayISO()}
+          />
+        </Field>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <Field label={pt ? 'Início' : 'Start'}>
+          <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+        </Field>
+        <Field label={pt ? 'Fim' : 'End'}>
+          <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
+        </Field>
+      </div>
+      <Field label={pt ? 'Descrição (opcional)' : 'Description (optional)'}>
+        <Input
+          type="text"
+          value={desc}
+          onChange={e => setDesc(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') submit() }}
+          placeholder={pt ? 'Ex: Reunião com cliente' : 'e.g. Client meeting'}
+        />
+      </Field>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div>
-            <label style={labelStyle}>{pt ? 'Data' : 'Date'}</label>
-            <DateInputPT
-              value={date}
-              onChange={setDate}
-              min={minDateISO()}
-              max={todayISO()}
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={labelStyle}>{pt ? 'Início' : 'Start'}</label>
-              <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>{pt ? 'Fim' : 'End'}</label>
-              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} style={inputStyle} />
-            </div>
-          </div>
-          <div>
-            <label style={labelStyle}>{pt ? 'Descrição (opcional)' : 'Description (optional)'}</label>
-            <input
-              type="text" value={desc} onChange={e => setDesc(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') submit() }}
-              placeholder={pt ? 'Ex: Reunião com cliente' : 'e.g. Client meeting'}
-              style={inputStyle}
-            />
-          </div>
+      {error && (
+        <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div style={{ marginTop: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
-            {error}
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: 10, marginTop: 22, justifyContent: 'flex-end' }}>
-          <button
-            onClick={onClose}
-            style={{ padding: '9px 18px', borderRadius: 9, border: `1px solid ${ink(0.14)}`, background: 'none', color: t.text, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}
-          >
-            {pt ? 'Cancelar' : 'Cancel'}
-          </button>
-          <button
-            onClick={submit}
-            disabled={isPending}
-            style={{
-              padding: '9px 22px', borderRadius: 9, border: 'none',
-              background: color.purple, color: '#fff',
-              cursor: isPending ? 'not-allowed' : 'pointer',
-              fontSize: 13, fontWeight: 600, opacity: isPending ? 0.7 : 1,
-            }}
-          >
-            {isPending ? '...' : (pt ? 'Salvar' : 'Save')}
-          </button>
-        </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 6 }}>
+        <Button variant="secondary" type="button" onClick={onClose}>
+          {pt ? 'Cancelar' : 'Cancel'}
+        </Button>
+        <Button variant="primary" type="button" onClick={submit} loading={isPending} disabled={isPending}>
+          {pt ? 'Salvar' : 'Save'}
+        </Button>
       </div>
     </div>
   )
@@ -218,6 +169,7 @@ export function HrDashboard({
   const [isPending, startTransition] = useTransition()
   const [showAdd, setShowAdd] = useState(false)
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+  const pathname = usePathname()
   const pt = locale === 'pt'
 
   function approve(id: string) {
@@ -243,8 +195,14 @@ export function HrDashboard({
   const pendingCount = entries.filter(e => e.status === 'pending').length
   const approvedTotalCents = Math.round(approvedHours * hourlyRateCents)
 
-  // ── tab styles ─────────────────────────────────────────────────────────────
-  const tabBase: React.CSSProperties = {
+  // ── nav tabs (href-based) — exact match to avoid /hr prefix collisions ──────
+  const tabItems = [
+    { label: pt ? 'Registro de Horas' : 'Timesheet', href: `/${locale}/hr` },
+    { label: pt ? 'Faturas' : 'Invoices', href: `/${locale}/hr/invoices` },
+    ...(isAdmin ? [{ label: pt ? 'Todos os Registros' : 'All Timesheets', href: `/${locale}/hr/timesheets` }] : []),
+  ]
+
+  const tabBase: CSSProperties = {
     padding: '13px 16px', fontSize: 13, fontWeight: 500,
     borderBottom: '2px solid transparent', marginBottom: -1,
     textDecoration: 'none', display: 'inline-block', transition: 'color 0.15s',
@@ -254,20 +212,27 @@ export function HrDashboard({
   return (
     <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 16, overflow: 'hidden' }}>
 
-      {/* Tab bar */}
-      <div style={{ borderBottom: `1px solid ${ink(0.08)}`, padding: '0 20px', display: 'flex', gap: 2 }}>
-        <span style={{ ...tabBase, color: t.text, fontWeight: 600, borderBottomColor: color.purple }}>
-          {pt ? 'Registro de Horas' : 'Timesheet'}
-        </span>
-        <a href={`/${locale}/hr/invoices`} style={{ ...tabBase, color: t.textMuted }}>
-          {pt ? 'Faturas' : 'Invoices'}
-        </a>
-        {isAdmin && (
-          <a href={`/${locale}/hr/timesheets`} style={{ ...tabBase, color: t.textMuted }}>
-            {pt ? 'Todos os Registros' : 'All Timesheets'}
-          </a>
-        )}
-      </div>
+      {/* Tab bar — exact-match nav (avoids /hr prefix collision with /hr/timesheets) */}
+      <nav aria-label={pt ? 'Navegação RH' : 'HR navigation'} style={{ borderBottom: `1px solid ${ink(0.08)}`, padding: '0 20px', display: 'flex', gap: 2 }}>
+        {tabItems.map(({ label, href }) => {
+          const active = pathname === href
+          return (
+            <a
+              key={href}
+              href={href}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                ...tabBase,
+                color: active ? t.text : t.textMuted,
+                fontWeight: active ? 600 : 500,
+                borderBottomColor: active ? color.purple : 'transparent',
+              }}
+            >
+              {label}
+            </a>
+          )
+        })}
+      </nav>
 
       <div style={{ padding: '20px 24px' }}>
 
@@ -288,18 +253,14 @@ export function HrDashboard({
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
             {employee && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => setShowAdd(true)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', borderRadius: 8,
-                  border: `1px solid ${ink(0.18)}`, background: 'none',
-                  color: t.text, cursor: 'pointer', fontSize: 13, fontWeight: 500,
-                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
               >
                 <Plus size={13} />
                 {pt ? 'Lançar Horas' : 'Add Entry'}
-              </button>
+              </Button>
             )}
             {isAdmin && (
               <a
@@ -319,8 +280,28 @@ export function HrDashboard({
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
+        {/* Table / empty state */}
+        {entries.length === 0 ? (
+          <EmptyState
+            icon={Clock}
+            title={pt
+              ? (isAdmin ? 'Nenhuma entrada esta semana' : 'Nenhuma hora lançada esta semana')
+              : (isAdmin ? 'No entries this week' : 'No entries logged this week')}
+            description={pt
+              ? (isAdmin
+                  ? 'Aguarde seus funcionários lançarem horas.'
+                  : 'Use o botão "Lançar Horas" acima para começar.')
+              : (isAdmin
+                  ? 'Wait for employees to log hours.'
+                  : 'Use the "Add Entry" button above to get started.')}
+            action={!isAdmin && employee ? (
+              <Button variant="primary" onClick={() => setShowAdd(true)}>
+                {pt ? '+ Lançar Horas' : '+ Add Entry'}
+              </Button>
+            ) : undefined}
+          />
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
@@ -346,36 +327,6 @@ export function HrDashboard({
                 </tr>
               </thead>
               <tbody>
-                {entries.length === 0 ? (
-                  <tr>
-                    <td colSpan={99}>
-                      <div style={{ textAlign: 'center', padding: '52px 0', color: t.textMuted, fontSize: 14 }}>
-                        <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.4 }}>○</div>
-                        {isAdmin
-                          ? (pt ? 'Nenhuma entrada esta semana. Aguarde seus funcionários lançarem horas.' : 'No entries this week. Wait for employees to log hours.')
-                          : (
-                            <div>
-                              <div style={{ marginBottom: 10 }}>
-                                {pt ? 'Você ainda não lançou horas esta semana.' : 'No entries logged this week.'}
-                              </div>
-                              {employee && (
-                                <button
-                                  onClick={() => setShowAdd(true)}
-                                  style={{
-                                    padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                                    background: color.purple, color: '#fff', border: 'none', cursor: 'pointer',
-                                  }}
-                                >
-                                  {pt ? '+ Lançar Horas' : '+ Add Entry'}
-                                </button>
-                              )}
-                            </div>
-                          )
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                ) : null}
                 {entries.map((e) => {
                   const isLive = !e.clock_out
                   const hours = isLive
@@ -433,6 +384,7 @@ export function HrDashboard({
                           <div style={{ display: 'flex', gap: 4 }}>
                             <button
                               onClick={() => approve(e.id)} disabled={isPending}
+                              aria-label={pt ? 'Aprovar' : 'Approve'}
                               title={pt ? 'Aprovar' : 'Approve'}
                               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 5px', borderRadius: 6, color: '#16a34a', lineHeight: 0 }}
                             >
@@ -440,6 +392,7 @@ export function HrDashboard({
                             </button>
                             <button
                               onClick={() => reject(e.id)} disabled={isPending}
+                              aria-label={pt ? 'Rejeitar' : 'Reject'}
                               title={pt ? 'Rejeitar' : 'Reject'}
                               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '3px 5px', borderRadius: 6, color: '#dc2626', lineHeight: 0 }}
                             >
@@ -453,7 +406,8 @@ export function HrDashboard({
                 })}
               </tbody>
             </table>
-        </div>
+          </div>
+        )}
 
         {/* Summary footer */}
         {entries.length > 0 && (
@@ -497,7 +451,15 @@ export function HrDashboard({
         )}
       </div>
 
-      {showAdd && <AddEntryModal locale={locale} onClose={() => setShowAdd(false)} />}
+      {/* Add Entry Modal — shared Modal */}
+      <Modal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        title={pt ? 'Lançar Horas' : 'Log Hours'}
+        width={420}
+      >
+        <AddEntryBody locale={locale} onClose={() => setShowAdd(false)} />
+      </Modal>
     </div>
   )
 }

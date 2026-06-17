@@ -3,7 +3,9 @@
 import { useState, useTransition } from 'react'
 import { Pencil } from 'lucide-react'
 import { updateEmployeeRateAction } from '@/app/[locale]/(protected)/hr/actions'
-import { ink } from '@/lib/ui/theme'
+import { ink, t } from '@/lib/ui/theme'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/form'
 
 interface Props {
   employeeId: string
@@ -39,22 +41,19 @@ export function EditRateButton({ employeeId, currentRateCents }: Props) {
     return (
       <button
         onClick={() => setEditing(true)}
-        title="Edit rate"
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: 5,
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: 'inherit', padding: '2px 4px', borderRadius: 4,
-        }}
+        aria-label="Edit rate"
+        className="button-blank-secondary-icon"
+        style={{ padding: '2px 4px' }}
       >
-        <Pencil size={11} style={{ opacity: 0.5 }} />
+        <Pencil size={11} style={{ opacity: 0.5 }} aria-hidden="true" />
       </button>
     )
   }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>AU$</span>
-      <input
+      <span style={{ fontSize: 12, color: t.textMuted }}>AU$</span>
+      <Input
         autoFocus
         type="number"
         min="0"
@@ -62,35 +61,25 @@ export function EditRateButton({ employeeId, currentRateCents }: Props) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        aria-label="Hourly rate in AUD"
         style={{
           width: 70, padding: '4px 8px', borderRadius: 6,
           border: `1px solid ${error ? '#dc2626' : ink(0.25)}`,
-          background: 'var(--surface)', color: 'var(--text)',
-          fontSize: 13, fontWeight: 700,
+          fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
         }}
       />
-      <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>/hr</span>
-      <button
-        onClick={handleSave}
-        disabled={isPending}
-        style={{
-          padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-          background: '#7C3AED', color: '#fff', border: 'none',
-          cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1,
-        }}
-      >
-        {isPending ? '…' : 'OK'}
-      </button>
-      <button
+      <span style={{ fontSize: 11, color: t.textMuted }}>/hr</span>
+      <Button variant="primary" onClick={handleSave} loading={isPending} style={{ padding: '4px 10px', fontSize: 11, fontWeight: 700 }}>
+        OK
+      </Button>
+      <Button
+        variant="secondary"
         onClick={() => { setEditing(false); setValue((currentRateCents / 100).toFixed(2)) }}
-        style={{
-          padding: '4px 8px', borderRadius: 6, fontSize: 11,
-          background: 'none', border: `1px solid ${ink(0.15)}`,
-          color: 'var(--text-muted)', cursor: 'pointer',
-        }}
+        style={{ padding: '4px 8px', fontSize: 11 }}
+        aria-label="Cancel rate edit"
       >
         ✕
-      </button>
+      </Button>
       {error && <span style={{ fontSize: 11, color: '#dc2626' }}>{error}</span>}
     </div>
   )

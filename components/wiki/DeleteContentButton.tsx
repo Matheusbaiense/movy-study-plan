@@ -1,7 +1,10 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
+import { Trash2 } from 'lucide-react'
 import { deleteContent } from '@/app/[locale]/(protected)/wiki/actions'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
 
 interface DeleteContentButtonProps {
   id: string
@@ -9,26 +12,56 @@ interface DeleteContentButtonProps {
 }
 
 export function DeleteContentButton({ id, locale }: DeleteContentButtonProps) {
+  const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  function handleDelete() {
-    if (!confirm('Tem certeza que quer excluir este artigo? Esta ação não pode ser desfeita.')) return
-
+  function handleConfirm() {
     startTransition(() => {
       deleteContent(id, locale)
     })
+    setOpen(false)
   }
 
+  const label = locale === 'pt' ? 'Excluir' : locale === 'es' ? 'Eliminar' : 'Delete'
+  const deletingLabel = locale === 'pt' ? 'Excluindo…' : locale === 'es' ? 'Eliminando…' : 'Deleting…'
+  const modalTitle = locale === 'pt' ? 'Excluir artigo' : locale === 'es' ? 'Eliminar artículo' : 'Delete article'
+  const modalBody = locale === 'pt'
+    ? 'Tem certeza que quer excluir este artigo? Esta ação não pode ser desfeita.'
+    : locale === 'es'
+    ? '¿Seguro que quieres eliminar este artículo? Esta acción no se puede deshacer.'
+    : 'Are you sure you want to delete this article? This action cannot be undone.'
+  const cancelLabel = locale === 'pt' ? 'Cancelar' : locale === 'es' ? 'Cancelar' : 'Cancel'
+
   return (
-    <button
-      onClick={handleDelete}
-      disabled={isPending}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-60"
-    >
-      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-      </svg>
-      {isPending ? 'Excluindo…' : 'Excluir'}
-    </button>
+    <>
+      <Button
+        variant="secondary"
+        aria-label={label}
+        disabled={isPending}
+        onClick={() => setOpen(true)}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-danger, #c0392b)', borderColor: 'rgba(192,57,43,0.25)', background: 'rgba(192,57,43,0.06)' }}
+      >
+        <Trash2 size={14} strokeWidth={1.8} aria-hidden />
+        {isPending ? deletingLabel : label}
+      </Button>
+
+      <Modal open={open} onClose={() => setOpen(false)} title={modalTitle} width={420}>
+        <p style={{ margin: '0 0 20px', fontSize: 14, lineHeight: 1.6, color: 'var(--text-muted)' }}>
+          {modalBody}
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
+            {cancelLabel}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            style={{ background: 'var(--color-danger, #c0392b)', borderColor: 'var(--color-danger, #c0392b)' }}
+          >
+            {label}
+          </Button>
+        </div>
+      </Modal>
+    </>
   )
 }

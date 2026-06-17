@@ -18,6 +18,7 @@ export function DateInputPT({ value, onChange, min, max, style }: DateInputPTPro
       onChange={e => onChange(e.target.value)}
       min={min}
       max={max}
+      className="movy-field-control"
       style={{
         width: '100%', padding: '9px 12px', borderRadius: 8,
         border: `1px solid ${ink(0.14)}`,

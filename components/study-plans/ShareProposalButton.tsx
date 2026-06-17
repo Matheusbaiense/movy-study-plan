@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { getShareUrlAction } from '@/app/[locale]/(protected)/study-plans/actions'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 const INK = '#2A1153'
-const GOLD = '#FBB615'
 const HAIR = 'rgba(28,18,51,0.10)'
 
 interface Props {
@@ -31,7 +33,7 @@ export function ShareProposalButton({ planId }: Props) {
     if (!url) return
     await navigator.clipboard.writeText(url)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -42,7 +44,7 @@ export function ShareProposalButton({ planId }: Props) {
           position: 'fixed',
           bottom: 24,
           right: 24,
-          background: GOLD,
+          background: 'var(--accent)',
           color: INK,
           border: 'none',
           borderRadius: 40,
@@ -57,7 +59,7 @@ export function ShareProposalButton({ planId }: Props) {
           zIndex: 50,
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
           <polyline points="16 6 12 2 8 6" />
           <line x1="12" y1="2" x2="12" y2="15" />
@@ -65,104 +67,50 @@ export function ShareProposalButton({ planId }: Props) {
         Compartilhar
       </button>
 
-      {open && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            padding: 16,
-          }}
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}
-        >
+      <Modal open={open} onClose={() => setOpen(false)} title="Link público da proposta" width={500}>
+        <p style={{ margin: '0 0 16px', fontSize: 13, color: INK, opacity: 0.6 }}>
+          Qualquer pessoa com este link pode visualizar e aceitar a proposta. O link não expira automaticamente.
+        </p>
+
+        {/* C-H3 / C-M3: Skeleton while pending, URL display + copy once loaded */}
+        {isPending ? (
+          <Skeleton width="100%" height={40} />
+        ) : url ? (
           <div
             style={{
-              background: '#fff',
-              borderRadius: 16,
-              padding: '28px 28px 24px',
-              maxWidth: 500,
-              width: '100%',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+              display: 'flex',
+              gap: 8,
+              padding: '10px 12px',
+              background: '#f5f3ff',
+              borderRadius: 8,
+              border: `1.5px solid ${HAIR}`,
+              alignItems: 'center',
             }}
           >
-            <h3 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 700, color: INK }}>
-              Link público da proposta
-            </h3>
-            <p style={{ margin: '0 0 20px', fontSize: 13, color: INK, opacity: 0.6 }}>
-              Qualquer pessoa com este link pode visualizar e aceitar a proposta. O link não expira automaticamente.
-            </p>
-
-            {isPending ? (
-              <div style={{ padding: '20px 0', textAlign: 'center', color: INK, opacity: 0.5 }}>
-                Gerando link…
-              </div>
-            ) : url ? (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 8,
-                  padding: '10px 12px',
-                  background: '#f5f3ff',
-                  borderRadius: 8,
-                  border: `1.5px solid ${HAIR}`,
-                  alignItems: 'center',
-                }}
-              >
-                <span
-                  style={{
-                    flex: 1,
-                    fontSize: 12,
-                    color: INK,
-                    wordBreak: 'break-all',
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  {url}
-                </span>
-                <button
-                  onClick={handleCopy}
-                  style={{
-                    flexShrink: 0,
-                    background: copied ? '#16a34a' : GOLD,
-                    color: copied ? '#fff' : INK,
-                    border: 'none',
-                    borderRadius: 6,
-                    padding: '6px 14px',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  {copied ? 'Copiado!' : 'Copiar'}
-                </button>
-              </div>
-            ) : null}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-              <button
-                onClick={() => setOpen(false)}
-                style={{
-                  background: 'none',
-                  border: `1.5px solid ${HAIR}`,
-                  borderRadius: 8,
-                  padding: '8px 18px',
-                  fontSize: 13,
-                  color: INK,
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                }}
-              >
-                Fechar
-              </button>
-            </div>
+            <span
+              style={{
+                flex: 1,
+                fontSize: 12,
+                color: INK,
+                wordBreak: 'break-all',
+                fontFamily: 'monospace',
+              }}
+            >
+              {url}
+            </span>
+            {/* C-H3: copy button with 2s "Copiado!" feedback */}
+            <Button variant="primary" onClick={handleCopy} style={{ flexShrink: 0 }}>
+              {copied ? 'Copiado!' : 'Copiar'}
+            </Button>
           </div>
+        ) : null}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
+            Fechar
+          </Button>
         </div>
-      )}
+      </Modal>
     </>
   )
 }

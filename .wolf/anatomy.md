@@ -5,28 +5,28 @@
 
 ## components/hr/
 
-- **DateInputPT.tsx** — `'use client'` reusable single `<input type="date">` with themed styling (border, bg, color tokens, colorScheme light/dark). Props: value, onChange, min, max, style. ~30 lines.
-- **ClockWidget.tsx** — `'use client'` time-clock card. Purple gradient (145deg, #4B1A77→#190A38). Header: clock icon + “CLOCKED IN”/”READY” status pill with pulsing green dot. Clocked-in state: 144px gold ring with HH:MM:SS elapsed + “since HH:MM” caption + description frosted card + Clock Out button. Not clocked-in: description input (Enter submits) + gold Clock In button. Calls clockInAction/clockOutAction via useTransition. Bilingual (pt/en). ~180 lines.
-- **WeekSummary.tsx** — `'use client'` week-at-a-glance bars (Mon–Sun). Shows totalHours per day as a colored progress bar with status dots. Props: entries, locale. ~130 lines.
-- **RateCard.tsx** — `'use client'` read-only hourly rate display card for employees. Shows "AU$X.XX/hr" in brand purple with display font. If rate is $0, shows soft warning (amber background). Props: rateCents, locale. Bilingual (pt/en). ~35 lines.
-- **SelfInvoiceButton.tsx** — `'use client'` button + modal for employees to generate their own invoice. Period presets: weekly/fortnightly/monthly/custom. Calls generateOwnInvoiceAction, then navigates to print page. Props: locale. Bilingual (pt/en). ~170 lines.
-- **HrDashboard.tsx** — `'use client'` right-panel dashboard. Tab bar (Timesheet | Invoices | All Timesheets for admin). Week header + Add Entry / Generate Invoice buttons. Entries table always rendered; empty state inside tbody: admin sees "wait for employees" message, employee sees "no entries" + "+ Add Entry" button (if employee record exists). StatusBadge component (pill + colored dot). Row hover highlight. Admin approve/reject buttons. AddEntryModal: uses DateInputPT for date selection + time inputs, calls logHoursAction. Summary footer: stacked Approved / Pending / Approved Total metric blocks. ~285 lines.
-- **TimesheetTable.tsx** â€” `'use client'` table rendering time entries with approve/reject action buttons. Columns: date, employee (optional), clock-in/out times, hours, status badge, actions. Calls approveEntryAction/rejectEntryAction via useTransition. Props: entries, employees (optional), showEmployeeName, locale. ~130 lines.
-- **InvoiceEmployeeFilter.tsx** — `'use client'` employee filter dropdown for invoice list (admin only). Props: employees[], currentEmployeeId?, locale. Updates URL ?employee= param via router.push; shows Clear button when filter active. Bilingual (pt/en). ~45 lines.
-- **TaxInvoice.tsx** â€” Print-optimised ABN-format tax invoice component. Renders invoice header (agency ABN, logo), employee details, line items table (date, description, hours, rate, amount), totals, payment terms. Uses window.print() via a Print button. Props: data (InvoicePrintData), rateRules. ~160 lines.
+- **DateInputPT.tsx** — `'use client'` reusable `<input type=”date”>` with themed styling. Now adds `className=”movy-field-control”` for focus ring. Props: value, onChange, min, max, style. ~30 lines.
+- **ClockWidget.tsx** — `'use client'` time-clock card with purple gradient. Description input now has `className=”movy-field-control”` + `aria-label`. Calls clockInAction/clockOutAction via useTransition. Bilingual (pt/en). ~185 lines.
+- **WeekSummary.tsx** — `'use client'` week-at-a-glance bars (Mon–Sun). Shows totalHours per day as colored progress bar with status dots. Props: entries, locale. ~130 lines.
+- **RateCard.tsx** — `'use client'` read-only hourly rate display card for employees. Bilingual (pt/en). ~35 lines.
+- **SelfInvoiceButton.tsx** — `'use client'` button + shared `<Modal>` for employees to generate their own invoice. Uses `<Button>`, `<Field>/<Input>` from ui/. Bilingual (pt/en). ~120 lines.
+- **HrDashboard.tsx** — `'use client'` right-panel dashboard. Exact-match `<nav>` tab bar (Timesheet | Invoices | All Timesheets for admin) uses usePathname for exact matching. Shared `<Modal>` for AddEntry (body: `<Field>+<Input>` from form.tsx, `<Button>` primary/secondary). Empty state uses shared `<EmptyState>` with Clock icon. Approve/reject buttons have `aria-label`. Summary footer: approved/pending/approved total metric blocks. ~310 lines.
+- **TimesheetTable.tsx** — `'use client'` table rendering time entries with approve/reject action buttons. Empty state uses shared `<EmptyState>`. Columns: date, employee (optional), clock-in/out, hours, day type, amount, status badge, actions. Calls approveEntryAction/rejectEntryAction. ~145 lines.
+- **InvoiceEmployeeFilter.tsx** — `'use client'` employee filter dropdown for invoice list (admin only). Uses shared `<Select>` (movy-field-control). Props: employees[], currentEmployeeId?, locale. Updates URL ?employee= param via router.push; clear button has aria-label. Bilingual (pt/en). ~50 lines.
+- **TaxInvoice.tsx** — Print-optimised ABN-format tax invoice component. Print chrome (button) uses `<Button variant=primary>`; all print CSS/layout preserved. Props: data (InvoicePrintData), locale?. ~175 lines.
 
 ## app/[locale]/(protected)/hr/invoices/
 
-- **page.tsx** — Invoice list server page. Auth via supabase.auth.getUser() + profiles query. Role-scoped: admins see all org invoices + employee filter dropdown; non-admins see only their own invoices (fetches employee_profiles by profile_id). Accepts searchParams.employee for admin filtering. Fetches listInvoicesWithEmployeeName (with employeeId option) + listEmployeesWithNames (admin only) in parallel. Renders InvoiceEmployeeFilter (admin only), GenerateInvoiceForm (admin only), table with invoice #, employee, period, total (formatAUD), status badge (draft/issued/paid), issued date, View/Print link. Bilingual View/Print label. ~115 lines.
+- **page.tsx** — Invoice list server page. Uses `<PageHeader actions={GenerateInvoiceForm}>`, `<EmptyState icon={FileText}>`. Role-scoped; InvoiceEmployeeFilter + IssueInvoiceButton for admins. Table: invoice#, employee, period, total (tabular-nums), status badge, issued date, View/Print link. Bilingual. ~115 lines.
 - **GenerateInvoiceForm.tsx** — `'use client'` modal for generating a new tax invoice. Employee select + period start/end date inputs. Calls generateInvoiceAction, then router.push to print page. Bilingual (pt/en). ~110 lines.
 
 ## app/[locale]/(protected)/hr/
 
-- **team/page.tsx** — Employee Directory server page (admin-only, redirects non-admin to /hr). Calls listEmployeesWithStats. KPI summary bar: 4 tiles (employee count, clocked in now, hours this month, pending approvals). 3-column card grid: initials avatar (purple gradient), name+email, RoleBadge (super_admin/admin/employee), AU$/hr rate, stats row (hours, pending, working-now indicator), Timesheets + Invoices action links with ?employee= param. Empty state with Users icon. Bilingual pt/en. ~263 lines.
-- **clock/page.tsx** â€” Employee clock self-service page (server component). Auth via supabase.auth.getUser() + profiles query. Fetches employee record via getEmployeeByProfileId; falls back to bilingual "no active profile" message. Fetches active clock entry via getActiveClockEntry. Renders ClockWidget. ~49 lines.
-- **page.tsx** â€” HR dashboard server component. Auth via supabase.auth.getUser() + profiles query. Fetches employee record, active clock entry, current-week entries (Monâ€“Sun), and recent entries. Layout: left sidebar (ClockWidget + WeekSummary + nav links) + right panel (TimesheetTable last 20). Bilingual (pt/en). ~99 lines.
-- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, logHoursAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, generateOwnInvoiceAction (employee self-invoice), updateEmployeeRateAction, issueInvoiceAction, markInvoicePaidAction. Uses getActor() helper (createClient + profiles query with org_id). ~260 lines.
-- **timesheets/page.tsx** — Timesheet list server page. Role-scoped: admins see all org entries + employee count; non-admins see only their own entries (fetches employee via getEmployeeByProfileId; falls back to '__none__' if no employee profile). Imports isHrAdmin + getEmployeeByProfileId from lib/hr. Status filter pills (All/pending/approved/rejected). Empty-state message varies by role. TimesheetTable rendered with showEmployeeName={isAdmin}. Bilingual (pt/en). ~137 lines.
+- **team/page.tsx** — Employee Directory server page (admin-only). Uses `<PageHeader>`, `<EmptyState icon={Users}>`. KPI grid: repeat(auto-fit,minmax(200px,1fr)). Card grid: repeat(auto-fit,minmax(280px,1fr)). Rate column has fontVariantNumeric tabular-nums. EditRateButton has aria-label. Bilingual pt/en. ~260 lines.
+- **clock/page.tsx** — Employee clock self-service page (server component). Uses shared `<PageHeader>` (title+description). No-employee state uses shared `<EmptyState icon={UserX}>`. Renders ClockWidget. ~45 lines.
+- **page.tsx** — HR dashboard server component. Uses shared `<PageHeader>` (eyebrow+title). Responsive two-column grid via `repeat(auto-fit, minmax(260px,1fr))`. Left: ClockWidget + WeekSummary + RateCard + SelfInvoiceButton. Right: HrDashboard. ~110 lines.
+- **actions.ts** — Server actions for HR module: clockInAction, clockOutAction, logHoursAction, approveEntryAction, rejectEntryAction, generateInvoiceAction, generateOwnInvoiceAction (employee self-invoice), updateEmployeeRateAction, issueInvoiceAction, markInvoicePaidAction. Uses `requireActor()` from lib/actions/auth (role checks via isHrAdmin inline); audit via logAuditWithClient. ~260 lines.
+- **timesheets/page.tsx** — Timesheet list server page. Uses shared `<PageHeader>` (eyebrow+title+description). Status filter pills use `color.purple` token (no hardcoded hex). Empty state uses shared `<EmptyState icon={ClockIcon}>`. TimesheetTable with showEmployeeName={isAdmin}. Bilingual (pt/en). ~148 lines.
 - **invoices/[id]/print/page.tsx** â€” Invoice print/PDF server page. Auth via supabase.auth.getUser() + profiles. Fetches listRateRules + getInvoicePrintData in sequence; 404s if data null. Renders TaxInvoice in a white padded container. ~32 lines.
 
 ## lib/hr/
@@ -64,15 +64,20 @@
 
 ## ./
 
-- **next.config.mjs** — Next.js config: CSP (enforcing, built from NEXT_PUBLIC_SUPABASE_URL env var), security headers, Sentry via withSentryConfig, next-intl plugin. `outputFileTracingIncludes` at top-level (moved from `experimental` for Next.js 15). ~65 lines.
+- **next.config.mjs** — Next.js config: CSP (enforcing, built from NEXT_PUBLIC_SUPABASE_URL env var), security headers, Sentry via withSentryConfig (deprecated opts moved under `webpack.*` 2026-06-17), next-intl plugin. `outputFileTracingIncludes` at top-level (Next 15). ~70 lines.
+- **eslint.config.mjs** — ESLint 9 flat config (replaced `.eslintrc.json` + `next lint`, 2026-06-17). Bridges `next/core-web-vitals` eslintrc preset via `FlatCompat` (`@eslint/eslintrc`). `lint` script = `eslint .`. Ignores `.next`/`node_modules`/`out`/`.claude`. ~25 lines.
 - **instrumentation.ts** — Next.js 15 / Sentry v10 instrumentation hook. `register()` function imports `sentry.server.config` (nodejs runtime) or `sentry.edge.config` (edge runtime). Required to avoid Sentry falling back to Pages Router `_document` patching. ~9 lines.
-- **.env.example** — Documented env vars: Supabase (URL + anon key + service role), Wise API, Sentry DSN, MOVY_PREVIEW flag. ~40 lines.
+- **.env.example** — Documented env vars: Supabase (URL + anon key + service role), Wise API, Sentry DSN, site URL, Upstash Redis (rate-limit), `MOVY_PREVIEW` (dev-only; unlocks `/_ui-preview`, NOT an auth bypass). ~45 lines.
 - **public/robots.txt** — Disallows /api/ and /(protected)/ paths for all bots.
 - **sentry.client.config.ts** / **sentry.server.config.ts** / **sentry.edge.config.ts** — Sentry init: DSN from env, tracesSampleRate 0.1, enabled only in production.
 
 ## lib/actions/
 
-- **auth.ts** — CANONICAL server-action auth layer (2026-06-17 audit). `requireActor()` (authenticated + **is_active** checked → `{supabase,user,profile:ActorProfile}`), `requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`), `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the single actor shape. `getActorSession` kept as a deprecated alias (vestigial — nobody imports it). ALL 6 action files use these; never reinvent a local `getActor`/`requireAdmin`/`Actor`. ~80 lines.
+- **auth.ts** — CANONICAL server-action auth layer (2026-06-17 audit). `requireActor()` (authenticated + **is_active** checked → `{supabase,user,profile:ActorProfile}`), `requireEditor()`/`requireAdmin()` (role-gated, throw `Permissão insuficiente`), `svc()` (service client or null). `ActorProfile = {id,email,role,org_id}` is the single actor shape. ALL 6 action files use these; never reinvent a local `getActor`/`requireAdmin`/`Actor`. ~75 lines.
+
+## lib/db/
+
+- **json.ts** — jsonb serialization boundary (2026-06-17 audit). `toJson(value)` (domain→jsonb, writes) + `fromJson<T>(value)` (jsonb→domain, reads). Single documented home for the `as unknown as Json` cast; ~20 call sites migrated. Test-traversed `lib/*` import as `'../db/json.ts'` (.ts ext). ~25 lines.
 
 ## app/api/health/
 
@@ -140,11 +145,18 @@
 
 ## app/[locale]/(protected)/wiki/
 
+- **page.tsx** — Wiki list server page. Uses `<PageHeader>` (eyebrow + title + description + canWrite CTA in actions slot). `<EmptyState>` with BookOpen/Search icon for empty list/search. Filter bar: search input (movy-field-control), dept select, status select (editors only), submit. Item list via WikiListItem. ~160 lines.
+- **loading.tsx** — Hand-rolled pulse skeleton for wiki list (header + filter bar + 6 item rows). ~43 lines.
+- **new/page.tsx** — Create article server page. Auth guard (editor+). Uses `<PageHeader>` + `<WikiForm>`. ~35 lines.
+
 
 ## app/[locale]/(protected)/wiki/[slug]/
 
+- **page.tsx** — Article detail server page. Breadcrumb + 2-col responsive grid (repeat auto-fit). Main card: dept chip, status badge, h1 title, date/tags meta, BlockRenderer or WikiContent. Edit (aria-label) + DeleteContentButton actions (editor+/admin+). Sidebar: related articles + back link. ~257 lines.
 
 ## app/[locale]/(protected)/wiki/[slug]/edit/
+
+- **page.tsx** — Edit article server page. Auth guard (editor+). Uses `<PageHeader>` + `<WikiForm mode=edit>`. ~66 lines.
 
 
 ## app/[locale]/(protected)/wiki/new/
@@ -174,6 +186,21 @@
 ## components/financial/
 
 
+## components/ui/ (Phase 0 primitives — 2026-06-17)
+
+- **variants.ts** — Pure helper: `buttonClass(variant: ButtonVariant) → className`. Maps 'primary'/'secondary'/'icon' to existing global CSS classes (button-fill-primary-md, etc.). ~10 lines.
+- **Button.tsx** — `'use client'` forwardRef button wrapping existing button-* CSS classes via `buttonClass`. Props: variant, loading, disabled, className + all native button attrs. When loading=true renders a `<span class="sr-only">Loading…</span>` for AT. ~22 lines.
+- **form.tsx** — `'use client'` form primitives: `Field` (label+hint wrapper), `Input`, `Textarea`, `Select` (all forwardRef). Inline styles from `t.*` theme tokens. ~50 lines.
+- **PageHeader.tsx** — `'use client'` per-screen header: optional eyebrow (kicker), h1 title (Clash Display), description, right-aligned actions slot. ~28 lines.
+- **tabs-logic.ts** — Pure helper: `isTabActive(pathname, href) → boolean`. Exact match OR startsWith(href+'/'). ~3 lines.
+- **Tabs.tsx** — `'use client'` underline tab bar using next/link + usePathname. Props: items: TabItem[], ariaLabel?: string (default 'Section navigation'). aria-label on nav. Underline accent on active tab. ~50 lines.
+- **EmptyState.tsx** — `'use client'` centered icon+title+description+optional action card. Props: icon: LucideIcon, title, description?, action?. ~28 lines.
+- **skeleton-logic.ts** — Pure helper: `skeletonRows(count) → number[]`. Clamps to min 1. ~4 lines.
+- **Skeleton.tsx** — `'use client'` shimmer skeleton primitives: `Skeleton` (single bar, uses .movy-skeleton CSS class) + `SkeletonText` (grid of rows, last at 60%). ~18 lines.
+- **Modal.tsx** — `'use client'` portal overlay modal. SSR-safe (mounted guard), Escape+outside-click close, scroll-lock counter (data-scroll-locked), focus trap (Tab/Shift+Tab wrap), trigger capture/restore, useId aria-labelledby. Props: open, onClose, title?, children, width. ~105 lines.
+- **Drawer.tsx** — `'use client'` slide-in side panel portal. SSR-safe, Escape+outside-click close, focus trap (Tab/Shift+Tab wrap), trigger capture/restore, useId aria-labelledby, header always rendered (close button present even without title), side='right'|'left'. Props: open, onClose, title?, children, width, side. ~100 lines.
+- **index.ts** — Barrel re-exporting all 10 primitives + helpers. ThemeToggle deliberately excluded. ~12 lines.
+
 ## components/layout/
 
 - **AppShell.tsx** — Root layout shell: desktop sidebar (collapsible, localStorage-persisted), mobile drawer, topbar with breadcrumb + avatar account menu. NavEntry interface, mainNav array (now includes Portfólio/Building2), operationsNav array (HR & Time), SidebarContent inner component, NavItem/Avatar/MenuLink/BreadcrumbFromPath helpers. Uses Lucide icons incl. Clock, Building2. ~384 lines.
@@ -196,8 +223,19 @@
 
 ## components/wiki/
 
+- **WikiListItem.tsx** — `'use client'` article list row: dept icon, dept chip, status badge, title (display font), excerpt, date+tag footer, chevron arrow. Uses STATUS_STYLES from lib/constants/content. ~93 lines.
+- **WikiContent.tsx** — Client component rendering sanitized HTML body of an article. DOMPurify-safe. ~? lines.
+- **WikiForm.tsx** — `'use client'` create/edit form for wiki articles. Migrated (2026-06-17 rubric) to use `<Field>+<Input>/<Textarea>/<Select>` from ui/form and `<Button variant=primary loading>` / `<Button variant=secondary>`. Language tabs (pt/en/es), dept+status selectors, tags, featured toggle. ~130 lines.
+- **BlockRenderer.tsx** — `'use client'` recursive block renderer: text/steps/checklist/infobox/email/table/section. Dispatches to block sub-components. ~70 lines.
+- **DeleteContentButton.tsx** — `'use client'` delete action button. Migrated (2026-06-17 rubric) from native confirm() to `<Modal>` confirmation dialog with danger button. Bilingual (pt/en/es). ~60 lines.
 
 ## components/wiki/blocks/
+
+- **StepsBlock.tsx** — Numbered steps block with title + step cards (step.title, step.body, step.note). Orange (#F36B1C) step counters. ~58 lines.
+- **InfoBox.tsx** — Info/warning/alert/tip callout with left border accent. Variants: tip/warn/alert/info. ~27 lines.
+- **TableBlock.tsx** — Table block renderer. ~? lines.
+- **EmailTemplate.tsx** — Email template block renderer. ~? lines.
+- **ChecklistBlock.tsx** — Interactive checklist block with Supabase-persisted progress. ~? lines.
 
 
 ## data/
@@ -299,8 +337,16 @@
 - `portfolio.test.mts` — Portfolio action tests. ~100 lines.
 - `sanitize-html.test.mts` — HTML sanitisation tests. ~100 lines.
 - `crm-contacts.test.mts` — CRM contact tests. ~80 lines.
+- `ui-variants.test.mts` — 4 tests for buttonClass helper (primary/secondary/icon/unknown fallback). ~18 lines.
+- `ui-tabs-logic.test.mts` — 4 tests for isTabActive (exact/sub-route/sibling/partial-segment). ~18 lines.
+- `ui-skeleton-logic.test.mts` — 3 tests for skeletonRows (length/clamp-0/clamp-negative). ~14 lines.
 
 Run with: `npm test` → `node --experimental-strip-types --test 'tests/*.test.mts'`
+
+## app/[locale]/(protected)/_ui-preview/
+
+- **page.tsx** — Server component: 404s unless `MOVY_PREVIEW=1`. Renders UiPreviewClient. ~7 lines.
+- **UiPreviewClient.tsx** — `'use client'` primitives gallery showing all Phase-0 components. TEMP — for screenshot verification only, not shipped to production. ~55 lines.
 
 ## Root docs
 

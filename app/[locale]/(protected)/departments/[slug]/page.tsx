@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, ArrowRight } from 'lucide-react'
+import { Plus, ArrowRight, FolderOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { isEditorOrAbove } from '@/lib/permissions/can'
 import { CategorySection } from '@/components/departments/CategorySection'
 import { font } from '@/lib/ui/theme'
+import { EmptyState } from '@/components/ui'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -83,9 +84,11 @@ export default async function DepartmentPage({ params }: Props) {
         {/* Content by category */}
         <div>
           {Object.keys(grouped).length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 48, color: 'var(--text-subtle)', fontSize: 14 }}>
-              {locale === 'pt' ? 'Nenhum conteúdo publicado ainda.' : 'No published content yet.'}
-            </div>
+            <EmptyState
+              icon={FolderOpen}
+              title={locale === 'pt' ? 'Nenhum conteúdo publicado' : 'No published content yet'}
+              description={locale === 'pt' ? 'Documentos publicados neste departamento aparecerão aqui.' : 'Published documents in this department will appear here.'}
+            />
           ) : (
             Object.entries(grouped).map(([category, items]) => (
               <CategorySection
@@ -103,12 +106,8 @@ export default async function DepartmentPage({ params }: Props) {
               <Link
                 href={`/${locale}/wiki/new`}
                 prefetch={false}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '9px 16px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-                  background: dept.color ?? '#2A1153', color: '#fff',
-                  textDecoration: 'none',
-                }}
+                className="button-fill-primary-md"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', background: dept.color ?? '#2A1153' }}
               >
                 <Plus size={15} strokeWidth={2.4} aria-hidden />
                 {locale === 'pt' ? 'Novo documento' : 'New document'}

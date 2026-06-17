@@ -8,6 +8,8 @@ import { listEmployeesWithStats } from '@/lib/hr/queries'
 import { isHrAdmin } from '@/lib/hr'
 import { formatAUD } from '@/lib/hr/calculations'
 import { t, ink, font, color } from '@/lib/ui/theme'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -70,19 +72,14 @@ export default async function TeamPage({ params }: Props) {
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
 
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: font.display, fontSize: 28, fontWeight: 700, color: t.text, margin: 0, letterSpacing: '-0.02em' }}>
-          {pt ? 'Equipe' : 'Team'}
-        </h1>
-        <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
-          {pt ? 'Operações' : 'Operations'} › HR › {pt ? 'Equipe' : 'Team'}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow={`${pt ? 'Operações' : 'Operations'} › HR`}
+        title={pt ? 'Equipe' : 'Team'}
+      />
 
       {/* Summary bar */}
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28,
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 28,
       }}>
         {[
           { label: pt ? 'Funcionários' : 'Employees', value: String(employees.length), sub: pt ? 'cadastrados' : 'registered', accent: color.purple },
@@ -107,22 +104,15 @@ export default async function TeamPage({ params }: Props) {
 
       {/* Employee grid */}
       {employees.length === 0 ? (
-        <div style={{
-          background: t.surface, border: `1px solid ${ink(0.08)}`,
-          borderRadius: 14, padding: '56px 32px', textAlign: 'center',
-        }}>
-          <Users size={36} color={ink(0.2)} style={{ margin: '0 auto 16px' }} />
-          <div style={{ fontSize: 16, fontWeight: 600, color: t.text, marginBottom: 6 }}>
-            {pt ? 'Nenhum funcionário cadastrado' : 'No employees yet'}
-          </div>
-          <div style={{ fontSize: 13, color: t.textMuted }}>
-            {pt
-              ? 'Funcionários aparecem aqui quando criam um perfil de funcionário.'
-              : 'Employees appear here once they create an employee profile.'}
-          </div>
-        </div>
+        <EmptyState
+          icon={Users}
+          title={pt ? 'Nenhum funcionário cadastrado' : 'No employees yet'}
+          description={pt
+            ? 'Funcionários aparecem aqui quando criam um perfil de funcionário.'
+            : 'Employees appear here once they create an employee profile.'}
+        />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
           {employees.map(emp => {
             const ini = initials(emp.full_name || emp.email)
             const rate = (emp.hourly_rate_in_cents / 100).toFixed(2)
@@ -188,7 +178,7 @@ export default async function TeamPage({ params }: Props) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                   <RoleBadge role={emp.role} locale={locale} />
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: t.text, fontVariantNumeric: 'tabular-nums' }}>
                       AU${rate}<span style={{ fontWeight: 400, color: t.textMuted, fontSize: 11 }}>/hr</span>
                     </span>
                     <EditRateButton employeeId={emp.id} currentRateCents={emp.hourly_rate_in_cents} />
@@ -252,7 +242,7 @@ export default async function TeamPage({ params }: Props) {
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       padding: '8px 12px', borderRadius: 8,
                       background: `${color.purple}10`, border: `1px solid ${color.purple}25`,
-                      fontSize: 12, fontWeight: 600, color: color.purple, textDecoration: 'none',
+                      fontSize: 12, fontWeight: 600, color: t.accent, textDecoration: 'none',
                     }}
                   >
                     <FileText size={13} />

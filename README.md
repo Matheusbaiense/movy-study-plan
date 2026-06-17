@@ -14,8 +14,8 @@ Aplicação interna da Movy Education para cotações, study plans, processos e 
 Copie `.env.example` para `.env.local` e preencha as chaves necessárias:
 
 ```bash
-npm ci
-npm run dev
+yarn install --frozen-lockfile
+yarn dev
 ```
 
 O banco Supabase já contém as tabelas principais do hub, `audit_logs` e `study_plans`.
