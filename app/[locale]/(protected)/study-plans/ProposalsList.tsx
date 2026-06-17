@@ -13,6 +13,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  FileSearch,
+  Inbox,
 } from 'lucide-react'
 import {
   duplicateStudyPlan,
@@ -24,6 +26,7 @@ import {
   type BulkStudyPlanOp,
 } from './actions'
 import type { StudyPlanStatus } from '@/lib/study-plans/types'
+import { Modal, Button, EmptyState } from '@/components/ui'
 
 /** Server-built view-model: all formatting done server-side, interaction client-side. */
 export interface ProposalItem {
@@ -51,6 +54,17 @@ interface Props {
   sort: string
   isAdmin: boolean
 }
+
+/** [A-H6] Confirm dialog state */
+interface ConfirmState {
+  open: boolean
+  label: string
+  description: string
+  danger: boolean
+  action: (() => void) | null
+}
+
+const CONFIRM_CLOSED: ConfirmState = { open: false, label: '', description: '', danger: false, action: null }
 
 const STATUS_META: Record<StudyPlanStatus, { label: string; color: string }> = {
   draft: { label: 'Rascunho', color: '#6B7280' },
@@ -84,6 +98,8 @@ export function ProposalsList(props: Props) {
   const [flash, setFlash] = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState(query)
+  // [A-H6] Confirm modal state
+  const [confirm, setConfirm] = useState<ConfirmState>(CONFIRM_CLOSED)
 
   // Clear stale selections whenever the rendered set changes (filter/page nav).
   const idsKey = items.map((i) => i.id).join(',')
@@ -155,8 +171,23 @@ export function ProposalsList(props: Props) {
     run(() => bulkStudyPlanAction([...selected], op, locale), okMsg)
   }
 
+  /** [A-H6] Open confirm modal and run the action on confirm */
+  function askConfirm(opts: Omit<ConfirmState, 'open'> & { action: () => void }) {
+    setConfirm({ ...opts, open: true })
+  }
+
+  function handleConfirmClose() {
+    setConfirm(CONFIRM_CLOSED)
+  }
+
+  function handleConfirmOk() {
+    if (confirm.action) confirm.action()
+    setConfirm(CONFIRM_CLOSED)
+  }
+
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const selCount = selected.size
+  const isFiltered = !!(query || statusFilter || typeFilter)
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
@@ -210,7 +241,12 @@ export function ProposalsList(props: Props) {
               <>
                 <BulkBtn icon={<Archive size={14} />} disabled={pending} onClick={() => bulk('archive', 'Propostas arquivadas.')}>Arquivar</BulkBtn>
                 <BulkBtn icon={<Trash2 size={14} />} danger disabled={pending} onClick={() => {
-                  if (confirm(`Mover ${selCount} proposta(s) para a lixeira?`)) bulk('soft_delete', 'Movidas para a lixeira.')
+                  askConfirm({
+                    label: 'Mover para a lixeira',
+                    description: `Mover ${selCount} proposta(s) para a lixeira?`,
+                    danger: true,
+                    action: () => bulk('soft_delete', 'Movidas para a lixeira.'),
+                  })
                 }}>Excluir</BulkBtn>
               </>
             ) : (
@@ -221,34 +257,23 @@ export function ProposalsList(props: Props) {
         </div>
       )}
 
-      {/* Table */}
-      <div className="movy-card" style={{ overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ ...thStyle, width: 38, textAlign: 'center' }}>
-                  <input type="checkbox" aria-label="Selecionar todas" checked={allOnPageSelected} onChange={toggleAll} style={{ cursor: 'pointer' }} />
-                </th>
-                {['Estudante', 'Tipo', 'Status', 'Total estimado', 'Expira', 'Atualizado', 'Ações'].map((h) => (
-                  <th key={h} style={{ ...thStyle, textAlign: h === 'Ações' ? 'right' : 'left' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
+      {/* Table — only rendered when there are rows; empty state is below */}
+      {items.length > 0 && (
+        <div className="movy-card" style={{ overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
                 <tr>
-                  <td colSpan={8} style={{ padding: '52px 24px', textAlign: 'center', color: 'var(--text-subtle)' }}>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>
-                      {view === 'trash' ? 'Lixeira vazia' : query || statusFilter || typeFilter ? 'Nenhuma proposta encontrada' : 'Nenhuma cotação ainda'}
-                    </div>
-                    <div style={{ fontSize: 13, marginTop: 4 }}>
-                      {view === 'trash' ? 'Propostas excluídas aparecem aqui e podem ser restauradas.' : 'Ajuste os filtros ou crie uma nova cotação.'}
-                    </div>
-                  </td>
+                  <th style={{ ...thStyle, width: 38, textAlign: 'center' }}>
+                    <input type="checkbox" aria-label="Selecionar todas" checked={allOnPageSelected} onChange={toggleAll} style={{ cursor: 'pointer' }} />
+                  </th>
+                  {['Estudante', 'Tipo', 'Status', 'Total estimado', 'Expira', 'Atualizado', 'Ações'].map((h) => (
+                    <th key={h} style={{ ...thStyle, textAlign: h === 'Ações' ? 'right' : 'left' }}>{h}</th>
+                  ))}
                 </tr>
-              ) : (
-                items.map((it) => {
+              </thead>
+              <tbody>
+                {items.map((it) => {
                   const meta = STATUS_META[it.status] ?? { label: it.status, color: '#6B7280' }
                   const isSel = selected.has(it.id)
                   return (
@@ -276,24 +301,41 @@ export function ProposalsList(props: Props) {
                       <td style={tdStyle}>{expiryBadge(it)}</td>
                       <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-subtle)' }}>{it.updatedLabel}</td>
                       <td style={{ ...tdStyle, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <div style={{ display: 'inline-flex', gap: 4 }}>
+                        {/* [A-C2] icon buttons: use className="button-blank-secondary-icon" for visible focus rings */}
+                        <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
                           {view === 'active' ? (
                             <>
                               <IconBtn title="Editar" onClick={() => router.push(`/${locale}/study-plans/${it.id}`)}><Pencil size={15} /></IconBtn>
                               <IconBtn title="Proposta" onClick={() => router.push(`/${locale}/study-plans/${it.id}/proposal`)}><FileText size={15} /></IconBtn>
                               <IconBtn title="Duplicar" disabled={pending} onClick={() => run(() => duplicateStudyPlan(it.id, locale), 'Proposta duplicada.')}><Copy size={15} /></IconBtn>
                               <IconBtn title="Arquivar" disabled={pending} onClick={() => run(() => archiveStudyPlan(it.id, locale), 'Proposta arquivada.')}><Archive size={15} /></IconBtn>
+                              {/* [A-C2] Trash separated by a thin divider */}
+                              <span style={{ display: 'inline-block', width: 1, height: 18, background: 'var(--border)', margin: '0 4px' }} aria-hidden="true" />
                               <IconBtn title="Excluir" danger disabled={pending} onClick={() => {
-                                if (confirm(`Mover "${it.student}" para a lixeira?`)) run(() => softDeleteStudyPlan(it.id, locale), 'Movida para a lixeira.')
+                                askConfirm({
+                                  label: 'Mover para a lixeira',
+                                  description: `Mover "${it.student}" para a lixeira?`,
+                                  danger: true,
+                                  action: () => run(() => softDeleteStudyPlan(it.id, locale), 'Movida para a lixeira.'),
+                                })
                               }}><Trash2 size={15} /></IconBtn>
                             </>
                           ) : (
                             <>
                               <IconBtn title="Restaurar" disabled={pending} onClick={() => run(() => restoreStudyPlan(it.id, locale), 'Proposta restaurada.')}><RotateCcw size={15} /></IconBtn>
                               {isAdmin && (
-                                <IconBtn title="Excluir definitivamente" danger disabled={pending} onClick={() => {
-                                  if (confirm(`Excluir "${it.student}" DEFINITIVAMENTE? Esta ação não pode ser desfeita.`)) run(() => hardDeleteStudyPlan(it.id, locale), 'Excluída definitivamente.')
-                                }}><Trash2 size={15} /></IconBtn>
+                                <>
+                                  {/* [A-C2] Hard-delete Trash separated by divider */}
+                                  <span style={{ display: 'inline-block', width: 1, height: 18, background: 'var(--border)', margin: '0 4px' }} aria-hidden="true" />
+                                  <IconBtn title="Excluir definitivamente" danger disabled={pending} onClick={() => {
+                                    askConfirm({
+                                      label: 'Excluir definitivamente',
+                                      description: `Excluir "${it.student}" DEFINITIVAMENTE? Esta ação não pode ser desfeita.`,
+                                      danger: true,
+                                      action: () => run(() => hardDeleteStudyPlan(it.id, locale), 'Excluída definitivamente.'),
+                                    })
+                                  }}><Trash2 size={15} /></IconBtn>
+                                </>
                               )}
                             </>
                           )}
@@ -301,12 +343,35 @@ export function ProposalsList(props: Props) {
                       </td>
                     </tr>
                   )
-                })
-              )}
-            </tbody>
-          </table>
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* [A-H3] EmptyState below the table — three distinct conditions */}
+      {items.length === 0 && view === 'trash' && (
+        <EmptyState
+          icon={Inbox}
+          title="Lixeira vazia"
+          description="Propostas excluídas aparecem aqui e podem ser restauradas."
+        />
+      )}
+      {items.length === 0 && view === 'active' && isFiltered && (
+        <EmptyState
+          icon={FileSearch}
+          title="Nenhuma proposta encontrada"
+          description="Nenhuma proposta corresponde aos filtros aplicados. Ajuste a busca ou os filtros."
+        />
+      )}
+      {items.length === 0 && view === 'active' && !isFiltered && (
+        <EmptyState
+          icon={FileText}
+          title="Nenhuma cotação ainda"
+          description="Crie sua primeira cotação para começar a acompanhar propostas e study plans."
+        />
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -318,6 +383,31 @@ export function ProposalsList(props: Props) {
           </div>
         </div>
       )}
+
+      {/* [A-H6] Confirm modal — replaces all native confirm() calls */}
+      <Modal
+        open={confirm.open}
+        onClose={handleConfirmClose}
+        title={confirm.label}
+        width={420}
+      >
+        <p style={{ margin: '0 0 20px', fontSize: 14, lineHeight: 1.5, color: 'var(--text-muted)' }}>
+          {confirm.description}
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <Button type="button" variant="secondary" onClick={handleConfirmClose}>
+            Cancelar
+          </Button>
+          <button
+            type="button"
+            onClick={handleConfirmOk}
+            style={confirm.danger ? dangerBtnStyle : undefined}
+            className={confirm.danger ? undefined : 'button-fill-primary-md'}
+          >
+            Confirmar
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }
@@ -354,6 +444,7 @@ function ViewTab({ active, onClick, children }: { active: boolean; onClick: () =
   )
 }
 
+/** [A-C2] Icon button with visible focus ring via button-blank-secondary-icon class */
 function IconBtn({ children, title, onClick, disabled, danger }: { children: React.ReactNode; title: string; onClick: () => void; disabled?: boolean; danger?: boolean }) {
   return (
     <button
@@ -362,6 +453,7 @@ function IconBtn({ children, title, onClick, disabled, danger }: { children: Rea
       aria-label={title}
       onClick={onClick}
       disabled={disabled}
+      className="button-blank-secondary-icon"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -480,4 +572,16 @@ function flashStyle(kind: 'ok' | 'err'): React.CSSProperties {
     color: kind === 'ok' ? '#4B1A77' : '#D23B2B',
     border: `1px solid ${kind === 'ok' ? 'rgba(75,26,119,0.2)' : 'rgba(210,59,43,0.25)'}`,
   }
+}
+
+const dangerBtnStyle: React.CSSProperties = {
+  padding: '10px 16px',
+  borderRadius: 10,
+  border: '1.5px solid rgba(210,59,43,0.4)',
+  background: 'rgba(210,59,43,0.08)',
+  color: '#D23B2B',
+  fontWeight: 700,
+  fontSize: 13,
+  cursor: 'pointer',
+  fontFamily: 'var(--font-body)',
 }
