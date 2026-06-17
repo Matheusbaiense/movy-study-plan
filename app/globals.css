@@ -363,6 +363,21 @@ button:focus-visible,
   .woo-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(75, 26, 119, 0.12); }
   .woo-input::placeholder { color: var(--text-subtle); }
 
+  /* — Focus-visible rings (a11y: B-H2, A-C2, C-H1) — */
+  .movy-field-control:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent);
+    border-color: var(--accent);
+  }
+  .button-fill-primary-md:focus-visible,
+  .button-outline-secondary-md:focus-visible,
+  .button-blank-secondary-icon:focus-visible,
+  .button-menu-default-md:focus-visible,
+  .button-menu-default-selected-md:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
   /* — Label chips — */
   .ds-label {
     display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px;

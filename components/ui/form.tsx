@@ -30,20 +30,20 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   function Input({ style, ...rest }, ref) {
-    return <input ref={ref} style={{ ...controlStyle, ...style }} {...rest} />
+    return <input ref={ref} className="movy-field-control" style={{ ...controlStyle, ...style }} {...rest} />
   },
 )
 
 export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
   function Textarea({ style, ...rest }, ref) {
-    return <textarea ref={ref} style={{ ...controlStyle, resize: 'vertical', minHeight: 80, ...style }} {...rest} />
+    return <textarea ref={ref} className="movy-field-control" style={{ ...controlStyle, resize: 'vertical', minHeight: 80, ...style }} {...rest} />
   },
 )
 
 export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
   function Select({ style, children, ...rest }, ref) {
     return (
-      <select ref={ref} style={{ ...controlStyle, cursor: 'pointer', ...style }} {...rest}>
+      <select ref={ref} className="movy-field-control" style={{ ...controlStyle, cursor: 'pointer', ...style }} {...rest}>
         {children}
       </select>
     )
