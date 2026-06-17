@@ -195,7 +195,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref, isPubl
         <section style={totalsPanel}>
           <div>
             <span style={totalsLabel}>Investimento total estimado</span>
-            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block' }}>{money(planGrandTotal(data))}</strong>
+            <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block', fontVariantNumeric: 'tabular-nums' }}>{money(planGrandTotal(data))}</strong>
             <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
               {fxRate != null
                 ? <>≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span></>
@@ -279,7 +279,7 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: PURPLE, borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>Recomendada</span>
               )}
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>{money(planGrandTotal(col.plan))}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{money(planGrandTotal(col.plan))}</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>
               {fxRate != null ? `≈ ${formatBrl(planGrandTotal(col.plan) * fxRate)}` : <Skeleton width={60} height={14} />}
             </div>
@@ -428,7 +428,7 @@ function CostLine({ label, value, muted = false, accent = false }: { label: stri
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
       <span style={{ color: muted ? MUTED : 'rgba(28,18,51,0.78)' }}>{label}</span>
-      <span style={{ fontWeight: 700, color: accent ? ACCENT : muted ? MUTED : INK }}>{value}</span>
+      <span style={{ fontWeight: 700, color: accent ? ACCENT : muted ? MUTED : INK, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
     </div>
   )
 }
@@ -437,7 +437,7 @@ function TotalLine({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}>
       <span style={{ color: MUTED }}>{label}</span>
-      <strong style={{ color: INK }}>{value}</strong>
+      <strong style={{ color: INK, fontVariantNumeric: 'tabular-nums' }}>{value}</strong>
     </div>
   )
 }
@@ -461,7 +461,7 @@ const totalsLabel: React.CSSProperties = { display: 'block', fontSize: 11, textT
 const table: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: 13 }
 const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
 const tdLabel: React.CSSProperties = { padding: '9px 0', color: 'rgba(28,18,51,0.82)' }
-const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap' }
+const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }
 const planningCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const pill: React.CSSProperties = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800 }
 const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 10, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }

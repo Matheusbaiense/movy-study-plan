@@ -35,7 +35,7 @@ export function MiniStat({ label, value, strong = false }: { label: string; valu
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline' }}>
       <span style={{ color: ink(0.52), fontSize: 12 }}>{label}</span>
-      <strong style={{ fontFamily: font.display, color: strong ? color.purple : t.text, fontSize: strong ? 16 : 13, letterSpacing: strong ? '-0.01em' : 0 }}>{value}</strong>
+      <strong style={{ fontFamily: font.display, color: strong ? color.purple : t.text, fontSize: strong ? 16 : 13, letterSpacing: strong ? '-0.01em' : 0, fontVariantNumeric: 'tabular-nums' }}>{value}</strong>
     </div>
   )
 }

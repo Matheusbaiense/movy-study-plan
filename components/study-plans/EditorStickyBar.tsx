@@ -82,6 +82,7 @@ function TotalChip({ label, value, brl, strong = false, clickable = false, activ
         display: 'flex',
         alignItems: 'center',
         gap: 4,
+        fontVariantNumeric: 'tabular-nums',
       }}>
         {value}
         {clickable && <span style={{ fontSize: 9, opacity: active ? 0.8 : 0.4 }}>{active ? '▲' : '▼'}</span>}

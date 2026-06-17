@@ -297,7 +297,7 @@ export function ProposalsList(props: Props) {
                           {meta.label}
                         </span>
                       </td>
-                      <td style={{ ...tdStyle, fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text)' }}>{it.totalLabel}</td>
+                      <td style={{ ...tdStyle, fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{it.totalLabel}</td>
                       <td style={tdStyle}>{expiryBadge(it)}</td>
                       <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-subtle)' }}>{it.updatedLabel}</td>
                       <td style={{ ...tdStyle, textAlign: 'right', whiteSpace: 'nowrap' }}>
