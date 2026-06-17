@@ -60,8 +60,16 @@ export function WikiForm({ departments, locale, mode = 'create', contentId, defa
   return (
     <form action={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {error && (
-        <div style={{ borderRadius: 10, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.22)', padding: '10px 14px', fontSize: 13, color: 'var(--color-danger, #c0392b)' }}>
-          {error}
+        <div style={{ borderRadius: 10, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.22)', padding: '10px 14px', fontSize: 13, color: 'var(--color-danger, #c0392b)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            aria-label="Dispensar erro"
+            style={{ border: 'none', background: 'transparent', color: 'inherit', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0, flexShrink: 0 }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
