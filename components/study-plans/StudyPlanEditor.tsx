@@ -804,5 +804,11 @@ const editorStyles = `
   .timeline-scale {
     margin-left: 160px;
   }
+  .sp-editor-sticky-bar { margin-top: 6px; }
+  .sp-editor-sticky-inner { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 12px; }
+  .sp-editor-sticky-totals { gap: 14px; flex-wrap: nowrap; overflow-x: auto; }
+  .sp-editor-sticky-actions { margin-left: 0; justify-content: space-between; gap: 8px; }
+  .sp-editor-sticky-actions > span { min-width: 0 !important; flex: 1; text-align: left !important; }
+  .sp-editor-sticky-link, .sp-editor-sticky-save { padding: 9px 14px; }
 }
 `
