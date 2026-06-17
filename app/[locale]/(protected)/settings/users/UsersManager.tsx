@@ -386,7 +386,8 @@ function AddUserForm({
         </Field>
         <Field label="Senha inicial">
           <Input
-            type="text"
+            type="password"
+            autoComplete="new-password"
             required
             minLength={8}
             value={password}
