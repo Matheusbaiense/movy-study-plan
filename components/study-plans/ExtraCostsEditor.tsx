@@ -6,6 +6,7 @@
 import { uid } from '@/lib/study-plans/defaults'
 import type { ExtraCost } from '@/lib/study-plans/types'
 import { dangerButton, ghostButton, input } from './editor-ui'
+import { Input, Select } from '@/components/ui/form'
 
 type ExtraCostCategory = ExtraCost['category']
 
@@ -29,14 +30,12 @@ export function ExtraCostsEditor({ extraCosts, onChange }: ExtraCostsEditorProps
       )}
       {extraCosts.map((extra) => (
         <div key={extra.id} style={{ display: 'grid', gridTemplateColumns: '1fr 140px 130px auto', gap: 10 }}>
-          <input
-            style={input}
+          <Input
             aria-label="Item"
             value={extra.item}
             onChange={(e) => onChange(extraCosts.map((item) => (item.id === extra.id ? { ...item, item: e.target.value } : item)))}
           />
-          <select
-            style={input}
+          <Select
             aria-label="Categoria"
             value={extra.category}
             onChange={(e) => onChange(extraCosts.map((item) => (item.id === extra.id ? { ...item, category: e.target.value as ExtraCostCategory } : item)))}
@@ -46,9 +45,9 @@ export function ExtraCostsEditor({ extraCosts, onChange }: ExtraCostsEditorProps
             <option value="admin">Admin</option>
             <option value="medical">Médico</option>
             <option value="other">Outro</option>
-          </select>
-          <input
-            style={{ ...input, textAlign: 'right' }}
+          </Select>
+          <Input
+            style={{ textAlign: 'right' }}
             aria-label="Valor"
             type="number"
             step="0.01"

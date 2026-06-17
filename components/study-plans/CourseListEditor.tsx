@@ -27,6 +27,7 @@ import type { CourseType, ElicosModule, StudentLocation, StudyCourse, Timetable 
 import type { PriceSnapshot } from '@/lib/portfolio/types'
 import { CoursePortfolioPicker } from './CoursePortfolioPicker'
 import { Field, NumberInput, dangerButton, ghostButton, grid2, input, pill } from './editor-ui'
+import { Input, Select } from '@/components/ui/form'
 
 const timetableLabels: Record<Timetable, string> = {
   Manha: 'Manhã',
@@ -154,11 +155,11 @@ export function CourseListEditor({ courses, studentLocation, nationality, onCour
             <span style={{ ...pill, background: `${COURSE_TYPES[course.type].color}18`, color: COURSE_TYPES[course.type].color }}>
               #{courseIndex + 1} {COURSE_TYPES[course.type].label}
             </span>
-            <select style={{ ...input, width: 220 }} value={course.type} onChange={(e) => updateCourse(course.id, { ...createCourse(e.target.value as CourseType), id: course.id })}>
+            <Select style={{ width: 220 }} value={course.type} onChange={(e) => updateCourse(course.id, { ...createCourse(e.target.value as CourseType), id: course.id })}>
               <option value="elicos">ELICOS</option>
               <option value="vet">VET</option>
               <option value="he">Higher Ed</option>
-            </select>
+            </Select>
             <div style={{ width: 280 }}>
               <CoursePortfolioPicker
                 nationality={nationality}
@@ -175,15 +176,15 @@ export function CourseListEditor({ courses, studentLocation, nationality, onCour
           <div style={{ display: 'grid', gap: 16 }}>
             {/* Bloco 1: Dados Básicos */}
             <div style={grid2}>
-              <Field label="Escola / provedor"><input style={input} value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
-              <Field label="Curso"><input style={input} value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
+              <Field label="Escola / provedor"><Input value={course.provider} onChange={(e) => updateCourse(course.id, { provider: e.target.value })} /></Field>
+              <Field label="Curso"><Input value={course.name} onChange={(e) => updateCourse(course.id, { name: e.target.value })} /></Field>
               <Field label={course.type === 'elicos' ? 'Data de início (segunda-feira)' : 'Data de início'}>
-                <input style={input} type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
+                <Input type="date" value={course.start} onChange={(e) => setCourseStart(course, e.target.value)} />
               </Field>
               <Field label="Turno">
-                <select style={input} value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
+                <Select value={course.timetable} onChange={(e) => updateCourse(course.id, { timetable: e.target.value })}>
                   {(['Manha', 'Tarde', 'Noite'] as Timetable[]).map((tt) => <option key={tt} value={tt}>{timetableLabels[tt]}</option>)}
-                </select>
+                </Select>
               </Field>
             </div>
 
@@ -223,14 +224,13 @@ export function CourseListEditor({ courses, studentLocation, nationality, onCour
                   </Field>
                   {course.type === 'vet' && (
                     <Field label="Cobrar material da escola?">
-                      <select
-                        style={input}
+                      <Select
                         value={course.hasMaterial ? 'yes' : 'no'}
                         onChange={(e) => updateCourse(course.id, { hasMaterial: e.target.value === 'yes' })}
                       >
                         <option value="no">Não</option>
                         <option value="yes">Sim, no Tuition</option>
-                      </select>
+                      </Select>
                     </Field>
                   )}
                 </div>
@@ -332,9 +332,9 @@ function ModuleEditor({
       <div style={{ display: 'grid', gap: 8 }}>
         {modules.map((m) => (
           <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 130px 110px auto', gap: 8 }}>
-            <select style={input} value={m.name} onChange={(e) => update(m.id, { name: e.target.value })}>
+            <Select value={m.name} onChange={(e) => update(m.id, { name: e.target.value })}>
               {ELICOS_MODULE_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
+            </Select>
             <NumberInput value={m.ratePerWeek} onChange={(value) => update(m.id, { ratePerWeek: value })} />
             <NumberInput value={m.weeks} onChange={(value) => update(m.id, { weeks: Math.max(0, Math.round(value)) })} />
             <button type="button" style={dangerButton} onClick={() => onChange(modules.filter((x) => x.id !== m.id))}>x</button>

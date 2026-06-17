@@ -42,6 +42,7 @@ import { EditorWizardNav } from './EditorWizardNav'
 import { VersionHistory } from './VersionHistory'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
+import { Input, Select } from '@/components/ui/form'
 import { color, ink, font, t } from '@/lib/ui/theme'
 import { Drawer } from '@/components/ui/Drawer'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -198,13 +199,13 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         <Section title="Cliente">
           <div style={grid2}>
             <Field label="Nome do estudante ou casal">
-              <input style={input} value={plan.student} onChange={(e) => patchPlan({ student: e.target.value })} />
+              <Input value={plan.student} onChange={(e) => patchPlan({ student: e.target.value })} />
             </Field>
             <Field label="E-mail">
-              <input style={input} type="email" value={plan.email} onChange={(e) => patchPlan({ email: e.target.value })} />
+              <Input type="email" value={plan.email} onChange={(e) => patchPlan({ email: e.target.value })} />
             </Field>
             <Field label="Telefone">
-              <input style={input} value={plan.phone} onChange={(e) => patchPlan({ phone: e.target.value })} />
+              <Input value={plan.phone} onChange={(e) => patchPlan({ phone: e.target.value })} />
             </Field>
           </div>
         </Section>
@@ -214,8 +215,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
         <Section title="Preferências">
           <div style={grid2}>
             <Field label="Tipo de visto / aplicante">
-              <select
-                style={input}
+              <Select
                 value={plan.applicantType}
                 onChange={(e) => {
                   const applicantType = e.target.value as ApplicantType
@@ -223,19 +223,19 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
                 }}
               >
                 {applicantTypes.map((type) => <option key={type}>{type}</option>)}
-              </select>
+              </Select>
             </Field>
             <Field label="Situação do estudante">
-              <select style={input} value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
+              <Select value={plan.studentLocation ?? 'offshore'} onChange={(e) => patchPlan({ studentLocation: e.target.value as StudentLocation })}>
                 <option value="offshore">Offshore (fora da Austrália)</option>
                 <option value="onshore">Onshore (na Austrália)</option>
-              </select>
+              </Select>
             </Field>
             <Field label="Vencimento do visto atual">
-              <input style={input} type="date" value={plan.currentVisaExpiry} onChange={(e) => patchPlan({ currentVisaExpiry: e.target.value })} />
+              <Input type="date" value={plan.currentVisaExpiry} onChange={(e) => patchPlan({ currentVisaExpiry: e.target.value })} />
             </Field>
             <Field label="Consultor">
-              <input style={input} value={plan.consultant} onChange={(e) => patchPlan({ consultant: e.target.value })} />
+              <Input value={plan.consultant} onChange={(e) => patchPlan({ consultant: e.target.value })} />
             </Field>
           </div>
         </Section>
@@ -277,9 +277,9 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
                       )}
                       <Field label="Parcelas"><NumberInput value={course.paymentParts} onChange={(value) => updateCourse(course.id, { paymentParts: value })} /></Field>
                       <Field label="Cadência das parcelas">
-                        <select style={input} value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
+                        <Select value={course.paymentCadenceDays ?? 30} onChange={(e) => updateCourse(course.id, { paymentCadenceDays: Number(e.target.value) })}>
                           {PAYMENT_CADENCES.map((c) => <option key={c.days} value={c.days}>{c.label}</option>)}
-                        </select>
+                        </Select>
                       </Field>
                     </div>
                   )}
