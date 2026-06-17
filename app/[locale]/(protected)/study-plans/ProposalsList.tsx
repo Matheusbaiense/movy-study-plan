@@ -101,6 +101,13 @@ export function ProposalsList(props: Props) {
   // [A-H6] Confirm modal state
   const [confirm, setConfirm] = useState<ConfirmState>(CONFIRM_CLOSED)
 
+  // Auto-dismiss flash after 4 s.
+  useEffect(() => {
+    if (!flash) return
+    const t = setTimeout(() => setFlash(null), 4000)
+    return () => clearTimeout(t)
+  }, [flash])
+
   // Clear stale selections whenever the rendered set changes (filter/page nav).
   const idsKey = items.map((i) => i.id).join(',')
   useEffect(() => {
@@ -200,14 +207,24 @@ export function ProposalsList(props: Props) {
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 180 }}>
-          <Search size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+          <Search size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)', pointerEvents: 'none' }} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por estudante ou título…"
             aria-label="Buscar propostas"
-            style={{ ...inputStyle, paddingLeft: 32, width: '100%' }}
+            style={{ ...inputStyle, paddingLeft: 32, paddingRight: search ? 28 : undefined, width: '100%' }}
           />
+          {search && (
+            <button
+              type="button"
+              aria-label="Limpar busca"
+              onClick={() => setSearch('')}
+              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-subtle)', padding: 2, display: 'flex', alignItems: 'center' }}
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
         <select aria-label="Filtrar por status" value={statusFilter} onChange={(e) => setParams({ status: e.target.value || null })} style={inputStyle}>
           <option value="">Todos os status</option>
@@ -299,7 +316,7 @@ export function ProposalsList(props: Props) {
                       </td>
                       <td style={{ ...tdStyle, fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{it.totalLabel}</td>
                       <td style={tdStyle}>{expiryBadge(it)}</td>
-                      <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-subtle)' }}>{it.updatedLabel}</td>
+                      <td style={{ ...tdStyle, fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)' }}>{it.updatedLabel}</td>
                       <td style={{ ...tdStyle, textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {/* [A-C2] icon buttons: use className="button-blank-secondary-icon" for visible focus rings */}
                         <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
