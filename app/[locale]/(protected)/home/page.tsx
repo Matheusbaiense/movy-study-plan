@@ -1,8 +1,10 @@
+import type React from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getUser } from '@/lib/auth/get-user'
 import { color, font, t } from '@/lib/ui/theme'
 import { createStudyPlan } from '../study-plans/actions'
+import { Button } from '@/components/ui/Button'
 
 interface Props {
   params: Promise<{ locale: string }>
@@ -65,9 +67,9 @@ export default async function HomePage({ params }: Props) {
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
               <form action={createStudyPlan.bind(null, locale)}>
-                <button className="movy-btn-primary" style={solidBtn(color.orange)}>
+                <Button type="submit" variant="primary">
                   {isEn ? 'New proposal' : 'Nova proposta'}<ArrowRight size={16} strokeWidth={2.5} aria-hidden />
-                </button>
+                </Button>
               </form>
               <Link href={`/${locale}/study-plans`} prefetch={false} style={ghostBtn}>{isEn ? 'View all' : 'Ver todas'}</Link>
             </div>
@@ -114,14 +116,6 @@ export default async function HomePage({ params }: Props) {
 }
 
 
-
-function solidBtn(bg: string): React.CSSProperties {
-  return {
-    display: 'inline-flex', alignItems: 'center', gap: 9, border: 0, borderRadius: 10,
-    padding: '12px 20px', background: bg, color: '#fff', fontWeight: 700, fontSize: 14,
-    cursor: 'pointer', fontFamily: font.ui,
-  }
-}
 
 const ghostBtn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', borderRadius: 10, padding: '12px 18px',
