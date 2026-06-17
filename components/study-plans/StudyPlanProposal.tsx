@@ -23,6 +23,8 @@ import {
   planUpfrontSchools,
   planVisaWeeks,
 } from '@/lib/study-plans/calculations'
+import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 import type { StudyCourse, StudyPlanData } from '@/lib/study-plans/types'
 
 interface Props {
@@ -30,6 +32,7 @@ interface Props {
   reference: string
   updatedAt: string | null
   backHref: string
+  isPublic?: boolean
 }
 
 const INK = '#2A1153'
@@ -47,7 +50,7 @@ const CATEGORY_LABEL: Record<StudyPlanData['extraCosts'][number]['category'], st
   other: 'Outro',
 }
 
-export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Props) {
+export function StudyPlanProposal({ data, reference, updatedAt, backHref, isPublic = false }: Props) {
   const schedule = useMemo(() => buildSchedule(data), [data])
   const visa = useMemo(() => planNewVisaDate(data), [data])
   const issued = updatedAt ? new Date(updatedAt) : new Date()
@@ -76,14 +79,16 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
       <style>{printStyles}</style>
 
-      <div className="proposal-toolbar" style={toolbar}>
-        <Link href={backHref} prefetch={false} style={ghostButton}>← Voltar ao editor</Link>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={() => window.print()} style={primaryButton}>
-            Salvar PDF / Imprimir
-          </button>
+      {!isPublic && (
+        <div className="proposal-toolbar" style={toolbar}>
+          <Link href={backHref} prefetch={false} className="button-outline-secondary-md" style={ghostButton}>← Voltar ao editor</Link>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button variant="primary" type="button" onClick={() => window.print()}>
+              Salvar PDF / Imprimir
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <article id="movy-proposal" style={page}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
@@ -142,13 +147,17 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                       <span style={categoryTag}>{CATEGORY_LABEL[extra.category]}</span>
                     </td>
                     <td style={tdAmount}>{money(extra.amount)}</td>
-                    {fxRate && <td style={{ ...tdAmount, color: PURPLE, fontWeight: 700 }}>{formatBrl(extra.amount * fxRate)}</td>}
+                    <td style={{ ...tdAmount, color: PURPLE, fontWeight: 700 }}>
+                      {fxRate != null ? formatBrl(extra.amount * fxRate) : <Skeleton width={60} height={14} />}
+                    </td>
                   </tr>
                 ))}
                 <tr>
                   <td style={{ ...tdLabel, fontWeight: 800, color: INK }}>Subtotal adicionais</td>
                   <td style={{ ...tdAmount, fontWeight: 800, color: INK }}>{money(planExtrasTotal(data))}</td>
-                  {fxRate && <td style={{ ...tdAmount, fontWeight: 800, color: PURPLE }}>{formatBrl(planExtrasTotal(data) * fxRate)}</td>}
+                  <td style={{ ...tdAmount, fontWeight: 800, color: PURPLE }}>
+                    {fxRate != null ? formatBrl(planExtrasTotal(data) * fxRate) : <Skeleton width={60} height={14} />}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -164,7 +173,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                   <th style={th}>Parcela</th>
                   <th style={{ ...th, textAlign: 'left' }}>Vencimento</th>
                   <th style={{ ...th, textAlign: 'right' }}>Valor (AUD)</th>
-                  {fxRate && <th style={{ ...th, textAlign: 'right' }}>Valor (BRL)</th>}
+                  <th style={{ ...th, textAlign: 'right' }}>Valor (BRL)</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +182,9 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
                     <td style={tdLabel}>{payment.item}</td>
                     <td style={{ ...tdLabel, color: MUTED }}>{payment.due || '—'}</td>
                     <td style={tdAmount}>{money(payment.amount)}</td>
-                    {fxRate && <td style={{ ...tdAmount, color: PURPLE }}>{formatBrl(payment.amount * fxRate)}</td>}
+                    <td style={{ ...tdAmount, color: PURPLE }}>
+                      {fxRate != null ? formatBrl(payment.amount * fxRate) : <Skeleton width={60} height={14} />}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -185,11 +196,11 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
           <div>
             <span style={totalsLabel}>Investimento total estimado</span>
             <strong style={{ fontSize: 30, color: INK, letterSpacing: '-0.03em', display: 'block' }}>{money(planGrandTotal(data))}</strong>
-            {fxRate && (
-              <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
-                ≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span>
-              </div>
-            )}
+            <div style={{ marginTop: 4, fontSize: 15, fontWeight: 800, color: PURPLE }}>
+              {fxRate != null
+                ? <>≈ {formatBrl(planGrandTotal(data) * fxRate)} <span style={{ fontWeight: 600, color: MUTED, fontSize: 11 }}>(referência)</span></>
+                : <Skeleton width={100} height={18} />}
+            </div>
           </div>
           <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
             <TotalLine label="Pagamento no fechamento" value={money(planUpfrontSchools(data) + planExtrasTotal(data))} />
@@ -222,7 +233,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref }: Prop
 
 function SummaryStrip({ data, showHolidays }: { data: StudyPlanData; showHolidays: boolean }) {
   return (
-    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, margin: '6px 0 24px' }}>
+    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, margin: '6px 0 24px' }}>
       <Stat label="Semanas de estudo" value={`${planStudyWeeks(data)}`} />
       {showHolidays
         ? <Stat label="Semanas de férias" value={`${planHolidayWeeks(data)}`} />
@@ -249,7 +260,7 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
   return (
     <>
       <SectionTitle>Opções da proposta</SectionTitle>
-      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 12, marginBottom: 8 }}>
+      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(220px, 1fr))`, gap: 12, marginBottom: 8 }}>
         {columns.map((col) => (
           <div
             key={col.key}
@@ -269,7 +280,9 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
               )}
             </div>
             <div style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>{money(planGrandTotal(col.plan))}</div>
-            {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(planGrandTotal(col.plan) * fxRate)}</div>}
+            <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>
+              {fxRate != null ? `≈ ${formatBrl(planGrandTotal(col.plan) * fxRate)}` : <Skeleton width={60} height={14} />}
+            </div>
             <div style={{ display: 'grid', gap: 4, borderTop: `1px solid ${HAIR}`, paddingTop: 8 }}>
               <CostLine label="Fechamento" value={money(planUpfrontSchools(col.plan) + planExtrasTotal(col.plan))} />
               <CostLine label="Saldo a parcelar" value={money(planInstallmentBalance(col.plan))} muted />
@@ -364,7 +377,9 @@ function CourseBlock({ course, index, fxRate }: { course: StudyCourse; index: nu
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: 11, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total do curso</span>
           <div style={{ fontSize: 18, fontWeight: 800, color: INK }}>{money(courseTotal(course))}</div>
-          {fxRate && <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE }}>≈ {formatBrl(courseTotal(course) * fxRate)}</div>}
+          <div style={{ fontSize: 12, fontWeight: 700, color: PURPLE, marginTop: 2 }}>
+            {fxRate != null ? `≈ ${formatBrl(courseTotal(course) * fxRate)}` : <Skeleton width={60} height={14} />}
+          </div>
         </div>
       </div>
 
