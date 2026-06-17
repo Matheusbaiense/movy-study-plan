@@ -10,13 +10,16 @@ import type { Institution, Course, CoursePriceVersion, PricingRuleRow } from '@/
 import {
   createCourseAction, updateCourseAction, toggleCourseActiveAction, archiveCourseAction,
   createPriceVersionAction, createPricingRuleAction, togglePricingRuleAction, deletePricingRuleAction,
-  type CourseInput, type PriceVersionInput, type PricingRuleInput,
+  updateInstitutionAction, archiveInstitutionAction,
+  type CourseInput, type PriceVersionInput, type PricingRuleInput, type InstitutionInput,
 } from '@/app/[locale]/(protected)/portfolio/actions'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { Field, Input, Select, Textarea } from '@/components/ui/form'
+import { InstitutionModal } from './InstitutionModal'
 
 interface Props {
   institution: Institution
@@ -44,10 +47,55 @@ function fmtDate(iso: string | null) {
 
 export function InstitutionDetail({ institution, courses: initialCourses, priceVersionsByCourse: initialPrices, rules: initialRules }: Props) {
   const params = useParams()
+  const router = useRouter()
   const locale = (params.locale as string) || 'pt'
 
   const [tab, setTab] = useState<Tab>('courses')
   const [error, setError] = useState<string | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
+  const [confirmArchive, setConfirmArchive] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  function handleEdit(input: InstitutionInput) {
+    startTransition(async () => {
+      try {
+        await updateInstitutionAction(institution.id, input)
+        setShowEdit(false)
+        router.refresh()
+      } catch (e) {
+        setShowEdit(false)
+        setError(e instanceof Error ? e.message : 'Erro ao salvar escola')
+      }
+    })
+  }
+
+  function handleArchive() {
+    startTransition(async () => {
+      try {
+        await archiveInstitutionAction(institution.id)
+        router.push(`/${locale}/portfolio`)
+      } catch (e) {
+        setConfirmArchive(false)
+        setError(e instanceof Error ? e.message : 'Erro ao arquivar escola')
+      }
+    })
+  }
+
+  const priceBadge = institution.prices_valid_until ? (() => {
+    const daysLeft = Math.ceil((new Date(institution.prices_valid_until!).getTime() - Date.now()) / 86400000)
+    const expired = daysLeft <= 0
+    const bg = expired ? 'rgba(210,59,43,0.12)' : 'rgba(217,119,6,0.12)'
+    const fg = expired ? '#D23B2B' : '#92400E'
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700,
+        padding: '4px 10px', borderRadius: 999, background: bg, color: fg,
+        border: `1px solid ${expired ? 'rgba(210,59,43,0.25)' : 'rgba(217,119,6,0.25)'}`, whiteSpace: 'nowrap',
+      }}>
+        {expired ? 'Preços vencidos' : `Preços vencem em ${daysLeft}d`}
+      </span>
+    )
+  })() : null
 
   return (
     <div style={{ padding: '24px 32px', maxWidth: 1040, margin: '0 auto' }}>
@@ -62,29 +110,17 @@ export function InstitutionDetail({ institution, courses: initialCourses, priceV
           institution.city ? `${institution.city}, ${institution.country}` : institution.country,
           institution.website ? institution.website.replace(/^https?:\/\//, '') : null,
         ].filter(Boolean).join(' · ') || undefined}
-        actions={institution.prices_valid_until ? (() => {
-          const daysLeft = Math.ceil((new Date(institution.prices_valid_until!).getTime() - Date.now()) / 86400000)
-          const expired = daysLeft <= 0
-          const bg = expired ? 'rgba(210,59,43,0.12)' : 'rgba(217,119,6,0.12)'
-          const fg = expired ? '#D23B2B' : '#92400E'
-          return (
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              fontSize: 11,
-              fontWeight: 700,
-              padding: '4px 10px',
-              borderRadius: 999,
-              background: bg,
-              color: fg,
-              border: `1px solid ${expired ? 'rgba(210,59,43,0.25)' : 'rgba(217,119,6,0.25)'}`,
-              whiteSpace: 'nowrap',
-            }}>
-              {expired ? 'Preços vencidos' : `Preços vencem em ${daysLeft}d`}
-            </span>
-          )
-        })() : undefined}
+        actions={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {priceBadge}
+            <Button type="button" variant="secondary" onClick={() => setShowEdit(true)} disabled={isPending}>
+              Editar
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => setConfirmArchive(true)} disabled={isPending}>
+              <Archive size={14} /> Arquivar
+            </Button>
+          </div>
+        }
       />
 
       {/* Error */}
@@ -130,6 +166,23 @@ export function InstitutionDetail({ institution, courses: initialCourses, priceV
           onError={setError}
         />
       )}
+
+      <InstitutionModal
+        open={showEdit}
+        initial={institution}
+        isPending={isPending}
+        onSave={handleEdit}
+        onClose={() => setShowEdit(false)}
+      />
+      <ConfirmModal
+        open={confirmArchive}
+        onClose={() => setConfirmArchive(false)}
+        onConfirm={handleArchive}
+        pending={isPending}
+        title="Arquivar escola"
+        message={`Arquivar "${institution.name}"? Ela deixa de aparecer no portfólio. Os cursos e preços são preservados.`}
+        confirmLabel="Arquivar"
+      />
     </div>
   )
 }
