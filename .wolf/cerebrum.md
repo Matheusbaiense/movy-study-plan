@@ -8,6 +8,14 @@
 
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
+- **GRIFO = nome do produto white-label VENDÁVEL (2026-06-17; owner corrigiu "Grivo"→"Grifo").** Grifo
+  = hub Movy (Next.js, a "cara"/porta de entrada) + **Woofed como braço de CRM incluído** (Rails,
+  rebrandado). **Chatwoot é serviço à parte e JÁ se comunica com o Woofed** — fora do escopo das
+  primeiras conexões. O owner aceita **reescrever o hub por inteiro** para compatibilidade total com o
+  Woofed (já vem fazendo há versões). WHITE-LABEL FIRST e WOOFED-SHAPED FIRST continuam valendo.
+  ATENÇÃO: Woofed OSS é single-account — vender white-label multi-tenant exige decidir tenancy
+  (instância por cliente vs multi-tenant). Fase atual: desenhar/iniciar primeiras conexões hub↔Woofed
+  (NÃO merge literal de codebase: Rails vs Next.js).
 - **WHITE-LABEL FIRST (regra-mãe — aplicar em TODA decisão técnica).** Owner directive (2026-06-15):
   every technical choice — schema, RLS, API, UI, naming, libs, config, integrations — must assume Movy
   becomes a **white-label / multi-agency SaaS** later. Tie-breaker: always pick the option that makes
