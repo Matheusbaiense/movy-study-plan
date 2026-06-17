@@ -37,6 +37,7 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [confirmingRestore, setConfirmingRestore] = useState<string | null>(null)
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [saveLabel, setSaveLabel] = useState('')
   const [showSaveForm, setShowSaveForm] = useState(false)
   const labelRef = useRef<HTMLInputElement>(null)
@@ -68,7 +69,14 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
   function handleRestore(versionId: string) {
     if (confirmingRestore !== versionId) {
       setConfirmingRestore(versionId)
+      // Auto-clear the confirm state after 4 s if user doesn't confirm.
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
+      confirmTimerRef.current = setTimeout(() => setConfirmingRestore(null), 4000)
       return
+    }
+    if (confirmTimerRef.current) {
+      clearTimeout(confirmTimerRef.current)
+      confirmTimerRef.current = null
     }
     startTransition(async () => {
       try {
