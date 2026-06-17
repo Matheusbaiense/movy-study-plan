@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { color, ink, font, t } from '@/lib/ui/theme'
 
 const round2 = (n: number) => Math.round(n * 100) / 100
+const FX_TIMEOUT_MS = 8000
 
 export function FxConverter() {
   const [rate, setRate] = useState<number | null>(null)
@@ -12,23 +13,36 @@ export function FxConverter() {
   const [aud, setAud] = useState(1000)
   const [brl, setBrl] = useState(0)
   const [failed, setFailed] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/fx', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((j) => {
-        if (typeof j.rate === 'number' && j.rate > 0) {
-          setRate(j.rate)
-          setSource(j.source ?? null)
-          setAsOf(j.asOf ?? null)
-          setBrl(round2(aud * j.rate))
-        } else {
-          setFailed(true)
-        }
-      })
-      .catch(() => setFailed(true))
+  // Load (or retry) the live rate. Aborts after a timeout so a hung request
+  // surfaces as a retryable error instead of an indefinite "Carregando…".
+  const load = useCallback(async () => {
+    setLoading(true)
+    setFailed(false)
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), FX_TIMEOUT_MS)
+    try {
+      const r = await fetch('/api/fx', { cache: 'no-store', signal: controller.signal })
+      const j = await r.json()
+      if (typeof j.rate === 'number' && j.rate > 0) {
+        setRate(j.rate)
+        setSource(j.source ?? null)
+        setAsOf(j.asOf ?? null)
+        setBrl((prev) => (prev === 0 ? round2(aud * j.rate) : prev))
+      } else {
+        setFailed(true)
+      }
+    } catch {
+      setFailed(true)
+    } finally {
+      clearTimeout(timer)
+      setLoading(false)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => { load() }, [load])
 
   function onAud(v: number) {
     setAud(v)
@@ -59,7 +73,19 @@ export function FxConverter() {
         {rate
           ? <>Convertido pela taxa{source ? ` ${source}` : ''}{stamp ? ` · ${stamp} (Perth)` : ''}. É a mesma taxa usada nas propostas e na calculadora.</>
           : failed
-            ? <span style={{ color: color.red }}>Não foi possível obter a cotação agora. Tente novamente em instantes.</span>
+            ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{ color: color.red }}>Não foi possível obter a cotação agora.</span>
+                <button
+                  type="button"
+                  onClick={load}
+                  disabled={loading}
+                  style={{ border: `1px solid ${ink(0.2)}`, borderRadius: 8, padding: '4px 10px', background: t.surface, color: t.text, fontFamily: font.ui, fontSize: 11, fontWeight: 700, cursor: loading ? 'wait' : 'pointer' }}
+                >
+                  {loading ? 'Tentando…' : 'Tentar novamente'}
+                </button>
+              </span>
+            )
             : 'Carregando cotação…'}
       </div>
     </div>
