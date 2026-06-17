@@ -233,7 +233,7 @@ export function StudyPlanProposal({ data, reference, updatedAt, backHref, isPubl
 
 function SummaryStrip({ data, showHolidays }: { data: StudyPlanData; showHolidays: boolean }) {
   return (
-    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, margin: '6px 0 24px' }}>
+    <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: 12, margin: '6px 0 24px' }}>
       <Stat label="Semanas de estudo" value={`${planStudyWeeks(data)}`} />
       {showHolidays
         ? <Stat label="Semanas de férias" value={`${planHolidayWeeks(data)}`} />
@@ -260,7 +260,7 @@ function OptionsComparison({ data, fxRate }: { data: StudyPlanData; fxRate: numb
   return (
     <>
       <SectionTitle>Opções da proposta</SectionTitle>
-      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(220px, 1fr))`, gap: 12, marginBottom: 8 }}>
+      <div className="proposal-block" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 220px), 1fr))`, gap: 12, marginBottom: 8 }}>
         {columns.map((col) => (
           <div
             key={col.key}
@@ -443,8 +443,8 @@ function TotalLine({ label, value }: { label: string; value: string }) {
 }
 
 const page: React.CSSProperties = {
-  width: '210mm',
-  maxWidth: '100%',
+  width: '100%',
+  maxWidth: '210mm',
   background: '#fff',
   border: `1px solid ${HAIR}`,
   borderRadius: 14,
@@ -453,8 +453,8 @@ const page: React.CSSProperties = {
   fontFamily: 'Outfit, system-ui, sans-serif',
   color: INK,
 }
-const toolbar: React.CSSProperties = { width: '210mm', maxWidth: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }
-const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
+const toolbar: React.CSSProperties = { width: '100%', maxWidth: '210mm', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }
+const studentCard: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 16, background: 'rgba(75,26,119,0.05)', border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16, marginBottom: 20 }
 const courseCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const totalsPanel: React.CSSProperties = { marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: 'rgba(28,18,51,0.04)', border: `1px solid ${HAIR}`, borderRadius: 14, padding: '18px 20px' }
 const totalsLabel: React.CSSProperties = { display: 'block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: MUTED, fontWeight: 700, marginBottom: 4 }
