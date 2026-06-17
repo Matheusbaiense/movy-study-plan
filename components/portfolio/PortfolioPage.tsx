@@ -7,6 +7,11 @@ import { Building2, Plus, Search, BookOpen, Globe, MapPin } from 'lucide-react'
 import { font, ink, t } from '@/lib/ui/theme'
 import { createInstitutionAction, updateInstitutionAction, type InstitutionInput } from '@/app/[locale]/(protected)/portfolio/actions'
 import type { Institution } from '@/lib/portfolio/types'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Modal } from '@/components/ui/Modal'
+import { Field, Input, Select, Textarea } from '@/components/ui/form'
 
 interface Props {
   institutions: Institution[]
@@ -68,30 +73,25 @@ export function PortfolioPage({ institutions, courseCountMap }: Props) {
 
   return (
     <div style={{ padding: '28px 32px', maxWidth: 960, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontFamily: font.display, fontWeight: 800, color: t.text, margin: 0, letterSpacing: '-0.03em' }}>
-            Portfólio de Escolas
-          </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: ink(0.5) }}>
-            {institutions.length} instituição{institutions.length !== 1 ? 'es' : ''} · {Object.values(courseCountMap).reduce((a, b) => a + b, 0)} cursos ativos
-          </p>
-        </div>
-        <button type="button" onClick={openCreate} style={primaryBtn}>
-          <Plus size={14} strokeWidth={2.5} />
-          Nova escola
-        </button>
-      </div>
+      <PageHeader
+        title="Portfólio de Escolas"
+        description={`${institutions.length} instituição${institutions.length !== 1 ? 'es' : ''} · ${Object.values(courseCountMap).reduce((a, b) => a + b, 0)} cursos ativos`}
+        actions={
+          <Button variant="primary" type="button" onClick={openCreate}>
+            <Plus size={14} strokeWidth={2.5} />
+            Nova escola
+          </Button>
+        }
+      />
 
       {/* Search */}
       <div style={{ position: 'relative', marginBottom: 20, maxWidth: 360 }}>
         <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: ink(0.4) }} />
-        <input
+        <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar por nome, cidade ou país…"
-          style={{ ...inputStyle, paddingLeft: 32, width: '100%', boxSizing: 'border-box' }}
+          style={{ paddingLeft: 32 }}
         />
       </div>
 
@@ -104,10 +104,12 @@ export function PortfolioPage({ institutions, courseCountMap }: Props) {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: ink(0.4) }}>
-          <Building2 size={32} style={{ opacity: 0.3, marginBottom: 12 }} />
-          <p style={{ fontSize: 14 }}>{q ? 'Nenhuma escola encontrada.' : 'Nenhuma escola cadastrada ainda.'}</p>
-        </div>
+        <EmptyState
+          icon={Building2}
+          title={q ? 'Nenhuma escola encontrada.' : 'Nenhuma escola cadastrada ainda.'}
+          description={q ? 'Tente outro termo de busca.' : undefined}
+          action={!q ? <Button variant="primary" type="button" onClick={openCreate}><Plus size={14} />Nova escola</Button> : undefined}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
           {filtered.map((inst) => (
@@ -123,14 +125,13 @@ export function PortfolioPage({ institutions, courseCountMap }: Props) {
       )}
 
       {/* Modal */}
-      {showModal && (
-        <InstitutionModal
-          initial={editing}
-          isPending={isPending}
-          onSave={handleSave}
-          onClose={closeModal}
-        />
-      )}
+      <InstitutionModal
+        open={showModal}
+        initial={editing}
+        isPending={isPending}
+        onSave={handleSave}
+        onClose={closeModal}
+      />
     </div>
   )
 }
@@ -192,9 +193,9 @@ function InstitutionCard({ institution: inst, courseCount, locale, onEdit }: {
         >
           Gerenciar
         </Link>
-        <button type="button" onClick={onEdit} style={{ fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 7, border: '1px solid var(--border)', background: 'transparent', color: ink(0.6), cursor: 'pointer' }}>
+        <Button type="button" variant="secondary" onClick={onEdit}>
           Editar
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -211,7 +212,8 @@ function PriceExpiryBadge({ until }: { until: string }) {
   )
 }
 
-function InstitutionModal({ initial, isPending, onSave, onClose }: {
+function InstitutionModal({ open, initial, isPending, onSave, onClose }: {
+  open: boolean
   initial: Institution | null
   isPending: boolean
   onSave: (input: InstitutionInput) => void
@@ -230,94 +232,40 @@ function InstitutionModal({ initial, isPending, onSave, onClose }: {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, width: '100%', maxWidth: 440, overflow: 'hidden' }}>
-        <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 15, fontFamily: font.display, fontWeight: 800, color: t.text }}>{initial ? 'Editar escola' : 'Nova escola'}</span>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: ink(0.5), fontSize: 18, lineHeight: 1, padding: 2 }}>✕</button>
+    <Modal open={open} onClose={onClose} title={initial ? 'Editar escola' : 'Nova escola'} width={440}>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
+        <Field label="Nome *">
+          <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="English Path Brisbane" />
+        </Field>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <Field label="País (alpha-2)">
+            <Input value={country} onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))} placeholder="AU" maxLength={2} />
+          </Field>
+          <Field label="Cidade">
+            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Brisbane" />
+          </Field>
         </div>
-        <form onSubmit={handleSubmit} style={{ padding: '16px 20px 20px', display: 'grid', gap: 12 }}>
-          <Field label="Nome *">
-            <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="English Path Brisbane" style={inputStyle} />
-          </Field>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <Field label="País (alpha-2)">
-              <input value={country} onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))} placeholder="AU" maxLength={2} style={inputStyle} />
-            </Field>
-            <Field label="Cidade">
-              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Brisbane" style={inputStyle} />
-            </Field>
-          </div>
-          <Field label="Site">
-            <input value={website} onChange={(e) => setWebsite(e.target.value)} type="url" placeholder="https://..." style={inputStyle} />
-          </Field>
-          <Field label="Parceria">
-            <select value={partnership} onChange={(e) => setPartnership(e.target.value)} style={inputStyle}>
-              <option value="active">Ativo</option>
-              <option value="negotiating">Negociando</option>
-              <option value="inactive">Inativo</option>
-            </select>
-          </Field>
-          <Field label="Notas">
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Observações internas…" style={{ ...inputStyle, resize: 'vertical' }} />
-          </Field>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
-            <button type="button" onClick={onClose} style={cancelBtn}>Cancelar</button>
-            <button type="submit" disabled={isPending} style={primaryBtn}>
-              {isPending ? 'Salvando…' : initial ? 'Salvar' : 'Criar escola'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <Field label="Site">
+          <Input value={website} onChange={(e) => setWebsite(e.target.value)} type="url" placeholder="https://..." />
+        </Field>
+        <Field label="Parceria">
+          <Select value={partnership} onChange={(e) => setPartnership(e.target.value)}>
+            <option value="active">Ativo</option>
+            <option value="negotiating">Negociando</option>
+            <option value="inactive">Inativo</option>
+          </Select>
+        </Field>
+        <Field label="Notas">
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Observações internas…" />
+        </Field>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
+          <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="primary" loading={isPending}>
+            {initial ? 'Salvar' : 'Criar escola'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'grid', gap: 4 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: ink(0.55), textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
-      {children}
-    </label>
-  )
-}
-
-const inputStyle: React.CSSProperties = {
-  fontSize: 13,
-  padding: '7px 10px',
-  border: '1px solid var(--border)',
-  borderRadius: 8,
-  background: 'var(--surface)',
-  color: 'var(--text)',
-  fontFamily: 'Satoshi, Outfit, sans-serif',
-  outline: 'none',
-  width: '100%',
-  boxSizing: 'border-box',
-}
-
-const primaryBtn: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 6,
-  fontSize: 12,
-  fontWeight: 700,
-  padding: '7px 16px',
-  border: 'none',
-  borderRadius: 8,
-  background: '#F36B1C',
-  color: '#fff',
-  cursor: 'pointer',
-  fontFamily: 'Satoshi, Outfit, sans-serif',
-}
-
-const cancelBtn: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 600,
-  padding: '7px 14px',
-  border: '1px solid var(--border)',
-  borderRadius: 8,
-  background: 'transparent',
-  color: ink(0.6),
-  cursor: 'pointer',
-  fontFamily: 'Satoshi, Outfit, sans-serif',
-}
