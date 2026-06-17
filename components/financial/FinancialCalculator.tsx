@@ -10,6 +10,8 @@ import {
   type FinancialInput,
   type StudentLocation,
 } from '@/lib/financial/calculator'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { Button } from '@/components/ui/Button'
 
 const INK = '#2A1153'
 const PURPLE = '#4B1A77'
@@ -100,21 +102,23 @@ export function FinancialCalculator() {
 
       <div className="fc-form">
         <div className="fc-no-print fc-head">
-          <span className="movy-kicker">Comprovação · Visto de estudante</span>
-          <h1 className="fc-title">Capacidade financeira</h1>
-          <p className="fc-subtitle">Calculadora de proof of funds para o visto de estudante australiano, em AUD e BRL.</p>
+          <PageHeader
+            eyebrow="Comprovação · Visto de estudante"
+            title="Capacidade financeira"
+            description="Calculadora de proof of funds para o visto de estudante australiano, em AUD e BRL."
+          />
         </div>
 
         <Section title="Dados do estudante">
           <div className="fc-grid">
             <Field label="Estudante">
-              <input style={input} value={data.student} onChange={(event) => set('student', event.target.value)} />
+              <input className="movy-field-control" style={input} value={data.student} onChange={(event) => set('student', event.target.value)} />
             </Field>
             <Field label="Data estimada da aplicação">
-              <input style={input} type="date" value={data.applicationDate} onChange={(event) => set('applicationDate', event.target.value)} />
+              <input className="movy-field-control" style={input} type="date" value={data.applicationDate} onChange={(event) => set('applicationDate', event.target.value)} />
             </Field>
             <Field label="Localização na aplicação">
-              <select style={input} value={data.location} onChange={(event) => set('location', event.target.value as StudentLocation)}>
+              <select className="movy-field-control" style={input} value={data.location} onChange={(event) => set('location', event.target.value as StudentLocation)}>
                 <option value="offshore">Offshore</option>
                 <option value="onshore">Onshore</option>
               </select>
@@ -185,7 +189,7 @@ export function FinancialCalculator() {
 
       <aside className="fc-result">
         <div className="fc-no-print fc-actions">
-          <button type="button" onClick={() => window.print()} style={primaryButton}>Salvar PDF / Imprimir</button>
+          <Button variant="primary" type="button" onClick={() => window.print()}>Salvar PDF / Imprimir</Button>
         </div>
 
         <article id="fc-doc" style={docCard}>
@@ -267,6 +271,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function NumberInput({ value, onChange, step = '1', disabled = false }: { value: number; onChange: (value: number) => void; step?: string; disabled?: boolean }) {
   return (
     <input
+      className="movy-field-control"
       style={{ ...input, textAlign: 'right', background: disabled ? 'var(--surface-sunken)' : 'var(--surface)' }}
       type="number"
       step={step}
@@ -299,17 +304,6 @@ const input: React.CSSProperties = {
   color: 'var(--text)',
   background: 'var(--surface)',
   outline: 'none',
-}
-
-const primaryButton: React.CSSProperties = {
-  border: 0,
-  borderRadius: 10,
-  padding: '11px 18px',
-  background: INK,
-  color: '#fff',
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'Outfit, sans-serif',
 }
 
 const secondaryButton: React.CSSProperties = {
@@ -349,7 +343,7 @@ const styles = `
 .fc-constants { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .fc-constants div { display: grid; gap: 3px; padding: 11px 12px; border-radius: 10px; background: var(--surface-sunken); border: 1px solid var(--border); }
 .fc-constants span { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.fc-constants strong { color: var(--text); font-family: var(--font-display); font-size: 15px; }
+.fc-constants strong { color: var(--text); font-family: var(--font-display); font-size: 15px; font-variant-numeric: tabular-nums; }
 .fc-result { position: sticky; top: 20px; display: grid; gap: 14px; min-width: 0; }
 .fc-actions { display: flex; justify-content: flex-end; }
 .fc-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; color: ${INK}; }
@@ -360,7 +354,7 @@ const styles = `
 .fc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .fc-table th { text-align: right; padding: 8px 0; font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: ${MUTED}; border-bottom: 1px solid ${HAIR}; }
 .fc-table th:first-child { text-align: left; }
-.fc-table td { padding: 10px 0; color: rgba(28,18,51,0.82); text-align: right; border-bottom: 1px solid ${HAIR}; }
+.fc-table td { padding: 10px 0; color: rgba(28,18,51,0.82); text-align: right; border-bottom: 1px solid ${HAIR}; font-variant-numeric: tabular-nums; }
 .fc-table td:first-child { text-align: left; }
 .fc-table tbody td:nth-child(2) { font-weight: 700; color: ${INK}; }
 .fc-table tfoot td { border-top: 2px solid ${INK}; border-bottom: 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; color: ${INK}; padding-top: 12px; }
