@@ -1,7 +1,9 @@
 'use client'
 
+import type React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { color, ink, font, t } from '@/lib/ui/theme'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 interface Point { date: string; rate: number }
 
@@ -37,11 +39,21 @@ export function FxStats() {
       <span className="movy-kicker">1 AUD para BRL · estatísticas</span>
 
       {loading ? (
-        <div style={{ padding: '28px 0', color: ink(0.4), fontSize: 13 }}>Carregando estatísticas…</div>
+        /* Skeleton while fetching — matches the 2-column stats table shape */
+        <div style={{ marginTop: 16 }}>
+          <Skeleton height={12} width={200} style={{ marginBottom: 10 }} />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+              <Skeleton height={14} width={80} />
+              <Skeleton height={14} width={80} />
+              <Skeleton height={14} width={80} />
+            </div>
+          ))}
+        </div>
       ) : !s30 || !s90 ? (
         <div style={{ padding: '28px 0', color: ink(0.4), fontSize: 13 }}>Sem dados suficientes.</div>
       ) : (
-        <div className="grid-cols-1 lg:grid-cols-2" style={{ display: 'grid', gap: 22, marginTop: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, marginTop: 16 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
@@ -82,8 +94,8 @@ function Row({ label, a, b, colorA, colorB }: { label: string; a: string; b: str
   return (
     <tr style={{ borderTop: `1px solid ${color.line}` }}>
       <td style={{ padding: '12px 0', color: ink(0.6), fontWeight: 600 }}>{label}</td>
-      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorA ?? t.text }}>{a}</td>
-      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, color: colorB ?? t.text }}>{b}</td>
+      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: colorA ?? t.text }}>{a}</td>
+      <td style={{ padding: '12px 0', textAlign: 'right', fontFamily: font.display, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: colorB ?? t.text }}>{b}</td>
     </tr>
   )
 }
