@@ -3,6 +3,7 @@
 import { Printer } from 'lucide-react'
 import type { InvoicePrintData } from '@/lib/hr/types'
 import { formatAUD, formatDateAU, computeTotalCents } from '@/lib/hr/calculations'
+import { Button } from '@/components/ui/Button'
 
 const printStyles = `
 @media print {
@@ -29,21 +30,16 @@ export function TaxInvoice({ data, locale = 'en' }: TaxInvoiceProps) {
     <>
       <style>{printStyles}</style>
 
-      {/* Print button */}
+      {/* Print button — no-print chrome only */}
       <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24, gap: 12 }}>
-        <button
+        <Button
+          variant="primary"
           onClick={() => window.print()}
           aria-label={locale === 'pt' ? 'Imprimir / Salvar PDF' : 'Print / Save as PDF'}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: '#4B1A77', color: '#fff',
-            border: 'none', borderRadius: 8, padding: '10px 20px',
-            fontSize: 14, fontWeight: 600, cursor: 'pointer',
-          }}
         >
           <Printer size={16} aria-hidden="true" />
           {locale === 'pt' ? 'Imprimir / Salvar PDF' : 'Print / Save as PDF'}
-        </button>
+        </Button>
       </div>
 
       {/* Invoice paper */}

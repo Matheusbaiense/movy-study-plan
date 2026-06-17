@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { t, ink } from '@/lib/ui/theme'
+import { t } from '@/lib/ui/theme'
+import { Select } from '@/components/ui/form'
 
 interface InvoiceEmployeeFilterProps {
   employees: Array<{ id: string; full_name: string; email: string }>
@@ -28,14 +29,11 @@ export function InvoiceEmployeeFilter({ employees, currentEmployeeId, locale }: 
       <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, whiteSpace: 'nowrap' }}>
         {pt ? 'Funcionário:' : 'Employee:'}
       </label>
-      <select
+      <Select
         value={currentEmployeeId ?? ''}
         onChange={e => handleChange(e.target.value)}
-        style={{
-          padding: '6px 10px', borderRadius: 8, fontSize: 13,
-          border: `1px solid ${ink(0.14)}`, background: 'var(--surface)',
-          color: t.text, cursor: 'pointer', outline: 'none',
-        }}
+        style={{ width: 'auto' }}
+        aria-label={pt ? 'Filtrar por funcionário' : 'Filter by employee'}
       >
         <option value="">{pt ? 'Todos os funcionários' : 'All employees'}</option>
         {employees.map(emp => (
@@ -43,11 +41,12 @@ export function InvoiceEmployeeFilter({ employees, currentEmployeeId, locale }: 
             {emp.full_name || emp.email || emp.id.slice(0, 8)}
           </option>
         ))}
-      </select>
+      </Select>
       {currentEmployeeId && (
         <button
           onClick={() => handleChange('')}
           style={{ background: 'none', border: 'none', fontSize: 12, color: t.textMuted, cursor: 'pointer' }}
+          aria-label={pt ? 'Limpar filtro' : 'Clear filter'}
         >
           × {pt ? 'Limpar' : 'Clear'}
         </button>

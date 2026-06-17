@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { issueInvoiceAction } from '@/app/[locale]/(protected)/hr/actions'
+import { Button } from '@/components/ui/Button'
 
 interface IssueInvoiceButtonProps {
   invoiceId: string
@@ -35,17 +36,14 @@ export function IssueInvoiceButton({ invoiceId, locale }: IssueInvoiceButtonProp
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <button
+      <Button
+        variant="primary"
         onClick={handleIssue}
-        disabled={isPending}
-        style={{
-          padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-          background: isPending ? '#e5e7eb' : '#4B1A77', color: isPending ? '#6b7280' : '#fff',
-          border: 'none', cursor: isPending ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
-        }}
+        loading={isPending}
+        style={{ padding: '4px 10px', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}
       >
-        {isPending ? '...' : (locale === 'pt' ? 'Emitir →' : 'Issue →')}
-      </button>
+        {locale === 'pt' ? 'Emitir →' : 'Issue →'}
+      </Button>
       {error && <span style={{ fontSize: 10, color: '#dc2626' }}>{error}</span>}
     </div>
   )
