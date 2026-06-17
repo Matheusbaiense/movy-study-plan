@@ -409,7 +409,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function Detail({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div style={{ display: 'grid', gap: 3 }}>
-      <span style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.07em', color: MUTED, fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', color: MUTED, fontWeight: 700 }}>{label}</span>
       <span style={{ fontSize: strong ? 16 : 14, fontWeight: strong ? 800 : 600, color: INK }}>{value}</span>
     </div>
   )
@@ -418,7 +418,7 @@ function Detail({ label, value, strong = false }: { label: string; value: string
 function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
   return (
     <div style={{ background: accent ? INK : '#fff', border: `1px solid ${accent ? INK : HAIR}`, borderRadius: 12, padding: '12px 14px' }}>
-      <span style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent ? 'rgba(255,255,255,0.7)' : MUTED, fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent ? 'rgba(255,255,255,0.7)' : MUTED, fontWeight: 700 }}>{label}</span>
       <div style={{ fontSize: accent ? 17 : 20, fontWeight: 800, color: accent ? '#fff' : INK, letterSpacing: '-0.02em', marginTop: 4 }}>{value}</div>
     </div>
   )
@@ -459,13 +459,13 @@ const courseCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRad
 const totalsPanel: React.CSSProperties = { marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: 'rgba(28,18,51,0.04)', border: `1px solid ${HAIR}`, borderRadius: 14, padding: '18px 20px' }
 const totalsLabel: React.CSSProperties = { display: 'block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: MUTED, fontWeight: 700, marginBottom: 4 }
 const table: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: 13 }
-const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
+const th: React.CSSProperties = { textAlign: 'left', padding: '8px 0', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, borderBottom: `1px solid ${HAIR}` }
 const tdLabel: React.CSSProperties = { padding: '9px 0', color: 'rgba(28,18,51,0.82)' }
 const tdAmount: React.CSSProperties = { padding: '9px 0', textAlign: 'right', fontWeight: 700, color: INK, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }
 const planningCard: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 12, padding: 16 }
 const pill: React.CSSProperties = { borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 800 }
-const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 10, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
-const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 10.5, color: MUTED }
+const categoryTag: React.CSSProperties = { marginLeft: 8, fontSize: 11, fontWeight: 700, color: PURPLE, background: 'rgba(75,26,119,0.1)', borderRadius: 999, padding: '2px 7px' }
+const footer: React.CSSProperties = { marginTop: 28, paddingTop: 14, borderTop: `1px solid ${HAIR}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', fontSize: 11, color: MUTED }
 const primaryButton: React.CSSProperties = { border: 0, borderRadius: 10, padding: '11px 16px', background: INK, color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }
 const ghostButton: React.CSSProperties = { border: `1px solid ${HAIR}`, borderRadius: 10, padding: '10px 14px', background: '#fff', color: INK, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontSize: 13 }
 
