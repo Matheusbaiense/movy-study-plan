@@ -99,6 +99,68 @@ export async function deleteAdmissionAction(id: string): Promise<void> {
   revalidatePath(ADMISSIONS_PAGE, 'page')
 }
 
+const newSchoolSchema = z.object({ name: z.string().min(1, 'Nome obrigatório').max(200) })
+
+/**
+ * Create a brand-new school (institution) AND its admissions record in one step
+ * (editor+). Reuses an existing institution when the name already matches, so the
+ * Portfolio catalog stays the single source of truth for schools. RLS on
+ * `institutions` already allows editor+ inserts.
+ */
+export async function createSchoolWithAdmissionAction(name: string): Promise<{ id: string }> {
+  const parsed = newSchoolSchema.parse({ name })
+  const { supabase, profile: actor } = await requireEditor()
+  const cleanName = parsed.name.trim()
+
+  // Find an existing institution by name (case-insensitive); create it if absent.
+  const { data: existingInst } = await supabase
+    .from('institutions')
+    .select('id')
+    .ilike('name', cleanName)
+    .is('deleted_at', null)
+    .maybeSingle()
+
+  let institutionId = existingInst?.id
+  if (!institutionId) {
+    const { data: inst, error: instErr } = await supabase
+      .from('institutions')
+      .insert({ org_id: actor.org_id, name: cleanName, country: 'AU', source: 'admissions', created_by: actor.id, updated_by: actor.id })
+      .select('id')
+      .single()
+    if (instErr) throw new Error(instErr.message)
+    institutionId = inst.id
+    await logAuditWithClient(supabase, {
+      actorId: actor.id, actorEmail: actor.email, action: 'institution.created',
+      entityType: 'institution', entityId: institutionId, orgId: actor.org_id,
+      metadata: toJson({ name: cleanName, via: 'admissions' }),
+    })
+  }
+
+  // Reuse the admission if the institution already has one; otherwise create it.
+  const { data: existingAdm } = await supabase
+    .from('school_admissions')
+    .select('id')
+    .eq('institution_id', institutionId)
+    .is('deleted_at', null)
+    .maybeSingle()
+  if (existingAdm) return { id: existingAdm.id }
+
+  const { data: adm, error: admErr } = await supabase
+    .from('school_admissions')
+    .insert({ org_id: actor.org_id, institution_id: institutionId, created_by: actor.id, updated_by: actor.id })
+    .select('id')
+    .single()
+  if (admErr) throw new Error(admErr.message)
+
+  await logAuditWithClient(supabase, {
+    actorId: actor.id, actorEmail: actor.email, action: 'admission.created',
+    entityType: 'school_admission', entityId: adm.id, orgId: actor.org_id,
+    metadata: toJson({ institution_id: institutionId, created_school: !existingInst }),
+  })
+  revalidatePath(ADMISSIONS_PAGE, 'page')
+  return { id: adm.id }
+}
+
 const credentialSchema = z.object({
   admission_id: z.string().uuid(),
   login: z.string().max(200).optional(),

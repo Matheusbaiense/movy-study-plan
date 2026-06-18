@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Field, Select } from '@/components/ui/form'
 import { t, ink, font, color, radius } from '@/lib/ui/theme'
 import type { SchoolAdmissionView, Stream } from '@/lib/admissions/types'
-import { upsertAdmissionAction } from '@/app/[locale]/(protected)/admissions/actions'
+import { upsertAdmissionAction, createSchoolWithAdmissionAction } from '@/app/[locale]/(protected)/admissions/actions'
 
 const STREAM_LABEL: Record<Stream, string> = { english: 'English', vet: 'VET', he: 'Higher Ed' }
 
@@ -27,6 +27,7 @@ export function AdmissionsList({ locale, admissions, addableInstitutions, canEdi
   const router = useRouter()
   const [addOpen, setAddOpen] = useState(false)
   const [institutionId, setInstitutionId] = useState('')
+  const [newName, setNewName] = useState('')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -37,12 +38,17 @@ export function AdmissionsList({ locale, admissions, addableInstitutions, canEdi
   }, [admissions, q])
 
   function handleAdd() {
-    if (!institutionId) return
+    const typedName = newName.trim()
+    if (!institutionId && !typedName) return
     setError(null)
     startTransition(async () => {
       try {
-        const { id } = await upsertAdmissionAction({ institution_id: institutionId, streams: [], documents: [], contacts: [] })
+        const { id } = typedName
+          ? await createSchoolWithAdmissionAction(typedName)
+          : await upsertAdmissionAction({ institution_id: institutionId, streams: [], documents: [], contacts: [] })
         setAddOpen(false)
+        setNewName('')
+        setInstitutionId('')
         router.push(`/${locale}/admissions/${id}`)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao criar')
@@ -61,7 +67,7 @@ export function AdmissionsList({ locale, admissions, addableInstitutions, canEdi
             : 'Enrolment instructions, documents, portal and contacts for each partner school.'
         }
         actions={
-          canEdit && addableInstitutions.length > 0 ? (
+          canEdit ? (
             <Button variant="primary" onClick={() => setAddOpen(true)}>
               <Plus size={16} /> {locale === 'pt' ? 'Adicionar escola' : 'Add school'}
             </Button>
@@ -133,22 +139,42 @@ export function AdmissionsList({ locale, admissions, addableInstitutions, canEdi
       )}
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title={locale === 'pt' ? 'Adicionar escola' : 'Add school'} width={420}>
-        <Field label={locale === 'pt' ? 'Instituição (do Portfólio)' : 'Institution (from Portfolio)'}>
-          <Select value={institutionId} onChange={(e) => setInstitutionId(e.target.value)}>
-            <option value="">{locale === 'pt' ? 'Selecione…' : 'Select…'}</option>
-            {addableInstitutions.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            ))}
-          </Select>
+        {addableInstitutions.length > 0 && (
+          <Field label={locale === 'pt' ? 'Escola existente (do Portfólio)' : 'Existing school (from Portfolio)'}>
+            <Select value={institutionId} onChange={(e) => { setInstitutionId(e.target.value); if (e.target.value) setNewName('') }}>
+              <option value="">{locale === 'pt' ? 'Selecione…' : 'Select…'}</option>
+              {addableInstitutions.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0', color: t.textMuted, fontSize: 12, fontFamily: font.body }}>
+          {addableInstitutions.length > 0 && <><span style={{ flex: 1, height: 1, background: ink(0.1) }} /> {locale === 'pt' ? 'ou' : 'or'} <span style={{ flex: 1, height: 1, background: ink(0.1) }} /></>}
+        </div>
+
+        <Field label={locale === 'pt' ? 'Cadastrar escola nova' : 'Register a new school'}>
+          <input
+            className="movy-field-control"
+            value={newName}
+            onChange={(e) => { setNewName(e.target.value); if (e.target.value.trim()) setInstitutionId('') }}
+            placeholder={locale === 'pt' ? 'Nome da escola…' : 'School name…'}
+            style={{ width: '100%' }}
+          />
         </Field>
+        <p style={{ margin: '6px 0 0', fontSize: 11.5, color: t.textSubtle, fontFamily: font.body }}>
+          {locale === 'pt' ? 'Cria a escola no Portfólio e já abre a admissão.' : 'Creates the school in Portfolio and opens its admission.'}
+        </p>
+
         {error && <p style={{ color: color.red, fontSize: 13, margin: '8px 0 0' }}>{error}</p>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 18 }}>
           <Button variant="secondary" onClick={() => setAddOpen(false)}>
             {locale === 'pt' ? 'Cancelar' : 'Cancel'}
           </Button>
-          <Button variant="primary" onClick={handleAdd} loading={pending} disabled={!institutionId}>
+          <Button variant="primary" onClick={handleAdd} loading={pending} disabled={!institutionId && !newName.trim()}>
             {locale === 'pt' ? 'Criar' : 'Create'}
           </Button>
         </div>
