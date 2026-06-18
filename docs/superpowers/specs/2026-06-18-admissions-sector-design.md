@@ -68,7 +68,7 @@ Separate table = separate access boundary, and keeps the secret out of the bulk 
 | `admission_id` | uuid not null | FK `school_admissions(id) on delete cascade`, **unique** |
 | `login` | text | |
 | `password` | text | stored as-is (see §7 security note) |
-| `label` | text | optional, e.g. "FYMEPERTH portal" |
+| `label` | text | optional, e.g. "MovyPERTH portal" |
 | `created_by`/`updated_by`/timestamps | | |
 
 RLS:

@@ -249,17 +249,17 @@ for (const sheet of sheets) {
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
 `
-  if (data.login || data.password) {
-    body += `  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, ${q(data.login)}, ${q(data.password)})
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
-`
-  }
+  // Portal credentials are intentionally NOT seeded — editors add them in-app.
 }
+
+// Rebrand: the source spreadsheet refers to the agency as "FYME"; the product is "Movy".
+// Replace the agency name everywhere in the emitted prose (no credentials are seeded).
+body = body.replace(/fyme/gi, 'Movy')
 
 const sql = `-- 025_admissions_seed.sql — Seed of admissions instructions per school.
 -- Generated from "ADMISSIONS PER SCHOOL (2).xlsx" by scripts/parse-admissions-xlsx.mjs.
--- Idempotent: resolves/creates the institution, upserts the admissions record + credential.
+-- Agency name normalized FYME → Movy; portal credentials are NOT seeded.
+-- Idempotent: resolves/creates the institution, upserts the admissions record.
 do $$
 declare
   v_org  uuid := '${ORG}';

@@ -15,7 +15,7 @@ begin
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Academies Australasia', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Send the application by email to Language Links')
   on conflict (org_id, institution_id) where deleted_at is null do update set
@@ -29,7 +29,7 @@ Send the application by email to Language Links')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'ACMI', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, 'https://acmi.wa.edu.au/easy-apply.html', array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, 'https://acmi.wa.edu.au/easy-apply.html', array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 24 to 48 Hours')
   on conflict (org_id, institution_id) where deleted_at is null do update set
@@ -43,7 +43,7 @@ Academic Requirements may vary depending on each course, please check the course
     insert into public.institutions (org_id, name, country, source) values (v_org, 'AILFE', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"Financial Proof","tags":[]},{"label":"GTE - requested by school (mandatory)","tags":[]},{"label":"Send the application by email","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"Financial Proof","tags":[]},{"label":"GTE - requested by school (mandatory)","tags":[]},{"label":"Send the application by email","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Package: enrolments have to be done separately
 Offer letter signature must be the same as the passport, suggest student to come to the office or print, sign and scan the offer letter')
@@ -58,7 +58,7 @@ Offer letter signature must be the same as the passport, suggest student to come
     insert into public.institutions (org_id, name, country, source) values (v_org, 'AIWT', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GS - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"futurestudents@aiwt.edu.au"},{"name":"whatsapp assistance - 0452577565"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GS - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"futurestudents@aiwt.edu.au"},{"name":"whatsapp assistance - 0452577565"}]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Send the application by email
 Package: enrolments have to be done separately')
@@ -73,7 +73,7 @@ Package: enrolments have to be done separately')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'APSI', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Apolice OSHC current","tags":[]},{"label":"USI Number","tags":[]},{"label":"Curriculo","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]},{"label":"Family Form - requested by school (mandatory)","tags":["couple"]}]'::jsonb, '[{"email":"info@apsi.edu.au"},{"name":"Aliny"},{"name":"whatsapp - 470 324 106","email":"aliny.conceicio@apsi.edu.au"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Apolice OSHC current","tags":[]},{"label":"USI Number","tags":[]},{"label":"Curriculo","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]},{"label":"Family Form - requested by school (mandatory)","tags":["couple"]}]'::jsonb, '[{"email":"info@apsi.edu.au"},{"name":"Aliny"},{"name":"whatsapp - 470 324 106","email":"aliny.conceicio@apsi.edu.au"}]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
@@ -87,17 +87,14 @@ Academic Requirements may vary depending on each course, please check the course
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
   values (v_org, v_inst, 'DIRECT ENTRY (NO PACKAGE)', null, array['english']::text[], '[{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Award and Transcript","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"If couple ou family, all passports, visas, marriage certificate and birth certificate [original and translations]","tags":["visa","couple"]}]'::jsonb, '[{"name":"Admissions Manager","role":"admissions","email":"Marilia.fernandes@curtincollege.edu.au"},{"name":"Marketing Manager","role":"marketing","email":"Camila.Cuellar@curtincollege.edu.au"}]'::jsonb, 'Translations must be NAATI or made by sworn tranlastors
-Awards and Transcripts must be certified by FYME (original documents and translations)
-Passport must be certified by FYME
+Awards and Transcripts must be certified by Movy (original documents and translations)
+Passport must be certified by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 To get COE it is necessary send the OSHC policy')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, 'FYMEPERTH', 'Fyme@1234567890!')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- Curtin University → Curtin University
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('Curtin University') and deleted_at is null limit 1;
@@ -107,8 +104,8 @@ To get COE it is necessary send the OSHC policy')
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
   values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Award and Transcript","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"If couple ou family, all passports, visas, marriage certificate and birth certificate [original and translations]","tags":["visa","couple"]},{"label":"GTE","tags":[]},{"label":"Financial Form","tags":[]},{"label":"Please send all the documenttion to the Provider","tags":[]}]'::jsonb, '[]'::jsonb, 'The Application must be sent by the Provider
 Translations must be NAATI or made by sworn tranlastors
-Awards and Transcripts must be certified by FYME (original documents and translations)
-Passport must be certified by FYME
+Awards and Transcripts must be certified by Movy (original documents and translations)
+Passport must be certified by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 English Test must be requested by ask international (Curtin Portal)
 Package - english provider does the app and COE paid direclty to approved partner provider (check with provider first)
@@ -127,8 +124,8 @@ Begonia Sanchez')
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
   values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate and transcript or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"If couple ou family, all passports, visas, marriage certificate and birth certificate [original and translations]","tags":["visa","couple"]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]},{"label":"S.O.P - not mandatory but I usually send (letter)","tags":[]}]'::jsonb, '[{"email":"enquiries@ecu.edu.au"},{"name":"Karen Rancon","email":"k.rinconfitzgerald@ecu.edu.au"}]'::jsonb, 'Translations must be NAATI or juramentada
-Awards and Transcripts must be certified by FYME (original documents and translations)
-Passport must be certified by FYME
+Awards and Transcripts must be certified by Movy (original documents and translations)
+Passport must be certified by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 COE paid direclty to approved partner provider
 10 business day
@@ -144,9 +141,9 @@ COE paid direclty to approved partner provider
     insert into public.institutions (org_id, name, country, source) values (v_org, 'EIT', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Passport (certified by FYME)","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate and transcript or higher completed degree (certified by FYME)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations must be NAATI or juramentada
-Awards and Transcripts must be certified by FYME (original documents and translations)
-Passport must be certified by FYME
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Passport (certified by Movy)","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate and transcript or higher completed degree (certified by Movy)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations must be NAATI or juramentada
+Awards and Transcripts must be certified by Movy (original documents and translations)
+Passport must be certified by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 COE paid direclty to approved partner provider
 10 business day
@@ -162,7 +159,7 @@ COE paid direclty to approved partner provider
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Empyrean', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"name":"Tanya"},{"email":"Admissions@eei.wa.edu.au","phone":"(08) 9228 1600"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"name":"Tanya"},{"email":"Admissions@eei.wa.edu.au","phone":"(08) 9228 1600"}]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
@@ -175,7 +172,7 @@ Academic Requirements may vary depending on each course, please check the course
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Greenwich College', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - requested by school (mandatory)","tags":[]}]'::jsonb, '[{"email":"admissions@greenwichcollege.com.au"},{"name":"Joao Felipe","role":"comercial","email":"joao.meira@greenwichcollege.edu.au","phone":"415 797 816"}]'::jsonb, 'Translations can be completed by FYME (certified)
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - requested by school (mandatory)","tags":[]}]'::jsonb, '[{"email":"admissions@greenwichcollege.com.au"},{"name":"Joao Felipe","role":"comercial","email":"joao.meira@greenwichcollege.edu.au","phone":"415 797 816"}]'::jsonb, 'Translations can be completed by Movy (certified)
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Package: enrolments have to be done separately')
   on conflict (org_id, institution_id) where deleted_at is null do update set
@@ -189,7 +186,7 @@ Package: enrolments have to be done separately')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'ILSC', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','vet','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (scholl will analyse if is needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by FYME (certified)
+  values (v_org, v_inst, null, null, array['english','vet','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (scholl will analyse if is needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by Movy (certified)
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Package: enrolments have to be done separately
 The offer letter signing date must be before or same date of payment')
@@ -212,9 +209,6 @@ Package: enrolments have to be done separately. Obtain the package offer letter 
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, null, 'Fyme@2026!')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- KCBT → KCBT
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('KCBT') and deleted_at is null limit 1;
@@ -222,7 +216,7 @@ Package: enrolments have to be done separately. Obtain the package offer letter 
     insert into public.institutions (org_id, name, country, source) values (v_org, 'KCBT', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, 'https://kcbt.edu.au/register/', array['english','he']::text[], '[{"label":"Application Form - online","tags":[]},{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by FYME (certified)
+  values (v_org, v_inst, null, 'https://kcbt.edu.au/register/', array['english','he']::text[], '[{"label":"Application Form - online","tags":[]},{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[]'::jsonb, 'Translations can be completed by Movy (certified)
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Package: enrolments have to be done separately
 Timeframe to receive the Offer Letter and CoE: Onshore (2-3 days), Offshore (5 days)')
@@ -250,7 +244,7 @@ Book english test via LL site (online)')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Lexis', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','vet','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"registrations@lexisenglish.com"},{"name":"Priscila Campos","role":"marketing","email":"pcampos@lexisenglish.com","phone":"55 19 99769 165"},{"name":"Lizandra Muraca","role":"comercial","email":"lmuraca@lexisenglish.com","phone":"412 755 063"},{"name":"Jason","role":"admissions","phone":"0466870537"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, null, array['english','vet','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"registrations@lexisenglish.com"},{"name":"Priscila Campos","role":"marketing","email":"pcampos@lexisenglish.com","phone":"55 19 99769 165"},{"name":"Lizandra Muraca","role":"comercial","email":"lmuraca@lexisenglish.com","phone":"412 755 063"},{"name":"Jason","role":"admissions","phone":"0466870537"}]'::jsonb, 'Translations can be completed by Movy
 Admissions Team handle both the english and VET app (same email)
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Package: enrolments have to be done separately')
@@ -279,8 +273,8 @@ Onshore and Offshore 24/48 Hours')
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
   values (v_org, v_inst, 'DIRECT ENTRY (NO PACKAGE) AND WITH APPROVED PROVIDER', null, array['english','he']::text[], '[{"label":"Passport","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GS Stage 1 (mandatory)","tags":[]},{"label":"S.O.P - not mandatory but I usually send (letter)","tags":[]}]'::jsonb, '[{"email":"international.admissions@murdoch.edu.au"},{"name":"Conor","email":"Conor.Murphy@murdoch.edu.au","phone":"418 613 568"}]'::jsonb, 'Translations must be NAATI or juramentada
-Awards and Transcripts must be certified by FYME (original documents and translations)
-Passport must be certified by FYME
+Awards and Transcripts must be certified by Movy (original documents and translations)
+Passport must be certified by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 COE paid direclty to approved partner provider
 To get COE it is necessary the OSHC policy
@@ -289,9 +283,6 @@ To get COE it is necessary the OSHC policy
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, '33885623', 'Adm#32658833')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- Navitas → Navitas
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('Navitas') and deleted_at is null limit 1;
@@ -312,15 +303,12 @@ All students must take the OPT (english test). Rules vary for offshore/onshore. 
     insert into public.institutions (org_id, name, country, source) values (v_org, 'NIT Australia', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"name":"Stella","email":"admissions@nitaustralia.edu.au","phone":"452 579 891"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"name":"Stella","email":"admissions@nitaustralia.edu.au","phone":"452 579 891"}]'::jsonb, 'Translations can be completed by Movy
 Package: enrolments have to be done separately')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, 'marcosdouglasdasilva', 'Fyme@fyme1')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- PICE → PICE
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('PICE') and deleted_at is null limit 1;
@@ -365,7 +353,7 @@ Onshore and Offshore 48 Hours')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Stanley College', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, 'Package: enrolments have to be done separately', 'https://highereducation.formstack.com/forms/gst_form', array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE (mandatory)","tags":[]},{"label":"Financial Form - if applicable (school will analyse if needed)","tags":[]},{"label":"Credit Transfer Form - if applicable","tags":[]}]'::jsonb, '[{"email":"admissions2@stanleycollege.edu.au"},{"name":"Gabriela Reis","phone":"414 833 555","email":"gabriela.reis@stanleycollege.edu.au"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, 'Package: enrolments have to be done separately', 'https://highereducation.formstack.com/forms/gst_form', array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE (mandatory)","tags":[]},{"label":"Financial Form - if applicable (school will analyse if needed)","tags":[]},{"label":"Credit Transfer Form - if applicable","tags":[]}]'::jsonb, '[{"email":"admissions2@stanleycollege.edu.au"},{"name":"Gabriela Reis","phone":"414 833 555","email":"gabriela.reis@stanleycollege.edu.au"}]'::jsonb, 'Translations can be completed by Movy
 If the student needs a differente payment plan, they need to request it directly to the school (payment plan is fixed)
 Higher Education must be applied via paper form')
   on conflict (org_id, institution_id) where deleted_at is null do update set
@@ -379,7 +367,7 @@ Higher Education must be applied via paper form')
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Skills Australia Institute (SAI)', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"email":"admissions@skillsaustralia.edu.au"},{"name":"Yelim","email":"yelim.kim@skillsaustralia.edu.au","phone":"410 001 429"}]'::jsonb, 'Translations can be completed by FYME
+  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - havent requested so far","tags":[]}]'::jsonb, '[{"email":"admissions@skillsaustralia.edu.au"},{"name":"Yelim","email":"yelim.kim@skillsaustralia.edu.au","phone":"410 001 429"}]'::jsonb, 'Translations can be completed by Movy
 Academic Requirements may vary depending on each course, please check the course requirements at the school website
 Students need to complete the Digital Literacy Test (school will send directly to student)')
   on conflict (org_id, institution_id) where deleted_at is null do update set
@@ -393,14 +381,11 @@ Students need to complete the Digital Literacy Test (school will send directly t
     insert into public.institutions (org_id, name, country, source) values (v_org, 'Stotts', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if is needed)","tags":[]},{"label":"S.O.P - if applicable (school will analyse if is needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Awards and Transcripts must be certified by FYME (original documents and translations)')
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Link","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if is needed)","tags":[]},{"label":"S.O.P - if applicable (school will analyse if is needed)","tags":[]}]'::jsonb, '[]'::jsonb, 'Awards and Transcripts must be certified by Movy (original documents and translations)')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, 'agent892', 'fyme892')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- TAFE WA → TAFE WA
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('TAFE WA') and deleted_at is null limit 1;
@@ -408,16 +393,13 @@ Students need to complete the Digital Literacy Test (school will send directly t
     insert into public.institutions (org_id, name, country, source) values (v_org, 'TAFE WA', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Link with all the details","tags":[]},{"label":"Passport (main applicant)","tags":[]},{"label":"All COEs","tags":["all"]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"Admissions.TIWA@dtwd.wa.gov.au"},{"name":"Michael","email":"Michael.Ingram@dtwd.wa.gov.au","phone":"439 634 232"}]'::jsonb, 'Translations can be completed by FYME - 2 Business Days
-Awards and Transcripts must be certified by FYME (original documents and translations)
+  values (v_org, v_inst, null, null, array['english','he']::text[], '[{"label":"Application Link with all the details","tags":[]},{"label":"Passport (main applicant)","tags":[]},{"label":"All COEs","tags":["all"]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree (depends on level of study)","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"GTE - if applicable (school will analyse if needed)","tags":[]}]'::jsonb, '[{"email":"Admissions.TIWA@dtwd.wa.gov.au"},{"name":"Michael","email":"Michael.Ingram@dtwd.wa.gov.au","phone":"439 634 232"}]'::jsonb, 'Translations can be completed by Movy - 2 Business Days
+Awards and Transcripts must be certified by Movy (original documents and translations)
 Packages with English schools: send TAFE the English offer letter and request $500 first deposit in the application')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
   returning id into v_adm;
-  insert into public.school_admission_credentials (org_id, admission_id, login, password)
-  values (v_org, v_adm, 'admissions@fyme.com.au', 'Fyme@fyme1')
-  on conflict (admission_id) do update set login = excluded.login, password = excluded.password, updated_at = now();
 
   -- WAIFS → WAIFS
   select id into v_inst from public.institutions where org_id = v_org and lower(name) = lower('WAIFS') and deleted_at is null limit 1;
@@ -425,7 +407,7 @@ Packages with English schools: send TAFE the English offer letter and request $5
     insert into public.institutions (org_id, name, country, source) values (v_org, 'WAIFS', 'AU', 'admissions-seed') returning id into v_inst;
   end if;
   insert into public.school_admissions (org_id, institution_id, enrolment_type, portal_url, streams, documents, contacts, notes)
-  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"USI Transcript","tags":[]}]'::jsonb, '[{"email":"Admissions@waifs.wa.edu.au"},{"name":"Jenny","phone":"08 6200 6200"}]'::jsonb, 'Translations can be completed by FYME')
+  values (v_org, v_inst, 'Package: enrolments have to be done separately', null, array['english','he']::text[], '[{"label":"Application Form","tags":[]},{"label":"Evidence of English language proficiency if the student does not have one.","tags":["english"]},{"label":"Year 12 certificate or higher completed degree","tags":[]},{"label":"If package with English School (send offer letter from English School)","tags":["package","english"]},{"label":"Certificate for all courses the student has done in Australia","tags":[]},{"label":"USI Transcript","tags":[]}]'::jsonb, '[{"email":"Admissions@waifs.wa.edu.au"},{"name":"Jenny","phone":"08 6200 6200"}]'::jsonb, 'Translations can be completed by Movy')
   on conflict (org_id, institution_id) where deleted_at is null do update set
     enrolment_type = excluded.enrolment_type, portal_url = excluded.portal_url, streams = excluded.streams,
     documents = excluded.documents, contacts = excluded.contacts, notes = excluded.notes, updated_at = now()
