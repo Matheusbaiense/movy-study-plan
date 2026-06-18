@@ -1562,6 +1562,157 @@ export type Database = {
           },
         ]
       }
+      school_admission_credentials: {
+        Row: {
+          admission_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          login: string | null
+          org_id: string
+          password: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          login?: string | null
+          org_id?: string
+          password?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          login?: string | null
+          org_id?: string
+          password?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_admission_credentials_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "school_admissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admission_credentials_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admission_credentials_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admission_credentials_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_admissions: {
+        Row: {
+          contacts: Json
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          documents: Json
+          enrolment_type: string | null
+          id: string
+          institution_id: string
+          metadata: Json
+          notes: string | null
+          org_id: string
+          portal_url: string | null
+          streams: string[]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contacts?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          documents?: Json
+          enrolment_type?: string | null
+          id?: string
+          institution_id: string
+          metadata?: Json
+          notes?: string | null
+          org_id?: string
+          portal_url?: string | null
+          streams?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contacts?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          documents?: Json
+          enrolment_type?: string | null
+          id?: string
+          institution_id?: string
+          metadata?: Json
+          notes?: string | null
+          org_id?: string
+          portal_url?: string | null
+          streams?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_admissions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admissions_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admissions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_admissions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_plans: {
         Row: {
           accepted_at: string | null

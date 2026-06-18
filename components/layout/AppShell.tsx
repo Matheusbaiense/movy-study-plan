@@ -20,6 +20,7 @@ import {
   Clock,
   Building2,
   Users,
+  GraduationCap,
   type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -137,6 +138,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
     { href: `/${locale}/home`, icon: Home, label: 'Home' },
     { href: `/${locale}/study-plans`, icon: ClipboardList, label: locale === 'en' ? 'Proposals' : 'Propostas' },
     { href: `/${locale}/portfolio`, icon: Building2, label: locale === 'en' ? 'Portfolio' : 'Portfólio' },
+    { href: `/${locale}/admissions`, icon: GraduationCap, label: 'Admissions' },
     { href: `/${locale}/financial`, icon: Calculator, label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
     { href: `/${locale}/cambio`, icon: ArrowLeftRight, label: locale === 'en' ? 'Exchange' : 'Câmbio' },
     { href: `/${locale}/wiki`, icon: BookText, label: locale === 'en' ? 'Knowledge' : 'Informações' },

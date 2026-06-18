@@ -358,3 +358,18 @@ Run with: `npm test` → `node --experimental-strip-types --test 'tests/*.test.m
 ## types/
 
 
+
+## Admissions sector (setor de matrículas por escola — 2026-06-18)
+
+- **supabase/migrations/024_admissions.sql** — 2 tabelas: `school_admissions` (1 por institution: enrolment_type, portal_url, streams[], documents jsonb, contacts jsonb, notes) + `school_admission_credentials` (login/password, RLS editor+, separada). RLS espelha institutions (read ativos, write editor+, delete admin+).
+- **supabase/migrations/025_admissions_seed.sql** — seed idempotente DO-block das 28 escolas da planilha (acha-ou-cria institution, upsert admissions+credencial). Gerado por scripts/parse-admissions-xlsx.mjs + normalização manual.
+- **lib/admissions/types.ts** — SchoolAdmission/Credential aliases, STREAMS/DOC_TAGS/CONTACT_ROLES unions, AdmissionDocument/Contact, SchoolAdmissionView; PURE parseDocuments/parseContacts/parseStreams (jsonb→domínio, testáveis).
+- **lib/admissions/queries.ts** — listAdmissions (join institution, sem senha), getAdmissionById, listInstitutionsWithoutAdmission, revealCredential (só aqui a senha sai do banco). +index.ts barrel.
+- **app/[locale]/(protected)/admissions/actions.ts** — upsertAdmissionAction/deleteAdmissionAction/upsertCredentialAction (requireEditor) + revealPortalPasswordAction (audita 'admissions_portal_revealed').
+- **app/[locale]/(protected)/admissions/page.tsx** + **[id]/page.tsx** + **loading.tsx** — lista (server) + detalhe (server) + skeleton.
+- **components/admissions/AdmissionsList.tsx** — grid client com busca, chips de stream, cadeado se tem portal, modal "Adicionar escola".
+- **components/admissions/AdmissionDetail.tsx** — detalhe: Matrícula&Portal (senha mascarada + Revelar auditado), Documentos (checklist+tags), Notes, Contatos.
+- **components/admissions/AdmissionEditor.tsx** — Drawer de edição estruturada (campos+streams+documentos+contatos+credencial).
+- **scripts/parse-admissions-xlsx.mjs** — parser build-time da planilha → 025 seed (não roda em runtime).
+- **tests/admissions-parse.test.mts** — 4 testes dos parsers puros.
+- AppShell mainNav: entrada **Admissions** (GraduationCap) perto de Portfólio.
