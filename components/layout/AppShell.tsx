@@ -8,6 +8,7 @@ import {
   Home,
   ClipboardList,
   Calculator,
+  Sparkles,
   ArrowLeftRight,
   BookText,
   LayoutGrid,
@@ -136,6 +137,7 @@ export function AppShell({ profile, locale, children }: AppShellProps) {
   const mainNav: NavEntry[] = [
     { href: `/${locale}/home`, icon: Home, label: 'Home' },
     { href: `/${locale}/study-plans`, icon: ClipboardList, label: locale === 'en' ? 'Proposals' : 'Propostas' },
+    { href: `/${locale}/calculator`, icon: Sparkles, label: locale === 'en' ? 'Simulator' : 'Simulador' },
     { href: `/${locale}/portfolio`, icon: Building2, label: locale === 'en' ? 'Portfolio' : 'Portfólio' },
     { href: `/${locale}/financial`, icon: Calculator, label: locale === 'en' ? 'Financial' : 'Capacidade Financeira' },
     { href: `/${locale}/cambio`, icon: ArrowLeftRight, label: locale === 'en' ? 'Exchange' : 'Câmbio' },
@@ -351,6 +353,7 @@ function BreadcrumbFromPath({ pathname, locale }: { pathname: string; locale: st
     financial: locale === 'en' ? 'Financial' : 'Capacidade Financeira',
     cambio: locale === 'en' ? 'Exchange' : 'Câmbio',
     'study-plans': locale === 'en' ? 'Proposals' : 'Propostas',
+    calculator: locale === 'en' ? 'Simulator' : 'Simulador',
     users: locale === 'pt' ? 'Usuários' : 'Users',
     'audit-log': 'Audit Log',
   }

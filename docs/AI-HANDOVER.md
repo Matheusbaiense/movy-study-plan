@@ -302,6 +302,39 @@ O frontend ganhou um **sistema completo de tema claro + escuro**. Isso muda regr
 
 ---
 
+### 2026-06-18 - Simulador de cursos (cálculo avulso, sem proposta)
+
+> **Estado:** entregue. type-check ✅ · `node --test` 184/184 ✅ · `next build` ✅.
+> Spec: `docs/superpowers/specs/2026-06-18-course-calculator-design.md`.
+
+Novo modo **"Simulador"** (rota `/calculator`, item próprio na nav entre Propostas e Portfólio,
+ícone `Sparkles`): permite planejar **curso + férias + datas + parcelas + visto** e ver totais
+(AUD + BRL) **sem criar proposta**. Pedido do dono: "às vezes só queremos planejar curso/férias,
+sem fazer proposta".
+
+- **Efêmero (migration-safe / woofed-safe):** nada é persistido enquanto calcula — segue o padrão
+  do `ScenarioPanel`. `CourseCalculator.tsx` guarda um `StudyPlanData` em React state
+  (`createBlankStudyPlan`), sem autosave nem linha no banco.
+- **Composição, ~zero lógica nova:** reusa o motor puro (`computeProposal`, `buildSchedule`,
+  `planNewVisaDate`) + os editores extraídos no SPLIT 4 (`CourseListEditor`, `ExtraCostsEditor`,
+  `ScenarioPanel`). **Não** reusa o `StudyPlanEditor` (preso a DB+autosave+wizard).
+- **Picker + cabeçalho leve:** como não há contato, a calculadora tem seletor de Nacionalidade
+  (`countryOptions`) + Local (onshore/offshore) que alimentam o `CoursePortfolioPicker`.
+- **Ponte "Transformar em proposta"** (`ConvertToProposalModal`, reusa o fluxo de lead do
+  `NewProposalModal`): única coisa que toca o banco, só no clique explícito. Nova server action
+  `createProposalFromCalculator(data, contactInput, locale)` em `study-plans/actions.ts` —
+  resolve/cria contato, semeia `study_plans` com o cálculo, **recalcula no servidor** via
+  `withComputed` (não confia no cliente), redireciona para o editor.
+- **Helper puro testado:** `lib/study-plans/calculator.ts` → `buildProposalSeed(data, contact)`
+  (student/email/phone do contato; strip de computed/options/contactRef stale; imutável).
+  `tests/calculator.test.mts` (5 casos).
+- **Arquivos novos:** `app/[locale]/(protected)/calculator/page.tsx`,
+  `components/calculator/{CourseCalculator,ConvertToProposalModal}.tsx`,
+  `lib/study-plans/calculator.ts`, `tests/calculator.test.mts`, spec. **Tocados:**
+  `study-plans/actions.ts` (+action/imports), `AppShell.tsx` (nav + breadcrumb).
+
+---
+
 ### 2026-06-17 - AUDIT de arquitetura: camada de auth/actor unificada
 
 > **Estado:** bloco #1+#2 da mega-audit de qualidade entregue. type-check ✅ · `node --test` 168/168 ✅ · lint ✅.

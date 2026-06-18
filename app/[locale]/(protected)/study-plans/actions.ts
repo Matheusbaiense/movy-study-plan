@@ -7,8 +7,9 @@ import { requireEditor, requireAdmin } from '@/lib/actions/auth'
 import { toJson, fromJson } from '@/lib/db/json'
 import { createBlankStudyPlan } from '@/lib/study-plans/defaults'
 import { computeProposal } from '@/lib/study-plans/calculations'
-import { upsertContact as upsertContactRecord, searchContacts } from '@/lib/crm/contacts'
+import { upsertContact as upsertContactRecord, searchContacts, buildContactAttributes } from '@/lib/crm/contacts'
 import type { Contact } from '@/lib/crm/contacts'
+import { buildProposalSeed } from '@/lib/study-plans/calculator'
 import type { StudyPlanData, StudyPlanStatus, StudentLocation } from '@/lib/study-plans/types'
 import { createPortfolioCourseSource } from '@/lib/portfolio/course-source'
 import type { CourseOption, PortfolioCourseRef, PricedOption } from '@/lib/portfolio/types'
@@ -553,6 +554,103 @@ export async function createProposalForContact(contactId: string, locale = 'pt')
     entityType: 'study_plans',
     entityId: plan.id,
     metadata: { contact_id: contact.id, student: contact.full_name },
+  })
+
+  revalidatePath(`/${locale}/study-plans`)
+  redirect(`/${locale}/study-plans/${plan.id}`)
+}
+
+/**
+ * Bridge from the standalone "Simulador" (ephemeral calculator) to a real proposal.
+ * The calculator never touches the DB; this runs only on the explicit "Transformar em
+ * proposta" action. Resolves/creates the contact, then inserts a `study_plans` row seeded
+ * with the calculator's course mix. The integer-cents snapshot is recomputed on the server
+ * (never trust the client) via `withComputed`.
+ */
+export interface CalculatorNewLead {
+  fullName: string
+  email?: string | null
+  phone?: string | null
+  nationality?: string | null
+}
+
+export type CalculatorContactInput =
+  | { contactId: string }
+  | { newLead: CalculatorNewLead }
+
+export async function createProposalFromCalculator(
+  data: StudyPlanData,
+  contactInput: CalculatorContactInput,
+  locale = 'pt',
+) {
+  const { supabase, user, profile } = await requireEditor()
+
+  let contact: Contact
+  if ('contactId' in contactInput) {
+    const { data: row, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('id', contactInput.contactId)
+      .single()
+    if (error) throw new Error(error.message)
+    if (!row) throw new Error('Contact not found')
+    contact = row
+  } else {
+    const lead = contactInput.newLead
+    if (!lead.fullName.trim()) throw new Error('Nome é obrigatório')
+    contact = await upsertContactRecord(supabase, {
+      orgId: profile.org_id,
+      fullName: lead.fullName,
+      email: lead.email ?? null,
+      phone: lead.phone ?? null,
+      customAttributes: buildContactAttributes({ nationality: lead.nationality ?? '' }),
+      actorId: user.id,
+    })
+  }
+
+  const seed = withComputed(
+    buildProposalSeed(data, {
+      id: contact.id,
+      fullName: contact.full_name,
+      email: contact.email,
+      phone: contact.phone,
+    }),
+  )
+
+  const { data: plan, error } = await supabase
+    .from('study_plans')
+    .insert({
+      title: `Cotação - ${contact.full_name}`,
+      student_name: contact.full_name,
+      applicant_type: seed.applicantType,
+      status: 'draft',
+      data: toJson(seed),
+      contact_id: contact.id,
+      created_by: user.id,
+      updated_by: user.id,
+    })
+    .select('id')
+    .single()
+
+  if (error) throw new Error(error.message)
+  if (!plan) throw new Error('Failed to create study plan')
+
+  await emitProposalEvent(supabase, {
+    orgId: profile.org_id,
+    studyPlanId: plan.id,
+    actorId: user.id,
+    contactId: contact.id,
+    kind: 'created',
+    metadata: { student: contact.full_name, from_calculator: true },
+  })
+
+  await logAuditWithClient(supabase, {
+    actorId: user.id,
+    actorEmail: profile.email,
+    action: 'study_plan.create',
+    entityType: 'study_plans',
+    entityId: plan.id,
+    metadata: { contact_id: contact.id, student: contact.full_name, from_calculator: true },
   })
 
   revalidatePath(`/${locale}/study-plans`)
