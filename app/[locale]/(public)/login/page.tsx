@@ -115,7 +115,7 @@ export default function LoginPage() {
             background: 'rgba(210,59,43,0.15)',
             border: '1px solid rgba(210,59,43,0.3)',
             fontSize: 14,
-            color: '#F36B1C',
+            color: '#D23B2B',
           }}>
             {error}
           </div>

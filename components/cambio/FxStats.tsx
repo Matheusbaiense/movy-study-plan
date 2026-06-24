@@ -1,7 +1,7 @@
 'use client'
 
 import type React from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { color, ink, font, t } from '@/lib/ui/theme'
 import { Skeleton } from '@/components/ui/Skeleton'
 
@@ -22,14 +22,19 @@ function summarize(points: Point[]) {
 export function FxStats() {
   const [points, setPoints] = useState<Point[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true)
+    setFailed(false)
     fetch('/api/fx/history?days=90', { cache: 'no-store' })
       .then((r) => r.json())
       .then((j) => setPoints(Array.isArray(j.points) ? j.points : []))
-      .catch(() => {})
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => { load() }, [load])
 
   const s90 = useMemo(() => summarize(points), [points])
   const s30 = useMemo(() => summarize(points.slice(-30)), [points])
@@ -49,6 +54,17 @@ export function FxStats() {
               <Skeleton height={14} width={80} />
             </div>
           ))}
+        </div>
+      ) : failed ? (
+        <div style={{ padding: '24px 0', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ color: color.red, fontSize: 13 }}>Não foi possível carregar as estatísticas.</span>
+          <button
+            type="button"
+            onClick={load}
+            style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer', fontFamily: font.ui, fontSize: 12, fontWeight: 700, color: t.text }}
+          >
+            Tentar novamente
+          </button>
         </div>
       ) : !s30 || !s90 ? (
         <div style={{ padding: '28px 0', color: ink(0.4), fontSize: 13 }}>Sem dados suficientes.</div>

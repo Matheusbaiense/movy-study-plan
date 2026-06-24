@@ -5,6 +5,7 @@ import { listVersionsAction, restoreVersionAction, saveVersionAction } from '@/a
 import type { VersionSummary } from '@/app/[locale]/(protected)/study-plans/actions'
 import { font, ink, t } from '@/lib/ui/theme'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface VersionHistoryProps {
   planId: string
@@ -36,8 +37,7 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const [confirmingRestore, setConfirmingRestore] = useState<string | null>(null)
-  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [restoreTarget, setRestoreTarget] = useState<VersionSummary | null>(null)
   const [saveLabel, setSaveLabel] = useState('')
   const [showSaveForm, setShowSaveForm] = useState(false)
   const labelRef = useRef<HTMLInputElement>(null)
@@ -66,22 +66,13 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
     })
   }
 
-  function handleRestore(versionId: string) {
-    if (confirmingRestore !== versionId) {
-      setConfirmingRestore(versionId)
-      // Auto-clear the confirm state after 4 s if user doesn't confirm.
-      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
-      confirmTimerRef.current = setTimeout(() => setConfirmingRestore(null), 4000)
-      return
-    }
-    if (confirmTimerRef.current) {
-      clearTimeout(confirmTimerRef.current)
-      confirmTimerRef.current = null
-    }
+  function confirmRestore() {
+    const target = restoreTarget
+    if (!target) return
     startTransition(async () => {
       try {
-        await restoreVersionAction(planId, versionId)
-        setConfirmingRestore(null)
+        await restoreVersionAction(planId, target.id)
+        setRestoreTarget(null)
         onRestored?.()
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao restaurar')
@@ -177,14 +168,28 @@ export function VersionHistory({ planId, onRestored }: VersionHistoryProps) {
             <button
               type="button"
               disabled={isPending}
-              onClick={() => handleRestore(v.id)}
-              style={confirmingRestore === v.id ? confirmBtn : ghostRestoreBtn}
+              onClick={() => setRestoreTarget(v)}
+              style={ghostRestoreBtn}
             >
-              {confirmingRestore === v.id ? 'Confirmar?' : 'Restaurar'}
+              Restaurar
             </button>
           </div>
         ))}
       </div>
+
+      <ConfirmModal
+        open={restoreTarget !== null}
+        onClose={() => setRestoreTarget(null)}
+        onConfirm={confirmRestore}
+        pending={isPending}
+        title="Restaurar versão"
+        message={
+          restoreTarget
+            ? `Restaurar v${restoreTarget.version_number}${restoreTarget.label ? ` (${restoreTarget.label})` : ''} vai substituir os dados atuais da proposta. O estado atual é salvo como uma versão antes de restaurar, então você pode desfazer.`
+            : ''
+        }
+        confirmLabel="Restaurar"
+      />
     </div>
   )
 }

@@ -1,9 +1,11 @@
 'use client'
 
-import { Printer } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, Printer } from 'lucide-react'
 import type { InvoicePrintData } from '@/lib/hr/types'
 import { formatAUD, formatDateAU, computeTotalCents } from '@/lib/hr/calculations'
 import { Button } from '@/components/ui/Button'
+import { buttonClass } from '@/components/ui/variants'
 
 const printStyles = `
 @media print {
@@ -30,8 +32,16 @@ export function TaxInvoice({ data, locale = 'en' }: TaxInvoiceProps) {
     <>
       <style>{printStyles}</style>
 
-      {/* Print button — no-print chrome only */}
-      <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24, gap: 12 }}>
+      {/* Toolbar — no-print chrome only. Back link prevents a print dead-end. */}
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, gap: 12 }}>
+        <Link
+          href={`/${locale}/hr/invoices`}
+          className={buttonClass('secondary')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+          {locale === 'pt' ? 'Voltar para invoices' : 'Back to invoices'}
+        </Link>
         <Button
           variant="primary"
           onClick={() => window.print()}

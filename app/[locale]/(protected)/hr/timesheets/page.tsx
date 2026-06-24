@@ -1,11 +1,13 @@
 import type { CSSProperties } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth/get-user'
 import { TimesheetTable } from '@/components/hr/TimesheetTable'
 import { listTimeEntries, listEmployeesWithNames, getEmployeeByProfileId, isHrAdmin } from '@/lib/hr'
 import { ink, color, t } from '@/lib/ui/theme'
 import { PageHeader, EmptyState } from '@/components/ui'
-import { ClockIcon } from 'lucide-react'
+import { buttonClass } from '@/components/ui/variants'
+import { ClockIcon, Plus } from 'lucide-react'
 
 const PAGE_SIZE = 100
 
@@ -40,6 +42,15 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
 
   const statuses = ['pending', 'approved', 'rejected']
 
+  // Non-admins log hours via the HR dashboard modal; surface a CTA so this page
+  // isn't a dead-end that just points elsewhere in prose.
+  const logHoursCta = !isAdmin ? (
+    <Link href={`/${locale}/hr`} className={buttonClass('primary')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+      <Plus size={14} aria-hidden="true" />
+      {locale === 'pt' ? 'Lançar horas' : 'Log hours'}
+    </Link>
+  ) : null
+
   const filterPillStyle = (active: boolean): CSSProperties => ({
     padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
     background: active ? color.purple : 'var(--surface)',
@@ -57,6 +68,7 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
         description={isAdmin
           ? `${employees.length} ${locale === 'pt' ? 'funcionário(s)' : 'employee(s)'} · ${entries.length} ${locale === 'pt' ? 'registro(s)' : 'entr(ies)'}`
           : `${entries.length} ${locale === 'pt' ? 'registro(s) pessoais' : 'personal entr(ies)'}`}
+        actions={logHoursCta ?? undefined}
       />
 
       {/* Status filter pills */}
@@ -92,7 +104,8 @@ export default async function TimesheetsPage({ params, searchParams }: Props) {
           title={locale === 'pt' ? 'Nenhum registro encontrado' : 'No entries found'}
           description={isAdmin
             ? (locale === 'pt' ? 'Aguarde seus funcionários lançarem horas.' : 'Wait for employees to log hours.')
-            : (locale === 'pt' ? "Use o botão 'Lançar Horas' no dashboard para começar." : "Use the 'Add Entry' button on the dashboard to get started.")}
+            : (locale === 'pt' ? 'Lance suas horas no dashboard de RH para começar.' : 'Log your hours on the HR dashboard to get started.')}
+          action={logHoursCta ?? undefined}
         />
       ) : (
         <div style={{ background: 'var(--surface)', border: `1px solid ${ink(0.1)}`, borderRadius: 12, padding: 24 }}>

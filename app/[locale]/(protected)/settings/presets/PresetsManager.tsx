@@ -6,7 +6,7 @@ import { BookOpen } from 'lucide-react'
 import { createPreset, updatePreset, deletePreset, type PresetInput, type PresetResult } from './actions'
 import type { DbPreset } from '@/lib/study-plans/presets'
 import { color, ink, font, t } from '@/lib/ui/theme'
-import { Button, EmptyState, Modal } from '@/components/ui'
+import { Button, EmptyState, ConfirmModal } from '@/components/ui'
 
 const TYPE_LABEL: Record<string, string> = { elicos: 'ELICOS', vet: 'VET', he: 'Higher Education' }
 const TYPE_COLOR: Record<string, string> = { elicos: color.purple, vet: color.orange, he: color.gold }
@@ -19,48 +19,6 @@ const inputStyle: React.CSSProperties = {
 }
 
 // Danger confirmation modal
-function ConfirmModal({
-  open,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmLabel = 'Remover',
-  pending,
-}: {
-  open: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  message: string
-  confirmLabel?: string
-  pending?: boolean
-}) {
-  return (
-    <Modal open={open} onClose={onClose} title={title} width={400}>
-      <p style={{ margin: '0 0 20px', fontSize: 13.5, color: t.textMuted, lineHeight: 1.55 }}>{message}</p>
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-        <Button variant="secondary" type="button" onClick={onClose}>
-          Cancelar
-        </Button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={pending}
-          style={{
-            padding: '9px 16px', borderRadius: 10, border: 'none',
-            background: color.red, color: '#fff',
-            fontSize: 13, fontWeight: 700, fontFamily: font.ui,
-            cursor: pending ? 'wait' : 'pointer', opacity: pending ? 0.7 : 1,
-          }}
-        >
-          {pending ? 'Aguarde…' : confirmLabel}
-        </button>
-      </div>
-    </Modal>
-  )
-}
-
 export function PresetsManager({ presets, serviceConfigured = true }: { presets: DbPreset[]; serviceConfigured?: boolean }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()

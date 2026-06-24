@@ -40,6 +40,7 @@ import { EditorStickyBar } from './EditorStickyBar'
 import { ScenarioPanel } from './ScenarioPanel'
 import { EditorWizardNav } from './EditorWizardNav'
 import { VersionHistory } from './VersionHistory'
+import { NewQuoteFromPlanButton } from './NewQuoteFromPlanButton'
 import type { EditorWizardStep } from './editor-wizard-steps'
 import { Field, MiniStat, NumberInput, Section, dangerButton, ghostButton, grid2, input } from './editor-ui'
 import { Input, Select } from '@/components/ui/form'
@@ -174,6 +175,7 @@ export function StudyPlanEditor({ id, locale, initialData, status, presets: _pre
           description={`${plan.courses.length} curso(s) · ${planStudyWeeks(plan)} sem de estudo · ${money(planGrandTotal(plan))}`}
           actions={
             <>
+              <NewQuoteFromPlanButton planId={id} locale={locale} variant="outline" />
               <button
                 type="button"
                 onClick={() => setShowVersions((v) => !v)}
